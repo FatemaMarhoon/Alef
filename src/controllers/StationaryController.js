@@ -1,9 +1,22 @@
-const Stationary = require('../models/Stationary');
+const express = require('express');
+const { Sequelize, DataTypes } = require('sequelize');
+const sequelize = require('../config/seq');
+
+const Stationary = require('../models/Stationary')(sequelize, DataTypes);
+const Preschool = require('../models/preschool')(sequelize, DataTypes);
+
+
+Preschool.hasMany(Stationary, { foreignKey: 'preschool_id' });
+Stationary.belongsTo(Preschool, { foreignKey: 'preschool_id' });
 
 const StationaryController = {
     async getAllStationary(req, res) {
         try {
-            const stationary = await Stationary.findAll();
+            const stationary = await Stationary.findAll(
+                {
+                    include: Preschool
+                }
+            );
             res.json(stationary);
         } catch (error) {
             res.status(500).json({ message: error.message });
