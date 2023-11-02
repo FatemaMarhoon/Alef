@@ -7,14 +7,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    role_name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
     preschool_id: {
       type: DataTypes.INTEGER,
       allowNull: false,

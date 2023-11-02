@@ -3,7 +3,7 @@ const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('./config/seq');
 
 const Preschool = require('./models/preschool')(sequelize, DataTypes);
-const User = require('./models/User')(sequelize, DataTypes);
+const User = require('./models/user')(sequelize, DataTypes);
 
 Preschool.hasMany(User, { foreignKey: 'preschool_id' });
 User.belongsTo(Preschool, { foreignKey: 'preschool_id' });
@@ -28,24 +28,24 @@ router.get('/:preschool_id', async (req, res) => {
     const { preschool_id } = req.params;
     try {
         if (preschool_id) {
-        
-             const preschool = await Preschool.findOne({
+
+            const preschool = await Preschool.findOne({
                 include: [{
                     model: User,
                     as: "Users"
                 }],
-             where: { id: preschool_id }
-             });
+                where: { id: preschool_id }
+            });
 
-             const users = preschool.getUsers();
-             
+            const users = preschool.getUsers();
+
             // if (!preschool) {
             //     res.status(404).json({ message: 'Preschool not found' });
             //     return; // Exit the function early
             // }
 
             // const users = preschool.Users; // Access the associated users directly
-             res.json(users);
+            res.json(users);
         } else {
             const users = await User.findAll();
             console.log("route accessed");
