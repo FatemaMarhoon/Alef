@@ -5,13 +5,12 @@ const sequelize = require('../config/seq');
 const Application = require('../models/preschool_application')(sequelize, DataTypes);
 const Preschool = require('../models/preschool')(sequelize, DataTypes);
 const User = require('../models/user')(sequelize, DataTypes);
-
+const Evaluation = require('../models/application_evaluation')(sequelize, DataTypes);
 
 Application.belongsTo(User, { foreignKey: 'user_id' });
 Application.belongsTo(Preschool, { foreignKey: 'preschool_id' });
+Application.hasOne(Evaluation, { foreignKey: 'application_id' });
 Preschool.hasMany(Application, { foreignKey: 'preschool_id' });
-
-//const Application = require('../models/application');
 
 const ApplicationController = {
     async getAllApplications(req, res) {
@@ -19,7 +18,7 @@ const ApplicationController = {
         try {
             const applications = await Application.findAll(
                 {
-                    include: Preschool
+                    include: Evaluation
                 }
             ); // Update to use Application model
             res.json(applications);
