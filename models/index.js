@@ -39,9 +39,18 @@ Object.keys(db).forEach(modelName => {
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
-Preschool.hasMany(User, { foreignKey: 'preschool_id' });
-User.belongsTo(Preschool, {
-  foreignKey: 'preschool_id'
+
+db.preschool = require('./preschool');
+db.user = require('./User');
+
+db.preschool.hasMany(db.user, { 
+  foreignKey: 'preschool_id',
+  as: "user"
+});
+
+db.user.belongsTo(db.preschool, {
+  foreignKey: 'preschool_id',
+  as: "preschool"
 });
 
 module.exports = db;

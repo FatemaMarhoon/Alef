@@ -1,15 +1,20 @@
 const express = require('express');
-const { Op } = require('sequelize'); // Import the Op operator for querying
-const User = require('./models/User'); // Import the User model
-const Preschool = require('./models/preschool'); // Import the User model
+const { Sequelize, DataTypes } = require('sequelize');
+const sequelize = require('./seq');
+
+const Preschool = require('./models/preschool')(sequelize, DataTypes);
+const User = require('./models/User')(sequelize, DataTypes);
+
+Preschool.hasMany(User, { foreignKey: 'preschool_id' });
+User.belongsTo(Preschool, { foreignKey: 'preschool_id' });
 
 const router = express.Router();
 
 // Get all users
 router.get('/', async (req, res) => {
     try {
-        const users = await User.findAll({
-            // include: Preschool
+        const users = await Preschool.findAll({
+            include: User
         });
         console.log("route accessed");
         res.json(users);
@@ -23,21 +28,24 @@ router.get('/:preschool_id', async (req, res) => {
     const { preschool_id } = req.params;
     try {
         if (preschool_id) {
-            const preschool = await Preschool.findOne({
+        
+             const preschool = await Preschool.findOne({
                 include: [{
                     model: User,
                     as: "Users"
                 }],
-                where: { preschool_id: preschool_id }
-            });
+             where: { id: preschool_id }
+             });
 
-            if (!preschool) {
-                res.status(404).json({ message: 'Preschool not found' });
-                return; // Exit the function early
-            }
+             const users = preschool.getUsers();
+             
+            // if (!preschool) {
+            //     res.status(404).json({ message: 'Preschool not found' });
+            //     return; // Exit the function early
+            // }
 
-            const users = await preschool.getUsers(); // Use getUsers method
-            res.json(users);
+            // const users = preschool.Users; // Access the associated users directly
+             res.json(users);
         } else {
             const users = await User.findAll();
             console.log("route accessed");
@@ -47,6 +55,36 @@ router.get('/:preschool_id', async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
+
+// // Get all users for preschool
+// router.get('/:preschool_id', async (req, res) => {
+//     const { preschool_id } = req.params;
+//     try {
+//         if (preschool_id) {
+//             const preschool = await Preschool.findOne({
+//                 include: [{
+//                     model: User,
+//                     as: "Users"
+//                 }],
+//                 where: { preschool_id: preschool_id }
+//             });
+
+//             if (!preschool) {
+//                 res.status(404).json({ message: 'Preschool not found' });
+//                 return; // Exit the function early
+//             }
+
+//             const users = await preschool.getUsers(); // Use getUsers method
+//             res.json(users);
+//         } else {
+//             const users = await User.findAll();
+//             console.log("route accessed");
+//             res.json(users);
+//         }
+//     } catch (error) {
+//         res.status(500).json({ message: error.message });
+//     }
+// });
 
 
 // // Get user by email
