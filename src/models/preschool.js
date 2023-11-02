@@ -1,3 +1,6 @@
+const { DataTypes, Model } = require('sequelize');
+const db = require('../config/seq'); // Use the appropriate Sequelize connection
+
 // Import necessary modules and dependencies
 module.exports = (sequelize, DataTypes) => {
   const Preschool = sequelize.define('Preschool', {

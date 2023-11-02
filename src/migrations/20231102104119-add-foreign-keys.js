@@ -8,7 +8,7 @@ module.exports = {
       allowNull: false,
       references: {
         model: 'Preschools',
-        key: 'preschool_id'
+        key: 'id'
       },
       onUpdate: 'CASCADE',
       onDelete: 'CASCADE'
