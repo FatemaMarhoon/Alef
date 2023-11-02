@@ -1,10 +1,20 @@
-const Staff = require('../models/Staff');
+const express = require('express');
+const { Sequelize, DataTypes } = require('sequelize');
+const sequelize = require('../config/seq');
 
+
+const Staff = require('../models/Staff')(sequelize, DataTypes);
+const Preschool = require('../models/preschool')(sequelize, DataTypes);
+
+Staff.belongsTo(Preschool, { foreignKey: 'preschool_id' });
+Preschool.hasMany(Staff, { foreignKey: 'preschool_id' });
 const StaffController = {
 
     async getAllStaff(req, res) {
         try {
-            const staffMembers = await Staff.findAll();
+            const staffMembers = await Staff.findAll({
+                include: Preschool
+            });
             res.json(staffMembers);
         } catch (error) {
             res.status(500).json({ message: error.message });
