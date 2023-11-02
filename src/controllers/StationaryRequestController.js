@@ -1,9 +1,24 @@
-const StationaryRequest = require('../models/StationaryRequest');
+const express = require('express');
+const { Sequelize, DataTypes } = require('sequelize');
+const sequelize = require('../config/seq');
+
+const StationaryRequest = require('../models/Stationary_Request')(sequelize, DataTypes);
+const Stationary = require('../models/Stationary')(sequelize, DataTypes);
+const Staff = require('../models/Staff')(sequelize, DataTypes);
+
+
+Stationary.hasMany(StationaryRequest, { foreignKey: 'stationary_id' });
+StationaryRequest.belongsTo(Staff, { foreignKey: 'staff_id' });
+StationaryRequest.belongsTo(Stationary, { foreignKey: 'stationary_id' });
 
 const StationaryRequestController = {
     async getAllStationaryRequests(req, res) {
         try {
-            const stationaryRequests = await StationaryRequest.findAll();
+            const stationaryRequests = await StationaryRequest.findAll(
+                {
+                    include: Stationary
+                }
+            );
             res.json(stationaryRequests);
         } catch (error) {
             res.status(500).json({ message: error.message });

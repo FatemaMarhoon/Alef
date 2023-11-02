@@ -7,10 +7,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    generated_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
+
     type: {
       type: DataTypes.STRING,
       allowNull: false,

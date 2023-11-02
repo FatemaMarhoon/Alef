@@ -3,10 +3,7 @@ const db = require('../config/seq'); // Use the appropriate Sequelize connection
 
 module.exports = (sequelize, DataTypes) => {
   const Log = sequelize.define('Log', {
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
+
     type: {
       type: DataTypes.STRING,
       allowNull: false,
