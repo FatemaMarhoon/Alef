@@ -1,6 +1,6 @@
 const express = require('express');
 const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = require('./seq');
+const sequelize = require('./config/seq');
 
 const Preschool = require('./models/preschool')(sequelize, DataTypes);
 const User = require('./models/User')(sequelize, DataTypes);

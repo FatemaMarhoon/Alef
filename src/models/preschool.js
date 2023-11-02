@@ -1,8 +1,4 @@
 // Import necessary modules and dependencies
-const { DataTypes, Model } = require('sequelize');
-const db = require('../seq'); // Use the appropriate Sequelize connection
-const User = require('../models/User');
-
 module.exports = (sequelize, DataTypes) => {
   const Preschool = sequelize.define('Preschool', {
       preschool_name: {
