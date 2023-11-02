@@ -5,20 +5,20 @@ const Preschool = require('./preschool');
 
 
 module.exports = (sequelize, DataTypes) => {
-  const User = sequelize.define('User', {
-      email: {
-          type: DataTypes.STRING,
-          allowNull: false,
-      },
-      role_name: {
-          type: DataTypes.STRING,
-          allowNull: false,
-      },
-      name: {
-          type: DataTypes.STRING,
-          allowNull: false,
-      },
-  });
+    const User = sequelize.define('User', {
+        email: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        role_name: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        name: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+    });
 
-  return User;
+    return User;
 };
