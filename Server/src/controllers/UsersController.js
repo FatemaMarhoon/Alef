@@ -2,7 +2,7 @@ const express = require('express');
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../config/seq');
 const { sign } = require('jsonwebtoken')
-const bcrypt  = require('bcrypt');
+const bcrypt  =  require('bcryptjs')
 
 const Preschool = require('../models/preschool')(sequelize, DataTypes);
 const User = require('../models/user')(sequelize, DataTypes);
