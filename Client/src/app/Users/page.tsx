@@ -1,9 +1,9 @@
 'use client'
 import React, { useState, useEffect } from 'react';
 import { getUsers } from '../../Services/userService';
-import { User } from '../../models/User';
+import { User } from '../../types/User';
 
-const TableOne = () => {
+export default function TableOne() {
   const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
@@ -65,5 +65,3 @@ const TableOne = () => {
     </div>
   );
 };
-
-export default TableOne;
