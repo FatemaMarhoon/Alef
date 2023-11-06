@@ -15,6 +15,10 @@
     --background-end-rgb: 0, 0, 0;
   }
 }
+
+.sideBar {
+  background-color: #A8D1D1;
+}
 /* 
 body {
   color: rgb(var(--foreground-rgb));

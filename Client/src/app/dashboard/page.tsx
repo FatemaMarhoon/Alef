@@ -1,8 +1,15 @@
+"use client";
+import React from "react";
 
-export default function Dashbard() {
+// without this the component renders on server and throws an error
+import dynamic from "next/dynamic";
+
+const ECommerce: React.FC = () => {
   return (
-   
-      <h1>Hello from dashboard</h1>
-    
-  )
-}
+    <>
+    <h1>Dashboard</h1>
+    </>
+  );
+};
+
+export default ECommerce;

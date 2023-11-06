@@ -5,7 +5,7 @@ const token_validation = {
         var token = req.get("authorization");
         if (token) {
             token = token.slice(7);
-            const decoded = verify(token, "mykey54dev");
+            const decoded = verify(token, "wmkd156skmx40zkm25s81zxc");
             if (decoded) {
                 next();
             }

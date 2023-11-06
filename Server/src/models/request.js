@@ -3,11 +3,7 @@ const db = require('../config/seq'); // Use the appropriate Sequelize connection
 
 module.exports = (sequelize, DataTypes) => {
   const Request = sequelize.define('Request', {
-    plan_id: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    status_id: {
+    status: {
       type: DataTypes.STRING,
       allowNull: false,
     },
