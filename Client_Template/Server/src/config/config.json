@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "u202000513",
+    "password": "u202000513",
+    "database": "db202000513",
+    "host": "inhousevm.westeurope.cloudapp.azure.com",
+    "dialect": "mysql"
+  },
+  "test": {
+    "username": "u202000513",
+    "password": "u202000513",
+    "database": "db202000513",
+    "host": "inhousevm.westeurope.cloudapp.azure.com",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "u202000513",
+    "password": "u202000513",
+    "database": "db202000513",
+    "host": "inhousevm.westeurope.cloudapp.azure.com",
+    "dialect": "mysql"
+  }
+}
