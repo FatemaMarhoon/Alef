@@ -1,4 +1,4 @@
-const { Sequelize, DataTypes } = require('sequelize');
+const { Op, DataTypes } = require('sequelize');
 const sequelize = require('../config/seq');
 
 const StaticValues = require('../models/static_values')(sequelize, DataTypes);
@@ -6,7 +6,7 @@ const StaticValues = require('../models/static_values')(sequelize, DataTypes);
 const StaticValuesController = {
     async getAllRequestStatuses(req, res) {
         try {
-            const statuses = StaticValues.findAll({
+            const statuses = await StaticValues.findAll({
                 where: { CategoryName: 'Request Status' }
             });
             return res.json(statuses);
@@ -16,10 +16,11 @@ const StaticValuesController = {
     },
     
     
+    
     //Staff Roles 
     async getAllRoles(req, res) {
         try {
-            const roles = StaticValues.findAll({
+            const roles = await StaticValues.findAll({
                 where: { CategoryName: 'Role' }
             });
             if (roles) {
@@ -34,7 +35,7 @@ const StaticValuesController = {
     //Payment Types 
     async getAllPaymentTypes(req, res) {
         try {
-            const types = StaticValues.findAll({
+            const types = await StaticValues.findAll({
                 where: { CategoryName: 'Payment Type' }
             });
             res.json(types);
@@ -46,7 +47,7 @@ const StaticValuesController = {
     //Payment Statuses 
     async getAllPaymentStatuses(req, res) {
         try {
-            const statuses = StaticValues.findAll({
+            const statuses = await StaticValues.findAll({
                 where: { CategoryName: 'Payment Status' }
             });
             res.json(statuses);
@@ -58,7 +59,7 @@ const StaticValuesController = {
     //Guardian Types 
     async getAllGuardianTypes(req, res) {
         try {
-            const types = StaticValues.findAll({
+            const types = await StaticValues.findAll({
                 where: { CategoryName: 'Guardian Type' }
             });
             res.json(types);
@@ -71,7 +72,7 @@ const StaticValuesController = {
     //Attendance Statuses 
     async getAllAttendanceStatuses(req, res) {
         try {
-            const statuses = StaticValues.findAll({
+            const statuses = await StaticValues.findAll({
                 where: { CategoryName: 'Attendance Status' }
             });
             res.json(statuses);
@@ -84,7 +85,7 @@ const StaticValuesController = {
     //Application Statuses 
     async getAllApplicationStatuses(req, res) {
         try {
-            const statuses = StaticValues.findAll({
+            const statuses = await StaticValues.findAll({
                 where: { CategoryName: 'Application Status' }
             });
             res.json(statuses);

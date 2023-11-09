@@ -12,8 +12,7 @@ export async function getRoles(): Promise<StaticValue[]> {
           Authorization: `Bearer ${token}`, // Include the token in the Authorization header
         },
       };
-  
-      const response = await axios.get<StaticValue[]>(`${BASE_URL}?`, config);
+      const response = await axios.get<StaticValue[]>(`${BASE_URL}/roles`, config);
       return response.data;
     } catch (error) {
       throw error;

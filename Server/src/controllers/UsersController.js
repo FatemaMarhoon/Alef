@@ -102,7 +102,7 @@ const UsersController = {
         //find user 
         const userFound = await User.findOne({
           where: { email: email }
-        });
+        }); 
         if (userFound) {
           return res.status(500).json({ message: "User already exists." })
         }

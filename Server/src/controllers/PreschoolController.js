@@ -23,6 +23,19 @@ const PreschoolController = {
       res.status(500).json({ message: 'Internal server error while retrieving preschools.' });
     }
   },
+
+  async getPreschoolById(req, res) {
+    const preschool_id = req.params.id;
+    try {
+      const preschools = await Preschool.findOne({
+        where : {id : preschool_id},
+        include: Address
+      });
+      res.json(preschools);
+    } catch (error) {
+      res.status(500).json({ message: 'Internal server error while retrieving preschools.' });
+    }
+  },
   async createPreschool(req, res) {
     try {
       const preschoolData = req.body;
