@@ -3,7 +3,16 @@ const StudentEvaluationController = require('../controllers/StudentEvaluationCon
 
 const router = express.Router();
 
-// Get all users
+// Get all student evaluations
 router.get('/', StudentEvaluationController.getAllStudentEvaluations);
+
+// Create a new student evaluation
+router.post('/', StudentEvaluationController.createStudentEvaluation);
+
+// Update a student evaluation by ID
+router.put('/:id', StudentEvaluationController.updateStudentEvaluation);
+
+// Delete a student evaluation by ID
+router.delete('/:id', StudentEvaluationController.deleteStudentEvaluation);
 
 module.exports = router;
