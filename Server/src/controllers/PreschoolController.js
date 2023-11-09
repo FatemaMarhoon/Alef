@@ -16,7 +16,7 @@ const PreschoolController = {
   async getAllPreschools(req, res) {
     try {
       const preschools = await Preschool.findAll({
-        include: Student
+        include: Address
       });
       res.json(preschools);
     } catch (error) {
