@@ -47,3 +47,28 @@ export async function login(email: string, password: string): Promise<any> {
     throw error;
   }
 }
+
+
+export async function createUser(email:string, password:string,name:string,role:string,): Promise<User[]> {
+  try {
+    const token = localStorage.getItem('token'); // Get the JWT token from localStorage
+    // Set up the request config with headers
+    const config: AxiosRequestConfig = {
+      headers: {
+        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+      },
+    };
+    const preschool = currentUser()?.preschool_id?.toString()
+    const response = await axios.post(`${BASE_URL}`, {
+      email:email,
+      password:password,
+      name:name,
+      role_name:role,
+      preschool_id:preschool
+  }, config);
+    console.log(response)
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
