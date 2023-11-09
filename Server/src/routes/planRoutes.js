@@ -6,6 +6,7 @@ const router = express.Router();
 // Get all subscription plans
 router.get('/', SubscriptionPlanController.getAllSubscriptionPlans);
 
-// You can add more routes for other CRUD operations if needed
+// Get subscription plan by Id
+router.get('/:id', SubscriptionPlanController.getSubscriptionPlanById);
 
 module.exports = router;

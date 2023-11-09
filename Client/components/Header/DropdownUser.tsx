@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-
+  const router = useRouter();
   const trigger = useRef<any>(null);
   const dropdown = useRef<any>(null);
 
@@ -24,6 +25,13 @@ const DropdownUser = () => {
     return () => document.removeEventListener("click", clickHandler);
   });
 
+  function logout() {
+    console.log("logged out")
+    localStorage.setItem('token',"")
+    localStorage.setItem('currentUser',"")
+    router.push('/login')
+
+  }
   // close if the esc key is pressed
   useEffect(() => {
     const keyHandler = ({ keyCode }: KeyboardEvent) => {
@@ -157,7 +165,9 @@ const DropdownUser = () => {
             </Link>
           </li>
         </ul>
-        <button className="flex items-center gap-3.5 py-4 px-6 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base">
+        <button 
+        onClick={(e) => logout()}
+        className="flex items-center gap-3.5 py-4 px-6 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base">
           <svg
             className="fill-current"
             width="22"

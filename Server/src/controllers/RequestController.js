@@ -34,9 +34,9 @@ const RequestsController = {
                 plan_id,
                 status: "Pending"
             });
-            res.json({ message: 'Request created successfully', request: newRequest });
+            return res.json({ message: 'Request created successfully', request: newRequest });
         } catch (error) {
-            res.status(500).json({ message: error.message });
+            return res.status(500).json({ message: error.message });
         }
     },
 

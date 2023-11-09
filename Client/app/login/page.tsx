@@ -15,12 +15,12 @@ const SignIn: React.FC = () => {
     e.preventDefault();
 
     try {
-      const responseMessage = login(email, password);
+      const responseMessage = await login(email, password);
 
       if (localStorage.getItem('currentUser')) {
         // Handle successful login
-        console.log('logged in');
         router.push('/users');
+        console.log('logged in');
       } else {
         // Handle error
         console.log((responseMessage))
