@@ -10,8 +10,8 @@ router.get('/grades', GradesController.getAllGrades);
 // Create a new preschool
 router.post('/', PreschoolController.createPreschool);
 
-// Get a preschool by ID
-//router.get('/:id', PreschoolController.getPreschoolById);
+//Get a preschool by ID
+router.get('/:id', PreschoolController.getPreschoolById);
 
 // Update a preschool by ID
 router.put('/:id', PreschoolController.updatePreschool);
