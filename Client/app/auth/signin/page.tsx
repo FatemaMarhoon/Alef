@@ -1,15 +1,22 @@
+"use client"
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+import {initializeApp}  from 'firebase/app';
 import { Metadata } from "next";
+// import { signInWithEmailAndPassword } from "firebase/auth/cordova";
+import { getAuth, signInWithEmailAndPassword,GoogleAuthProvider,signInWithRedirect,getRedirectResult } from "firebase/auth";
+import { loginWithGoogle, loginWithEmail } from "@/services/authService";
 export const metadata: Metadata = {
   title: "Signin Page | Next.js E-commerce Dashboard Template",
   description: "This is Signin page for TailAdmin Next.js",
   // other metadata
 };
 
+
 const SignIn: React.FC = () => {
+  
   return (
     <>
       <Breadcrumb pageName="Sign In" />
@@ -172,7 +179,7 @@ const SignIn: React.FC = () => {
                 Sign In to TailAdmin
               </h2>
 
-              <form>
+              <form onSubmit={(e) => e.preventDefault()}>
                 <div className="mb-4">
                   <label className="mb-2.5 block font-medium text-black dark:text-white">
                     Email
@@ -206,7 +213,7 @@ const SignIn: React.FC = () => {
 
                 <div className="mb-6">
                   <label className="mb-2.5 block font-medium text-black dark:text-white">
-                    Re-type Password
+                    Password
                   </label>
                   <div className="relative">
                     <input
@@ -241,13 +248,15 @@ const SignIn: React.FC = () => {
 
                 <div className="mb-5">
                   <input
-                    type="submit"
+                    onClick={loginWithEmail}
                     value="Sign In"
                     className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
                   />
                 </div>
 
-                <button className="flex w-full items-center justify-center gap-3.5 rounded-lg border border-stroke bg-gray p-4 hover:bg-opacity-50 dark:border-strokedark dark:bg-meta-4 dark:hover:bg-opacity-50">
+                <button 
+                onClick={loginWithGoogle}
+                className="flex w-full items-center justify-center gap-3.5 rounded-lg border border-stroke bg-gray p-4 hover:bg-opacity-50 dark:border-strokedark dark:bg-meta-4 dark:hover:bg-opacity-50">
                   <span>
                     <svg
                       width="20"
@@ -283,16 +292,8 @@ const SignIn: React.FC = () => {
                   </span>
                   Sign in with Google
                 </button>
-
-                <div className="mt-6 text-center">
-                  <p>
-                    Don’t have any account?{" "}
-                    <Link href="/auth/signup" className="text-primary">
-                      Sign Up
-                    </Link>
-                  </p>
-                </div>
               </form>
+              
             </div>
           </div>
         </div>
