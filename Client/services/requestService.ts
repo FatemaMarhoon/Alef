@@ -11,13 +11,30 @@ export async function createRequest(preschool_name: string,
     email: string, plan_id: number): Promise<Request> {
     try {
         const response = await axios.post<Request>(`${BASE_URL}`, {
-            preschool_name:preschool_name,
-            representitive_name:representitive_name,
-            CR:CR,
-            phone:phone,
-            email:email,
-            plan_id:plan_id
+            preschool_name: preschool_name,
+            representitive_name: representitive_name,
+            CR: CR,
+            phone: phone,
+            email: email,
+            plan_id: plan_id
         });
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+export async function getRequests(): Promise<Request[]> {
+    try {
+        const token = localStorage.getItem('token'); // Get the JWT token from localStorage
+
+        // Set up the request config with headers
+        const config: AxiosRequestConfig = {
+            headers: {
+                Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+            },
+        };
+
+        const response = await axios.get<Request[]>(BASE_URL, config);
         return response.data;
     } catch (error) {
         throw error;

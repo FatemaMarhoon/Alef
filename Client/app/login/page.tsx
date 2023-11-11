@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
- import { login } from "@/services/userService";
+import { login } from "@/services/userService";
 import { useRouter } from 'next/navigation'
 
 const SignIn: React.FC = () => {
