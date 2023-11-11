@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { getStationary } from '../../services/stationaryService'; // Import the stationary service
 import { Stationary } from '../../types/stationary';
-
+import Link from 'next/link';
 export default function StationaryTable() {
     const [stationaries, setStationaries] = useState<Stationary[]>([]);
 
@@ -24,7 +24,14 @@ export default function StationaryTable() {
             <h4 className="mb-6 text-xl font-semibold text-black dark-text-white">
                 Stationaries
             </h4>
+            <div className="flex justify-end mb-4">
 
+                <Link href="/stationary/create"
+                    className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
+                    Add new stationary
+
+                </Link>
+            </div>
             <div className="max-w-full overflow-x-auto">
                 <table className="w-full table-auto">
                     <thead>

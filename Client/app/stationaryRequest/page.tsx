@@ -4,6 +4,7 @@ import { getStationaryRequests } from '../../services/stationaryRequestService';
 import { getStationary } from '../../services/stationaryService';
 import { StationaryRequest } from '../../types/stationaryRequest';
 import { Stationary } from '../../types/stationary';
+import Link from 'next/link';
 export default function StationaryRequestTable() {
     const [stationaryRequests, setStationaryRequests] = useState<StationaryRequest[]>([]);
     const [stationaries, setStationaries] = useState<Stationary[]>([]);
@@ -34,7 +35,14 @@ export default function StationaryRequestTable() {
             <h4 className="mb-6 text-xl font-semibold text-black dark-text-white">
                 Stationary Requests
             </h4>
+            <div className="flex justify-end mb-4">
 
+                <Link href="/stationaryRequest/create"
+                    className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
+                    Add new stationary
+
+                </Link>
+            </div>
             <div className="max-w-full overflow-x-auto">
                 <table className="w-full table-auto">
                     <thead>

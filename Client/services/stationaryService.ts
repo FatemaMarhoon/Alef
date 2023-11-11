@@ -22,4 +22,23 @@ export async function getStationary(): Promise<Stationary[]> {
     }
 }
 
-// Add more stationary-related functions as needed
+export async function createStationary(stationaryData: Stationary): Promise<void> {
+    try {
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            throw new Error('Token not found. User may not be authenticated.');
+        }
+
+        const config: AxiosRequestConfig = {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json', // Set the content type to JSON
+            },
+        };
+
+        await axios.post(BASE_URL, stationaryData, config);
+    } catch (error) {
+        throw error;
+    }
+}

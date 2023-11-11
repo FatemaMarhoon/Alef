@@ -1,28 +1,29 @@
 'use client'
 import React, { useState, useEffect } from 'react';
-import { getStationaryRequests } from '../../Services/stationaryRequestService'; // Import the stationary request service
-import { StationaryRequest } from '../../types/StationaryRequest';
+import { getPreschools } from '../../services/preschoolService'; // Import the preschool service
+import { Preschool } from '../../types/preschool';
+import TableThree from '@/components/Tables/TableThree';
 
-export default function StationaryRequestTable() {
-    const [stationaryRequests, setStationaryRequests] = useState<StationaryRequest[]>([]);
+export default function PreschoolTable() {
+    const [preschools, setPreschools] = useState<Preschool[]>([]);
 
     useEffect(() => {
-        async function fetchStationaryRequests() {
+        async function fetchPreschools() {
             try {
-                const stationaryRequestsData = await getStationaryRequests();
-                setStationaryRequests(stationaryRequestsData);
+                const preschoolsData = await getPreschools();
+                setPreschools(preschoolsData);
             } catch (error) {
-                console.error('Error fetching stationary requests:', error);
+                console.error('Error fetching preschools:', error);
             }
         }
 
-        fetchStationaryRequests();
+        fetchPreschools();
     }, []);
 
     return (
         <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark-bg-boxdark sm-px-7.5 xl-pb-1">
             <h4 className="mb-6 text-xl font-semibold text-black dark-text-white">
-                Stationary Requests
+                Preschools
             </h4>
 
             <div className="max-w-full overflow-x-auto">
@@ -30,48 +31,32 @@ export default function StationaryRequestTable() {
                     <thead>
                         <tr className="bg-gray-2 text-left dark-bg-meta-4">
                             <th className="min-w-220px py-4 px-4 font-medium text-black dark-text-white xl-pl-11">
-                                Status Name
+                                Preschool Name
                             </th>
                             <th className="min-w-150px py-4 px-4 font-medium text-black dark-text-white">
-                                Staff ID
+                                Plan ID
                             </th>
                             <th className="py-4 px-4 font-medium text-black dark-text-white">
-                                Stationary ID
-                            </th>
-                            <th className="py-4 px-4 font-medium text-black dark-text-white">
-                                Requested Quantity
-                            </th>
-                            <th className="py-4 px-4 font-medium text-black dark-text-white">
-                                Notes
+                                Subscription Expiry Date
                             </th>
                         </tr>
                     </thead>
                     <tbody>
-                        {stationaryRequests.map((request, key) => (
+                        {preschools.map((preschool, key) => (
                             <tr key={key}>
                                 <td className="border-b border-eee py-5 px-4 pl-9 dark-border-strokedark xl-pl-11">
                                     <h5 className="font-medium text-black dark-text-white">
-                                        {request.status_name}
+                                        {preschool.preschool_name}
                                     </h5>
                                 </td>
                                 <td className="border-b border-eee py-5 px-4 dark-border-strokedark">
                                     <p className="text-black dark-text-white">
-                                        {request.staff_id}
+                                        {preschool.plan_id || 'N/A'}
                                     </p>
                                 </td>
                                 <td className="border-b border-eee py-5 px-4 dark-border-strokedark">
                                     <p className="text-black dark-text-white">
-                                        {request.stationary_id}
-                                    </p>
-                                </td>
-                                <td className="border-b border-eee py-5 px-4 dark-border-strokedark">
-                                    <p className="text-black dark-text-white">
-                                        {request.requested_quantity}
-                                    </p>
-                                </td>
-                                <td className="border-b border-eee py-5 px-4 dark-border-strokedark">
-                                    <p className="text-black dark-text-white">
-                                        {request.notes || 'N/A'}
+                                        {preschool.subscription_expiry_date ? new Date(preschool.subscription_expiry_date).toLocaleDateString() : 'N/A'}
                                     </p>
                                 </td>
                             </tr>
@@ -80,5 +65,7 @@ export default function StationaryRequestTable() {
                 </table>
             </div>
         </div>
+
     );
+
 }

@@ -4,9 +4,12 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { createStudent } from '@/services/studentService';
 import { useRouter } from 'next/navigation'
 import { Student } from '@/types/student';
+import { UserStorage } from "@/types/user";
+
 
 export default function CreateForm() {
     const router = useRouter();
+    const currentUser = UserStorage.getCurrentUser();
 
     const [studentName, setStudentName] = useState("");
     const [DOB, setDOB] = useState("");
@@ -31,7 +34,7 @@ export default function CreateForm() {
                 medical_history: medicalHistory,
                 //  class_id: 1,
                 //take it from current user's preschool
-                preschool_id: 1,
+                preschool_id: currentUser?.preschool_id
                 // user_id: 2
 
             };

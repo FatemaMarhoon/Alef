@@ -4,4 +4,5 @@ export interface StationaryRequest {
     stationary_id: number;
     requested_quantity: number;
     notes?: string;
+    preschool_id: number;
 }

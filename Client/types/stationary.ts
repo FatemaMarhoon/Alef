@@ -4,4 +4,5 @@ export interface Stationary {
     quantity_available: number;
     createdAt: string;
     updatedAt: string;
+    preschool_id: number;
 }
