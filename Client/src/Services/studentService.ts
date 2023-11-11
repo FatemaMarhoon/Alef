@@ -1,4 +1,4 @@
-import { Student } from '@/types/Student'; // Import the Student type
+import { Student } from '@/types/student'; // Import the Student type
 import axios, { AxiosRequestConfig } from 'axios';
 
 const BASE_URL = 'http://localhost:3000/students'; // Backend URL for students
