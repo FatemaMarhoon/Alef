@@ -71,15 +71,15 @@ export async function deleteStudent(studentId: string): Promise<void> {
     }
 }
 // Add more student-related functions as needed (e.g., updateStudent, deleteStudent)
-export const updateStudent = async (studentId: string, studentData) => {
-    try {
-        // Make a PUT request to update the student
-        const response = await axios.put(`${BASE_URL}/students/${studentId}`, studentData);
+// export const updateStudent = async (studentId: string, studentData) => {
+//     try {
+//         // Make a PUT request to update the student
+//         const response = await axios.put(`${BASE_URL}/students/${studentId}`, studentData);
 
-        // Return the response data
-        return response.data;
-    } catch (error) {
-        // Handle errors
-        throw error;
-    }
-};
+//         // Return the response data
+//         return response.data;
+//     } catch (error) {
+//         // Handle errors
+//         throw error;
+//     }
+// };
