@@ -9,11 +9,20 @@ const SubscriptionPlanController = {
             const subscriptionPlans = await SubscriptionPlan.findAll();
             res.json(subscriptionPlans);
         } catch (error) {
-            res.status(500).json({ message: 'Internal server error while fetching subscription plans.' });
+            res.status(500).json({ message:error.message });
         }
     },
 
-    // You can add more functions as needed, e.g., getSubscriptionPlanById, createSubscriptionPlan, updateSubscriptionPlan, deleteSubscriptionPlan, etc.
+    // You can add more functions as needed, e.g., getSubscriptionPlanById, 
+    async getSubscriptionPlanById(req, res) {
+        const planId = req.params.id;
+        try {
+            const subscriptionPlans = await SubscriptionPlan.findByPk(planId);
+            res.json(subscriptionPlans);
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    },
 };
 
 module.exports = SubscriptionPlanController;

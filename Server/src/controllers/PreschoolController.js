@@ -1,5 +1,5 @@
 const express = require('express');
-const { Sequelize, DataTypes } = require('sequelize');
+const { Op, DataTypes } = require('sequelize');
 const sequelize = require('../config/seq');
 
 const Preschool = require('../models/preschool')(sequelize, DataTypes);
@@ -13,16 +13,60 @@ User.belongsTo(Preschool, { foreignKey: 'preschool_id' });
 Preschool.hasMany(Student, { foreignKey: 'preschool_id' });
 
 const PreschoolController = {
+  
   async getAllPreschools(req, res) {
+    const searchExpression = req.query.preschool_name;
+    console.log(searchExpression)
     try {
-      const preschools = await Preschool.findAll({
-        include: Student
+      if (searchExpression) {
+        const preschools = await Preschool.findAll({
+          where: {
+            preschool_name: {
+              [Op.like]: `%${searchExpression}%`
+            }
+        }});
+        return res.json(preschools);
+      }
+      else {
+        const preschools = await Preschool.findAll({
+          include: Address
+        });
+        return res.json(preschools);
+      }
+    } catch (error) {
+      res.status(500).json({ message:error.message });
+    }
+  },
+
+  async getPreschoolById(req, res) {
+    const preschool_id = req.params.id;
+    try {
+      const preschools = await Preschool.findByPk(preschool_id,{
+        include: Address
       });
       res.json(preschools);
     } catch (error) {
       res.status(500).json({ message: 'Internal server error while retrieving preschools.' });
     }
   },
+
+  async searchPreschoolByName(req, res) {
+    const searchExpression = req.query.params.name;
+    try {
+      const preschools = await Preschool.findOne({
+        where: {
+          name: {
+              [Op.eq]: searchExpression
+          }
+      },
+        include: Address
+      });
+      res.json(preschools);
+    } catch (error) {
+      res.status(500).json({ message: 'Internal server error while retrieving preschools.' });
+    }
+  },
+
   async createPreschool(req, res) {
     try {
       const preschoolData = req.body;
