@@ -1,4 +1,4 @@
-import { Preschool } from '@/types/Preschool'; // Import the Preschool type
+import { Preschool } from '@/types/preschool'; // Import the Preschool type
 import axios, { AxiosRequestConfig } from 'axios';
 
 const BASE_URL = 'http://localhost:3000/preschools'; // Backend URL for preschools
