@@ -1,84 +1,90 @@
-// import { useState, useEffect } from "react";
-// import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-// import { deleteStudent, getStudentById } from '@/services/studentService';
-// import { useRouter } from 'next/navigation';
+'use client'
+import React, { useState, useEffect } from "react";
+import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+import { getStudentById, deleteStudent } from "@/services/studentService";
+import { useRouter } from 'next/navigation'; // Import from 'next/router' instead of 'next/navigation'
+import { Student } from "@/types/student";
 
-// export default function DeleteForm() {
-//     const router = useRouter();
-//     const [studentId, setStudentId] = useState("");
-//     const [studentData, setStudentData] = useState(null);
+export default function DeleteStudentPage({ studentId }: { studentId: string }) {
+    const router = useRouter();
+    //const studentId = router.query?.studentId as string | undefined;
+    const [student, setStudent] = useState<Student | null>(null);
 
-//     useEffect(() => {
-//         // Fetch student data when the component mounts or studentId changes
-//         if (studentId) {
-//             fetchStudentData();
-//         }
-//     }, [studentId]);
+    useEffect(() => {
+        console.log("Student ID:", studentId);
 
-//     const fetchStudentData = async () => {
-//         try {
-//             const student = await getStudentById(studentId);
-//             setStudentData(student);
-//         } catch (error) {
-//             console.error("Error fetching student data:", error);
-//             setStudentData(null);
-//         }
-//     };
+        async function fetchStudent() {
+            try {
+                if (studentId) {
+                    const studentData = await getStudentById(studentId);
+                    setStudent(studentData);
+                }
+            } catch (error) {
+                console.error("Error fetching student:", error);
+            }
+        }
 
-//     const handleSubmit = async (e) => {
-//         e.preventDefault();
-//         try {
-//             await deleteStudent(studentId);
-//             router.push('/students');
-//         } catch (error) {
-//             console.error("Error deleting student:", error);
-//         }
-//     };
+        // Check if studentId is available before calling fetchStudent
+        if (studentId) {
+            fetchStudent();
+        }
+    }, [studentId]);
 
-//     return (
-//         <>
-//             <Breadcrumb pageName="Delete Student" />
+    const handleDelete = () => {
+        console.log("Before confirmation");
+        const confirmDelete = window.confirm("Are you sure you want to delete this student?");
+        console.log("After confirmation", confirmDelete);
 
-//             <div className=" items-center justify-center min-h-screen">
-//                 <div className="w-full max-w-md">
-//                     <div className="bg-white border border-stroke shadow-default dark:border-strokedark dark:bg-boxdark rounded-md p-6">
-//                         <h2 className="text-2xl font-medium text-black dark:text-white mb-4">Delete Student</h2>
+        if (confirmDelete && studentId) {
+            deleteStudent(studentId)
+                .then(() => {
+                    console.log("Student deleted successfully");
+                    router.push("/students");
+                })
+                .catch((error) => {
+                    console.error("Error deleting student:", error);
+                });
+        }
+    };
 
-//                         <form onSubmit={handleSubmit}>
-//                             <div className="mb-4">
-//                                 <label className="block text-black dark:text-white mb-2">Student ID</label>
-//                                 <input
-//                                     type="text"
-//                                     value={studentId}
-//                                     onChange={(e) => setStudentId(e.target.value)}
-//                                     placeholder="Enter student ID"
-//                                     className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-4 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-//                                 />
-//                             </div>
+    return (
+        <>
+            <Breadcrumb pageName="Delete Student" />
 
-//                             {studentData && (
-//                                 <div className="mb-4">
-//                                     <label className="block text-black dark:text-white mb-2">Student Name</label>
-//                                     <input
-//                                         type="text"
-//                                         value={studentData.student_name}
-//                                         readOnly
-//                                         className="w-full rounded border-[1.5px] border-stroke bg-gray-100 py-3 px-4 font-medium outline-none"
-//                                     />
-//                                 </div>
-//                                 // Add more input fields for other student properties
-//                             )}
+            <div className="items-center justify-center min-h-screen">
+                <div className="flex flex-col gap-9">
+                    <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+                        <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
+                            <h3 className="font-medium text-black dark:text-white">Delete Student</h3>
+                        </div>
+                        <div className="p-6.5">
+                            {student ? (
+                                <>
+                                    <p>
+                                        <strong>Student Name:</strong> {student.student_name}
+                                    </p>
+                                    <p>
+                                        <strong>Date of Birth:</strong> {new Date(student.DOB).toLocaleDateString()}
+                                    </p>
+                                    {/* Display other student information using <p> or <h> tags */}
+                                </>
+                            ) : (
+                                <p>Loading student information...</p>
+                            )}
 
-//                             <button
-//                                 type="submit"
-//                                 className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray"
-//                             >
-//                                 Delete Student
-//                             </button>
-//                         </form>
-//                     </div>
-//                 </div>
-//             </div>
-//         </>
-//     );
-// }
+                            <div className="mt-6">
+                                <button
+                                    type="button"
+                                    onClick={handleDelete}
+                                    className="flex justify-center items-center rounded bg-danger p-3 font-medium text-white"
+                                >
+                                    Delete Student
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </>
+    );
+}
