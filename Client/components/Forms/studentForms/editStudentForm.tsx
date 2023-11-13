@@ -19,6 +19,7 @@ export default function EditForm({ studentId }: { studentId: string }) {
         enrollment_date: "",
         medical_history: "",
     });
+    const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
     useEffect(() => {
         // Fetch the existing student data when the component mounts
@@ -34,8 +35,65 @@ export default function EditForm({ studentId }: { studentId: string }) {
         fetchStudentData();
     }, [studentId]);
 
+    const focusOnFirstError = (errors: Record<string, string>) => {
+        // Get the first input field name with an error
+        const firstErrorField = Object.keys(errors)[0];
+
+        // Find the corresponding input element
+        const errorFieldElement = document.querySelector(`[name="${firstErrorField}"]`) as HTMLInputElement | null;
+
+        // Focus on the input element if found
+        if (errorFieldElement) {
+            errorFieldElement.focus();
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Reset errors
+        setErrors({});
+
+        // Validate form data
+        let hasErrors = false;
+
+        // Ensure student name is not empty
+        if (!student.student_name.trim()) {
+            setErrors((prevErrors) => ({ ...prevErrors, student_name: 'Student name cannot be empty.' }));
+            hasErrors = true;
+        }
+
+        // Ensure CPR is a number and not empty
+        if (isNaN(Number(student.CPR)) || student.CPR === null || student.CPR === undefined) {
+            setErrors((prevErrors) => ({ ...prevErrors, CPR: 'Please enter a valid CPR.' }));
+            hasErrors = true;
+        }
+
+        // Ensure contact numbers are numbers and not empty
+        if (isNaN(Number(student.contact_number1)) || student.contact_number1 === null || student.contact_number1 === undefined) {
+            setErrors((prevErrors) => ({ ...prevErrors, contact_number1: 'Please enter a valid contact number.' }));
+            hasErrors = true;
+        }
+
+        if (isNaN(Number(student.contact_number2)) || student.contact_number2 === null || student.contact_number2 === undefined) {
+            setErrors((prevErrors) => ({ ...prevErrors, contact_number2: 'Please enter a valid contact number.' }));
+            hasErrors = true;
+        }
+
+        // Ensure enrollment date is not empty
+        if (!student.enrollment_date) {
+            setErrors((prevErrors) => ({ ...prevErrors, enrollment_date: 'Enrollment date cannot be empty.' }));
+            hasErrors = true;
+        }
+
+        if (hasErrors) {
+            setTimeout(() => {
+                focusOnFirstError(errors);
+            }, 0);
+            return;
+        }
+
+
         try {
             // Update the student data with the form values
             const updatedStudent: Student = {
@@ -81,8 +139,12 @@ export default function EditForm({ studentId }: { studentId: string }) {
                                         value={student.student_name}
                                         onChange={(e) => setStudent({ ...student, student_name: e.target.value })}
                                         placeholder="Enter student's name"
-                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                                        className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.student_name ? 'border-error' : ''
+                                            }`}
                                     />
+                                    {errors.student_name && (
+                                        <p className="text-error text-sm mt-1">{errors.student_name}</p>
+                                    )}
                                 </div>
                                 <div className="mb-4.5">
                                     <label className="mb-2.5 block text-black dark:text-white">
@@ -92,8 +154,12 @@ export default function EditForm({ studentId }: { studentId: string }) {
                                         type="date"
                                         value={new Date(student.DOB).toLocaleDateString()}
                                         onChange={(e) => setStudent({ ...student, DOB: new Date(e.target.value) })}
-                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                                        className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.DOB ? 'border-error' : ''
+                                            }`}
                                     />
+                                    {errors.DOB && (
+                                        <p className="text-error text-sm mt-1">{errors.DOB}</p>
+                                    )}
                                 </div>
                                 <div className="mb-4.5">
                                     <label className="mb-2.5 block text-black dark:text-white">
@@ -104,8 +170,12 @@ export default function EditForm({ studentId }: { studentId: string }) {
                                         value={student.CPR}
                                         onChange={(e) => setStudent({ ...student, CPR: parseInt(e.target.value) })}
                                         placeholder="Enter student's CPR"
-                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                                        className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.CPR ? 'border-error' : ''
+                                            }`}
                                     />
+                                    {errors.CPR && (
+                                        <p className="text-error text-sm mt-1">{errors.CPR}</p>
+                                    )}
                                 </div>
                                 <div className="mb-4.5">
                                     <label className="mb-2.5 block text-black dark:text-white">
@@ -115,8 +185,12 @@ export default function EditForm({ studentId }: { studentId: string }) {
                                         type="text"
                                         value={student.contact_number1}
                                         onChange={(e) => setStudent({ ...student, contact_number1: parseInt(e.target.value) })} placeholder="Enter student's Contact Number"
-                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                                        className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.contact_number1 ? 'border-error' : ''
+                                            }`}
                                     />
+                                    {errors.contact_number1 && (
+                                        <p className="text-error text-sm mt-1">{errors.contact_number1}</p>
+                                    )}
                                 </div>
                                 <div className="mb-4.5">
                                     <label className="mb-2.5 block text-black dark:text-white">
@@ -126,8 +200,12 @@ export default function EditForm({ studentId }: { studentId: string }) {
                                         type="text"
                                         value={student.contact_number2}
                                         onChange={(e) => setStudent({ ...student, contact_number2: parseInt(e.target.value) })} placeholder="Enter student's Contact Number"
-                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                                        className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.contact_number2 ? 'border-error' : ''
+                                            }`}
                                     />
+                                    {errors.contact_number2 && (
+                                        <p className="text-error text-sm mt-1">{errors.contact_number2}</p>
+                                    )}
                                 </div>
                                 <div className="mb-4.5">
                                     <label className="mb-2.5 block text-black dark:text-white">
@@ -138,8 +216,12 @@ export default function EditForm({ studentId }: { studentId: string }) {
                                         value={student.guardian_name}
                                         onChange={(e) => setStudent({ ...student, guardian_name: e.target.value })}
                                         placeholder="Enter student's Guardian Name"
-                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                                        className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.guardian_name ? 'border-error' : ''
+                                            }`}
                                     />
+                                    {errors.guardian_name && (
+                                        <p className="text-error text-sm mt-1">{errors.guardian_name}</p>
+                                    )}
                                 </div>
                                 <div className="mb-4.5">
                                     <label className="mb-2.5 block text-black dark:text-white">
@@ -149,8 +231,12 @@ export default function EditForm({ studentId }: { studentId: string }) {
                                         type="date"
                                         value={new Date(student.enrollment_date).toLocaleDateString()}
                                         onChange={(e) => setStudent({ ...student, enrollment_date: new Date(e.target.value) })}
-                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                                        className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.enrollment_date ? 'border-error' : ''
+                                            }`}
                                     />
+                                    {errors.enrollment_date && (
+                                        <p className="text-error text-sm mt-1">{errors.enrollment_date}</p>
+                                    )}
                                 </div>
                                 <div className="mb-4.5">
                                     <label className="mb-2.5 block text-black dark:text-white">
@@ -161,8 +247,12 @@ export default function EditForm({ studentId }: { studentId: string }) {
                                         value={student.medical_history}
                                         onChange={(e) => setStudent({ ...student, medical_history: e.target.value })}
                                         placeholder="Enter student's medical history"
-                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                                        className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.medical_history ? 'border-error' : ''
+                                            }`}
                                     />
+                                    {errors.medical_history && (
+                                        <p className="text-error text-sm mt-1">{errors.medical_history}</p>
+                                    )}
                                 </div>
                                 {/* ... (Repeat similar structure for other input fields) */}
 
