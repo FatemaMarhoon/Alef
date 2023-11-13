@@ -143,8 +143,7 @@ export default function StudentTable() {
                                             </svg>
                                         </button>
                                         <button className="hover:text-primary">
-                                            <Link href={`/students/delete?studentId=${student.id}`}>
-
+                                            <Link href={`/students/delete/${student.id}`}>
                                                 <svg
                                                     className="fill-current"
                                                     width="18"
@@ -174,7 +173,7 @@ export default function StudentTable() {
                                             </Link>
                                         </button>
                                         <button className="hover:text-primary">
-                                            <Link href={`/students/edit?studentId=${student.id}`}>
+                                        <Link href={`/students/edit/${student.id}`}>
                                                 <svg
                                                     className="fill-current"
                                                     width="18"
