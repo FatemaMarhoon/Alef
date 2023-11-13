@@ -90,7 +90,7 @@ export default function EditForm({ studentId }: { studentId: string }) {
                                     </label>
                                     <input
                                         type="date"
-                                        value={student.DOB instanceof Date ? student.DOB.toISOString().split('T')[0] : ''}
+                                        value={new Date(student.DOB).toLocaleDateString()}
                                         onChange={(e) => setStudent({ ...student, DOB: new Date(e.target.value) })}
                                         className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                                     />
@@ -147,7 +147,7 @@ export default function EditForm({ studentId }: { studentId: string }) {
                                     </label>
                                     <input
                                         type="date"
-                                        value={student.enrollment_date instanceof Date ? student.enrollment_date.toISOString().split('T')[0] : ''}
+                                        value={new Date(student.enrollment_date).toLocaleDateString()}
                                         onChange={(e) => setStudent({ ...student, enrollment_date: new Date(e.target.value) })}
                                         className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                                     />
