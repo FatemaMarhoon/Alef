@@ -66,6 +66,24 @@ export default function DeleteStudentPage({ studentId }: { studentId: string }) 
                                     <p>
                                         <strong>Date of Birth:</strong> {new Date(student.DOB).toLocaleDateString()}
                                     </p>
+                                    <p>
+                                        <strong>CPR:</strong> {student.CPR}
+                                    </p>
+                                    <p>
+                                        <strong>Contact Number 1:</strong> {student.contact_number1}
+                                    </p>
+                                    <p>
+                                        <strong>Contact Number 1:</strong> {student.contact_number2}
+                                    </p>
+                                    <p>
+                                        <strong>Guardian Name:</strong> {student.guardian_name}
+                                    </p>
+                                    <p>
+                                        <strong>Enrollment Date:</strong> {new Date(student.enrollment_date).toLocaleDateString()}
+                                    </p>
+                                    <p>
+                                        <strong>Medical History:</strong> {student.medical_history}
+                                    </p>
                                     {/* Display other student information using <p> or <h> tags */}
                                 </>
                             ) : (
