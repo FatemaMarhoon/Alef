@@ -8,7 +8,8 @@ const Address = require('../models/address')(sequelize, DataTypes);
 const Student = require('../models/Student')(sequelize, DataTypes);
 
 Preschool.hasMany(User, { foreignKey: 'preschool_id' });
-Preschool.belongsTo(Address, { foreignKey: 'address_id' });
+Address.belongsTo(Preschool, { foreignKey: 'preschool_id' });
+Preschool.hasOne(Address, { foreignKey: 'preschool_id' });
 User.belongsTo(Preschool, { foreignKey: 'preschool_id' });
 Preschool.hasMany(Student, { foreignKey: 'preschool_id' });
 
