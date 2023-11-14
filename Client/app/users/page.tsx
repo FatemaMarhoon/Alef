@@ -3,9 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { getUsers } from '@/services/userService';
 import { User } from '@/types/user';
 import Link from 'next/link';
+import { useAuth } from '../../services/AuthProvider';
 export default function UsersTable() {
   const [users, setUsers] = useState<User[]>([]);
-
+  
   useEffect(() => {
     async function fetchUsers() {
       try {

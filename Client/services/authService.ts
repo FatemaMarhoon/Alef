@@ -1,8 +1,11 @@
 import { FirebaseApp, initializeApp } from 'firebase/app';
+import { useAuth } from './AuthProvider';
 // import { getAuth } from "firebase/auth";
 import { getAuth, signOut, signInWithEmailAndPassword, GoogleAuthProvider, signInWithRedirect, getRedirectResult, Auth, signInWithPopup } from "firebase/auth";
+import { UserSingleton } from './singleton';
 
 export var auth: Auth | null = null;
+export var token: string | undefined = undefined;
 
 export function FirebaseSetup(): Auth {
     const firebaseConfig = {
@@ -15,7 +18,7 @@ export function FirebaseSetup(): Auth {
     };
 
     const app = initializeApp(firebaseConfig);
-    auth = getAuth(app);
+    const auth = getAuth(app);
     return auth;
 }
 
@@ -23,17 +26,24 @@ export function FirebaseSetup(): Auth {
 export async function loginWithGoogle() {
     const auth = FirebaseSetup();
     const provider = new GoogleAuthProvider();
-
+  
     try {
-        const userCred = await signInWithPopup(auth, provider);
-        console.log(userCred);
-        const credential = GoogleAuthProvider.credentialFromResult(userCred);
-        const token = credential?.accessToken;
-        console.log(token)
+      const userCred = await signInWithPopup(auth, provider);
+      const credential = GoogleAuthProvider.credentialFromResult(userCred);
+      const userToken = credential?.accessToken;
+      const user = userCred.user;
+        if (userToken) {
+            console.log(userToken)
+            UserSingleton.getInstance().setUser(user)
+            UserSingleton.getInstance().setToken(userToken)
+            console.log("stored")
+        }
     } catch (error) {
-        console.error(error);
+      console.error('Error during Google login:', error);
+      throw error; // Re-throw the error to be handled in the calling function
     }
-}
+  }
+  
 
 //with redirect (idk it's stopped working)
 export async function loginWithGoogle2() {
@@ -58,16 +68,21 @@ export async function loginWithGoogle2() {
     }
 }
 
-export function loginWithEmail() {
+export async function loginWithEmail() {
     const auth = FirebaseSetup()
     signInWithEmailAndPassword(auth, "test@gmail.com", "123456")
         .then(async (userCredential) => {
             // Signed in 
             console.log("logged in")
             const user = userCredential.user;
-            const token = await user.getIdToken();
-            console.log(token)
-            // ...
+            const userToken = await user.getIdToken();
+            console.log(userToken);
+            token = userToken;
+            if (userToken) {
+                console.log("storing in singleton ...")
+                UserSingleton.getInstance().setUser(user)
+                UserSingleton.getInstance().setToken(userToken)
+            }
         })
         .catch((error) => {
             console.log(error.message)
@@ -80,6 +95,8 @@ export function logout() {
     const auth = FirebaseSetup();
     signOut(auth).then(() => {
         // Sign-out successful.
+        UserSingleton.getInstance().setUser(undefined)
+        UserSingleton.getInstance().setToken("")
         console.log("logged out")
     }).catch((error) => {
         // An error happened.

@@ -1,6 +1,9 @@
 // services/userService.ts
 import { User } from '@/types/user'
+// import { token } from './authService';
+import { useAuth } from './AuthProvider'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { UserSingleton } from './singleton';
 
 const BASE_URL = 'http://localhost:3000/users'; // Replace with your backend URL
 
@@ -15,12 +18,12 @@ function currentUser(): User | null {
 
 export async function getUsers(): Promise<User[]> {
   try {
-    const token = localStorage.getItem('token'); // Get the JWT token from localStorage
-
+    const token = UserSingleton.getInstance().getToken()
     // Set up the request config with headers
+    console.log("in user service: ",token)
     const config: AxiosRequestConfig = {
       headers: {
-        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+        Authorization: `Bearer ${token}` // Include the token in the Authorization header
       },
     };
 
