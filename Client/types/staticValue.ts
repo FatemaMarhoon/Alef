@@ -1,7 +1,7 @@
 export interface StaticValue {
     id: number;
-    ValueName:String;
-    CategoryName:String;
+    ValueName:string;
+    CategoryName:string;
     createdAt: string;
     updatedAt: string;
   }

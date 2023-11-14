@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    application_status: {
+    status: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -32,6 +32,14 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
     },
     phone: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    gender: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    grade: {
       type: DataTypes.STRING,
       allowNull: false,
     },
