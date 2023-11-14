@@ -1,15 +1,9 @@
 import { Student } from '@/types/student'; // Import the Student type
 import axios, { AxiosRequestConfig } from 'axios';
-import { User } from '@/types/user'
+import { currentUser } from './userService';
+
 const BASE_URL = 'http://localhost:3000/student'; // Backend URL for students
-function currentUser(): User | null {
-    const userObjectString = localStorage.getItem('currentUser');
-    if (userObjectString) {
-        const userObject = JSON.parse(userObjectString);
-        return userObject;
-    }
-    return null;
-}
+
 export async function getStudents(): Promise<Student[]> {
     try {
         const token = localStorage.getItem('token'); // Get the JWT token from localStorage

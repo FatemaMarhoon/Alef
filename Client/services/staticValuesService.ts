@@ -18,3 +18,19 @@ export async function getRoles(): Promise<StaticValue[]> {
       throw error;
     }
   }
+
+  export async function getGuardianTypes(): Promise<StaticValue[]> {
+    try {
+      const token = localStorage.getItem('token'); // Get the JWT token from localStorage
+      // Set up the request config with headers
+      const config: AxiosRequestConfig = {
+        headers: {
+          Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+        },
+      };
+      const response = await axios.get<StaticValue[]>(`${BASE_URL}/guardianTypes`, config);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }

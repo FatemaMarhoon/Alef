@@ -27,6 +27,8 @@ const staffRoutes = require('./routes/staffRoutes');
 const stationaryRoutes = require('./routes/stationaryRoutes');
 const stationaryRequestRoutes = require('./routes/stationaryRequestRoutes');
 const applicationEvaluationRoutes = require('./routes/applicationEvaluationRoutes');
+const gradesRoutes = require('./routes/gradesRoutes');
+
 
 //middelware
 app.use(express.json());
@@ -53,8 +55,8 @@ app.use('/student', studentRoutes);
 app.use('/staff', staffRoutes);
 app.use('/stationary', stationaryRoutes);
 app.use('/stationaryRequest', stationaryRequestRoutes);
-app.use('/applicationEvaluation', applicationEvaluationRoutes);
-// In your routes file
+app.use('/evaluations', applicationEvaluationRoutes);
+app.use('/grades', gradesRoutes);
 
 
 app.listen(PORT, () => {

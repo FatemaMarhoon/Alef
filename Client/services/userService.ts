@@ -4,7 +4,7 @@ import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 
 const BASE_URL = 'http://localhost:3000/users'; // Replace with your backend URL
 
-function currentUser(): User | null {
+export function currentUser(): User | null {
   const userObjectString = localStorage.getItem('currentUser');
   if (userObjectString) {
     const userObject = JSON.parse(userObjectString);
