@@ -1,99 +1,8 @@
-// // RequestReviewPage.tsx
-
-// import React, { useState, useEffect } from 'react';
-// import { getRequestById, updateRequestStatus } from '@/services/requestService'; // Import the request service
-// import { Request } from '@/types/request';
-// import { useRouter } from 'next/navigation';
-
-// interface RequestReviewPageProps {
-//     requestId: string;
-// }
-
-// const RequestReviewPage: React.FC<RequestReviewPageProps> = ({ requestId }) => {
-//     const [request, setRequest] = useState<Request | null>(null);
-//     const [newStatus, setNewStatus] = useState<string>('');
-//     const router = useRouter();
-
-//     useEffect(() => {
-//         async function fetchRequest() {
-//             try {
-//                 const requestData = await getRequestById(requestId);
-//                 setRequest(requestData);
-//             } catch (error) {
-//                 console.error('Error fetching request:', error);
-//             }
-//         }
-
-//         fetchRequest();
-//     }, [requestId]);
-
-//     const handleStatusChange = async () => {
-//         try {
-//             console.log('Updating status...');
-//             console.log('Request ID:', requestId);
-//             console.log('New Status:', newStatus);
-
-//             // Perform the status update API call
-//             await updateRequestStatus(requestId, newStatus);
-
-//             console.log('Status updated successfully.');
-//             // Redirect after successful submission
-//             router.push('/requests');
-//             // Optionally, you can refresh the request data after the status update
-//             const updatedRequestData = await getRequestById(requestId);
-//             setRequest(updatedRequestData);
-//         } catch (error) {
-//             console.error('Error updating status:', error);
-//         }
-//     };
-
-
-//     if (!request) {
-//         // You can add loading or error handling here
-//         return <div>Loading...</div>;
-//     }
-
-//     return (
-//         <div className="flex justify-center items-center min-h-screen">
-//             <div className="border-b border-stroke py-4 px-6.5">
-//                 <h3 className="font-medium text-black dark:text-white">
-//                     Review Request
-//                 </h3>
-//             </div>
-//             <div className="p-6.5 space-y-4">
-//                 <p>Request ID: {request.id}</p>
-//                 <p>Preschool Name: {request.preschool_name}</p>
-//                 <p>Representative Name: {request.representitive_name}</p>
-//                 <p>CR: {request.CR}</p>
-//                 <p>Phone: {request.phone}</p>
-//                 <p>Email: {request.email}</p>
-//                 {/* Include other request details as needed */}
-//                 <div className="flex items-center">
-//                     <p className="mr-4">Status:</p>
-//                     <select
-//                         value={newStatus}
-//                         onChange={(e) => setNewStatus(e.target.value)}
-//                     >
-//                         <option value="Pending">Pending</option>
-//                         <option value="Accepted">Accepted</option>
-//                         <option value="Rejected">Rejected</option>
-//                         {/* Add other status options as needed */}
-//                     </select>
-//                 </div>
-//                 <button onClick={handleStatusChange} className="bg-primary text-white px-4 py-2 rounded-md">
-//                     Update Status
-//                 </button>
-//             </div>
-
-//         </div>
-//     );
-// };
-
-// export default RequestReviewPage;
 import React, { useState, useEffect } from 'react';
 import { getRequestById, updateRequestStatus } from '@/services/requestService';
 import { Request } from '@/types/request';
 import { useRouter } from 'next/navigation';
+import { createPreschool } from '@/services//preschoolService'; // Import the preschool service
 
 interface RequestReviewPageProps {
     requestId: string;
@@ -103,12 +12,15 @@ const RequestReviewPage: React.FC<RequestReviewPageProps> = ({ requestId }) => {
     const [request, setRequest] = useState<Request | null>(null);
     const [newStatus, setNewStatus] = useState<string>('');
     const router = useRouter();
+    const parsedRequestId = parseInt(requestId);
 
     useEffect(() => {
         async function fetchRequest() {
             try {
                 const requestData = await getRequestById(requestId);
                 setRequest(requestData);
+                // setNewStatus(requestData.status); // Set the initial selected value here
+
             } catch (error) {
                 console.error('Error fetching request:', error);
             }
@@ -127,15 +39,39 @@ const RequestReviewPage: React.FC<RequestReviewPageProps> = ({ requestId }) => {
             await updateRequestStatus(requestId, newStatus);
 
             console.log('Status updated successfully.');
+
             // Redirect after successful submission
             router.push('/requests');
+
             // Optionally, you can refresh the request data after the status update
             const updatedRequestData = await getRequestById(requestId);
+
+            // Update the local state after the API call is complete
             setRequest(updatedRequestData);
+
+            // If the new status is "Accepted", create a new preschool
+            if (newStatus === 'Accepted') {
+                console.log('Creating new preschool with the following data:');
+                console.log('Preschool Name:', updatedRequestData?.preschool_name);
+                console.log('Request ID:', parseInt(requestId));
+                console.log('Plan ID:', updatedRequestData?.plan_id);
+
+                await createPreschool({
+                    // Pass relevant information from the request object
+                    preschool_name: updatedRequestData?.preschool_name,
+                    request_id: parsedRequestId,
+                    plan_id: updatedRequestData?.plan_id,
+                    // Add other properties as needed
+                });
+
+                console.log('Preschool created successfully.');
+            }
+
         } catch (error) {
             console.error('Error updating status:', error);
         }
     };
+
 
     if (!request) {
         // You can add loading or error handling here
@@ -209,10 +145,11 @@ const RequestReviewPage: React.FC<RequestReviewPageProps> = ({ requestId }) => {
                         <div className="mb-4.5">
                             <label className="mb-2.5 block text-black dark:text-white">Status:</label>
                             <select
-                                value={newStatus}
+                                value={request.status}
                                 onChange={(e) => setNewStatus(e.target.value)}
                                 className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary`}
                             >
+                                <option value="">Select status....</option>
                                 <option value="Pending">Pending</option>
                                 <option value="Accepted">Accepted</option>
                                 <option value="Rejected">Rejected</option>

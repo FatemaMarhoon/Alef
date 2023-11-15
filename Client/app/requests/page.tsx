@@ -105,7 +105,7 @@ export default function RequestTable() {
                                     </h5> */}
                                     <p
                                         className={`inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium 
-                                            ${request.status === "Accepted" || request.status === "Approved"
+                                          ${request.status === "Accepted" || request.status === "Approved"
                                                 ? "text-success bg-success"
                                                 : request.status === "Rejected" || request.status === "Cancelled"
                                                     ? "text-danger bg-danger"

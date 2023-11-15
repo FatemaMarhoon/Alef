@@ -95,7 +95,14 @@ export default function StudentTable() {
                                     </p>
                                 </td>
                                 <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                                    <p className="text-black dark-text-white">
+                                    <p
+                                        className="text-black dark-text-white"
+                                    //                                         className={`inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium 
+                                    //    ${student.gender === "Male" ? "text-blue-500 bg-blue-100" :
+                                    //                                                 student.gender === "Female" ? "text-pink-500 bg-pink-100" : ""}
+                                    // `}
+
+                                    >
                                         {student.gender}
                                     </p>
                                 </td>
