@@ -15,15 +15,16 @@ Preschool.hasMany(Application, { foreignKey: 'preschool_id' });
 
 const ApplicationController = {
     async getAllApplications(req, res) {
-        const preschool = req.query.preschool;
-        const status = req.query.status;
-        const user_id = req.query.user_id;
+        const preschool = req.query.preschool; //list applications in web 
+        const status = req.query.status; //filter applications in web 
+        const user_id = req.query.user_id; //to get parent's application (Mobile App)
         try {
             if (preschool) {
                 if (status) {
                     const applications = await Application.findAll({
                         include: [
                             { model: User },
+                            { model: Preschool},
                             { model: Evaluation },
                         ],
                         where: { preschool_id: preschool, status: status }
@@ -41,6 +42,7 @@ const ApplicationController = {
             }
             else if (user_id) {
                 const applications = await Application.findAll({
+                    include : Preschool,
                     where: { created_by : user_id}
                 });
                 return res.json(applications);
@@ -71,22 +73,7 @@ const ApplicationController = {
         const { id } = req.params;
         try {
             const application = await Application.findByPk(id, {
-                include: Evaluation
-            });
-            if (!application) {
-                return res.status(404).json({ message: 'Application not found.' });
-            }
-            res.json(application);
-        } catch (error) {
-            res.status(500).json({ message: error.message });
-        }
-    },
-
-    async getParentApplicaions(req, res) {
-        const { user_id } = req.params;
-        try {
-            const application = await Application.findByPk(id, {
-                include: Evaluation
+                include: Preschool
             });
             if (!application) {
                 return res.status(404).json({ message: 'Application not found.' });
