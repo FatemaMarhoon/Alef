@@ -51,6 +51,9 @@ export default function StudentTable() {
                                 Date of Birth
                             </th>
                             <th className="py-4 px-4 font-medium text-black dark-text-white">
+                                Gender
+                            </th>
+                            <th className="py-4 px-4 font-medium text-black dark-text-white">
                                 CPR
                             </th>
                             <th className="py-4 px-4 font-medium text-black dark-text-white">
@@ -89,6 +92,11 @@ export default function StudentTable() {
                                 <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                                     <p className="text-black dark-text-white">
                                         {new Date(student.DOB).toLocaleDateString()}
+                                    </p>
+                                </td>
+                                <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                                    <p className="text-black dark-text-white">
+                                        {student.gender}
                                     </p>
                                 </td>
                                 <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">

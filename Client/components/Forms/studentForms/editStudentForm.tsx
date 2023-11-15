@@ -18,6 +18,7 @@ export default function EditForm({ studentId }: { studentId: string }) {
         guardian_name: "",
         enrollment_date: "",
         medical_history: "",
+        gender: ""
     });
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
@@ -98,6 +99,7 @@ export default function EditForm({ studentId }: { studentId: string }) {
             // Update the student data with the form values
             const updatedStudent: Student = {
                 ...student,
+
                 DOB: new Date(student.DOB),
                 CPR: Number(student.CPR),
                 contact_number1: Number(student.contact_number1),
@@ -160,6 +162,17 @@ export default function EditForm({ studentId }: { studentId: string }) {
                                     {errors.DOB && (
                                         <p className="text-error text-sm mt-1">{errors.DOB}</p>
                                     )}
+                                </div>
+                                <div className="mb-4.5">
+                                    <label className="mb-2.5 block text-black dark:text-white">Gender:</label>
+                                    <select
+                                        value={student.gender}
+                                        onChange={(e) => setStudent({ ...student, gender: (e.target.value) })}
+                                        className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary`}
+                                    >
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                    </select>
                                 </div>
                                 <div className="mb-4.5">
                                     <label className="mb-2.5 block text-black dark:text-white">

@@ -1,6 +1,6 @@
 // services/userService.ts
 import { Request } from '@/types/request'
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 const BASE_URL = 'http://localhost:3000/requests'; // Replace with your backend URL
 
