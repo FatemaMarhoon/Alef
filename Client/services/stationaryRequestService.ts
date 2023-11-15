@@ -39,4 +39,51 @@ export async function createStationaryRequest(request: StationaryRequest): Promi
     }
 }
 
-// Add more stationary request-related functions as needed (e.g., updateStationaryRequest, deleteStationaryRequest)
+export async function updateStationaryRequest(id: string, updatedRequest: StationaryRequest): Promise<StationaryRequest> {
+    try {
+        const token = localStorage.getItem('token');
+        const config: AxiosRequestConfig = {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        };
+        const url = `${BASE_URL}/${id}`;
+        const response = await axios.put<StationaryRequest>(url, updatedRequest, config);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export async function deleteStationaryRequest(id: string): Promise<void> {
+    try {
+        const token = localStorage.getItem('token');
+        const config: AxiosRequestConfig = {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        };
+        const url = `${BASE_URL}/${id}`;
+        await axios.delete(url, config);
+    } catch (error) {
+        throw error;
+    }
+}
+
+export async function getStationaryRequestById(id: string): Promise<StationaryRequest> {
+    try {
+        const token = localStorage.getItem('token'); // Get the JWT token from localStorage
+
+        // Set up the request config with headers
+        const config: AxiosRequestConfig = {
+            headers: {
+                Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+            },
+        };
+
+        const response = await axios.get<StationaryRequest>(`${BASE_URL}/${id}`, config);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
