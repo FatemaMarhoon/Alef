@@ -93,6 +93,25 @@ const RequestsController = {
             res.status(500).json({ message: error.message });
         }
     },
+    async updateRequestStatus(req, res) {
+        const requestId = req.params.id;
+        const { status } = req.body;
+
+        try {
+            const request = await Request.findByPk(requestId);
+            if (request) {
+                request.status = status;
+                await request.save();
+                res.json({ message: 'Request status updated successfully', request });
+            } else {
+                res.status(404).json({ message: 'Request not found' });
+            }
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    },
+
+
 };
 
 module.exports = RequestsController;
