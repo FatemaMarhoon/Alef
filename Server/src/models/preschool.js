@@ -11,28 +11,31 @@ module.exports = (sequelize, DataTypes) => {
     plan_id: {
       type: DataTypes.STRING,
     },
+    request_id: {
+      type: DataTypes.STRING,
+    },
     subscription_expiry_date: {
       type: DataTypes.DATE,
     },
     minimum_age: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      // allowNull: false,
     },
     maximum_age: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      // allowNull: false,
     },
     monthly_fees: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      // allowNull: false,
     },
     cirriculum: {
       type: DataTypes.STRING,
-      allowNull: false,
+      // allowNull: false,
     },
     registration_fees: {
       type: DataTypes.STRING,
-      allowNull: false,
+      // allowNull: false,
     },
   },
     {
