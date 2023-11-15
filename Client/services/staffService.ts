@@ -39,4 +39,55 @@ export async function createStaff(staff: Staff): Promise<Staff> {
     }
 }
 
-// You can add more staff-related functions as needed (e.g., updateStaff, deleteStaff)
+export async function updateStaff(staffId: number, updatedStaff: Staff): Promise<Staff> {
+    try {
+        const token = localStorage.getItem('token'); // Get the JWT token from localStorage
+
+        // Set up the request config with headers
+        const config: AxiosRequestConfig = {
+            headers: {
+                Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+            },
+        };
+
+        const response = await axios.put<Staff>(`${BASE_URL}/${staffId}`, updatedStaff, config);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export async function deleteStaff(staffId: number): Promise<void> {
+    try {
+        const token = localStorage.getItem('token'); // Get the JWT token from localStorage
+
+        // Set up the request config with headers
+        const config: AxiosRequestConfig = {
+            headers: {
+                Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+            },
+        };
+
+        await axios.delete(`${BASE_URL}/${staffId}`, config);
+    } catch (error) {
+        throw error;
+    }
+}
+
+export async function getStaffById(staffId: number): Promise<Staff> {
+    try {
+        const token = localStorage.getItem('token'); // Get the JWT token from localStorage
+
+        // Set up the request config with headers
+        const config: AxiosRequestConfig = {
+            headers: {
+                Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+            },
+        };
+
+        const response = await axios.get<Staff>(`${BASE_URL}/${staffId}`, config);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
