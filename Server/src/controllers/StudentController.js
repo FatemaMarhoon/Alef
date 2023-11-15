@@ -1,7 +1,7 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../config/seq');
 
-const Student = require('../models/Student')(sequelize, DataTypes);
+const Student = require('../models/student')(sequelize, DataTypes);
 const Preschool = require('../models/preschool')(sequelize, DataTypes);
 const User = require('../models/user')(sequelize, DataTypes);
 const Class = require('../models/class')(sequelize, DataTypes);

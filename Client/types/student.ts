@@ -9,6 +9,7 @@ export interface Student {
     guardian_name: string;
     enrollment_date: Date;
     medical_history: string;
+    gender: string;
     // class_id: number;
     // user_id: number;
 }
