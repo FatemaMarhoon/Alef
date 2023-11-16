@@ -1,8 +1,9 @@
 // services/userService.ts
 import { Class } from '@/types/class'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-
-const BASE_URL = 'http://localhost:3000/class'; // Replace with your backend URL
+import { UserStorage } from "@/types/user";
+const currentUser = UserStorage.getCurrentUser();
+const BASE_URL = `http://localhost:3000/class/preschool/${currentUser?.preschool_id}`;
 
 export async function getClasses(): Promise<Class[]> {
     try {

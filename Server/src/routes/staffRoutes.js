@@ -7,7 +7,7 @@ const router = express.Router();
 router.post('/', StaffController.createStaff);
 
 // Get all staff members
-router.get('/', StaffController.getAllStaff);
+router.get('/preschool/:preschoolId', StaffController.getAllStaff);
 
 // Get a staff member by ID
 router.get('/:staff_id', StaffController.getStaffById);

@@ -1,7 +1,9 @@
 import { Staff } from '@/types/staff'; // Import the Staff type
 import axios, { AxiosRequestConfig } from 'axios';
-
-const BASE_URL = 'http://localhost:3000/staff'; // Backend URL for staff
+import { UserStorage } from "@/types/user";
+const currentUser = UserStorage.getCurrentUser();
+const BASE_URL = `http://localhost:3000/staff/preschool/${currentUser?.preschool_id}`;
+// Backend URL for staff
 
 export async function getStaff(): Promise<Staff[]> {
     try {
