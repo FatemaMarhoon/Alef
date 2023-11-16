@@ -35,13 +35,21 @@ export async function createApplication(
         phone: string,
         student_DOB: Date,
         medical_history: string,
-      ): Promise<Application[]> {
+        personal_picture:File | undefined,
+        certificate_of_birth:string,
+        passport:string
+        // certificate_of_birth:File | undefined,
+        // passport:File | undefined
+      ) : Promise<Application[]> {
   try {
+    console.log(personal_picture)
     const token = localStorage.getItem('token'); // Get the JWT token from localStorage
     // Set up the request config with headers
     const config: AxiosRequestConfig = {
       headers: {
         Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+        'Content-Type': 'multipart/form-data', // Make sure to set the content type
+
       },
     };
 
@@ -62,6 +70,9 @@ export async function createApplication(
       guardian_name:guardian_name,
       guardian_type:guardian_type,
       medical_history:medical_history,
+      personal_picture:personal_picture,
+      certificate_of_birth:certificate_of_birth,
+      passport:passport,
       status:status,
       created_by:createdBy,
       preschool_id:preschool

@@ -1,7 +1,11 @@
 const express = require('express');
+const multer = require('multer');
 const ApplicationController = require('../controllers/ApplicationController');
-
 const router = express.Router();
+
+const multerMiddleware = multer({
+    storage: multer.memoryStorage(),
+}).single('personal_picture');
 
 // Get all applications
 router.get('/', ApplicationController.getAllApplications);
@@ -10,7 +14,7 @@ router.get('/', ApplicationController.getAllApplications);
 router.get('/:id', ApplicationController.getApplicationById);
 
 // Create a new application
-router.post('/', ApplicationController.createApplication);
+router.post('/',multerMiddleware, ApplicationController.createApplication);
 
 // Update an application by ID
 router.put('/:id', ApplicationController.updateApplication);

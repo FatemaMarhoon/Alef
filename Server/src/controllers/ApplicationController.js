@@ -6,6 +6,8 @@ const Preschool = require('../models/preschool')(sequelize, DataTypes);
 const User = require('../models/user')(sequelize, DataTypes);
 const Evaluation = require('../models/application_evaluation')(sequelize, DataTypes);
 const GradesController = require('../controllers/GradeCapacityController')
+const FilesManager = require('./FilesManager');
+
 //associations
 Application.belongsTo(User, { foreignKey: 'created_by' });
 Application.belongsTo(Preschool, { foreignKey: 'preschool_id' });
@@ -53,11 +55,20 @@ const ApplicationController = {
     },
 
     async createApplication(req, res) {
-        const { email, preschool_id, guardian_type, status, student_name, guardian_name,student_CPR, phone, student_DOB,medical_history, created_by, gender, grade } = req.body;
-        const application = { email, preschool_id, guardian_type, status, student_name, guardian_name,student_CPR, phone, student_DOB,medical_history, created_by, gender, grade };
+        const { email, preschool_id, guardian_type, status, student_name, guardian_name,student_CPR, phone, student_DOB,medical_history, created_by, gender,personal_picture, grade, certificate_of_birth, passport } = req.body;
+        const application = { email, preschool_id, guardian_type, status, student_name, guardian_name,student_CPR, phone, student_DOB,medical_history, created_by, gender, grade, certificate_of_birth, passport, personal_picture };
         try {
+            //upload files
+            const personal_picture = req.file;
+
+            const picture_url = await FilesManager.upload(personal_picture);
+            application.personal_picture = picture_url;
+            console.log(picture_url);
+            // set status 
             const capacity = await GradesController.checkGradeCapacity(preschool_id,grade);
             capacity ? application.status = "Pending" : application.status = "Waitlist";
+
+            //create application
              const newApplication = await Application.create(application);
             res.status(201).json({
                 message: 'Application created successfully',

@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from "react";
+import { useState, useEffect, ChangeEvent } from "react";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { createApplication } from "@/services/applicationsService";
 import { getGuardianTypes } from "@/services/staticValuesService";
@@ -20,6 +20,11 @@ export default function CreateApplicationForm() {
     const [phone, setPhone] = useState("");
     const [studentDOB, setStudentDOB] = useState("");
     const [medicalHistory, setMedicalHistory] = useState("");
+    const [personalPicture, setPersonalPicture] = useState<File | undefined>(undefined);
+    // const [passport, setPassport] = useState<File | undefined>(undefined);
+    // const [certificateOfBirth, setCertificateOfBirth] = useState<File | undefined>(undefined);
+    const [passport, setPassport] = useState("url")
+    const [certificateOfBirth, setCertificateOfBirth] = useState("url")
     const [guardianTypes, setGuardianTypes] = useState<StaticValue[]>([]);
     const [grades, setGrades] = useState<string[]>([]);
 
@@ -50,6 +55,13 @@ export default function CreateApplicationForm() {
 
     }, []);
 
+
+    // Update the handleFileChange function
+    const handleFileChange = (e: ChangeEvent<HTMLInputElement>, setFile: React.Dispatch<React.SetStateAction<File | undefined>>) => {
+        const file = e.target.files?.[0];
+        setFile(file);
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -65,6 +77,9 @@ export default function CreateApplicationForm() {
                 phone,
                 new Date(studentDOB),
                 medicalHistory,
+                personalPicture,
+                certificateOfBirth,
+                passport
             );
             console.log(response);
             router.push("/applications"); // Redirect to the applications page after submission
@@ -87,7 +102,7 @@ export default function CreateApplicationForm() {
                                 Create Application
                             </h3>
                         </div>
-                        <form action="#" onSubmit={handleSubmit}>
+                        <form action="#" onSubmit={handleSubmit} encType="multipart/form-data">
                             <div className="p-6.5">
 
                                 {/* Student Name */}
@@ -135,7 +150,7 @@ export default function CreateApplicationForm() {
                                 <div className="mb-4.5">
                                     <label className="block text-black dark:text-white">
                                         Gender <span className="text-meta-1">*</span>
-                                        </label>
+                                    </label>
                                     <div className="flex">
                                         <div className="mr-6">
                                             <input
@@ -299,6 +314,43 @@ export default function CreateApplicationForm() {
                                         className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                                     />
                                 </div>
+
+                                {/* Personal Picture */}
+                                <div className="mb-4.5">
+                                    <label className="mb-3 block text-black dark:text-white">
+                                        Personal Picture <span className="text-meta-1">*</span>
+                                    </label>
+                                    <input
+                                        type="file"
+                                        onChange={(e) => handleFileChange(e, setPersonalPicture)}
+                                        className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
+                                    />
+                                </div>
+
+                                {/* Certificate of Birth */}
+                                {/* <div className="mb-4.5">
+                                    <label className="mb-3 block text-black dark:text-white">
+                                        Certificate of Birth <span className="text-meta-1">*</span>
+                                    </label>
+                                    <input
+                                        type="file"
+                                        onChange={(e) => handleFileChange(e, setCertificateOfBirth)}
+                                        className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
+                                    />
+                                </div> */}
+
+                                {/* Passport */}
+                                {/* <div className="mb-4.5">
+                                    <label className="mb-3 block text-black dark:text-white">
+                                        Passport <span className="text-meta-1">*</span>
+                                    </label>
+                                    <input
+                                        type="file"
+                                        onChange={(e) => handleFileChange(e, setPassport)}
+                                        className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
+                                    />
+                                </div> */}
+
 
                                 <button type="submit" className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray">
                                     Create

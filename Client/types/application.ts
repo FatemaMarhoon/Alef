@@ -1,4 +1,5 @@
 import { Evaluation } from "./evaluation";
+import { Preschool } from "./preschool";
 import { User } from "./user";
 
 export interface Application {
@@ -15,9 +16,13 @@ export interface Application {
     phone: string;
     student_DOB: Date;
     medical_history: string;
+    passport:string;
+    certificate_of_birth:string;
+    personal_picture:string;
     created_by: number; //user id
     User : User;
     Application_Evaluation: Evaluation;
+    Preschool: Preschool;
     createdAt: string;
     updatedAt: string;
   }
