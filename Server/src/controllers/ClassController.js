@@ -13,7 +13,9 @@ Class.belongsTo(Staff, { foreignKey: 'id' });
 const ClassController = {
     async getAllClasses(req, res) {
         try {
+            const { preschoolId } = req.params;
             const classes = await Class.findAll({
+                where: { preschool_id: preschoolId },
                 include: [Preschool, Staff]
             });
             res.json(classes);

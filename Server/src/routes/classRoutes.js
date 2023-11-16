@@ -3,8 +3,10 @@ const ClassController = require('../controllers/ClassController');
 
 const router = express.Router();
 
-// Get all classes
-router.get('/', ClassController.getAllClasses);
+// // Get all classes
+// router.get('/', ClassController.getAllClasses);
+// Get all classes for a specific preschool
+router.get('/preschool/:preschoolId', ClassController.getAllClasses);
 
 // Create a new class
 router.post('/', ClassController.createClass);
