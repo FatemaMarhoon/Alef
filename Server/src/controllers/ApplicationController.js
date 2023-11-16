@@ -93,6 +93,12 @@ const ApplicationController = {
             const application = await Application.findByPk(id, {
                 include: Preschool
             });
+            
+            //generate and set urls for files 
+            application.personal_picture = await FilesManager.generateSignedUrl(application.personal_picture);
+            application.passport = await FilesManager.generateSignedUrl(application.passport);            
+            application.certificate_of_birth = await FilesManager.generateSignedUrl(application.certificate_of_birth);
+
             if (!application) {
                 return res.status(404).json({ message: 'Application not found.' });
             }

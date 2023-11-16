@@ -24,6 +24,25 @@ export async function getApplications(): Promise<Application[]> {
   }
 }
 
+export async function getApplicationById(id:number): Promise<Application> {
+  try {
+    console.log("id in service function: ", id)
+    const token = localStorage.getItem('token'); // Get the JWT token from localStorage
+
+    // Set up the request config with headers
+    const config: AxiosRequestConfig = {
+      headers: {
+        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+      },
+    };
+
+    const response = await axios.get<Application>(`${BASE_URL}/${id}`, config);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
 export async function createApplication(
         email:string,
         guardian_type: string,
