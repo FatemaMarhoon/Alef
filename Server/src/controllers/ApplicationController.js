@@ -59,12 +59,19 @@ const ApplicationController = {
         const application = { email, preschool_id, guardian_type, status, student_name, guardian_name,student_CPR, phone, student_DOB,medical_history, created_by, gender, grade, certificate_of_birth, passport, personal_picture };
         try {
             //upload files
-            const personal_picture = req.file;
-
+            const personal_picture = req.files['personal_picture'][0];
             const picture_url = await FilesManager.upload(personal_picture);
             application.personal_picture = picture_url;
-            console.log(picture_url);
-            // set status 
+
+            const certificate_of_birth = req.files['certificate_of_birth'][0];
+            const certificate_url = await FilesManager.upload(certificate_of_birth);
+            application.certificate_of_birth = certificate_url;
+
+            const passport = req.files['passport'][0];
+            const passport_url = await FilesManager.upload(passport);
+            application.passport = passport_url;
+
+            //set status 
             const capacity = await GradesController.checkGradeCapacity(preschool_id,grade);
             capacity ? application.status = "Pending" : application.status = "Waitlist";
 

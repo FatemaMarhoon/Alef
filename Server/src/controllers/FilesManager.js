@@ -32,9 +32,6 @@ const FilesManager = {
                     // Get the public URL of the uploaded file
                     const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileRef.name}`;
                     console.log('File uploaded successfully:', publicUrl);
-    
-                    // You can now save the `publicUrl` to your database for the corresponding application.
-                    // ...
                     resolve(publicUrl);
                 });
     

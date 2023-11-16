@@ -5,7 +5,15 @@ const router = express.Router();
 
 const multerMiddleware = multer({
     storage: multer.memoryStorage(),
-}).single('personal_picture');
+  }).fields([
+    { name: 'personal_picture', maxCount: 1 },
+    { name: 'certificate_of_birth', maxCount: 1 },
+    { name: 'passport', maxCount: 1 },
+  ]);
+
+// const multerMiddleware = multer({
+//     storage: multer.memoryStorage(),
+// }).single('personal_picture');
 
 // Get all applications
 router.get('/', ApplicationController.getAllApplications);

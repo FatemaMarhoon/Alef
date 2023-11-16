@@ -36,10 +36,10 @@ export async function createApplication(
         student_DOB: Date,
         medical_history: string,
         personal_picture:File | undefined,
-        certificate_of_birth:string,
-        passport:string
-        // certificate_of_birth:File | undefined,
-        // passport:File | undefined
+        // certificate_of_birth:string,
+        // passport:string
+        certificate_of_birth:File | undefined,
+        passport:File | undefined
       ) : Promise<Application[]> {
   try {
     console.log(personal_picture)
