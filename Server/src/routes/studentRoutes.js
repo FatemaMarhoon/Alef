@@ -21,5 +21,7 @@ router.delete('/:student_id', StudentController.deleteStudent);
 router.get('/preschool/:preschool_id', StudentController.getStudentsByPreschool);
 
 // Get students by class
-router.get('/class/:class_name', StudentController.getStudentsByClass);
+router.get('/:preschoolId/:classId', StudentController.getStudentsByClassId);
+
+
 module.exports = router;

@@ -122,17 +122,17 @@ export default function ClassTable() {
                                 <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                                     <div className="flex items-center space-x-3.5">
                                         <button className="hover:text-primary">
-                                            <Link href={`/classes/view/${classItem.preschool_id}`}>
+                                            <Link href={`/class/view/${classItem.id}`}>
                                                 View
                                             </Link>
                                         </button>
                                         <button className="hover:text-primary">
-                                            <Link href={`/classes/edit/${classItem.preschool_id}`}>
+                                            <Link href={`/class/edit/${classItem.preschool_id}`}>
                                                 Edit
                                             </Link>
                                         </button>
                                         <button className="hover:text-primary">
-                                            <Link href={`/classes/delete/${classItem.preschool_id}`}>
+                                            <Link href={`/class/delete/${classItem.preschool_id}`}>
                                                 Delete
                                             </Link>
                                         </button>

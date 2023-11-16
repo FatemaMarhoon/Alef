@@ -95,10 +95,26 @@ const StudentController = {
         }
     },
 
-    async getStudentsByClass(req, res) {
-        const { class_name } = req.params;
+    // async getStudentsByClass(req, res) {
+    //     const { class_name } = req.params;
+    //     try {
+    //         const students = await Student.findAll({ where: { class_name } });
+    //         res.json(students);
+    //     } catch (error) {
+    //         res.status(500).json({ message: error.message });
+    //     }
+    // },
+
+    async getStudentsByClassId(req, res) {
         try {
-            const students = await Student.findAll({ where: { class_name } });
+            const { preschoolId } = req.params;
+            const { classId } = req.params;
+            const students = await Student.findAll({
+                where: { preschool_id: preschoolId, class_id: classId },
+
+                include: Preschool
+
+            });
             res.json(students);
         } catch (error) {
             res.status(500).json({ message: error.message });
