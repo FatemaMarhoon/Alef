@@ -6,6 +6,9 @@ import { getStationaryRequestById, updateStationaryRequest } from '@/services/st
 import { useRouter } from 'next/navigation';
 import { StationaryRequest } from '@/types/stationaryRequest';
 import TemporarySuccessMessage from '@/app/ui/alerts/TempSuccessMsg'; // Import the success message component
+import { getStationary } from '@/services/stationaryService';
+import { getStaffById } from '@/services/staffService'; // Add the actual service function
+import { Stationary } from '@/types/stationary';
 
 export default function EditStationaryRequestForm({ id }: { id: string }) {
     const router = useRouter();
@@ -22,12 +25,24 @@ export default function EditStationaryRequestForm({ id }: { id: string }) {
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
+    const [stationaries, setStationaries] = useState<Stationary[]>([]);
+    const [staffName, setStaffName] = useState<string>('');
+    const [stationaryList, setStationaryList] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchStationaryRequestData = async () => {
             try {
                 const existingStationaryRequest = await getStationaryRequestById(id);
                 setStationaryRequest(existingStationaryRequest);
+
+                // Fetch the list of stationary items
+                const stationariesData = await getStationary();
+                setStationaries(stationariesData);
+
+                // Fetch staff information based on staff_id
+                const staffInfo = await getStaffById(parseInt(existingStationaryRequest.staff_id));
+                setStaffName(staffInfo ? staffInfo.name : 'Unknown');
             } catch (error) {
                 console.error('Error fetching stationary request data:', error);
             }
@@ -35,6 +50,27 @@ export default function EditStationaryRequestForm({ id }: { id: string }) {
 
         fetchStationaryRequestData();
     }, [id]);
+
+    useEffect(() => {
+        async function fetchStationaryList() {
+            try {
+                const response = await getStationary();
+                console.log('Stationary List Response:', response);
+
+                // Log the response.data or the actual array
+                console.log('Stationary List Data:', response.data || response);
+
+                setStationaryList(response || []);
+                setLoading(false); // Set loading to false after fetching data
+            } catch (error) {
+                console.error("Error fetching stationary list:", error);
+                setStationaryList([]);
+                setLoading(false); // Set loading to false in case of an error
+            }
+        };
+
+        fetchStationaryList();
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -69,7 +105,10 @@ export default function EditStationaryRequestForm({ id }: { id: string }) {
             console.error('Error updating stationary request:', error);
         }
     };
-
+    const getStationaryName = (stationaryId: number): string => {
+        const stationary = stationaries.find(item => item.id === stationaryId);
+        return stationary ? stationary.stationary_name : 'Unknown';
+    };
     return (
         <>
             <style jsx>{`
@@ -89,44 +128,91 @@ export default function EditStationaryRequestForm({ id }: { id: string }) {
                             </div>
                             <form onSubmit={handleSubmit}>
                                 <div className="p-6.5">
-                                    {/* Add form fields for editing stationary request */}
-                                    {/* Example:*/}
-                                    {/* <div className="mb-4.5">
-                                        <label className="mb-2.5 block text-black dark:text-white">
-                                            Stationary Name
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={stationaryRequest.stationary_id}
-                                            onChange={(e) =>
-                                                setStationaryRequest({ ...stationaryRequest, status_name: e.target.value })
-                                            }
-                                            placeholder="Enter status name"
-                                            className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.statusName ? 'border-error' : ''
-                                                }`}
-                                        />
-                                        {errors.statusName && (
-                                            <p className="text-error text-sm mt-1">{errors.statusName}</p>
-                                        )}
-                                    </div> */}
                                     <div className="mb-4.5">
                                         <label className="mb-2.5 block text-black dark:text-white">
-                                            Status
+                                            Stationary Name <span className="text-meta-1">*</span>
                                         </label>
-                                        <input
-                                            type="text"
-                                            value={stationaryRequest.status_name}
-                                            onChange={(e) =>
-                                                setStationaryRequest({ ...stationaryRequest, status_name: e.target.value })
-                                            }
-                                            placeholder="Enter status name"
+                                        <select
+                                            value={stationaryRequest.stationary_id}
+                                            onChange={(e) => setStationaryRequest({ ...stationaryRequest, stationary_id: Number(e.target.value) })}
                                             className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.statusName ? 'border-error' : ''
                                                 }`}
-                                        />
+                                        >
+                                            <option value={0}>Select Stationary</option>
+                                            {stationaryList.length > 0 &&
+                                                stationaryList.map((stationary) => (
+                                                    <option key={stationary.id} value={stationary.id}>
+                                                        {stationary.stationary_name}
+                                                    </option>
+                                                ))}
+                                        </select>
                                         {errors.statusName && (
                                             <p className="text-error text-sm mt-1">{errors.statusName}</p>
                                         )}
                                     </div>
+
+
+                                    <div className="mb-4.5">
+                                        <label className="mb-2.5 block text-black dark:text-white">
+                                            Status
+                                        </label>
+                                        <select
+                                            value={stationaryRequest.status_name}
+                                            onChange={(e) =>
+                                                setStationaryRequest({ ...stationaryRequest, status_name: e.target.value })
+                                            }
+                                            className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.statusName ? 'border-error' : ''
+                                                }`}
+                                        >
+                                            <option value="">Select status....</option>
+                                            <option value="Pending">Pending</option>
+                                            <option value="Accepted">Accepted</option>
+                                            <option value="Rejected">Rejected</option>
+                                            {/* Add other status options as needed */}
+                                        </select>
+                                        {errors.statusName && (
+                                            <p className="text-error text-sm mt-1">{errors.statusName}</p>
+                                        )}
+                                    </div>
+
+                                    <div className="mb-4.5">
+                                        <label className="mb-2.5 block text-black dark:text-white">
+                                            Requested Quantity <span className="text-meta-1">*</span>
+                                        </label>
+                                        <input
+                                            type="number"
+                                            value={stationaryRequest.requested_quantity}
+                                            onChange={(e) => setStationaryRequest({ ...stationaryRequest, requested_quantity: (Number(e.target.value)) })}
+                                            placeholder="Enter requested quantity"
+                                            className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary"
+                                        />
+                                    </div>
+
+                                    <div className="mb-4.5">
+                                        <label className="mb-2.5 block text-black dark:text-white">
+                                            Staff Name
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={staffName}
+                                            readOnly
+                                            className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary`}
+                                        />
+                                    </div>
+                                    <div className="mb-4.5">
+                                        <label className="mb-2.5 block text-black dark:text-white">
+                                            Notes
+                                        </label>
+                                        <textarea
+                                            value={stationaryRequest.notes}
+                                            onChange={(e) =>
+                                                setStationaryRequest({ ...stationaryRequest, notes: e.target.value })
+                                            }
+                                            placeholder="Enter notes"
+                                            className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary`}
+                                        />
+                                    </div>
+
                                     {/* Continue adding form fields as needed */}
                                     <button
                                         type="submit"

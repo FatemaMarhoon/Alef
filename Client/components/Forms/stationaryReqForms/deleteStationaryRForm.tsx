@@ -5,10 +5,15 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { getStationaryRequestById, deleteStationaryRequest } from "@/services/stationaryRequestService"; // Update with your actual service functions
 import { useRouter } from 'next/navigation';
 import { StationaryRequest } from "@/types/stationaryRequest";
+import { getStationary } from '@/services/stationaryService';
+import { getStaffById } from '@/services/staffService'; // Add the actual service function
+import { Stationary } from '@/types/stationary';
 
 export default function DeleteStationaryRequestPage({ id }: { id: string }) {
     const router = useRouter();
     const [stationaryRequest, setStationaryRequest] = useState<StationaryRequest | null>(null);
+    const [stationaries, setStationaries] = useState<Stationary[]>([]);
+    const [staffName, setStaffName] = useState<string>('');
 
     useEffect(() => {
         async function fetchStationaryRequest() {
@@ -16,6 +21,14 @@ export default function DeleteStationaryRequestPage({ id }: { id: string }) {
                 if (id) {
                     const stationaryRequestData = await getStationaryRequestById(id);
                     setStationaryRequest(stationaryRequestData);
+
+                    // Fetch the list of stationary items
+                    const stationariesData = await getStationary();
+                    setStationaries(stationariesData);
+
+                    // Fetch staff information based on staff_id
+                    const staffInfo = await getStaffById(parseInt(stationaryRequestData.staff_id));
+                    setStaffName(staffInfo ? staffInfo.name : 'Unknown');
                 }
             } catch (error) {
                 console.error("Error fetching stationary request:", error);
@@ -42,7 +55,10 @@ export default function DeleteStationaryRequestPage({ id }: { id: string }) {
                 });
         }
     };
-
+    const getStationaryName = (stationaryId: number): string => {
+        const stationary = stationaries.find(item => item.id === stationaryId);
+        return stationary ? stationary.stationary_name : 'Unknown';
+    };
     return (
         <>
             <Breadcrumb pageName="Delete Stationary Request" />
@@ -57,10 +73,19 @@ export default function DeleteStationaryRequestPage({ id }: { id: string }) {
                             {stationaryRequest ? (
                                 <>
                                     <p>
+                                        <strong>Stationary Name:</strong> {getStationaryName(stationaryRequest.stationary_id)}
+                                    </p>
+                                    <p>
                                         <strong>Status:</strong> {stationaryRequest.status_name}
                                     </p>
                                     <p>
-                                        <strong>Staff ID:</strong> {stationaryRequest.staff_id}
+                                        <strong>Requested Quantity:</strong> {stationaryRequest.requested_quantity}
+                                    </p>
+                                    <p>
+                                        <strong>Staff Name:</strong> {staffName}
+                                    </p>
+                                    <p>
+                                        <strong>Notes:</strong> {stationaryRequest.notes}
                                     </p>
                                 </>
                             ) : (
