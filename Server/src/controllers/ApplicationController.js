@@ -6,6 +6,8 @@ const Preschool = require('../models/preschool')(sequelize, DataTypes);
 const User = require('../models/user')(sequelize, DataTypes);
 const Evaluation = require('../models/application_evaluation')(sequelize, DataTypes);
 const GradesController = require('../controllers/GradeCapacityController')
+const FilesManager = require('./FilesManager');
+
 //associations
 Application.belongsTo(User, { foreignKey: 'created_by' });
 Application.belongsTo(Preschool, { foreignKey: 'preschool_id' });
@@ -15,15 +17,16 @@ Preschool.hasMany(Application, { foreignKey: 'preschool_id' });
 
 const ApplicationController = {
     async getAllApplications(req, res) {
-        const preschool = req.query.preschool;
-        const status = req.query.status;
-        const user_id = req.query.user_id;
+        const preschool = req.query.preschool; //list applications in web 
+        const status = req.query.status; //filter applications in web 
+        const user_id = req.query.user_id; //to get parent's application (Mobile App)
         try {
             if (preschool) {
                 if (status) {
                     const applications = await Application.findAll({
                         include: [
                             { model: User },
+                            { model: Preschool},
                             { model: Evaluation },
                         ],
                         where: { preschool_id: preschool, status: status }
@@ -41,6 +44,7 @@ const ApplicationController = {
             }
             else if (user_id) {
                 const applications = await Application.findAll({
+                    include : Preschool,
                     where: { created_by : user_id}
                 });
                 return res.json(applications);
@@ -51,11 +55,27 @@ const ApplicationController = {
     },
 
     async createApplication(req, res) {
-        const { email, preschool_id, guardian_type, status, student_name, guardian_name,student_CPR, phone, student_DOB,medical_history, created_by, gender, grade } = req.body;
-        const application = { email, preschool_id, guardian_type, status, student_name, guardian_name,student_CPR, phone, student_DOB,medical_history, created_by, gender, grade };
+        const { email, preschool_id, guardian_type, status, student_name, guardian_name,student_CPR, phone, student_DOB,medical_history, created_by, gender,personal_picture, grade, certificate_of_birth, passport } = req.body;
+        const application = { email, preschool_id, guardian_type, status, student_name, guardian_name,student_CPR, phone, student_DOB,medical_history, created_by, gender, grade, certificate_of_birth, passport, personal_picture };
         try {
+            //upload files
+            const personal_picture = req.files['personal_picture'][0];
+            const picture_url = await FilesManager.upload(personal_picture);
+            application.personal_picture = picture_url;
+
+            const certificate_of_birth = req.files['certificate_of_birth'][0];
+            const certificate_url = await FilesManager.upload(certificate_of_birth);
+            application.certificate_of_birth = certificate_url;
+
+            const passport = req.files['passport'][0];
+            const passport_url = await FilesManager.upload(passport);
+            application.passport = passport_url;
+
+            //set status 
             const capacity = await GradesController.checkGradeCapacity(preschool_id,grade);
             capacity ? application.status = "Pending" : application.status = "Waitlist";
+
+            //create application
              const newApplication = await Application.create(application);
             res.status(201).json({
                 message: 'Application created successfully',
@@ -71,22 +91,7 @@ const ApplicationController = {
         const { id } = req.params;
         try {
             const application = await Application.findByPk(id, {
-                include: Evaluation
-            });
-            if (!application) {
-                return res.status(404).json({ message: 'Application not found.' });
-            }
-            res.json(application);
-        } catch (error) {
-            res.status(500).json({ message: error.message });
-        }
-    },
-
-    async getParentApplicaions(req, res) {
-        const { user_id } = req.params;
-        try {
-            const application = await Application.findByPk(id, {
-                include: Evaluation
+                include: Preschool
             });
             if (!application) {
                 return res.status(404).json({ message: 'Application not found.' });
