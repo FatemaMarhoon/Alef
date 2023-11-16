@@ -10,7 +10,11 @@ Preschool.hasMany(Staff, { foreignKey: 'preschool_id' });
 const StaffController = {
     async getAllStaff(req, res) {
         try {
+            const { preschoolId } = req.params;
+
             const staffMembers = await Staff.findAll({
+                where: { preschool_id: preschoolId },
+
                 include: Preschool
             });
             res.json(staffMembers);

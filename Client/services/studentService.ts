@@ -1,8 +1,9 @@
 import { Student } from '@/types/student'; // Import the Student type
 import axios, { AxiosRequestConfig } from 'axios';
-import { currentUser } from './userService';
-
-const BASE_URL = 'http://localhost:3000/student'; // Backend URL for students
+//import { currentUser } from './userService';
+import { UserStorage } from "@/types/user";
+const currentUser = UserStorage.getCurrentUser();
+const BASE_URL = `http://localhost:3000/student/preschool/${currentUser?.preschool_id}`; // Backend URL for students
 
 export async function getStudents(): Promise<Student[]> {
     try {
@@ -16,7 +17,7 @@ export async function getStudents(): Promise<Student[]> {
         };
 
         //  const response = await axios.get<Student[]>(BASE_URL, config);
-        const response = await axios.get<Student[]>(`${BASE_URL}?preschool=${currentUser()?.preschool_id}`, config);
+        const response = await axios.get<Student[]>(BASE_URL, config);
         return response.data;
     } catch (error) {
         throw error;

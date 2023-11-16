@@ -3,7 +3,8 @@ const StudentController = require('../controllers/StudentController');
 const router = express.Router();
 
 // Get all students
-router.get('/', StudentController.getAllStudents);
+// router.get('/', StudentController.getAllStudents);
+router.get('/preschool/:preschoolId', StudentController.getAllStudents);
 
 // Get student by student_id
 router.get('/:student_id', StudentController.getStudentById);

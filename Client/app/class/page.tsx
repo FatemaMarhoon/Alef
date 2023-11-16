@@ -31,6 +31,11 @@ export default function ClassTable() {
     }, []);
 
     const getStaffName = (staffId: number): string => {
+        if (!Array.isArray(staff)) {
+            console.error('Staff is not an array:', staff);
+            return 'Unknown';
+        }
+
         const staffName = staff.find(item => item.id === staffId);
 
         console.log('staff:', staff);

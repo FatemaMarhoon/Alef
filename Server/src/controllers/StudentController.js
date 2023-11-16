@@ -14,8 +14,13 @@ Class.hasMany(Student, { foreignKey: 'class_id' });
 const StudentController = {
     async getAllStudents(req, res) {
         try {
+            const { preschoolId } = req.params;
+
             const students = await Student.findAll({
+                where: { preschool_id: preschoolId },
+
                 include: Preschool
+
             });
             res.json(students);
         } catch (error) {

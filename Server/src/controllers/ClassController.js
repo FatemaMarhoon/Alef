@@ -14,6 +14,7 @@ const ClassController = {
     async getAllClasses(req, res) {
         try {
             const { preschoolId } = req.params;
+            // const preschoolId = req.query.preschool;
             const classes = await Class.findAll({
                 where: { preschool_id: preschoolId },
                 include: [Preschool, Staff]
