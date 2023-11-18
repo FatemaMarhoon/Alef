@@ -1,5 +1,5 @@
-import { FirebaseApp, initializeApp } from 'firebase/app';
-import { useAuth } from './AuthProvider';
+import { initializeApp } from 'firebase/app';
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check";
 // import { getAuth } from "firebase/auth";
 import { getAuth, signOut, signInWithEmailAndPassword, GoogleAuthProvider, signInWithRedirect, getRedirectResult, Auth, signInWithPopup } from "firebase/auth";
 import { UserSingleton } from './singleton';
@@ -18,6 +18,11 @@ export function FirebaseSetup(): Auth {
     };
 
     const app = initializeApp(firebaseConfig);
+    //app check initialization 
+    const appCheck = initializeAppCheck(app, {
+        provider: new ReCaptchaEnterpriseProvider('6LdvCBIpAAAAAJhgQ_29767z_qBZxnG4dyA_EE6U'),
+        isTokenAutoRefreshEnabled: true // Set to true to allow auto-refresh.
+      });
     const auth = getAuth(app);
     return auth;
 }
