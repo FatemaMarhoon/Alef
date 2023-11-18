@@ -1,11 +1,14 @@
 const { verify } = require("jsonwebtoken");
+const admin = require('./firebase.config')
 
 const token_validation = {
     checkToken: (req, res, next) => {
         var token = req.get("authorization");
+        console.log(token)
         if (token) {
-            token = token.slice(7);
-            const decoded = verify(token, "wmkd156skmx40zkm25s81zxc");
+            token = token.split(' ')[1]
+            console.log("after: ",token) 
+            const decoded = admin.auth().verifyIdToken(token)
             if (decoded) {
                 next();
             }

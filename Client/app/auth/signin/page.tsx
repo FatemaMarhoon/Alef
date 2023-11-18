@@ -3,19 +3,45 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import {initializeApp}  from 'firebase/app';
-import { Metadata } from "next";
 // import { signInWithEmailAndPassword } from "firebase/auth/cordova";
-import { getAuth, signInWithEmailAndPassword,GoogleAuthProvider,signInWithRedirect,getRedirectResult } from "firebase/auth";
+import { useRouter } from "next/navigation";
 import { loginWithGoogle, loginWithEmail } from "@/services/authService";
-export const metadata: Metadata = {
-  title: "Signin Page | Next.js E-commerce Dashboard Template",
-  description: "This is Signin page for TailAdmin Next.js",
-  // other metadata
-};
+import { UserSingleton } from "@/services/singleton";
 
 
 const SignIn: React.FC = () => {
+  const router = useRouter();
+
+  async function handleGoogleLogin() {
+    try {
+      await loginWithGoogle();
+      const user = UserSingleton.getInstance().getUser();
+      if (user) {
+        console.log("logged in")
+        console.log("singleton user: ",user)
+      }
+    } catch (error) {
+      console.error('Error during login:', error);
+      // Handle the error as needed
+    }
+  }
+  
+  async function handleEmailLogin() {
+    try {
+      await loginWithEmail();
+      const user = UserSingleton.getInstance().getUser();
+        if (user) {
+          console.log("logged in")
+        console.log("singleton user: ",UserSingleton.getInstance().getUser())
+        router.push('/');
+      }
+      
+      
+    } catch (error) {
+      console.error('Error during login:', error);
+      // Handle the error as needed
+    }
+  }
   
   return (
     <>
@@ -248,14 +274,14 @@ const SignIn: React.FC = () => {
 
                 <div className="mb-5">
                   <input
-                    onClick={loginWithEmail}
+                    onClick={handleEmailLogin}
                     value="Sign In"
                     className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
                   />
                 </div>
 
                 <button 
-                onClick={loginWithGoogle}
+                onClick={handleGoogleLogin}
                 className="flex w-full items-center justify-center gap-3.5 rounded-lg border border-stroke bg-gray p-4 hover:bg-opacity-50 dark:border-strokedark dark:bg-meta-4 dark:hover:bg-opacity-50">
                   <span>
                     <svg
