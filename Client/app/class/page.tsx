@@ -54,7 +54,7 @@ export default function ClassTable() {
                 Classes Management
             </h4>
             <div className="flex justify-end mb-4">
-                <Link href="/classes/create"
+                <Link href="/class/create"
                     className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
                     Add new class
                 </Link>

@@ -42,9 +42,11 @@ const ClassForm: React.FC<ClassFormProps> = ({ onCreateClasses }) => {
     const handleClassnameChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
         updateClassData(index, 'class_name', e.target.value);
     };
-    // Change the function signature
+    const [selectedSupervisors, setSelectedSupervisors] = useState<string[]>([]);
+
     const handleSupervisorChange = (selectedSupervisorId: string, index: number) => {
         updateClassData(index, 'supervisor', selectedSupervisorId);
+        setSelectedSupervisors((prevSelected) => [...prevSelected, selectedSupervisorId]);
     };
 
 
@@ -88,7 +90,7 @@ const ClassForm: React.FC<ClassFormProps> = ({ onCreateClasses }) => {
             onCreateClasses(createdClasses);
 
             //push to another page
-            router.push('class');
+            router.push('/class');
 
         } catch (error) {
             // Handle error
@@ -108,7 +110,7 @@ const ClassForm: React.FC<ClassFormProps> = ({ onCreateClasses }) => {
                 // Log the response.data or the actual array
                 console.log('Staff List Data:', response.data || response);
 
-                setStaffList(response.data || []); // Assuming response.data is the array of staff
+                setStaffList(response || []); // Assuming response.data is the array of staff
                 // Set loading to false after fetching data (if needed)
                 console.log("staffff", staffList);
             } catch (error) {
@@ -119,7 +121,7 @@ const ClassForm: React.FC<ClassFormProps> = ({ onCreateClasses }) => {
         }
 
         fetchStaffList();
-    }, []); // Empty
+    }, [getStaff]); // Empty
 
     return (
         <div className=" items-center justify-center min-h-screen">
@@ -184,7 +186,7 @@ const ClassForm: React.FC<ClassFormProps> = ({ onCreateClasses }) => {
                                     Supervisor <span className="text-meta-1">*</span>
                                 </label>
                                 <select
-                                    key={staffList.length}
+                                    key={index}
                                     name={`supervisor-${index}`}
                                     value={classInfo.supervisor}
                                     onChange={(e) => handleSupervisorChange(e.target.value, index)}
