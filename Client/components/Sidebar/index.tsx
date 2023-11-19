@@ -3,6 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import SidebarLinkGroup from "./SidebarLinkGroup";
 import Image from "next/image";
+import AlefLogo from '../../public/images/logo/Alef - bordered logo.png';
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -62,12 +63,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         }`}
     >
       {/* <!-- SIDEBAR HEADER --> */}
-      <div className="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
+      <div className="flex items-center justify-center px-6 py-5.5 lg:py-6.5">
         <Link href="/">
           <Image
             width={176}
             height={32}
-            src={"/images/logo/logo.svg"}
+            src={AlefLogo}
             alt="Logo"
           />
         </Link>
