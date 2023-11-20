@@ -12,10 +12,28 @@ import { ApplicationPOST } from "@/types/applicationPOST";
 export default function EditApplicationForm({ params }: { params: { id: number } }) {
     const router = useRouter();
 
-    const [application, setApplication] = useState<Application | null>(null); //original object
-    const [applicationPOST, setApplicationPOST] = useState<ApplicationPOST | null>(null); //update version to be sent with post requests 
+    //original object
+    const [application, setApplication] = useState<Application | null>(null); 
+    //lists to populate drop downs and store errors
     const [guardianTypes, setGuardianTypes] = useState<StaticValue[]>([]);
     const [grades, setGrades] = useState<string[]>([]);
+    const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+    //updated values storage 
+    const [email, setEmail] = useState("");
+    const [guardianType, setGuardianType] = useState("");
+    const [studentName, setStudentName] = useState("");
+    const [gender, setGender] = useState("");
+    const [grade, setGrade] = useState("");
+    const [studentCPR, setStudentCPR] = useState("");
+    const [guardianName, setGuardianName] = useState("");
+    const [phone, setPhone] = useState("");
+    const [studentDOB, setStudentDOB] = useState("");
+    const [medicalHistory, setMedicalHistory] = useState("");
+    const [status, setStatus] = useState("");
+    const [personalPicture, setPersonalPicture] = useState<File | undefined>(undefined);
+    const [passport, setPassport] = useState<File | undefined>(undefined);
+    const [certificateOfBirth, setCertificateOfBirth] = useState<File | undefined>(undefined);
 
     useEffect(() => {
         async function fetchGuardianTypes() {
@@ -55,55 +73,111 @@ export default function EditApplicationForm({ params }: { params: { id: number }
         };
 
         fetchApplicationData();
-        if (application) {
-            setApplicationPOST({
-                id: application?.id,
-                email: application.email,
-                preschool_id: application.preschool_id,
-                guardian_type: application.guardian_type,
-                status: application.status,
-                student_name: application.student_name,
-                student_CPR: application.student_CPR,
-                gender: application.gender,
-                grade: application.grade,
-                guardian_name: application.guardian_name,
-                phone: application.phone,
-                student_DOB: application.student_DOB,
-                medical_history: application.medical_history,
-                passport: undefined,
-                certificate_of_birth: undefined,
-                personal_picture: undefined,
-                created_by: application.created_by,
-                createdAt: application.createdAt,
-                updatedAt: application.updatedAt
-            })
-        }
-
     }, [params.id]);
 
-
-
+    
     // Update the handleFileChange function
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>, setFile: React.Dispatch<React.SetStateAction<File | undefined>>) => {
         const file = e.target.files?.[0];
         setFile(file);
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const focusOnFirstError = (errors: Record<string, string>) => {
+        const firstErrorField = Object.keys(errors)[0];
+        const errorFieldElement = document.querySelector(`[name="${firstErrorField}"]`) as HTMLInputElement | null;
 
-        try {
-            const response = await updateApplication(applicationPOST);
-            router.push("/applications"); // Redirect to the applications page after submission
-        } catch (error) {
-            // Handle error
-            console.error("Error creating application:", error);
+        if (errorFieldElement) {
+            errorFieldElement.focus();
         }
     };
 
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        setErrors({}); // Reset errors
+
+        // Validate form data
+        let hasErrors = false;
+
+        // Validate other fields as needed
+        // Example validation:
+        // if (!studentName.trim()) {
+        //     setErrors((prevErrors) => ({ ...prevErrors, studentName: "Student name cannot be empty." }));
+        //     hasErrors = true;
+        // }
+
+        // Add more validation for other fields as needed
+
+        if (hasErrors) {
+            setTimeout(() => {
+                focusOnFirstError(errors);
+            }, 0);
+            return;
+        }
+
+        try {
+            if (application) {
+                const applicationID = params.id;
+                const response = await updateApplication(
+                    applicationID,
+                    email,
+                    guardianType,
+                    studentName,
+                    Number(studentCPR),
+                    gender,
+                    grade,
+                    guardianName,
+                    phone,
+                    studentDOB ? new Date(studentDOB) : undefined,
+                    medicalHistory,
+                    personalPicture,
+                    certificateOfBirth,
+                    passport,
+                    status
+                );
+                router.push("/applications");
+            }
+        } catch (error) {
+            console.error("Error updating application:", error);
+        }
+    };
+    // const handleSubmit = async (e: React.FormEvent) => {
+    //     e.preventDefault();
+
+    //     try {
+    //         console.log(" in submit function: ", studentDOB)
+    //         if (application){
+    //             const applicationID = params.id;
+    //             const userId = application.created_by
+    //             const response = await updateApplication(
+    //                 applicationID,
+    //                 email,
+    //                 guardianType,
+    //                 studentName,
+    //                 Number(studentCPR),
+    //                 gender,
+    //                 grade,
+    //                 guardianName,
+    //                 phone,
+    //                 studentDOB ? new Date(studentDOB) : undefined,
+    //                 medicalHistory,
+    //                 personalPicture,
+    //                 certificateOfBirth,
+    //                 passport,
+    //                 userId,
+    //                 status
+    //             );
+    //             router.push("/applications"); // Redirect to the applications page after submission
+    //         }
+    //     } catch (error) {
+    //         // Handle error
+    //         console.error("Error updating application:", error);
+    //     }
+    // };
+
     return (
         <>
-            <Breadcrumb pageName="Create Application" />
+            <Breadcrumb pageName="Edit Application" />
 
             <div className="grid grid-cols-1 gap-9 sm:grid-cols-2">
                 <div className="flex flex-col gap-9">
@@ -111,12 +185,11 @@ export default function EditApplicationForm({ params }: { params: { id: number }
                     <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
                         <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
                             <h3 className="font-medium text-black dark:text-white">
-                                Create Application
+                                Edit Application
                             </h3>
                         </div>
                         <form action="#" onSubmit={handleSubmit} encType="multipart/form-data">
                             <div className="p-6.5">
-
                                 {/* Student Name */}
                                 <div className="mb-4.5">
                                     <label className="mb-2.5 block text-black dark:text-white">
@@ -125,13 +198,28 @@ export default function EditApplicationForm({ params }: { params: { id: number }
                                     <input
                                         type="text"
                                         value={application?.student_name}
-                                        // onChange={(e) =>
-                                        //     setApplicationPOST({ ...applicationPOST,student_name: e.target.value })
-                                        // }
+                                        onChange={(e) => setStudentName(e.target.value)}
                                         placeholder="Enter student's name"
-                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                                        className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.studentName ? 'border-error' : ''
+                                            }`}
                                     />
+                                    {errors.studentName && (
+                                        <p className="text-error text-sm mt-1">{errors.studentName}</p>
+                                    )}
                                 </div>
+                                {/* Student Name */}
+                                {/* <div className="mb-4.5">
+                                    <label className="mb-2.5 block text-black dark:text-white">
+                                        Student Name <span className="text-meta-1">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={application?.student_name}
+                                        onChange={(e) => setStudentName(e.target.value)}
+                                        placeholder="Enter student's name"
+                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary   dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                                    />
+                                </div> */}
 
                                 {/* Student CPR */}
                                 <div className="mb-4.5">
@@ -141,9 +229,9 @@ export default function EditApplicationForm({ params }: { params: { id: number }
                                     <input
                                         type="number"
                                         value={application?.student_CPR}
-                                        // onChange={(e) => setStudentCPR(e.target.value)}
+                                        onChange={(e) => setStudentCPR(e.target.value)}
                                         placeholder="Enter student's CPR"
-                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary   dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                                     />
                                 </div>
 
@@ -154,9 +242,9 @@ export default function EditApplicationForm({ params }: { params: { id: number }
                                     </label>
                                     <input
                                         type="date"
-                                        value={application?.student_DOB.toISOString()}
-                                        // onChange={(e) => setStudentDOB(e.target.value)}
-                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                                        value={application?.student_DOB.toString()}
+                                        onChange={(e) => setStudentDOB(e.target.value)}
+                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary   dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                                     />
                                 </div>
 
@@ -173,7 +261,7 @@ export default function EditApplicationForm({ params }: { params: { id: number }
                                                 name="gender"
                                                 value="Male"
                                                 checked={application?.gender === "Male"}
-                                                // onChange={() => setGender("Male")}
+                                                onChange={() => setGender("Male")}
                                             />
                                             <label className="ml-2" htmlFor="male">
                                                 Male
@@ -186,7 +274,7 @@ export default function EditApplicationForm({ params }: { params: { id: number }
                                                 name="gender"
                                                 value="Female"
                                                 checked={application?.gender === "Female"}
-                                                // onChange={() => setGender("Female")}
+                                                onChange={() => setGender("Female")}
                                             />
                                             <label className="ml-2" htmlFor="female">
                                                 Female
@@ -203,7 +291,7 @@ export default function EditApplicationForm({ params }: { params: { id: number }
                                     <div className="relative z-20 bg-transparent dark:bg-form-input">
                                         <select
                                             value={application?.grade}
-                                            // onChange={(e) => setGrade(e.target.value)}
+                                            onChange={(e) => setGrade(e.target.value)}
                                             className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                                         >
                                             <option value="">Select grade</option>
@@ -243,9 +331,9 @@ export default function EditApplicationForm({ params }: { params: { id: number }
                                     <input
                                         type="text"
                                         value={application?.guardian_name}
-                                        // onChange={(e) => setGuardianName(e.target.value)}
+                                        onChange={(e) => setGuardianName(e.target.value)}
                                         placeholder="Enter guardian's name"
-                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary   dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                                     />
                                 </div>
 
@@ -257,7 +345,7 @@ export default function EditApplicationForm({ params }: { params: { id: number }
                                     <div className="relative z-20 bg-transparent dark:bg-form-input">
                                         <select
                                             value={application?.guardian_type}
-                                            // onChange={(e) => setGuardianType(e.target.value)}
+                                            onChange={(e) => setGuardianType(e.target.value)}
                                             className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                                         >
                                             <option value="">Select guardian type</option>
@@ -297,9 +385,9 @@ export default function EditApplicationForm({ params }: { params: { id: number }
                                     <input
                                         type="text"
                                         value={application?.phone}
-                                        // onChange={(e) => setPhone(e.target.value)}
+                                        onChange={(e) => setPhone(e.target.value)}
                                         placeholder="Enter contact phone number"
-                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary   dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                                     />
                                 </div>
 
@@ -310,9 +398,9 @@ export default function EditApplicationForm({ params }: { params: { id: number }
                                     <input
                                         type="email"
                                         value={application?.email}
-                                        // onChange={(e) => setEmail(e.target.value)}
+                                        onChange={(e) => setEmail(e.target.value)}
                                         placeholder="Enter contact email address"
-                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary   dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                                     />
                                 </div>
 
@@ -323,9 +411,9 @@ export default function EditApplicationForm({ params }: { params: { id: number }
                                     </label>
                                     <textarea
                                         value={application?.medical_history}
-                                        // onChange={(e) => setMedicalHistory(e.target.value)}
+                                        onChange={(e) => setMedicalHistory(e.target.value)}
                                         placeholder="Please provide detials of any medical condition or long term illness that the student has."
-                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary   dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                                     />
                                 </div>
 
@@ -337,8 +425,8 @@ export default function EditApplicationForm({ params }: { params: { id: number }
                                     <label>{application?.personal_picture}</label>
                                     <input
                                         type="file"
-                                        // onChange={(e) => handleFileChange(e, setPersonalPicture)}
-                                        className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
+                                        onChange={(e) => handleFileChange(e, setPersonalPicture)}
+                                        className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary   dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
                                     />
                                 </div>
 
@@ -350,8 +438,8 @@ export default function EditApplicationForm({ params }: { params: { id: number }
                                     <label>{application?.certificate_of_birth}</label>
                                     <input
                                         type="file"
-                                        // onChange={(e) => handleFileChange(e, setCertificateOfBirth)}
-                                        className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
+                                        onChange={(e) => handleFileChange(e, setCertificateOfBirth)}
+                                        className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary   dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
                                     />
                                 </div>
 
@@ -363,8 +451,8 @@ export default function EditApplicationForm({ params }: { params: { id: number }
                                     <label>{application?.passport}</label>
                                     <input
                                         type="file"
-                                        // onChange={(e) => handleFileChange(e, setPassport)}
-                                        className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
+                                        onChange={(e) => handleFileChange(e, setPassport)}
+                                        className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary   dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
                                     />
                                 </div>
 

@@ -20,8 +20,8 @@ export interface Application {
     certificate_of_birth:string;
     personal_picture:string;
     created_by: number; //user id
-    User : User;
-    Application_Evaluation: Evaluation;
+    User? : User;
+    Application_Evaluation : Evaluation;
     Preschool: Preschool;
     createdAt: string;
     updatedAt: string;
