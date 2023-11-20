@@ -25,7 +25,7 @@ export default function StudentTable() {
         <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark-bg-boxdark sm-px-7.5 xl-pb-1">
 
             <h4 className="mb-6 text-xl font-semibold text-black dark-text-white">
-                Students
+                Students Management
             </h4>
             <div className="flex justify-end mb-4">
                 {/* <button className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
@@ -49,6 +49,9 @@ export default function StudentTable() {
                             </th>
                             <th className="py-4 px-4 font-medium text-black dark-text-white">
                                 Date of Birth
+                            </th>
+                            <th className="py-4 px-4 font-medium text-black dark-text-white">
+                                Gender
                             </th>
                             <th className="py-4 px-4 font-medium text-black dark-text-white">
                                 CPR
@@ -89,6 +92,18 @@ export default function StudentTable() {
                                 <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                                     <p className="text-black dark-text-white">
                                         {new Date(student.DOB).toLocaleDateString()}
+                                    </p>
+                                </td>
+                                <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                                    <p
+                                        className="text-black dark-text-white"
+                                    //                                         className={`inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium 
+                                    //    ${student.gender === "Male" ? "text-blue-500 bg-blue-100" :
+                                    //                                                 student.gender === "Female" ? "text-pink-500 bg-pink-100" : ""}
+                                    // `}
+
+                                    >
+                                        {student.gender}
                                     </p>
                                 </td>
                                 <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">

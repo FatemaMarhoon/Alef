@@ -3,7 +3,8 @@ const StudentController = require('../controllers/StudentController');
 const router = express.Router();
 
 // Get all students
-router.get('/', StudentController.getAllStudents);
+// router.get('/', StudentController.getAllStudents);
+router.get('/preschool/:preschoolId', StudentController.getAllStudents);
 
 // Get student by student_id
 router.get('/:student_id', StudentController.getStudentById);
@@ -20,5 +21,7 @@ router.delete('/:student_id', StudentController.deleteStudent);
 router.get('/preschool/:preschool_id', StudentController.getStudentsByPreschool);
 
 // Get students by class
-router.get('/class/:class_name', StudentController.getStudentsByClass);
+router.get('/:preschoolId/:classId', StudentController.getStudentsByClassId);
+
+
 module.exports = router;

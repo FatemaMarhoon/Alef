@@ -7,6 +7,9 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    class_id: {
+      type: DataTypes.INTEGER,
+    },
     student_name: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -36,6 +39,10 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
     },
     medical_history: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    gender: {
       type: DataTypes.STRING,
       allowNull: false,
     },

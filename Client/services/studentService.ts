@@ -1,8 +1,11 @@
 import { Student } from '@/types/student'; // Import the Student type
-import axios, { AxiosRequestConfig } from 'axios';
-import { currentUser } from './userService';
+//import { currentUser } from './userService';
+import { UserStorage } from "@/types/user";
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 
-const BASE_URL = 'http://localhost:3000/student'; // Backend URL for students
+const currentUser = UserStorage.getCurrentUser();
+// const BASE_URL = `http://localhost:3000/student/preschool/${currentUser?.preschool_id}`; // Backend URL for students
+const BASE_URL = 'http://localhost:3000/student/' // Backend URL for students
 
 export async function getStudents(): Promise<Student[]> {
     try {
@@ -16,7 +19,9 @@ export async function getStudents(): Promise<Student[]> {
         };
 
         //  const response = await axios.get<Student[]>(BASE_URL, config);
-        const response = await axios.get<Student[]>(`${BASE_URL}?preschool=${currentUser()?.preschool_id}`, config);
+        // const response = await axios.get<Student[]>(BASE_URL, config);
+        const response = await axios.get<Student[]>(`${BASE_URL}/preschool/${currentUser?.preschool_id}`);
+
         return response.data;
     } catch (error) {
         throw error;
@@ -64,15 +69,28 @@ export async function deleteStudent(studentId: string): Promise<void> {
         await axios.delete(`${BASE_URL}/${studentId}`, config);
     } catch (error) {
         console.error("Error deleting student:", error);
+        // Type assertion for error variable
+        const axiosError = error as AxiosError;
 
+        // Print Axios error details
+        if (axiosError.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            console.error("Response data:", axiosError.response.data);
+            console.error("Response status:", axiosError.response.status);
+            console.error("Response headers:", axiosError.response.headers);
+        } else if (axiosError.request) {
+            // The request was made but no response was received
+            console.error("No response received:", axiosError.request);
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            console.error("Error setting up the request:", axiosError.message);
+        }
 
-        // You can also access specific properties of the error, for example:
-        console.error('Error status code:', error.response.status);
-        console.error('Error response data:', error.response.data);
-        throw error;
+        throw axiosError;
     }
 }
-export async function updateStudent(studentId: string, studentData): Promise<void> {
+export async function updateStudent(studentId: string, studentData: Student): Promise<void> {
     try {
         const token = localStorage.getItem('token'); // Get the JWT token from localStorage
 
@@ -89,13 +107,55 @@ export async function updateStudent(studentId: string, studentData): Promise<voi
         // Handle the successful response here, if needed
         console.log('Student updated successfully', response.data);
     } catch (error) {
-        // Log the Axios error details
-        console.error('Error updating student:', error);
+        console.error("Error updating student:", error);
+        // Type assertion for error variable
+        const axiosError = error as AxiosError;
 
-        // You can also access specific properties of the error, for example:
-        console.error('Error status code:', error.response.status);
-        console.error('Error response data:', error.response.data);
+        // Print Axios error details
+        if (axiosError.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            console.error("Response data:", axiosError.response.data);
+            console.error("Response status:", axiosError.response.status);
+            console.error("Response headers:", axiosError.response.headers);
+        } else if (axiosError.request) {
+            // The request was made but no response was received
+            console.error("No response received:", axiosError.request);
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            console.error("Error setting up the request:", axiosError.message);
+        }
 
-        throw error; // Rethrow the error to propagate it to the calling code
+        throw axiosError;
+    }
+
+
+}
+
+export async function getStudentsByClassId(classId: string): Promise<Student[]> {
+    try {
+        const response = await axios.get<Student[]>(`${BASE_URL}/${currentUser?.preschool_id}/${classId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error updating student:", error);
+        // Type assertion for error variable
+        const axiosError = error as AxiosError;
+
+        // Print Axios error details
+        if (axiosError.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            console.error("Response data:", axiosError.response.data);
+            console.error("Response status:", axiosError.response.status);
+            console.error("Response headers:", axiosError.response.headers);
+        } else if (axiosError.request) {
+            // The request was made but no response was received
+            console.error("No response received:", axiosError.request);
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            console.error("Error setting up the request:", axiosError.message);
+        }
+
+        throw axiosError;
     }
 }
