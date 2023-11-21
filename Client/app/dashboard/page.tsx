@@ -1,14 +1,34 @@
 'use client'
-import { useEffect } from 'react';
-import { getAuth } from "firebase/auth";
-import { FirebaseSetup } from "@/services/authService";
-import { UserSingleton } from '@/services/singleton';
+import { useEffect, useState } from 'react';
+import { User, getAuth } from "firebase/auth";
+import { currentUser } from "@/services/authService";
 
 export default function Dashboard() {
-  const userName = UserSingleton.getInstance().getToken()
+
+  const [username, setUsername] = useState("");
+
+useEffect(() => {
+  const loadCurrentUser = async () => {
+    try {
+      const user = await currentUser();
+      if (user) {
+        setUsername(user?.email ? user.email : "")
+        console.log("ACCESSSEEEEDDD");
+      } else {
+        console.log("CANTTT");
+      }
+    } catch (error) {
+      console.error('Error fetching current user:', error);
+    }
+  };
+
+  loadCurrentUser();
+}, []);
+
+  
   return (
     <main>
-      <h2>Welcome to Dashboard {userName}</h2>
+      <h2>Welcome to Dashboard {username}</h2>
 
       {/* Rest of your component */}
     </main>

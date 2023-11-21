@@ -1,24 +1,23 @@
 // services/userService.ts
 import { User } from '@/types/user'
-// import { token } from './authService';
-import { useAuth } from './AuthProvider'
+import { currentUser } from './authService';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import { UserSingleton } from './singleton';
 
 const BASE_URL = 'http://localhost:3000/users'; // Replace with your backend URL
 
-function currentUser(): User | null {
-  const userObjectString = localStorage.getItem('currentUser');
-  if (userObjectString) {
-    const userObject = JSON.parse(userObjectString);
-    return userObject;
-  }
-  return null;
-}
+// function currentUser(): User | null {
+//   const userObjectString = localStorage.getItem('currentUser');
+//   if (userObjectString) {
+//     const userObject = JSON.parse(userObjectString);
+//     return userObject;
+//   }
+//   return null;
+// }
 
 export async function getUsers(): Promise<User[]> {
   try {
-    const token = UserSingleton.getInstance().getToken()
+    const user = await currentUser();
+    const token = (await user?.getIdToken())?.toString();
     // Set up the request config with headers
     console.log("in user service: ",token)
     const config: AxiosRequestConfig = {
@@ -27,7 +26,7 @@ export async function getUsers(): Promise<User[]> {
       },
     };
 
-    const response = await axios.get<User[]>(`${BASE_URL}?preschool=${currentUser()?.preschool_id}`, config);
+    const response = await axios.get<User[]>(`${BASE_URL}?preschool=1`, config);
     return response.data;
   } catch (error) {
     throw error;

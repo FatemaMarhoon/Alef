@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { logout } from "@/services/authService";
+import { useRouter } from "next/navigation";
 
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -34,6 +35,11 @@ const DropdownUser = () => {
     document.addEventListener("keydown", keyHandler);
     return () => document.removeEventListener("keydown", keyHandler);
   });
+  const router = useRouter();
+  async function handleLogout() {
+    await logout();
+    router.push("/auth/signin")
+  }
 
   return (
     <div className="relative">
@@ -159,7 +165,7 @@ const DropdownUser = () => {
           </li>
         </ul>
         <button 
-        onClick={logout}
+        onClick={handleLogout}
         className="flex items-center gap-3.5 py-4 px-6 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base">
           <svg
             className="fill-current"

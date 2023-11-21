@@ -6,7 +6,6 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 // import { signInWithEmailAndPassword } from "firebase/auth/cordova";
 import { useRouter } from "next/navigation";
 import { loginWithGoogle, loginWithEmail } from "@/services/authService";
-import { UserSingleton } from "@/services/singleton";
 
 
 const SignIn: React.FC = () => {
@@ -15,11 +14,7 @@ const SignIn: React.FC = () => {
   async function handleGoogleLogin() {
     try {
       await loginWithGoogle();
-      const user = UserSingleton.getInstance().getUser();
-      if (user) {
-        console.log("logged in")
-        console.log("singleton user: ",user)
-      }
+      router.push("/users");
     } catch (error) {
       console.error('Error during login:', error);
       // Handle the error as needed
@@ -29,12 +24,9 @@ const SignIn: React.FC = () => {
   async function handleEmailLogin() {
     try {
       await loginWithEmail();
-      const user = UserSingleton.getInstance().getUser();
-        if (user) {
-          console.log("logged in")
-        console.log("singleton user: ",UserSingleton.getInstance().getUser())
-        router.push('/');
-      }
+      router.push("/users");
+
+      
       
       
     } catch (error) {

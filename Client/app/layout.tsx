@@ -2,6 +2,7 @@
 import "./globals.css";
 import "./data-tables-css.css";
 import "./satoshi.css";
+// import './firebase-messaging-sw'
 import { useState, useEffect } from "react";
 import Loader from "@/components/common/Loader";
 
@@ -14,7 +15,6 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {

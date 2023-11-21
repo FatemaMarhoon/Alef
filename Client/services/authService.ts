@@ -1,13 +1,8 @@
-import { initializeApp } from 'firebase/app';
-import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check";
-// import { getAuth } from "firebase/auth";
-import { getAuth, signOut, signInWithEmailAndPassword, GoogleAuthProvider, signInWithRedirect, getRedirectResult, Auth, signInWithPopup } from "firebase/auth";
-import { UserSingleton } from './singleton';
+import { FirebaseApp, initializeApp } from 'firebase/app';
+import { getAuth, signOut, signInWithEmailAndPassword, GoogleAuthProvider, signInWithRedirect, getRedirectResult, Auth, signInWithPopup, onAuthStateChanged, User } from "firebase/auth";
+import { useEffect, useState } from 'react';
 
-export var auth: Auth | null = null;
-export var token: string | undefined = undefined;
-
-export function FirebaseSetup(): Auth {
+export function FirebaseSetup(): FirebaseApp {
     const firebaseConfig = {
         apiKey: "AIzaSyDgBjLpJBzgq5xPj9hbzW2ikCcduO3ZpHo",
         authDomain: "alef-b9e95.firebaseapp.com",
@@ -18,18 +13,20 @@ export function FirebaseSetup(): Auth {
     };
 
     const app = initializeApp(firebaseConfig);
-    //app check initialization 
-    const appCheck = initializeAppCheck(app, {
-        provider: new ReCaptchaEnterpriseProvider('6LdvCBIpAAAAAJhgQ_29767z_qBZxnG4dyA_EE6U'),
-        isTokenAutoRefreshEnabled: true // Set to true to allow auto-refresh.
-      });
-    const auth = getAuth(app);
-    return auth;
+    // //app check initialization 
+    // const appCheck = initializeAppCheck(app, {
+    //     provider: new ReCaptchaEnterpriseProvider('6LdvCBIpAAAAAJhgQ_29767z_qBZxnG4dyA_EE6U'),
+    //     isTokenAutoRefreshEnabled: true // Set to true to allow auto-refresh.
+    //   });
+
+    // const auth = getAuth(app);
+    // const analytics = getAnalytics(app);
+    return app;
 }
 
 //with pop-up
 export async function loginWithGoogle() {
-    const auth = FirebaseSetup();
+    const auth = getAuth(FirebaseSetup());
     const provider = new GoogleAuthProvider();
   
     try {
@@ -39,9 +36,6 @@ export async function loginWithGoogle() {
       const user = userCred.user;
         if (userToken) {
             console.log(userToken)
-            UserSingleton.getInstance().setUser(user)
-            UserSingleton.getInstance().setToken(userToken)
-            console.log("stored")
         }
     } catch (error) {
       console.error('Error during Google login:', error);
@@ -52,7 +46,7 @@ export async function loginWithGoogle() {
 
 //with redirect (idk it's stopped working)
 export async function loginWithGoogle2() {
-    const auth = FirebaseSetup();
+    const auth = getAuth(FirebaseSetup());
     const provider = new GoogleAuthProvider();
 
     try {
@@ -74,7 +68,7 @@ export async function loginWithGoogle2() {
 }
 
 export async function loginWithEmail() {
-    const auth = FirebaseSetup()
+    const auth = getAuth(FirebaseSetup());
     signInWithEmailAndPassword(auth, "test@gmail.com", "123456")
         .then(async (userCredential) => {
             // Signed in 
@@ -82,12 +76,6 @@ export async function loginWithEmail() {
             const user = userCredential.user;
             const userToken = await user.getIdToken();
             console.log(userToken);
-            token = userToken;
-            if (userToken) {
-                console.log("storing in singleton ...")
-                UserSingleton.getInstance().setUser(user)
-                UserSingleton.getInstance().setToken(userToken)
-            }
         })
         .catch((error) => {
             console.log(error.message)
@@ -96,15 +84,55 @@ export async function loginWithEmail() {
         });
 }
 
-export function logout() {
-    const auth = FirebaseSetup();
+export async function logout() {
+    const auth = getAuth(FirebaseSetup());
     signOut(auth).then(() => {
         // Sign-out successful.
-        UserSingleton.getInstance().setUser(undefined)
-        UserSingleton.getInstance().setToken("")
+       
         console.log("logged out")
     }).catch((error) => {
         // An error happened.
     });
 }
 
+// export async function currentUser() : Promise<User | null> {
+//     var currentUser = null;
+//     onAuthStateChanged(getAuth(FirebaseSetup()), (user) => {
+//         if (user) {
+//             currentUser = user;
+//           console.log("current user is: ", user)
+//         }
+//         else {
+//             console.log("no logged in user")
+//         }         
+//     })
+//     return currentUser;
+// }
+
+// export function useCurrentUser() {
+//     const [currentUser, setCurrentUser] = useState<User|null>(null);
+  
+//     useEffect(() => {
+//       const auth = getAuth(FirebaseSetup());
+//       const unsubscribe = onAuthStateChanged(auth, (user) => {
+//         setCurrentUser(user);
+//       });
+  
+//       // Cleanup function to unsubscribe from the auth state listener
+//       return () => unsubscribe();
+//     }, []);  // The empty dependency array ensures that this effect runs once after the initial render
+  
+//     return currentUser;
+//   }
+
+
+export async function currentUser(): Promise<User | null> {
+    const auth = getAuth(FirebaseSetup());
+  
+    return new Promise((resolve) => {
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        resolve(user);
+        unsubscribe(); // Unsubscribe after resolving to avoid memory leaks
+      });
+    });
+  }
