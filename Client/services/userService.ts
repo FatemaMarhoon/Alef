@@ -2,6 +2,7 @@
 import { User } from '@/types/user'
 import { currentUser } from './authService';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { UserSingleton } from './singleton';
 
 const BASE_URL = 'http://localhost:3000/users'; // Replace with your backend URL
 

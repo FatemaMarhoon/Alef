@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react';
-import { User, getAuth } from "firebase/auth";
+import { User } from "firebase/auth";
 import { currentUser } from "@/services/authService";
 
 export default function Dashboard() {
@@ -26,9 +26,11 @@ useEffect(() => {
 }, []);
 
   
+  const userName = UserSingleton.getInstance().getToken()
   return (
     <main>
       <h2>Welcome to Dashboard {username}</h2>
+
 
       {/* Rest of your component */}
     </main>
