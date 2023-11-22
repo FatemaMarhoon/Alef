@@ -1,18 +1,10 @@
 // services/userService.ts
 import { User } from '@/types/user'
-import { currentUser } from './authService';
+import { FirebaseSetup, currentUser } from './authService';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 
 const BASE_URL = 'http://localhost:3000/users'; // Replace with your backend URL
 
-// export function currentUser(): User | null {
-//   const userObjectString = localStorage.getItem('currentUser');
-//   if (userObjectString) {
-//     const userObject = JSON.parse(userObjectString);
-//     return userObject;
-//   }
-//   return null;
-// }
 export async function getUsers(): Promise<User[]> {
   try {
     const user = await currentUser();
@@ -24,8 +16,12 @@ export async function getUsers(): Promise<User[]> {
         Authorization: `Bearer ${token}` // Include the token in the Authorization header
       },
     };
-
-    const response = await axios.get<User[]>(`${BASE_URL}?preschool=1`, config);
+    const preschool = user?.getIdTokenResult(true).then((idTokenResult) => {
+      const customClaims = idTokenResult.claims;
+      return customClaims.preschool_id;
+    });
+    console.log("preschool id from claims:", preschool)
+    const response = await axios.get<User[]>(`${BASE_URL}?${preschool}`, config);
     return response.data;
   } catch (error) {
     throw error;
@@ -52,8 +48,8 @@ export async function login(email: string, password: string): Promise<any> {
 
 export async function createUser(email:string, password:string,name:string,role:string,): Promise<User[]> {
   try {
-    const token = localStorage.getItem('token'); // Get the JWT token from localStorage
-    // Set up the request config with headers
+    const user = await currentUser();
+    const token = (await user?.getIdToken())?.toString();
     const config: AxiosRequestConfig = {
       headers: {
         Authorization: `Bearer ${token}`, // Include the token in the Authorization header
@@ -66,6 +62,25 @@ export async function createUser(email:string, password:string,name:string,role:
       name:name,
       role_name:role,
       preschool_id:preschool
+  }, config);
+    console.log(response)
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function changeStatus(email:string,disabled:boolean) {
+  try {
+    const user = await currentUser();
+    const token = (await user?.getIdToken())?.toString();
+    const config: AxiosRequestConfig = {
+      headers: {
+        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+      },
+    };
+    const response = await axios.put(`${BASE_URL}/${email}`, {
+      disabled:disabled
   }, config);
     console.log(response)
     return response.data;

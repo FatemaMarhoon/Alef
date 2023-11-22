@@ -1,10 +1,13 @@
 'use client'
 import React, { useState, useEffect } from 'react';
-import { getUsers } from '@/services/userService';
+import { getUsers, changeStatus } from '@/services/userService';
 import { User } from '@/types/user';
 import Link from 'next/link';
+import { FirebaseSetup } from '@/services/authService';
+import { getAuth } from 'firebase/auth';
 export default function UsersTable() {
   const [users, setUsers] = useState<User[]>([]);
+  const [status, setStatus] = useState("");
 
   useEffect(() => {
     async function fetchUsers() {
@@ -19,19 +22,28 @@ export default function UsersTable() {
     fetchUsers();
   }, []);
 
+  function handleDisable() {
+    console.log("disabled")
+  }
+
+  function handleEnable() {
+    console.log("enabled")
+
+  }
+
   return (
     <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
-     <div className="flex justify-between items-center mb-6">
-    <h4 className="text-xl font-semibold text-black dark:text-white">
-      Users
-    </h4>
-    <Link
-      href="users/create"
-      className="inline-flex items-center justify-center bg-primary py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
-    >
-      Create User
-    </Link>
-  </div>
+      <div className="flex justify-between items-center mb-6">
+        <h4 className="text-xl font-semibold text-black dark:text-white">
+          Users
+        </h4>
+        <Link
+          href="users/create"
+          className="inline-flex items-center justify-center bg-primary py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+        >
+          Create User
+        </Link>
+      </div>
       <div className="flex flex-col">
         {/* Header */}
         <div className="grid grid-cols-3 rounded-sm bg-gray-2 dark:bg-meta-4 sm:grid-cols-5">
@@ -50,6 +62,16 @@ export default function UsersTable() {
               Role
             </h5>
           </div>
+          <div className="p-2.5 text-center xl:p-5">
+            <h5 className="text-sm font-medium uppercase xsm:text-base">
+              Status
+            </h5>
+          </div>
+          <div className="p-2.5 text-center xl:p-5">
+            <h5 className="text-sm font-medium uppercase xsm:text-base">
+              Quick Actions
+            </h5>
+          </div>
         </div>
 
         {/* User Rows */}
@@ -65,6 +87,20 @@ export default function UsersTable() {
 
             <div className="flex items-center justify-center p-2.5 xl:p-5">
               <p className="text-meta-3">{user.role_name}</p>
+            </div>
+
+            <div className="flex items-center justify-center p-2.5 xl:p-5">
+              <p className={user.status == 'Enabled' ? 'text-meta-3' : 'text-danger'}>
+                {user.status}
+              </p>
+            </div>
+
+            <div className="flex items-center justify-center p-2.5 xl:p-5">
+              <button
+                onClick={user.status == "Enabled" ? handleDisable : handleEnable}
+              >
+                {user.status == "Enabled" ? "Disable" : "Enable"}
+              </button>
             </div>
           </div>
         ))}

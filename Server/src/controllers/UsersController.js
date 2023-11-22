@@ -2,12 +2,48 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/seq');
 const { sign } = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
+const admin = require('../config/firebase.config')
+const auth = admin.auth();
+const EmailsManager = require('./EmailsManager')
 
 const Preschool = require('../models/preschool')(sequelize, DataTypes);
 const User = require('../models/user')(sequelize, DataTypes);
 
 Preschool.hasMany(User, { foreignKey: 'preschool_id' });
 User.belongsTo(Preschool, { foreignKey: 'preschool_id' });
+
+function createFirebaseUser(email, password, name, role_name, preschool_id) {
+  return new Promise((resolve, reject) => {
+    auth.createUser({
+      email: email,
+      emailVerified: false,
+      password: password,
+      displayName: name,
+      disabled: false,
+    })
+      .then((userRecord) => {
+        // See the UserRecord reference doc for the contents of userRecord.
+        console.log('Successfully created new user:', userRecord.uid);
+        auth.setCustomUserClaims(userRecord.uid, { "role": role_name, "preschool_id": preschool_id })
+        // Generate reset link and pass to smtp service to send it in the email
+        auth.generatePasswordResetLink(email)
+          .then((link) => {
+            EmailsManager.sendCustomPasswordResetEmail(email, name, link);
+            console.log('Password reset email sent:', link);
+          })
+          .catch((error) => {
+            console.error('Error generating password reset link:', error);
+          });
+
+        // Return a value indicating successful user creation
+        resolve(true);
+      })
+      .catch((error) => {
+        console.log('Error creating new user:', error);
+        reject(error);
+      });
+  });
+}
 
 const UsersController = {
 
@@ -49,9 +85,7 @@ const UsersController = {
   async getUserById(req, res) {
     const { id } = req.params;
     try {
-      const user = await User.findOne({
-        where: { id: id }
-      });
+      const user = await User.findByPk(id);
       if (user) {
         res.json(user);
       } else {
@@ -65,13 +99,13 @@ const UsersController = {
   async login(req, res) {
     const { email, password } = req.body;
     try {
-      if (email && password){
+      if (email && password) {
         const user = await User.findOne({
           where: { email: email }
         });
         const passwordMatch = await bcrypt.compare(password, user.password);
         if (user && passwordMatch) {
-          const jsontoken = sign(user.toJSON(),"wmkd156skmx40zkm25s81zxc" , { expiresIn: "1h" });
+          const jsontoken = sign(user.toJSON(), "wmkd156skmx40zkm25s81zxc", { expiresIn: "1h" });
           return res.json({ message: "logged in successfully", jsontoken, user });
         }
         else if (user && !passwordMatch) {
@@ -84,7 +118,7 @@ const UsersController = {
       else if (!email) {
         return res.status(404).json({ message: "Email is empty." });
       }
-      else if (!password){
+      else if (!password) {
         return res.status(404).json({ message: "Password is empty." });
       }
     } catch (error) {
@@ -102,7 +136,7 @@ const UsersController = {
         //find user 
         const userFound = await User.findOne({
           where: { email: email }
-        }); 
+        });
         if (userFound) {
           return res.status(500).json({ message: "User already exists." })
         }
@@ -119,31 +153,65 @@ const UsersController = {
     }
   },
 
+
   //to create users by admin and create user once preschool request approved
   async createUser(req, res) {
     const { email, password, preschool_id, role_name, name } = req.body;
     const user = { email, password, preschool_id, role_name, name };
     try {
-      if (email && password && name && preschool_id && role_name && name) {
-        //find user 
-        const userFound = await User.findOne({
-          where: { email: email }
-        });
-        if (userFound) {
-          return res.status(500).json({ message: "User already exists." })
-        }
-        // hash password
-        user.password = await bcrypt.hash(password, 10);
-        const createdUser = await User.create({ email: user.email, password: user.password, preschool_id: user.preschool_id, role_name: user.role_name, name: user.name });
+      const firebaseResponse = await createFirebaseUser(email, password, name, role_name, preschool_id).then(async () => {
+        const createdUser = await User.create({ email: user.email, password: password, preschool_id: user.preschool_id, role_name: user.role_name, name: user.name });
         return res.status(201).json({ message: 'User created successfully', createdUser });
-      }
-      else {
-        return res.status(500).json({ message: "Incomplete information." })
-      }
+      })
+      // if (email && password && name && preschool_id && role_name && name) {
+      //   //find user 
+      //   const userFound = await User.findOne({
+      //     where: { email: email }
+      //   });
+      //   if (userFound) {
+      //     return res.status(500).json({ message: "User already exists." })
+      //   }
+      //   // hash password
+      //   user.password = await bcrypt.hash(password, 10);
+      //   const createdUser = await User.create({ email: user.email, password: user.password, preschool_id: user.preschool_id, role_name: user.role_name, name: user.name });
+      //   return res.status(201).json({ message: 'User created successfully', createdUser });
+      // }
+      // else {
+      //   return res.status(500).json({ message: "Incomplete information." })
+      // }
     } catch (error) {
       return res.status(500).json({ message: error.message });
     }
   },
+
+  async disableUser(req, res) {
+    const { email } = req.params;
+    const disabled = req.body.disabled; // Change this line
+    console.log(email);
+
+    try {
+      // Get the user by email (firebase and db)
+      const firebaseUser = await admin.auth().getUserByEmail(email);
+      const dbUser = await User.findOne({ where: { email: email } });
+
+      //if user found in both, update both 
+      if (dbUser && firebaseUser) {
+        await admin.auth().updateUser(firebaseUser.uid, { disabled: disabled });
+        dbUser.set({ status: disabled === true ? "Disabled" : "Enabled" });
+        await dbUser.save();
+        // Send the appropriate response
+        const message = disabled === true ? "User Disabled Successfully." : "User Enabled Successfully.";
+        return res.status(201).json({ message });
+      }
+      else {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+    } catch (error) {
+      return res.status(500).json({ message: error.message });
+    }
+  }
+
 
 };
 

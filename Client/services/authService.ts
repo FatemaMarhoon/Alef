@@ -1,6 +1,5 @@
 import { FirebaseApp, initializeApp } from 'firebase/app';
 import { getAuth, signOut, signInWithEmailAndPassword, GoogleAuthProvider, signInWithRedirect, getRedirectResult, Auth, signInWithPopup, onAuthStateChanged, User } from "firebase/auth";
-import { useEffect, useState } from 'react';
 
 export function FirebaseSetup(): FirebaseApp {
     const firebaseConfig = {
@@ -13,14 +12,6 @@ export function FirebaseSetup(): FirebaseApp {
     };
 
     const app = initializeApp(firebaseConfig);
-    // //app check initialization 
-    // const appCheck = initializeAppCheck(app, {
-    //     provider: new ReCaptchaEnterpriseProvider('6LdvCBIpAAAAAJhgQ_29767z_qBZxnG4dyA_EE6U'),
-    //     isTokenAutoRefreshEnabled: true // Set to true to allow auto-refresh.
-    //   });
-
-    // const auth = getAuth(app);
-    // const analytics = getAnalytics(app);
     return app;
 }
 
@@ -67,20 +58,16 @@ export async function loginWithGoogle2() {
     }
 }
 
-export async function loginWithEmail() {
+export async function loginWithEmail(email:string, password:string) {
     const auth = getAuth(FirebaseSetup());
-    signInWithEmailAndPassword(auth, "test@gmail.com", "123456")
+    const response = signInWithEmailAndPassword(auth, email, password)
         .then(async (userCredential) => {
             // Signed in 
             console.log("logged in")
-            const user = userCredential.user;
-            const userToken = await user.getIdToken();
-            console.log(userToken);
         })
         .catch((error) => {
             console.log(error.message)
-            const errorCode = error.code;
-            const errorMessage = error.message;
+            throw error;
         });
 }
 
@@ -95,44 +82,14 @@ export async function logout() {
     });
 }
 
-// export async function currentUser() : Promise<User | null> {
-//     var currentUser = null;
-//     onAuthStateChanged(getAuth(FirebaseSetup()), (user) => {
-//         if (user) {
-//             currentUser = user;
-//           console.log("current user is: ", user)
-//         }
-//         else {
-//             console.log("no logged in user")
-//         }         
-//     })
-//     return currentUser;
-// }
-
-// export function useCurrentUser() {
-//     const [currentUser, setCurrentUser] = useState<User|null>(null);
-  
-//     useEffect(() => {
-//       const auth = getAuth(FirebaseSetup());
-//       const unsubscribe = onAuthStateChanged(auth, (user) => {
-//         setCurrentUser(user);
-//       });
-  
-//       // Cleanup function to unsubscribe from the auth state listener
-//       return () => unsubscribe();
-//     }, []);  // The empty dependency array ensures that this effect runs once after the initial render
-  
-//     return currentUser;
-//   }
-
-
 export async function currentUser(): Promise<User | null> {
     const auth = getAuth(FirebaseSetup());
-  
     return new Promise((resolve) => {
       const unsubscribe = onAuthStateChanged(auth, (user) => {
+        console.log(user)
         resolve(user);
         unsubscribe(); // Unsubscribe after resolving to avoid memory leaks
       });
     });
   }
+

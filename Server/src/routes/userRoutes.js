@@ -1,6 +1,6 @@
 const express = require('express');
 const UsersController = require('../controllers/UsersController');
-const { checkToken } = require('../config/token_validation');
+const { checkAdmin, checkSuperAdmin, checkToken } = require('../config/token_validation');
 const router = express.Router();
 
 // Get all users
@@ -21,7 +21,7 @@ router.post('/register', UsersController.register);
 // // Update user
 // router.put('/:email', UsersController.updateUser);
 
-// // Delete user
-// router.delete('/:email', UsersController.deleteUser);
+//Disable/Enable user
+router.put('/disable/:email', UsersController.disableUser);
 
 module.exports = router;
