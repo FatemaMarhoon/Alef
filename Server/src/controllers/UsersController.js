@@ -184,35 +184,56 @@ const UsersController = {
     }
   },
 
-  async disableUser(req, res) {
-    const { email } = req.params;
-    const disabled = req.body.disabled; // Change this line
-    console.log(email);
-
+  async updateUser(req, res) {
+    const { id } = req.params;
+    const { name, role_name, status } = req.body; //all are optional, only what has value should be updated
     try {
-      // Get the user by email (firebase and db)
-      const firebaseUser = await admin.auth().getUserByEmail(email);
-      const dbUser = await User.findOne({ where: { email: email } });
+      // Get the user by id (firebase and db)
+      const dbUser = await User.findByPk(id);
+      const firebaseUser = await admin.auth().getUserByEmail(dbUser.email);
 
       //if user found in both, update both 
       if (dbUser && firebaseUser) {
-        await admin.auth().updateUser(firebaseUser.uid, { disabled: disabled });
-        dbUser.set({ status: disabled === true ? "Disabled" : "Enabled" });
+        if (status) dbUser.set({ status: status });
+        if (status == "Disabled") await admin.auth().updateUser(firebaseUser.uid, { disabled: true });
+        if (status == "Enabled") await admin.auth().updateUser(firebaseUser.uid, { disabled: false });
+        if (name) dbUser.set({ name: name });
+        if (name) await admin.auth().updateUser(firebaseUser.uid, { displayName: name });
+        if (role_name) dbUser.set({ name: name });
+        if (role_name) await admin.auth().setCustomUserClaims(firebaseUser.uid, { role: role_name });
         await dbUser.save();
-        // Send the appropriate response
-        const message = disabled === true ? "User Disabled Successfully." : "User Enabled Successfully.";
-        return res.status(201).json({ message });
+        return res.status(201).json({ message: "User updated successfully." });
       }
       else {
         return res.status(404).json({ message: "User not found" });
       }
 
     } catch (error) {
+      console.log(error.message)
+      return res.status(500).json({ message: error.message });
+    }
+  },
+
+  async deleteUser(req, res) {
+    const {id} = req.params;
+    try {
+      // Get firebase user 
+      const userObject = await User.findByPk(id);
+      const dbSuccess = await User.destroy({where : {id : id}});
+      //if user found in both, update both 
+      if (dbSuccess) {
+        await admin.auth().deleteUser((await admin.auth().getUserByEmail(userObject.email)).uid);
+        return res.status(201).json({ message: "User deleted successfully." });
+      }
+      else {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+    } catch (error) {
+      console.log(error.message)
       return res.status(500).json({ message: error.message });
     }
   }
-
-
 };
 
 module.exports = UsersController;

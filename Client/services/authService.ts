@@ -93,3 +93,31 @@ export async function currentUser(): Promise<User | null> {
     });
   }
 
+  export async function currentToken(): Promise<string | undefined> {
+    const user = await currentUser();
+    const token = (await user?.getIdToken())?.toString();
+    return token;
+  }
+
+//   export function currentToken(): string | undefined {
+//      currentUser().then(async (user) => {
+//         await user?.getIdToken().then((token) => {
+//             return token;
+//         })
+//     })
+//     return undefined;
+//     // const user = await currentUser();
+//     // const token = (await user?.getIdToken())?.toString();
+//     // return token;
+//   }
+
+
+  export async function currentPreschool(): Promise<unknown | undefined> {
+    const user = await currentUser();
+    const preschool = user?.getIdTokenResult(true).then((idTokenResult) => {
+        const customClaims = idTokenResult.claims;
+        return customClaims.preschool_id;
+      });
+      return preschool;
+  }
+
