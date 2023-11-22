@@ -1,16 +1,18 @@
 'use client'
 import { useEffect, useState } from 'react';
 import Breadcrumb from '@/components/Breadcrumbs/Breadcrumb';
-import { getApplicationById } from '@/services/applicationsService';
+import { getApplicationById, updateStatus } from '@/services/applicationsService';
 import { Application } from '@/types/application';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { Evaluation } from '@/types/evaluation';
 
 // Functional component for viewing application details
 export default function Page({ params }: { params: { id: number } }) {
-// const viewApplication = ({ params }: { params: { applicationId: number } }) => {
     const router = useRouter();
 
     const [application, setApplication] = useState<Application | null>(null);
+    const [evaluation, setEvaluation] = useState<Evaluation | null>(null);
 
     useEffect(() => {
         // Fetch application data when the component mounts
@@ -18,6 +20,7 @@ export default function Page({ params }: { params: { id: number } }) {
             try {
                 const existingApplication = await getApplicationById(params.id);
                 setApplication(existingApplication);
+                setEvaluation(existingApplication.Application_Evaluation)
             } catch (error) {
                 console.error('Error fetching application data:', error);
             }
@@ -26,16 +29,16 @@ export default function Page({ params }: { params: { id: number } }) {
         fetchApplicationData();
     }, [params.id]);
 
-    const handleEvaluate = async () => {
-       
-    };
-
-    const handleApprove = async () => {
-        
+    const handleAccept = async () => {
+        if (application) {
+            updateStatus(application?.id, "Accepted")
+        }
     };
 
     const handleReject = async () => {
-       
+        if (application) {
+            updateStatus(application?.id, "Rejected")
+        }
     };
 
     if (!application) {
@@ -49,9 +52,27 @@ export default function Page({ params }: { params: { id: number } }) {
             <div className="items-center justify-center min-h-screen">
                 <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
                     <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
-                        <h3 className="font-medium text-black dark:text-white">View Application</h3>
+                        <h3 className="font-medium text-black dark:text-white">ِApplication Details</h3>
                     </div>
                     <div className="p-6.5">
+                    <div className="mb-4.5">
+                            <label className="mb-2.5 block text-black dark:text-white">
+                                Application Status
+                            </label>
+                            <div><p
+                                        className={`inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium 
+                                            ${application.status === "Accepted"
+                                                ? "text-success bg-success"
+                                                : application.status === "Rejected" || application.status === "Cancelled"
+                                                    ? "text-danger bg-danger"
+                                                    : application.status === "Waitlist"
+                                                    ? "text-warning bg-warning"
+                                                    : "text-black bg-bodydark"
+                                            }`}
+                                    >
+                                        {application.status}
+                                    </p></div>
+                        </div>
                         <div className="mb-4.5">
                             <label className="mb-2.5 block text-black dark:text-white">
                                 Student Name
@@ -108,37 +129,53 @@ export default function Page({ params }: { params: { id: number } }) {
                             <img src={application.passport} alt="Passport" className="w-32 h-32" />
                         </div>
 
-                        {/* Evaluation Buttons */}
+                        {/* Action Buttons */}
+                        <div>
+                            Quick Actions
+                        </div>
                         <div className="flex mt-4">
-                            {/* Evaluate Button */}
-                            <div className="mr-4">
-                                <button
-                                    onClick={handleEvaluate}
-                                    className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90"
-                                >
-                                    Evaluate
-                                </button>
-                            </div>
+                            {evaluation === null && (
+                                <div className="mr-4">
+                                    <button className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
+                                        <Link href={{ pathname: `/evaluation/create`, query: { id: `${application.id}` } }}>
+                                            Evaluate
+                                        </Link>
+                                    </button>
+                                </div>
+                            )}
+
+                            {evaluation && (
+                                <div className="mr-4">
+                                    <button className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
+                                        <Link href={{ pathname: `/evaluation/${evaluation.id}`, query: { evaluation: `${evaluation}` } }}>
+                                            Review Evaluation
+                                        </Link>
+                                    </button>
+                                </div>
+                            )}
 
                             {/* Approve Button */}
-                            <div className="mr-4">
-                                <button
-                                    onClick={handleApprove}
-                                    className="px-4 py-2 bg-green-500 text-white rounded-md font-medium hover:bg-opacity-90"
-                                >
-                                    Approve
-                                </button>
-                            </div>
+                            {evaluation && application.status === "Pending" && (
+                                <div className="mr-4">
+                                    <button
+                                        onClick={handleAccept}
+                                        className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90"
+                                    >
+                                        Accept
+                                    </button>
+                                </div>
+                            )}
+                            {evaluation && application.status === "Pending" && (
+                                <div>
+                                    <button
+                                        onClick={handleReject}
+                                        className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90"
+                                    >
+                                        Reject
+                                    </button>
+                                </div>
+                            )}
 
-                            {/* Reject Button */}
-                            <div>
-                                <button
-                                    onClick={handleReject}
-                                    className="px-4 py-2 bg-red-500 text-white rounded-md font-medium hover:bg-opacity-90"
-                                >
-                                    Reject
-                                </button>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -148,4 +185,3 @@ export default function Page({ params }: { params: { id: number } }) {
 }
 
 // module.exports = viewApplication;
- 

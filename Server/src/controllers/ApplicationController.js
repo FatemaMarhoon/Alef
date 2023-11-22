@@ -21,7 +21,9 @@ const ApplicationController = {
         const status = req.query.status; //filter applications in web 
         const user_id = req.query.user_id; //to get parent's application (Mobile App)
         try {
+            //for web 
             if (preschool) {
+                //filter by status 
                 if (status) {
                     const applications = await Application.findAll({
                         include: [
@@ -33,6 +35,7 @@ const ApplicationController = {
                     });
                     return res.json(applications);
                 }
+                //normal listing 
                 const applications = await Application.findAll({
                     include: [
                         { model: User },
@@ -42,6 +45,7 @@ const ApplicationController = {
                 });
                 return res.json(applications);
             }
+            //for zainab 
             else if (user_id) {
                 const applications = await Application.findAll({
                     include : Preschool,
@@ -91,9 +95,12 @@ const ApplicationController = {
         const { id } = req.params;
         try {
             const application = await Application.findByPk(id, {
-                include: Preschool
+                include: [
+                    { model: User },
+                    { model: Preschool},
+                    { model: Evaluation },
+                ]
             });
-            
             //generate and set urls for files 
             application.personal_picture = await FilesManager.generateSignedUrl(application.personal_picture);
             application.passport = await FilesManager.generateSignedUrl(application.passport);            
@@ -110,18 +117,40 @@ const ApplicationController = {
 
     async updateApplication(req, res) {
         const { id } = req.params;
+        const { email, preschool_id, guardian_type, status, student_name, guardian_name, student_CPR, phone, student_DOB, medical_history, created_by, gender, personal_picture, grade, certificate_of_birth, passport } = req.body;
+    
         try {
-            const [updatedCount] = await Application.update(req.body, {
-                where: { id }
-            });
-            if (updatedCount === 0) {
-                return res.status(404).json({ message: 'Application not found for updating.' });
-            }
+            console.log(req.body.status);
+            // Fetch the existing application
+            const applicationObject = await Application.findByPk(id);
+    
+            // Check and update each property individually
+            if (email) applicationObject.email = email;
+            if (preschool_id) applicationObject.preschool_id = preschool_id;
+            if (guardian_type) applicationObject.guardian_type = guardian_type;
+            if (status) applicationObject.status = status;
+            if (student_name) applicationObject.student_name = student_name;
+            if (guardian_name) applicationObject.guardian_name = guardian_name;
+            if (student_CPR) applicationObject.student_CPR = student_CPR;
+            if (phone) applicationObject.phone = phone;
+            if (student_DOB) applicationObject.student_DOB = student_DOB;
+            if (medical_history) applicationObject.medical_history = medical_history;
+            if (created_by) applicationObject.created_by = created_by;
+            if (gender) applicationObject.gender = gender;
+            if (personal_picture) applicationObject.personal_picture = personal_picture;
+            if (grade) applicationObject.grade = grade;
+            if (certificate_of_birth) applicationObject.certificate_of_birth = certificate_of_birth;
+            if (passport) applicationObject.passport = passport;
+    
+            // Save the updated applicationObject
+            await applicationObject.save();
+    
             res.json({ message: 'Application updated successfully.' });
         } catch (error) {
             res.status(500).json({ message: error.message });
         }
     },
+    
 
     async deleteApplication(req, res) {
         const { id } = req.params;
