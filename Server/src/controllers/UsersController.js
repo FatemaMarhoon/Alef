@@ -3,6 +3,7 @@ const sequelize = require('../config/seq');
 const { sign } = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 const admin = require('../config/firebase.config')
+const passwordGenerator = require('password-generator');
 const auth = admin.auth();
 const EmailsManager = require('./EmailsManager')
 
@@ -26,15 +27,15 @@ function createFirebaseUser(email, password, name, role_name, preschool_id) {
         console.log('Successfully created new user:', userRecord.uid);
         auth.setCustomUserClaims(userRecord.uid, { "role": role_name, "preschool_id": preschool_id })
         // Generate reset link and pass to smtp service to send it in the email
-        if (role_name != "Parent"){
-           auth.generatePasswordResetLink(email)
-          .then((link) => {
-            EmailsManager.sendCustomPasswordResetEmail(email, name, link);
-            console.log('Password reset email sent:', link);
-          })
-          .catch((error) => {
-            console.error('Error generating password reset link:', error);
-          });
+        if (role_name != "Parent") {
+          auth.generatePasswordResetLink(email)
+            .then((link) => {
+              EmailsManager.sendCustomPasswordResetEmail(email, name, link);
+              console.log('Password reset email sent:', link);
+            })
+            .catch((error) => {
+              console.error('Error generating password reset link:', error);
+            });
         }
         // Return a value indicating successful user creation
         resolve(true);
@@ -44,6 +45,22 @@ function createFirebaseUser(email, password, name, role_name, preschool_id) {
         reject(error);
       });
   });
+}
+
+function generatePassword(){
+  // Define the characters to include in the password
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%';
+
+  // Set the desired password length
+  const passwordLength = 12;
+
+  // Generate a random string of characters
+  let password = '';
+  for (let i = 0; i < passwordLength; i++) {
+    password += characters[Math.floor(Math.random() * characters.length)];
+  }
+
+  return password;
 }
 
 const UsersController = {
@@ -97,75 +114,90 @@ const UsersController = {
     }
   },
 
-  async login(req, res) {
-    const { email, password } = req.body;
-    try {
-      if (email && password) {
-        const user = await User.findOne({
-          where: { email: email }
-        });
-        const passwordMatch = await bcrypt.compare(password, user.password);
-        if (user && passwordMatch) {
-          const jsontoken = sign(user.toJSON(), "wmkd156skmx40zkm25s81zxc", { expiresIn: "1h" });
-          return res.json({ message: "logged in successfully", jsontoken, user });
-        }
-        else if (user && !passwordMatch) {
-          return res.status(404).json({ message: "Wrong password." });
-        }
-        else if (!user) {
-          return res.status(404).json({ message: "User does not exist." });
-        }
-      }
-      else if (!email) {
-        return res.status(404).json({ message: "Email is empty." });
-      }
-      else if (!password) {
-        return res.status(404).json({ message: "Password is empty." });
-      }
-    } catch (error) {
-      return res.status(500).json({ message: error.message });
-    }
-  },
-
   //to register parents in zainab's app
-  async register(req, res) {
-    //  PRESCHOOL SHOULD BE SET TO NULL AND ROLE TO PARENT (HERE)
-    const { email, password, name } = req.body;
-    const user = { email, password, name };
-    try {
-      if (user.email && user.password && user.name) {
-        //find user 
-        const userFound = await User.findOne({
-          where: { email: email }
-        });
-        if (userFound) {
-          return res.status(500).json({ message: "User already exists." })
-        }
-        // hash password
-        user.password = await bcrypt.hash(password, 10);
-        const createdUser = await User.create({ email: user.email, password: user.password, role_name: "Parent", name: user.name });
-        return res.status(201).json({ message: 'Parent registered successfully', createdUser });
-      }
-      else {
-        return res.status(500).json({ message: "Incomplete information." })
-      }
-    } catch (error) {
-      return res.status(500).json({ message: error.message });
-    }
-  },
+  // async register(req, res) {
+  //   //  PRESCHOOL SHOULD BE SET TO NULL AND ROLE TO PARENT (HERE)
+  //   const { email, password, name } = req.body;
+  //   const user = { email, password, name };
+  //   try {
+  //     if (user.email && user.password && user.name) {
+  //       //find user 
+  //       const userFound = await User.findOne({
+  //         where: { email: email }
+  //       });
+  //       if (userFound) {
+  //         return res.status(500).json({ message: "User already exists." })
+  //       }
+  //       // hash password
+  //       user.password = await bcrypt.hash(password, 10);
+  //       const createdUser = await User.create({ email: user.email, password: user.password, role_name: "Parent", name: user.name });
+  //       return res.status(201).json({ message: 'Parent registered successfully', createdUser });
+  //     }
+  //     else {
+  //       return res.status(500).json({ message: "Incomplete information." })
+  //     }
+  //   } catch (error) {
+  //     return res.status(500).json({ message: error.message });
+  //   }
+  // },
 
+  // async register(req, res) {
+  //   const { email, password, name } = req.body;
+  //   try {
+  //     await createFirebaseUser({ email: email, password: password, role_name: "Parent", name: name }).then(async () => {
+  //       const createdUser = await User.create({ email: email, password: password, role_name: "Parent", name: name });
+  //       return res.status(201).json({ message: 'Parent Registered Successfully.', createdUser });
+  //     });
+  //   }
+  //   catch (error) {
+  //     return res.status(500).json({ message: error.message });
+  //   }
+  // },
 
   //to create users by admin and create user once preschool request approved
   async createUser(req, res) {
-    const { email, password, preschool_id, role_name, name } = req.body;
-    const user = { email, password, preschool_id, role_name, name };
     try {
-      const firebaseResponse = await createFirebaseUser(email, password, name, role_name, preschool_id).then(async () => {
-        const createdUser = await User.create({ email: user.email, password: password, preschool_id: user.preschool_id, role_name: user.role_name, name: user.name });
-        return res.status(201).json({ message: 'User created successfully', createdUser });
-      }) 
+      // Extract user data from the request body
+      var { email, password, preschool_id, role_name, name } = req.body;
+
+      // Validate required fields
+      if (!email) {
+        throw new Error('Email is required');
+      }
+
+      if (!name) {
+        throw new Error('Name is required');
+      }
+
+      if (!role_name) {
+        throw new Error('Role name is required');
+      }
+
+      // Handle password based on role
+      if (role_name === 'Parent' && !password) {
+        throw new Error('Password is required');
+      } else if (['Admin', 'Staff', 'Teacher'].includes(role_name)) {
+        if (!preschool_id) {
+        throw new Error('Preschool is required');
+        }
+        //generate random password
+         password = generatePassword();        
+        console.log(password)
+      }
+
+      // Create Firebase user with validated data
+      await createFirebaseUser(email, password, name, role_name, preschool_id).then(async () => {
+        // Create local user record with validated data
+        const createdUser = await User.create({ email, password, preschool_id, role_name, name });
+
+        // Send successful response with created user data
+        res.status(201).json({ message: 'User created successfully', createdUser });
+      });
+
     } catch (error) {
-      return res.status(500).json({ message: error.message });
+      // Handle errors and send error response
+      console.error(error);
+      res.status(500).json({ message: error.message });
     }
   },
 
@@ -200,11 +232,11 @@ const UsersController = {
   },
 
   async deleteUser(req, res) {
-    const {id} = req.params;
+    const { id } = req.params;
     try {
       // Get firebase user 
       const userObject = await User.findByPk(id);
-      const dbSuccess = await User.destroy({where : {id : id}});
+      const dbSuccess = await User.destroy({ where: { id: id } });
       //if user found in both, update both 
       if (dbSuccess) {
         await admin.auth().deleteUser((await admin.auth().getUserByEmail(userObject.email)).uid);
@@ -218,7 +250,8 @@ const UsersController = {
       console.log(error.message)
       return res.status(500).json({ message: error.message });
     }
-  }
+  },
+
 };
 
 module.exports = UsersController;

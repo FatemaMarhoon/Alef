@@ -1,4 +1,3 @@
-import { getAnalytics } from 'firebase/analytics';
 import { FirebaseApp, initializeApp } from 'firebase/app';
 import { getAuth, signOut, signInWithEmailAndPassword, GoogleAuthProvider, signInWithRedirect, getRedirectResult, Auth, signInWithPopup, onAuthStateChanged, User } from "firebase/auth";
 
@@ -14,7 +13,6 @@ export function FirebaseSetup(): FirebaseApp {
   };
 
   const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
   return app;
 }
 
