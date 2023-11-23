@@ -26,7 +26,8 @@ function createFirebaseUser(email, password, name, role_name, preschool_id) {
         console.log('Successfully created new user:', userRecord.uid);
         auth.setCustomUserClaims(userRecord.uid, { "role": role_name, "preschool_id": preschool_id })
         // Generate reset link and pass to smtp service to send it in the email
-        auth.generatePasswordResetLink(email)
+        if (role_name != "Parent"){
+           auth.generatePasswordResetLink(email)
           .then((link) => {
             EmailsManager.sendCustomPasswordResetEmail(email, name, link);
             console.log('Password reset email sent:', link);
@@ -34,7 +35,7 @@ function createFirebaseUser(email, password, name, role_name, preschool_id) {
           .catch((error) => {
             console.error('Error generating password reset link:', error);
           });
-
+        }
         // Return a value indicating successful user creation
         resolve(true);
       })
@@ -162,23 +163,7 @@ const UsersController = {
       const firebaseResponse = await createFirebaseUser(email, password, name, role_name, preschool_id).then(async () => {
         const createdUser = await User.create({ email: user.email, password: password, preschool_id: user.preschool_id, role_name: user.role_name, name: user.name });
         return res.status(201).json({ message: 'User created successfully', createdUser });
-      })
-      // if (email && password && name && preschool_id && role_name && name) {
-      //   //find user 
-      //   const userFound = await User.findOne({
-      //     where: { email: email }
-      //   });
-      //   if (userFound) {
-      //     return res.status(500).json({ message: "User already exists." })
-      //   }
-      //   // hash password
-      //   user.password = await bcrypt.hash(password, 10);
-      //   const createdUser = await User.create({ email: user.email, password: user.password, preschool_id: user.preschool_id, role_name: user.role_name, name: user.name });
-      //   return res.status(201).json({ message: 'User created successfully', createdUser });
-      // }
-      // else {
-      //   return res.status(500).json({ message: "Incomplete information." })
-      // }
+      }) 
     } catch (error) {
       return res.status(500).json({ message: error.message });
     }

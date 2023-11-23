@@ -5,7 +5,7 @@ const storage = new Storage({
     keyFilename: '../server/src/config/cloud-storage-key.json', // This is your service account key
 });
 
-const bucket = storage.bucket('alef-bucket');
+const bucket = storage.bucket('alef-storage-bucket');
 
 const FilesManager = {
     async upload(file) {
