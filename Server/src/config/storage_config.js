@@ -4,6 +4,6 @@ const storage = new Storage({
     keyFilename: './cloud-storage-key.json', // This is your service account key
   });
 
-const bucket = storage.bucket('alef-bucket');
+const bucket = storage.bucket('alef-storage-bucket');
 
 module.exports = storage_config;

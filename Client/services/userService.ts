@@ -10,7 +10,7 @@ export async function getUsers(): Promise<User[]> {
   var token; var preschool;
   await currentToken().then((returnedTOken) => { token = returnedTOken; })
   await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
-
+  console.log(preschool)
   try {
     // Set up the request config with headers
     const config: AxiosRequestConfig = {
