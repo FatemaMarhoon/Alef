@@ -23,5 +23,9 @@ router.get('/preschool/:preschool_id', StudentController.getStudentsByPreschool)
 // Get students by class
 router.get('/:preschoolId/:classId', StudentController.getStudentsByClassId);
 
+// Get all students or students by grade if grade is provided
+router.get('/preschool/:preschoolId/:grade?', StudentController.getAllStudents);
+
+
 
 module.exports = router;

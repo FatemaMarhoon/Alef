@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { login } from "@/services/userService";
 import { useRouter } from 'next/navigation'
+import AlefLogo from '../../public/images/logo/Alef - bordered logo.png';
 
 const SignIn: React.FC = () => {
 
@@ -38,14 +39,14 @@ const SignIn: React.FC = () => {
               <Link className="mb-5.5 inline-block" href="/">
                 <Image
                   className="hidden dark:block"
-                  src={""}
+                  src={AlefLogo}
                   alt="Logo"
                   width={176}
                   height={32}
                 />
                 <Image
                   className="dark:hidden"
-                  src={""}
+                  src={AlefLogo}
                   alt="Logo"
                   width={176}
                   height={32}

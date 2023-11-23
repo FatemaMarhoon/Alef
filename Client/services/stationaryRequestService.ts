@@ -1,5 +1,5 @@
 import { StationaryRequest } from '@/types/stationaryRequest'; // Import the Stationary_Request type
-import axios, { AxiosRequestConfig } from 'axios';
+import axios, { AxiosRequestConfig, AxiosError } from 'axios';
 
 const BASE_URL = 'http://localhost:3000/stationaryRequest'; // Backend URL for stationary requests
 
@@ -35,7 +35,26 @@ export async function createStationaryRequest(request: StationaryRequest): Promi
         const response = await axios.post<StationaryRequest>(BASE_URL, request, config);
         return response.data;
     } catch (error) {
-        throw error;
+        console.error("Error updating student:", error);
+        // Type assertion for error variable
+        const axiosError = error as AxiosError;
+
+        // Print Axios error details
+        if (axiosError.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            console.error("Response data:", axiosError.response.data);
+            console.error("Response status:", axiosError.response.status);
+            console.error("Response headers:", axiosError.response.headers);
+        } else if (axiosError.request) {
+            // The request was made but no response was received
+            console.error("No response received:", axiosError.request);
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            console.error("Error setting up the request:", axiosError.message);
+        }
+
+        throw axiosError;
     }
 }
 

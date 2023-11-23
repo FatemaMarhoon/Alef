@@ -141,6 +141,7 @@ export default function CreateForm() {
                                         onChange={(e) => setGender(e.target.value)}
                                         className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary`}
                                     >
+                                        <option value={0}>Select Gender</option>
                                         <option value="Male">Male</option>
                                         <option value="Female">Female</option>
                                     </select>
