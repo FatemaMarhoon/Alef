@@ -2,6 +2,8 @@ const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../config/seq');
 const User = require('../models/user')(sequelize, DataTypes);
 const Notification = require('../models/notification')(sequelize, DataTypes);
+const admin = require('../config/firebase.config')
+const messaging = admin.messaging();
 
 Notification.belongsTo(User, { foreignKey: 'user_id' });
 
@@ -71,10 +73,10 @@ const NotificationController = {
         const message = {
             token: registrationToken,
             notification: {
-              title: 'Hi From Bakcend',
-              body: 'Kawthar is talking to Zainab',
+                title: 'Hi From Bakcend',
+                body: 'Kawthar is talking to Zainab',
             }
-          };
+        };
 
         // Send a message to the device corresponding to the provided
         // registration token.
@@ -90,6 +92,21 @@ const NotificationController = {
                 res.json({ message: error.message });
             });
     },
+
+    async setRegistrationToken(req, res) {
+        const { uid, token } = req.body;
+        try {
+            //set regToken for firebase user
+            await admin.auth().setCustomUserClaims(uid, { regToken: token }).then(() => {
+                return res.status(201).json({ message: 'Registration Token Stored Successfully.' });
+            }).catch((error) => {
+                return res.status(500).json({ message: error.message });
+            })
+        }
+        catch (error) {
+            return res.status(500).json({ message: error.message });
+        }
+    }
 };
 
 module.exports = NotificationController;

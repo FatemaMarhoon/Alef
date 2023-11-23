@@ -8,8 +8,6 @@ const Evaluation = require('../models/application_evaluation')(sequelize, DataTy
 const GradesController = require('../controllers/GradeCapacityController')
 const FilesManager = require('./FilesManager');
 const admin = require('../config/firebase.config')
-const messaging = admin.messaging();
-const auth = admin.auth();
 
 //associations
 Application.belongsTo(User, { foreignKey: 'created_by' });

@@ -1,9 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/seq');
-const { sign } = require('jsonwebtoken')
-const bcrypt = require('bcryptjs')
 const admin = require('../config/firebase.config')
-const passwordGenerator = require('password-generator');
 const auth = admin.auth();
 const EmailsManager = require('./EmailsManager')
 
@@ -162,23 +159,23 @@ const UsersController = {
 
       // Validate required fields
       if (!email) {
-        throw new Error('Email is required');
+        return res.status(500).json({ message: "Email is Required" });
       }
 
       if (!name) {
-        throw new Error('Name is required');
+        return res.status(500).json({ message: "Name is Required" });
       }
 
       if (!role_name) {
-        throw new Error('Role name is required');
+        return res.status(500).json({ message: "Role is Required" });
       }
 
       // Handle password based on role
       if (role_name === 'Parent' && !password) {
-        throw new Error('Password is required');
+        return res.status(500).json({ message: "Password is Required" });
       } else if (['Admin', 'Staff', 'Teacher'].includes(role_name)) {
         if (!preschool_id) {
-        throw new Error('Preschool is required');
+          res.status(500).json({ message: "Preschool is Required" });
         }
         //generate random password
          password = generatePassword();        
@@ -191,13 +188,13 @@ const UsersController = {
         const createdUser = await User.create({ email, password, preschool_id, role_name, name });
 
         // Send successful response with created user data
-        res.status(201).json({ message: 'User created successfully', createdUser });
+        return res.status(201).json({ message: 'User created successfully', createdUser });
       });
 
     } catch (error) {
       // Handle errors and send error response
       console.error(error);
-      res.status(500).json({ message: error.message });
+      return res.status(500).json({ message: error.message });
     }
   },
 
