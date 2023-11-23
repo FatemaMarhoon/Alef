@@ -4,6 +4,7 @@ import "../data-tables-css.css";
 import "../satoshi.css";
 import { useState, useEffect } from "react";
 import Loader from "@/components/common/Loader";
+import { currentUser } from "@/services/authService";
 
 
 export default function RootLayout({
