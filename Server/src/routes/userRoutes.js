@@ -15,11 +15,8 @@ router.get('/:id',checkToken, UsersController.getUserById);
 // Create a new user
 router.post('/',checkToken, UsersController.createUser);
 
-// login
-router.post('/login', UsersController.login);
-
 // parent register 
-router.post('/register', UsersController.register);
+router.post('/register', UsersController.createUser);
 
 // Update user
 router.put('/:id', UsersController.updateUser);

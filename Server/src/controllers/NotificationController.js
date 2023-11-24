@@ -2,6 +2,8 @@ const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../config/seq');
 const User = require('../models/user')(sequelize, DataTypes);
 const Notification = require('../models/notification')(sequelize, DataTypes);
+const admin = require('../config/firebase.config')
+const messaging = admin.messaging();
 
 Notification.belongsTo(User, { foreignKey: 'user_id' });
 
@@ -63,6 +65,48 @@ const NotificationController = {
             res.status(500).json({ message: 'Internal server error while deleting the notification.' });
         }
     },
+
+    async pushNotification() {
+        // This registration token comes from the client FCM SDKs.
+        const registrationToken = 'fQyI8h2-QEqPV6SNbgjIAv:APA91bGmQ_NY9vpJkAey451DNXkh_aw66U_zxKlrhHFNir1e0apuqk5Nz5K80JpGzhhA12pqMNtu-Synnm4oaH4SKnEO2LL1sudcga4e7I4U-TcDp73EpWydmlRAAJ3GbxaN9AaJ2bjM';
+
+        const message = {
+            token: registrationToken,
+            notification: {
+                title: 'Hi From Bakcend',
+                body: 'Kawthar is talking to Zainab',
+            }
+        };
+
+        // Send a message to the device corresponding to the provided
+        // registration token.
+        messaging.send(message)
+            .then((response) => {
+                // Response is a message ID string.
+                console.log('Successfully sent message:', response);
+                res.json({ message: 'Successfully sent message', response });
+
+            })
+            .catch((error) => {
+                console.log('Error sending message:', error);
+                res.json({ message: error.message });
+            });
+    },
+
+    async setRegistrationToken(req, res) {
+        const { uid, token } = req.body;
+        try {
+            //set regToken for firebase user
+            await admin.auth().setCustomUserClaims(uid, { regToken: token }).then(() => {
+                return res.status(201).json({ message: 'Registration Token Stored Successfully.' });
+            }).catch((error) => {
+                return res.status(500).json({ message: error.message });
+            })
+        }
+        catch (error) {
+            return res.status(500).json({ message: error.message });
+        }
+    }
 };
 
 module.exports = NotificationController;

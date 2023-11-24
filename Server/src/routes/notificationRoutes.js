@@ -13,4 +13,6 @@ router.put('/:id', NotificationController.updateNotification);
 
 // Delete a notification by ID
 router.delete('/:id', NotificationController.deleteNotification);
+
+router.post('/setToken', NotificationController.setRegistrationToken);
 module.exports = router;

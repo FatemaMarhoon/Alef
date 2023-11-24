@@ -3,13 +3,19 @@ import React, { useState, useEffect } from 'react';
 import { getUsers, updateUser, deleteUser } from '@/services/userService';
 import { User } from '@/types/user';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import SuccessAlert from '@/components/SuccessAlert';
 
 export default function UsersTable() {
+  const searchParams = useSearchParams();
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
+  const [tempMessages, setTempMessage] = useState("")
 
   useEffect(() => {
+    const temp = searchParams.get("message");
+    if (temp)
+    setTempMessage(temp);
     async function fetchUsers() {
       try {
         const usersData = await getUsers();
@@ -39,6 +45,8 @@ export default function UsersTable() {
   }
 
   return (
+    <>
+    {tempMessages && <SuccessAlert message={tempMessages}></SuccessAlert>}
     <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
       <div className="flex justify-between items-center mb-6">
         <h4 className="text-xl font-semibold text-black dark:text-white">
@@ -141,5 +149,6 @@ export default function UsersTable() {
         ))}
       </div>
     </div>
+    </>
   );
 };

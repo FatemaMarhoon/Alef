@@ -3,30 +3,37 @@ import { useState } from "react";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { createUser } from '@/services/userService';
 import { useRouter } from 'next/navigation'
-import { User } from '@/types/user';
+import ErrorAlert from "../ErrorAlert";
+
 
 export default function CreateForm() {
   const router = useRouter();
 
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [role, setRole] = useState("");
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await createUser(email, password, fullName, role);
-      router.push('/users');
+      const response = await createUser(email, fullName, role);
+      if (response.status === 200){
+        router.push('/users?message=' + response.data.message);
+      }
+      else {
+        setError(response.data.message);
+      }
 
     } catch (error) {
       // Handle error
-      console.error("Error creating user:", error);
+      setError(String(error));
     }
   };
 
   return (
     <>
+    {error && <ErrorAlert message={error}></ErrorAlert>}
       <Breadcrumb pageName="Create User" />
 
       <div className="grid grid-cols-1 gap-9 sm:grid-cols-2">
@@ -49,18 +56,6 @@ export default function CreateForm() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter user's email address"
-                    className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                  />
-                </div>
-                <div className="mb-4.5">
-                  <label className="mb-2.5 block text-black dark:text-white">
-                    Password <span className="text-meta-1">*</span>
-                  </label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter a temporary password for this account"
                     className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                   />
                 </div>

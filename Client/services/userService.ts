@@ -44,7 +44,7 @@ export async function login(email: string, password: string): Promise<any> {
 }
 
 
-export async function createUser(email: string, password: string, name: string, role: string,): Promise<User[]> {
+export async function createUser(email: string, name: string, role: string,){
   //retrieve data from current user
   var token; var preschool;
   await currentToken().then((returnedTOken) => { token = returnedTOken; })
@@ -57,12 +57,12 @@ export async function createUser(email: string, password: string, name: string, 
     };
     const response = await axios.post(`${BASE_URL}`, {
       email: email,
-      password: password,
       name: name,
       role_name: role,
       preschool_id: preschool
     }, config);
-    return response.data;
+    return response;
+    
   } catch (error) {
     throw error;
   }
