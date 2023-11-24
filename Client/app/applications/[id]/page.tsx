@@ -1,0 +1,187 @@
+'use client'
+import { useEffect, useState } from 'react';
+import Breadcrumb from '@/components/Breadcrumbs/Breadcrumb';
+import { getApplicationById, updateStatus } from '@/services/applicationsService';
+import { Application } from '@/types/application';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { Evaluation } from '@/types/evaluation';
+
+// Functional component for viewing application details
+export default function Page({ params }: { params: { id: number } }) {
+    const router = useRouter();
+
+    const [application, setApplication] = useState<Application | null>(null);
+    const [evaluation, setEvaluation] = useState<Evaluation | null>(null);
+
+    useEffect(() => {
+        // Fetch application data when the component mounts
+        const fetchApplicationData = async () => {
+            try {
+                const existingApplication = await getApplicationById(params.id);
+                setApplication(existingApplication);
+                setEvaluation(existingApplication.Application_Evaluation)
+            } catch (error) {
+                console.error('Error fetching application data:', error);
+            }
+        };
+
+        fetchApplicationData();
+    }, [params.id]);
+
+    const handleAccept = async () => {
+        if (application) {
+            updateStatus(application?.id, "Accepted")
+        }
+    };
+
+    const handleReject = async () => {
+        if (application) {
+            updateStatus(application?.id, "Rejected")
+        }
+    };
+
+    if (!application) {
+        return null; // You can render a loading spinner or message here
+    }
+
+    return (
+        <>
+            <Breadcrumb pageName="View Application" />
+
+            <div className="items-center justify-center min-h-screen">
+                <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+                    <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
+                        <h3 className="font-medium text-black dark:text-white">ِApplication Details</h3>
+                    </div>
+                    <div className="p-6.5">
+                    <div className="mb-4.5">
+                            <label className="mb-2.5 block text-black dark:text-white">
+                                Application Status
+                            </label>
+                            <div><p
+                                        className={`inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium 
+                                            ${application.status === "Accepted"
+                                                ? "text-success bg-success"
+                                                : application.status === "Rejected" || application.status === "Cancelled"
+                                                    ? "text-danger bg-danger"
+                                                    : application.status === "Waitlist"
+                                                    ? "text-warning bg-warning"
+                                                    : "text-black bg-bodydark"
+                                            }`}
+                                    >
+                                        {application.status}
+                                    </p></div>
+                        </div>
+                        <div className="mb-4.5">
+                            <label className="mb-2.5 block text-black dark:text-white">
+                                Student Name
+                            </label>
+                            <div>{application.student_name}</div>
+                        </div>
+
+                        <div className="mb-4.5">
+                            <label className="mb-2.5 block text-black dark:text-white">
+                                Guardian Name
+                            </label>
+                            <div>{application.guardian_name}</div>
+                        </div>
+
+                        <div className="mb-4.5">
+                            <label className="mb-2.5 block text-black dark:text-white">
+                                Email
+                            </label>
+                            <div>{application.email}</div>
+                        </div>
+
+                        <div className="mb-4.5">
+                            <label className="mb-2.5 block text-black dark:text-white">
+                                Grade
+                            </label>
+                            <div>{application.grade}</div>
+                        </div>
+
+                        <div className="mb-4.5">
+                            <label className="mb-2.5 block text-black dark:text-white">
+                                Gender
+                            </label>
+                            <div>{application.gender}</div>
+                        </div>
+
+                        <div className="mb-4.5">
+                            <label className="mb-2.5 block text-black dark:text-white">
+                                Personal Picture
+                            </label>
+                            <img src={application.personal_picture} alt="Personal Picture" className="w-32 h-32" />
+                        </div>
+
+                        <div className="mb-4.5">
+                            <label className="mb-2.5 block text-black dark:text-white">
+                                Certificate Of Birth
+                            </label>
+                            <img src={application.certificate_of_birth} alt="Certificate Of Birth" className="w-32 h-32" />
+                        </div>
+
+                        <div className="mb-4.5">
+                            <label className="mb-2.5 block text-black dark:text-white">
+                                Passport
+                            </label>
+                            <img src={application.passport} alt="Passport" className="w-32 h-32" />
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div>
+                            Quick Actions
+                        </div>
+                        <div className="flex mt-4">
+                            {evaluation === null && (
+                                <div className="mr-4">
+                                    <button className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
+                                        <Link href={{ pathname: `/evaluation/create`, query: { id: `${application.id}` } }}>
+                                            Evaluate
+                                        </Link>
+                                    </button>
+                                </div>
+                            )}
+
+                            {evaluation && (
+                                <div className="mr-4">
+                                    <button className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
+                                        <Link href={{ pathname: `/evaluation/${evaluation.id}`, query: { evaluation: `${evaluation}` } }}>
+                                            Review Evaluation
+                                        </Link>
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Approve Button */}
+                            {evaluation && application.status === "Pending" && (
+                                <div className="mr-4">
+                                    <button
+                                        onClick={handleAccept}
+                                        className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90"
+                                    >
+                                        Accept
+                                    </button>
+                                </div>
+                            )}
+                            {evaluation && application.status === "Pending" && (
+                                <div>
+                                    <button
+                                        onClick={handleReject}
+                                        className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90"
+                                    >
+                                        Reject
+                                    </button>
+                                </div>
+                            )}
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </>
+    );
+}
+
+// module.exports = viewApplication;

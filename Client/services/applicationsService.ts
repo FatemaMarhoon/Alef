@@ -1,14 +1,35 @@
 // services/userService.ts
 import { Application } from '@/types/application';
-import { currentUser } from './userService';
+import { currentPreschool, currentToken } from './authService';
 
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { ApplicationPOST } from '@/types/applicationPOST';
 
 const BASE_URL = 'http://localhost:3000/applications'; // Replace with your backend URL
 
 export async function getApplications(): Promise<Application[]> {
   try {
-    const token = localStorage.getItem('token'); // Get the JWT token from localStorage
+    var token; var preschool;
+    await currentToken().then((returnedTOken) => { token = returnedTOken; })
+    await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
+    // Set up the request config with headers
+    const config: AxiosRequestConfig = {
+      headers: {
+        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+      },
+    };
+
+    const response = await axios.get<Application[]>(`${BASE_URL}?preschool=${preschool}`, config);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function getApplicationById(id: number): Promise<Application> {
+  try {
+    var token; var preschool;
+    await currentToken().then((returnedTOken) => { token = returnedTOken; })
 
     // Set up the request config with headers
     const config: AxiosRequestConfig = {
@@ -17,7 +38,8 @@ export async function getApplications(): Promise<Application[]> {
       },
     };
 
-    const response = await axios.get<Application[]>(`${BASE_URL}?preschool=${currentUser()?.preschool_id}`, config);
+    const response = await axios.get<Application>(`${BASE_URL}/${id}`, config);
+    console.log(response)
     return response.data;
   } catch (error) {
     throw error;
@@ -25,25 +47,27 @@ export async function getApplications(): Promise<Application[]> {
 }
 
 export async function createApplication(
-        email:string,
-        guardian_type: string,
-        student_name: string,
-        student_CPR: number,
-        gender:string,
-        grade:string,
-        guardian_name: string,
-        phone: string,
-        student_DOB: Date,
-        medical_history: string,
-        personal_picture:File | undefined,
-        // certificate_of_birth:string,
-        // passport:string
-        certificate_of_birth:File | undefined,
-        passport:File | undefined
-      ) : Promise<Application[]> {
+  email: string,
+  guardian_type: string,
+  student_name: string,
+  student_CPR: number,
+  gender: string,
+  grade: string,
+  guardian_name: string,
+  phone: string,
+  student_DOB: Date,
+  medical_history: string,
+  personal_picture: File | undefined,
+  // certificate_of_birth:string,
+  // passport:string
+  certificate_of_birth: File | undefined,
+  passport: File | undefined
+): Promise<Application> {
+  var token; var preschool;
+    await currentToken().then((returnedTOken) => { token = returnedTOken; })
+    await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
+
   try {
-    console.log(personal_picture)
-    const token = localStorage.getItem('token'); // Get the JWT token from localStorage
     // Set up the request config with headers
     const config: AxiosRequestConfig = {
       headers: {
@@ -53,30 +77,108 @@ export async function createApplication(
       },
     };
 
-    // const preschool = currentUser()?.preschool_id?.toString()
-    // const createdBy = currentUser()?.id
-    const preschool = 1;
-    const createdBy = 4;
     const status = "Pending";
-    
+    const createdBy = "17"
     const response = await axios.post(`${BASE_URL}`, {
-      email:email,
-      student_name:student_name,
-      student_CPR:student_CPR,
-      student_DOB:student_DOB,
-      phone:phone,
-      gender:gender,
-      grade:grade,
-      guardian_name:guardian_name,
-      guardian_type:guardian_type,
-      medical_history:medical_history,
-      personal_picture:personal_picture,
-      certificate_of_birth:certificate_of_birth,
-      passport:passport,
-      status:status,
-      created_by:createdBy,
-      preschool_id:preschool
-  }, config);
+      email: email,
+      student_name: student_name,
+      student_CPR: student_CPR,
+      student_DOB: student_DOB,
+      phone: phone,
+      gender: gender,
+      grade: grade,
+      guardian_name: guardian_name,
+      guardian_type: guardian_type,
+      medical_history: medical_history,
+      personal_picture: personal_picture,
+      certificate_of_birth: certificate_of_birth,
+      passport: passport,
+      status: status,
+      created_by: createdBy,
+      preschool_id: preschool
+    }, config);
+    return response.data;
+  } catch (error) {
+    console.log(error)
+    throw error;
+  }
+}
+
+export async function updateApplication(id: number,
+  email?: string,
+  guardian_type?: string,
+  student_name?: string,
+  student_CPR?: number,
+  gender?: string,
+  grade?: string,
+  guardian_name?: string,
+  phone?: string,
+  student_DOB?: Date,
+  medical_history?: string,
+  personal_picture?: File | undefined,
+  // certificate_of_birth:string,
+  // passport:string
+  certificate_of_birth?: File | undefined,
+  passport?: File | undefined,
+  status?: string
+): Promise<Application[]> {
+  try {
+
+    console.log(student_DOB)
+
+    const token = localStorage.getItem('token'); // Get the JWT token from localStorage
+    // Set up the request config with headers
+    const config: AxiosRequestConfig = {
+      headers: {
+        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+        'Content-Type': 'multipart/form-data', // Make sure to set the content type
+      },
+    };
+
+    // const preschool = currentUser()?.preschool_id?.toString()
+    const preschool = 1;
+
+    const response = await axios.put(`${BASE_URL}/${id}`, {
+      email: email,
+      student_name: student_name,
+      student_CPR: student_CPR,
+      student_DOB: student_DOB ? new Date(student_DOB) : undefined,
+      phone: phone,
+      gender: gender,
+      grade: grade,
+      guardian_name: guardian_name,
+      guardian_type: guardian_type,
+      medical_history: medical_history,
+      personal_picture: personal_picture,
+      certificate_of_birth: certificate_of_birth,
+      passport: passport,
+      status: status,
+      preschool_id: preschool,
+    }, config);
+    return response.data;
+  } catch (error) {
+    console.log(error)
+    throw error;
+  }
+}
+
+
+export async function updateStatus(id: number,
+  status: string
+): Promise<Application[]> {
+  try {
+
+    const token = localStorage.getItem('token'); // Get the JWT token from localStorage
+    // Set up the request config with headers
+    const config: AxiosRequestConfig = {
+      headers: {
+        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+      },
+    };
+
+    const response = await axios.put(`${BASE_URL}/${id}`, {
+      status: status
+    }, config);
     return response.data;
   } catch (error) {
     console.log(error)

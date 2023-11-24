@@ -105,7 +105,7 @@ export default function ApplicationsTable() {
                                 </td>
                                 <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark text-center">
                                     <p className="text-black dark-text-white">
-                                        {application.User.name}
+                                        {application.User?.name}
                                     </p>
                                 </td>
                                 {/* <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
@@ -117,7 +117,7 @@ export default function ApplicationsTable() {
                                     <div className="flex items-center space-x-3.5">
                                         <button className="hover:text-primary">
                                             <Link href={`/applications/${application.id}`}>
-
+                                            {/* <Link href={{ pathname:`/applications/${application.id}`, query: { id: `${application.id}` } }}> */}
                                                 <svg
                                                     className="fill-current"
                                                     width="18"
