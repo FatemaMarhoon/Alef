@@ -10,14 +10,14 @@ Preschool.hasMany(Grade, { foreignKey: 'preschool_id' });
 Grade.belongsTo(Preschool, { foreignKey: 'preschool_id' });
 
 const GradesController = {
-    /* ------- APIs --------- */ 
+    /* ------- APIs --------- */
     async getAllGradesCapacities(req, res) {
         const preschool = req.query.preschool;
         console.log(preschool)
         try {
             if (preschool) {
                 const grades = await Grade.findAll({
-                    where : {preschool_id : preschool}
+                    where: { preschool_id: preschool }
                 });
                 res.json(grades);
             }
@@ -29,11 +29,25 @@ const GradesController = {
         }
     },
 
+    async getGradeCapacityById(req, res) {
+        const gradeId = req.params.gradeId;
+        try {
+            const gradeCapacity = await Grade.findByPk(gradeId);
+            if (gradeCapacity) {
+                res.json(gradeCapacity);
+            } else {
+                res.status(404).json({ message: 'Grade capacity not found' });
+            }
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    },
+
     async addGradeCapacity(req, res) {
         const { grade, capacity } = req.body;
         try {
-            if (grade && capacity){
-                const newGrade = await Grade.create({grade:grade,capacity:capacity});
+            if (grade && capacity) {
+                const newGrade = await Grade.create({ grade: grade, capacity: capacity });
                 return res.status(201).json({
                     message: 'Grade Capacity added successfully',
                     Grade: newGrade,
@@ -48,19 +62,19 @@ const GradesController = {
     },
 
 
-    /* ------- Private Functions --------- */ 
+    /* ------- Private Functions --------- */
 
-    async checkGradeCapacity(preschool,grade) {
+    async checkGradeCapacity(preschool, grade) {
         try {
             if (preschool && grade) {
                 //find the full capacity of that grade
-                const gradeCapacity = await Grade.findOne({ 
-                    where : {preschool_id : preschool, grade:grade}
+                const gradeCapacity = await Grade.findOne({
+                    where: { preschool_id: preschool, grade: grade }
                 });
 
                 //find how many applications currently submitted for this grade
                 const current = await Application.findAll({
-                    where: {grade : grade}
+                    where: { grade: grade }
                 });
                 //return true or false 
                 if (gradeCapacity.capacity >= current.length) {
@@ -70,7 +84,7 @@ const GradesController = {
                     return false
                 }
             }
-            
+
         } catch (error) {
             console.log(error.message);
             throw error;

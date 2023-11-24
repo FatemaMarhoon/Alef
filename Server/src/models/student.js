@@ -14,6 +14,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    grade: {
+      type: DataTypes.STRING,
+
+    },
     DOB: {
       type: DataTypes.DATE,
       allowNull: false,

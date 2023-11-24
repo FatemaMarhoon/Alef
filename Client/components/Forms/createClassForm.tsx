@@ -1,53 +1,72 @@
 import React, { useState, useEffect } from 'react';
 import { getStudents } from '../../services/studentService';
 import { Student } from '../../types/student';
-import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 
-export default function StudentTable() {
+interface CreateFormProps {
+    numClasses: number;
+    grade: string;
+}
+
+const CreateForm: React.FC<CreateFormProps> = ({ numClasses, grade }) => {
+    const searchParams = useSearchParams();
+    const numClassesParam = Number(searchParams.get('numClasses'));
+    const gradeParam = searchParams.get('grade');
+
+    console.log('Props in CreateForm:', numClassesParam, gradeParam);
+
     const [students, setStudents] = useState<Student[]>([]);
-    const [classAssignments, setClassAssignments] = useState({
-        ClassA: [],
-        ClassB: [],
-        // ... add more class areas as needed
-    });
+    const [classAssignments, setClassAssignments] = useState<Record<string, Student[]>>({});
     const [showStudents, setShowStudents] = useState(true);
 
     const fetchStudents = async () => {
         try {
-            const studentsData = await getStudents();
+            const studentsData = await getStudents(gradeParam?.toString());
+            console.log('Fetched students:', studentsData);
             setStudents(studentsData);
         } catch (error) {
             console.error('Error fetching students:', error);
         }
     };
 
+    const generateClassAssignments = () => {
+        const updatedClassAssignments: Record<string, Student[]> = {};
+        for (let i = 0; i < numClassesParam; i++) {
+            const className = `Class ${i + 1}`;
+            updatedClassAssignments[className] = [];
+        }
+        setClassAssignments(updatedClassAssignments);
+    };
+
+
     const handleAutomatedAssignment = () => {
         const maleStudents = students.filter(student => student.gender === 'Male');
         const femaleStudents = students.filter(student => student.gender === 'Female');
 
-        const totalClasses = Object.keys(classAssignments).length;
-        const totalStudents = students.length;
-
-        // Calculate the number of students each class should have
-        const studentsPerClass = Math.floor(totalStudents / totalClasses);
-
-        // Create an array of classes with empty student arrays
+        const totalClasses = numClassesParam;
         const updatedClassAssignments: Record<string, Student[]> = {};
+
+        // Initialize arrays for each class
         for (let i = 0; i < totalClasses; i++) {
-            updatedClassAssignments[`Class${i + 1}`] = [];
+            const className = `Class ${i + 1}`;
+            updatedClassAssignments[className] = [];
         }
 
         // Distribute male students
         for (let i = 0; i < maleStudents.length; i++) {
-            const className = `Class${(i % totalClasses) + 1}`;
+            const className = `Class ${i % totalClasses + 1}`;
             updatedClassAssignments[className].push(maleStudents[i]);
+            console.log(`Assigned male student ${maleStudents[i].student_name} to ${className}`);
         }
 
-        // Distribute female students
-        for (let i = 0; i < femaleStudents.length; i++) {
-            const className = `Class${(i % totalClasses) + 1}`;
-            updatedClassAssignments[className].push(femaleStudents[i]);
-        }
+
+
+        // Distribute remaining female students
+        femaleStudents.forEach((student, index) => {
+            const className = `Class ${index % totalClasses + 1}`;
+            updatedClassAssignments[className].push(student);
+            console.log(`Assigned female student ${student.student_name} to ${className}`);
+        });
 
         // Validate and adjust class assignments
         const classNames = Object.keys(updatedClassAssignments);
@@ -56,7 +75,7 @@ export default function StudentTable() {
         for (let i = 1; i < classNames.length; i++) {
             const currentClass = updatedClassAssignments[classNames[i]];
 
-            while (firstClass.length > studentsPerClass && currentClass.length < studentsPerClass) {
+            while (firstClass.length > currentClass.length) {
                 // Move a student from the first class to the current class
                 const movedStudent = firstClass.pop();
                 if (movedStudent) {
@@ -69,44 +88,81 @@ export default function StudentTable() {
         setShowStudents(false);
     };
 
+
     const handleReset = () => {
-        setClassAssignments({
-            ClassA: [],
-            ClassB: [],
-            // ... initialize other class areas as needed
-        });
+        // Dynamically generate class assignments based on numClassesParam
+        const updatedClassAssignments: Record<string, Student[]> = {};
+        for (let i = 0; i < numClassesParam; i++) {
+            const className = `Class ${i + 1}`;
+            updatedClassAssignments[className] = [];
+        }
+
+        setClassAssignments(updatedClassAssignments);
+        fetchStudents();
+
         setShowStudents(true);
+        console.log('Class Assignments:', updatedClassAssignments);
+
     };
 
 
-
-    const handleOnDrag = (e, studentId) => {
+    const handleOnDrag = (e: React.DragEvent<HTMLDivElement>, studentId: number) => {
         e.dataTransfer.setData('studentId', studentId.toString());
     };
 
-    const handleOnDrop = (e, className) => {
+    // const handleOnDrop = (e: React.DragEvent<HTMLDivElement>, className: string) => {
+    //     e.preventDefault();
+    //     const studentId = e.dataTransfer.getData('studentId');
+    //     const student = students.find(student => student.id.toString() === studentId);
+
+    //     if (student) {
+    //         const updatedClassAssignments = { ...classAssignments };
+    //         const previousClass = Object.keys(updatedClassAssignments).find(
+    //             key => updatedClassAssignments[key].some((s: { id: { toString: () => any; }; }) => s.id.toString() === studentId)
+    //         );
+
+    //         if (previousClass && previousClass !== className) {
+    //             updatedClassAssignments[previousClass] = updatedClassAssignments[previousClass].filter(
+    //                 (s: { id: { toString: () => any; }; }) => s.id.toString() !== studentId
+    //             );
+    //         }
+
+    //         updatedClassAssignments[className] = [...updatedClassAssignments[className], student];
+    //         setClassAssignments(updatedClassAssignments);
+    //     }
+    // };
+
+    const handleOnDrop = (e: React.DragEvent<HTMLDivElement>, destinationClassName: string) => {
         e.preventDefault();
         const studentId = e.dataTransfer.getData('studentId');
         const student = students.find(student => student.id.toString() === studentId);
 
         if (student) {
             const updatedClassAssignments = { ...classAssignments };
+
+            // Remove the student from the main list
+            setStudents(prevStudents => prevStudents.filter(s => s.id.toString() !== studentId));
+
+            // Remove the student from the source class
             const previousClass = Object.keys(updatedClassAssignments).find(
-                key => updatedClassAssignments[key].some(s => s.id.toString() === studentId)
+                key => updatedClassAssignments[key].some((s: { id: { toString: () => any; }; }) => s.id.toString() === studentId)
             );
 
-            if (previousClass && previousClass !== className) {
+            if (previousClass && previousClass !== destinationClassName) {
                 updatedClassAssignments[previousClass] = updatedClassAssignments[previousClass].filter(
-                    s => s.id.toString() !== studentId
+                    (s: { id: { toString: () => any; }; }) => s.id.toString() !== studentId
                 );
             }
 
-            updatedClassAssignments[className] = [...updatedClassAssignments[className], student];
+            // Add the student to the destination class
+            updatedClassAssignments[destinationClassName] = [...updatedClassAssignments[destinationClassName], student];
             setClassAssignments(updatedClassAssignments);
         }
     };
 
-    const handleDragOver = e => {
+
+
+    const handleDragOver = (e: { preventDefault: () => void; }) => {
         e.preventDefault();
     };
 
@@ -115,8 +171,16 @@ export default function StudentTable() {
     };
 
     useEffect(() => {
+        console.log('Fetching students and generating class assignments...');
         fetchStudents();
-    }, []);
+        generateClassAssignments();
+    }, [gradeParam, numClassesParam]);
+
+    useEffect(() => {
+        // Print the list of students for each class
+        console.log('Class Assignments:', classAssignments);
+        console.log('Students:', students);
+    }, [classAssignments, students]);
 
     return (
         <div className="flex flex-col items-center justify-center h-screen space-y-4">
@@ -165,7 +229,7 @@ export default function StudentTable() {
                         onDragOver={handleDragOver}
                     >
                         <h2 className="text-lg font-semibold">{className}</h2>
-                        {classAssignments[className].map(student => (
+                        {classAssignments[className].map((student: { id: React.Key | null | undefined; student_name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined; }) => (
                             <div
                                 key={student.id}
                                 draggable
@@ -181,3 +245,5 @@ export default function StudentTable() {
         </div>
     );
 }
+
+export default CreateForm;

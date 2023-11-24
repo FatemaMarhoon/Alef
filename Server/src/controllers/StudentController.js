@@ -12,21 +12,52 @@ Preschool.hasMany(Student, { foreignKey: 'preschool_id' });
 Class.hasMany(Student, { foreignKey: 'class_id' });
 
 const StudentController = {
+    // async getAllStudents(req, res) {
+    //     try {
+    //         const { preschoolId, grade } = req.params;
+
+    //         const whereClause = { preschool_id: preschoolId };
+
+    //         if (grade) {
+    //             whereClause.grade = grade;
+    //         }
+
+    //         const students = await Student.findAll({
+    //             where: whereClause,
+    //             include: Preschool,
+    //         });
+
+    //         res.json(students);
+    //     } catch (error) {
+    //         res.status(500).json({ message: error.message });
+    //     }
+    // },
+
     async getAllStudents(req, res) {
         try {
-            const { preschoolId } = req.params;
+            const { preschoolId, grade, class_id } = req.params;
+
+            const whereClause = { preschool_id: preschoolId };
+
+            if (grade) {
+                whereClause.grade = grade;
+            }
+
+            else if (class_id) {
+                whereClause.class_id = class_id;
+            }
 
             const students = await Student.findAll({
-                where: { preschool_id: preschoolId },
-
-                include: Preschool
-
+                where: whereClause,
+                include: Preschool,
             });
+
             res.json(students);
         } catch (error) {
             res.status(500).json({ message: error.message });
         }
     },
+
 
     async getStudentById(req, res) {
         const { student_id } = req.params;
@@ -113,6 +144,7 @@ const StudentController = {
                 where: { preschool_id: preschoolId, class_id: classId },
 
                 include: Preschool
+
 
             });
             res.json(students);

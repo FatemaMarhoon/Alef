@@ -26,8 +26,15 @@ const DropdownUser = () => {
     return () => document.removeEventListener("click", clickHandler);
   });
 
+
+  function logout() {
+    console.log("logged out")
+    localStorage.setItem('token', "")
+    localStorage.setItem('currentUser', "")
+
   async function handleLogout() {
     await logout();
+
     router.push('/login')
 
   }
@@ -51,19 +58,19 @@ const DropdownUser = () => {
       >
         <span className="hidden text-right lg:block">
           <span className="block text-sm font-medium text-black dark:text-white">
-            Thomas Anree
+            Kawthar
           </span>
-          <span className="block text-xs">UX Designer</span>
+          <span className="block text-xs">Admin</span>
         </span>
 
-        <span className="h-12 w-12 rounded-full">
+        {/* <span className="h-12 w-12 rounded-full">
           <Image
             width={112}
             height={112}
             src={"/images/user/user-01.png"}
             alt="User"
           />
-        </span>
+        </span> */}
 
         <svg
           className="hidden fill-current sm:block"
@@ -87,9 +94,8 @@ const DropdownUser = () => {
         ref={dropdown}
         onFocus={() => setDropdownOpen(true)}
         onBlur={() => setDropdownOpen(false)}
-        className={`absolute right-0 mt-4 flex w-62.5 flex-col rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark ${
-          dropdownOpen === true ? "block" : "hidden"
-        }`}
+        className={`absolute right-0 mt-4 flex w-62.5 flex-col rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark ${dropdownOpen === true ? "block" : "hidden"
+          }`}
       >
         <ul className="flex flex-col gap-5 border-b border-stroke px-6 py-7.5 dark:border-strokedark">
           <li>
@@ -164,9 +170,12 @@ const DropdownUser = () => {
             </Link>
           </li>
         </ul>
+
+    
         <button 
         onClick={handleLogout}
         className="flex items-center gap-3.5 py-4 px-6 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base">
+
           <svg
             className="fill-current"
             width="22"
