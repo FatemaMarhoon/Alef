@@ -3,7 +3,8 @@ import { useState } from "react";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { createUser } from '@/services/userService';
 import { useRouter } from 'next/navigation'
-import { User } from '@/types/user';
+import ErrorAlert from "../ErrorAlert";
+
 
 export default function CreateForm() {
   const router = useRouter();
@@ -11,21 +12,28 @@ export default function CreateForm() {
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [role, setRole] = useState("");
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const response = await createUser(email, fullName, role);
-      router.push('/users');
+      if (response.status === 200){
+        router.push('/users?message=' + response.data.message);
+      }
+      else {
+        setError(response.data.message);
+      }
 
     } catch (error) {
       // Handle error
-      console.error("Error creating user:", error);
+      setError(String(error));
     }
   };
 
   return (
     <>
+    {error && <ErrorAlert message={error}></ErrorAlert>}
       <Breadcrumb pageName="Create User" />
 
       <div className="grid grid-cols-1 gap-9 sm:grid-cols-2">
