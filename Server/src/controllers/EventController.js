@@ -15,96 +15,94 @@ Event.belongsToMany(Class, {
     through: EventClass,
     foreignKey: 'event_id',
     as: 'Classes',
-  });
-  
-  Class.belongsToMany(Event, {
+});
+
+Class.belongsToMany(Event, {
     through: EventClass,
     foreignKey: 'class_id',
     as: 'Events',
-  });
+});
 
 const EventController = {
-    // async getAllEvents(req, res) {
-    //     try {
-    //         const events = await Event.findAll({
-    //             include: EventClass
-    //         });
-    //         res.json(events);
-    //     } catch (error) {
-    //         res.status(500).json({ message: error.message });
-    //     }
-    // },
-
+    //by class id or by preschool id
     async getAllEvents(req, res) {
-        const class_id = req.query.class_id; 
+        let events;
+        const class_id = req.query.class_id;
         const preschool_id = req.query.preschool_id;
         try {
             if (class_id) {
                 const classObject = await Class.findAll({
-                    where: {id:class_id},
+                    where: { id: class_id },
                     include: [
                         { model: Event, as: "Events" },
                     ],
                 });
-                const classDetails = classObject[0].dataValues;
-                const events = classDetails.Events;
-            
-                return res.status(201).json({
-                  events
-                });
+                if (classObject) {
+                    const classDetails = classObject[0].dataValues;
+                    events = classDetails.Events;
+                }
+                else {
+                    return res.status(404).json({ message: 'Class not found.' });
+                }
             }
             else if (preschool_id) {
+                events = await Event.findAll(({
+                    where: { preschool_id: preschool_id }
+                }));
 
+                if (!events) {
+                    return res.status(404).json({ message: 'No events found.' });
+                }
             }
-            
+            return res.status(200).json({ events });
         } catch (error) {
             return res.status(500).json({ message: error.message });
         }
     },
 
-    async getEventsByPreschoolId(req, res) {
-        const preschool_id = req.query.preschool_id;
-      
-        try {
-          const classObjects = await Class.findAll({
-            where: { preschool_id: preschool_id },
-            include: [
-              {
-                model: Event,
-                as: 'Events',
-              },
-            ],
-          });
-      
-          const groupedEvents = {};
-      
-          for (const classObject of classObjects) {
-            const classDetails = classObject.dataValues;
-            const events = classDetails.Events;
-      
-            groupedEvents[classDetails.id] = {
-              events,
-            };
-          }
-      
-          return res.status(201).json(groupedEvents);
-        } catch (error) {
-          return res.status(500).json({ message: error.message });
-        }
-      },
-         
-
-
     async createEvent(req, res) {
-        const eventData = req.body;
+        var {
+            event_name,
+            event_date,
+            notes,
+            notify_parents,
+            notify_staff,
+            public_event,
+            created_by,
+            preschool_id,
+            classes,
+        } = req.body;
+
         try {
-            const newEvent = await Event.create(eventData);
-            res.status(201).json({
+
+            const newEvent = await Event.create({
+                event_name,
+                event_date,
+                notes,
+                created_by,
+                notify_parents,
+                notify_staff,
+                public_event,
+                preschool_id,
+            });
+
+            if (classes && classes.length) {
+                const eventClassBulkData = [];
+                for (const classId of classes) {
+                    eventClassBulkData.push({
+                        class_id: classId,
+                        event_id: newEvent.id,
+                    });
+                }
+                await EventClass.bulkCreate(eventClassBulkData);
+            }
+
+            return res.status(201).json({
                 message: 'Event created successfully',
                 event: newEvent,
             });
         } catch (error) {
-            res.status(400).json({ message: error.message });
+            return res.status(400).json({ message: error.message });
         }
     },
 
@@ -115,24 +113,49 @@ const EventController = {
             if (!event) {
                 return res.status(404).json({ message: 'Event not found.' });
             }
-            return res.status(201).json(event);
+            return res.status(200).json(event);
         } catch (error) {
-            res.status(500).json({ message: 'Internal server error while retrieving the event.' });
+            return res.status(500).json({ message: 'Internal server error while retrieving the event.' });
         }
     },
 
     async updateEvent(req, res) {
         const { id } = req.params;
+        const {event_name, event_date, notes, public_event, classes} = req.body;
         try {
-            const [updatedCount] = await Event.update(req.body, {
-                where: { id }
-            });
-            if (updatedCount === 0) {
+            const event = await Event.findByPk(id);
+
+            if (event){
+                if (event_name) event.event_name = event_name;
+                if (event_date) event.event_date = event_date;
+                if (notes) event.notes = notes;
+                if (public_event) event.public_event = public_event;
+                
+                if (classes && classes.length) {
+                    //remove existing records in EventClass 
+                    await EventClass.destroy({
+                        where: { event_id: event.id },
+                      });
+
+                    //insert new records
+                    const eventClassBulkData = [];
+                    for (const classId of classes) {
+                        eventClassBulkData.push({
+                            class_id: classId,
+                            event_id: event.id,
+                        });
+                    }
+                    await EventClass.bulkCreate(eventClassBulkData);
+                }
+                // Save the updated event
+                await event.save();
+                return res.status(200).json({ message: 'Event updated successfully.' });
+            }
+            else {
                 return res.status(404).json({ message: 'Event not found for updating.' });
             }
-            res.json({ message: 'Event updated successfully.' });
         } catch (error) {
-            res.status(500).json({ message: 'Internal server error while updating the event.', message: error.message });
+            return res.status(500).json({ message: 'Internal server error while updating the event.', message: error.message });
         }
     },
 
@@ -145,9 +168,9 @@ const EventController = {
             if (deletedCount === 0) {
                 return res.status(404).json({ message: 'Event not found for deletion.' });
             }
-            res.json({ message: 'Event deleted successfully.' });
+            return res.status(200).json({ message: 'Event deleted successfully.' });
         } catch (error) {
-            res.status(500).json({ message: 'Internal server error while deleting the event.', message: error.message });
+            return res.status(500).json({ message: 'Internal server error while deleting the event.', message: error.message });
         }
     },
 };

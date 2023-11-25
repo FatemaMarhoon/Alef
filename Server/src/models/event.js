@@ -15,10 +15,28 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE,
       allowNull: false,
     },
-    notify_parents: DataTypes.BOOLEAN,
-    notify_staff: DataTypes.BOOLEAN,
-    public_event: DataTypes.BOOLEAN,
-    notes: DataTypes.STRING,
+    notify_parents: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
+    notify_staff: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
+    public_event: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
+    notes: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    preschool_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+  },{
+    tableName: 'Events'
   });
 
   return Event;
