@@ -4,16 +4,16 @@ const { checkAdmin, checkSuperAdmin, checkToken } = require('../config/token_val
 const router = express.Router();
 
 // Get all users
-router.get('/',checkToken, UsersController.getAllUsers);
+router.get('/', checkToken, UsersController.getAllUsers);
 
 // Get user by email
-router.get('/:email',checkToken, UsersController.getUserByEmail);
+router.get('/:email', checkToken, UsersController.getUserByEmail);
 
 // Get user by id
-router.get('/:id',checkToken, UsersController.getUserById);
+router.get('/:id', checkToken, UsersController.getUserById);
 
 // Create a new user
-router.post('/',checkToken, UsersController.createUser);
+router.post('/', UsersController.createUser);
 
 // parent register 
 router.post('/register', UsersController.createUser);
@@ -24,4 +24,3 @@ router.put('/:id', UsersController.updateUser);
 //delete user 
 router.delete('/:id', UsersController.deleteUser)
 module.exports = router;
- 

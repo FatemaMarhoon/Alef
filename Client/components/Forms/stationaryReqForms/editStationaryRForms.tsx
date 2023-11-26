@@ -9,6 +9,7 @@ import TemporarySuccessMessage from '@/app/ui/alerts/TempSuccessMsg'; // Import 
 import { getStationary } from '@/services/stationaryService';
 import { getStaffById } from '@/services/staffService'; // Add the actual service function
 import { Stationary } from '@/types/stationary';
+import { StaticValue } from "@/types/staticValue";
 
 export default function EditStationaryRequestForm({ id }: { id: string }) {
     const router = useRouter();
@@ -81,6 +82,12 @@ export default function EditStationaryRequestForm({ id }: { id: string }) {
         // Validate form data
         let hasErrors = false;
 
+        // Validation logic
+        if (stationaryRequest.status_name === 'Accepted' && stationaryRequest.requested_quantity > getStationaryQuantity(stationaryRequest.stationary_id)) {
+            setErrors({ requestedQuantity: 'Requested quantity is greater than the existing quantity.' });
+            hasErrors = true;
+        }
+
         // Add validation logic here
 
         if (hasErrors) {
@@ -108,6 +115,14 @@ export default function EditStationaryRequestForm({ id }: { id: string }) {
     const getStationaryName = (stationaryId: number): string => {
         const stationary = stationaries.find(item => item.id === stationaryId);
         return stationary ? stationary.stationary_name : 'Unknown';
+
+
+    };
+
+    // Function to get the existing quantity of the selected stationary
+    const getStationaryQuantity = (stationaryId: number): number => {
+        const stationary = stationaries.find(item => item.id === stationaryId);
+        return stationary ? stationary.quantity_available : 0;
     };
     return (
         <>
@@ -186,6 +201,9 @@ export default function EditStationaryRequestForm({ id }: { id: string }) {
                                             placeholder="Enter requested quantity"
                                             className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary"
                                         />
+                                        {errors.requestedQuantity && (
+                                            <p className="text-error text-sm mt-1">{errors.requestedQuantity}</p>
+                                        )}
                                     </div>
 
                                     <div className="mb-4.5">

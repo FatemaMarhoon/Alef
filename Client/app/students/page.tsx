@@ -3,9 +3,20 @@ import React, { useState, useEffect } from 'react';
 import { getStudents } from '../../services/studentService'; // Import the student service
 import { Student } from '../../types/student';
 import Link from 'next/link';
+import TextField from '@mui/material/TextField';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
+import Pagination from '@mui/material/Pagination';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+
 //import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 export default function StudentTable() {
     const [students, setStudents] = useState<Student[]>([]);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [genderFilter, setGenderFilter] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const studentsPerPage = 10; // You can adjust the number of students per page
 
     useEffect(() => {
         async function fetchStudents() {
@@ -20,23 +31,62 @@ export default function StudentTable() {
         fetchStudents();
     }, []);
 
+    const paginate = (event: React.ChangeEvent<unknown>, pageNumber: number) => {
+        setCurrentPage(pageNumber);
+    }
+
+
+    const filteredStudents = students.filter((student) =>
+        student.student_name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        (genderFilter === '' || student.gender.toLowerCase() === genderFilter.toLowerCase() || genderFilter.toLowerCase() === 'all')
+    );
+
+    const indexOfLastStudent = currentPage * studentsPerPage;
+    const indexOfFirstStudent = indexOfLastStudent - studentsPerPage;
+    const currentStudents = filteredStudents.slice(indexOfFirstStudent, indexOfLastStudent);
+
     return (
 
         <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark-bg-boxdark sm-px-7.5 xl-pb-1">
-
             <h4 className="mb-6 text-xl font-semibold text-black dark-text-white">
                 Students Management
             </h4>
             <div className="flex justify-end mb-4">
-                {/* <button className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
+                <Link
+                    href="/students/create"
+                    className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90"
+                >
                     Add new student
-                </button> */}
-                <Link href="/students/create"
-                    className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
-                    Add new student
-
                 </Link>
             </div>
+            <div className="flex justify-between space-x-4" >
+                <TextField
+                    label="Search by student name"
+                    variant="outlined"
+                    size="small"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    style={{ width: '80%', justifyContent: 'flex-end' }}
+                />
+                {/* <label className="text-black dark-text-white">Filter by Gender:</label> */}
+                <FormControl variant="outlined" size="small" style={{ minWidth: '150px' }}>
+                    <InputLabel id="gender-filter-label">Gender</InputLabel>
+                    <Select
+                        labelId="gender-filter-label"
+                        id="gender-filter"
+                        value={genderFilter}
+                        onChange={(e) => setGenderFilter(e.target.value as string)}
+                        label="Gender"
+                    >
+                        {['All', 'Male', 'Female'].map((gender, index) => (
+                            <MenuItem key={index} value={gender.toLowerCase()}>
+                                {gender}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+            </div>
+            <div className="mb-4"></div> {/* Add space between the search/filter div and the table */}
             <div className="max-w-full overflow-x-auto">
                 <table className="w-full table-auto">
                     <thead>
@@ -77,7 +127,7 @@ export default function StudentTable() {
                         </tr>
                     </thead>
                     <tbody>
-                        {students.map((student, key) => (
+                        {currentStudents.map((student, key) => (
                             <tr key={key}>
                                 <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                                     <h5 className="font-medium text-black dark-text-white">
@@ -218,6 +268,15 @@ export default function StudentTable() {
                     </tbody>
                 </table>
             </div>
+            <div className="flex justify-end mt-4">
+                <Pagination
+                    count={Math.ceil(filteredStudents.length / studentsPerPage)}
+                    page={currentPage}
+                    onChange={paginate}
+                // color="primary"
+                />
+            </div>
+
         </div>
     );
 }

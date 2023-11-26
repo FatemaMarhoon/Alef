@@ -50,6 +50,18 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    personal_picture: {
+      type: DataTypes.STRING,
+      // allowNull: false
+    },
+    certificate_of_birth: {
+      type: DataTypes.STRING,
+      // allowNull: false
+    },
+    passport: {
+      type: DataTypes.STRING,
+      // allowNull: false
+    }
   });
 
   return Student;

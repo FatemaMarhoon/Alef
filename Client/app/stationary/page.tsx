@@ -3,9 +3,15 @@ import React, { useState, useEffect } from 'react';
 import { getStationary } from '../../services/stationaryService'; // Import the stationary service
 import { Stationary } from '../../types/stationary';
 import Link from 'next/link';
+import TextField from '@mui/material/TextField';
+import Pagination from '@mui/material/Pagination';
+
 export default function StationaryTable() {
     const [stationaries, setStationaries] = useState<Stationary[]>([]);
-
+    const [filteredStationaries, setFilteredStationaries] = useState<Stationary[]>([]);
+    const [searchTerm, setSearchTerm] = useState<string>('');
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [itemsPerPage] = useState<number>(5);
     useEffect(() => {
         async function fetchStationaries() {
             try {
@@ -19,6 +25,24 @@ export default function StationaryTable() {
         fetchStationaries();
     }, []);
 
+
+    const handleSearch = (term: string) => {
+        setSearchTerm(term);
+        const filtered = stationaries.filter((stationary) =>
+            stationary.stationary_name.toLowerCase().includes(term.toLowerCase())
+        );
+        setFilteredStationaries(filtered);
+        setCurrentPage(1);
+    };
+
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    // const currentItems = filteredStationaries.slice(indexOfFirstItem, indexOfLastItem);
+    const currentItems = searchTerm ? filteredStationaries : stationaries;
+
+    const paginate = (event: React.ChangeEvent<unknown>, pageNumber: number) => {
+        setCurrentPage(pageNumber);
+    }
     return (
         <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark-bg-boxdark sm-px-7.5 xl-pb-1">
             <h4 className="mb-6 text-xl font-semibold text-black dark-text-white">
@@ -31,6 +55,16 @@ export default function StationaryTable() {
                     Add new stationary
 
                 </Link>
+            </div>
+            <div className="flex justify-between mb-4">
+                <TextField
+                    label="Search by Stationary Name"
+                    variant="outlined"
+                    size="small"
+                    fullWidth
+                    value={searchTerm}
+                    onChange={(e) => handleSearch(e.target.value)}
+                />
             </div>
             <div className="max-w-full overflow-x-auto">
                 <table className="w-full table-auto">
@@ -48,7 +82,7 @@ export default function StationaryTable() {
                         </tr>
                     </thead>
                     <tbody>
-                        {stationaries.map((stationary, key) => (
+                        {currentItems.map((stationary, key) => (
                             <tr key={key}>
                                 <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                                     <h5 className="font-medium text-black dark-text-white">
@@ -142,6 +176,15 @@ export default function StationaryTable() {
                         ))}
                     </tbody>
                 </table>
+            </div>
+            <div className="flex justify-end mt-4">
+                <Pagination
+                    count={Math.ceil(currentItems.length / itemsPerPage)}
+                    page={currentPage}
+                    onChange={paginate}
+                // shape="rounded"
+                />
+
             </div>
         </div>
     );
