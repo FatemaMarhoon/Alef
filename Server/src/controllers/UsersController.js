@@ -10,71 +10,20 @@ const User = require('../models/user')(sequelize, DataTypes);
 Preschool.hasMany(User, { foreignKey: 'preschool_id' });
 User.belongsTo(Preschool, { foreignKey: 'preschool_id' });
 
-function createFirebaseUser(email, password, name, role_name, preschool_id) {
-  return new Promise((resolve, reject) => {
-    auth.createUser({
-      email: email,
-      emailVerified: false,
-      password: password,
-      displayName: name,
-      disabled: false,
-    })
-      .then((userRecord) => {
-        // See the UserRecord reference doc for the contents of userRecord.
-        console.log('Successfully created new user:', userRecord.uid);
-        auth.setCustomUserClaims(userRecord.uid, { "role": role_name, "preschool_id": preschool_id })
-        // Generate reset link and pass to smtp service to send it in the email
-        if (role_name != "Parent") {
-          auth.generatePasswordResetLink(email)
-            .then((link) => {
-              EmailsManager.sendCustomPasswordResetEmail(email, name, link);
-              console.log('Password reset email sent:', link);
-            })
-            .catch((error) => {
-              console.error('Error generating password reset link:', error);
-            });
-        }
-        // Return a value indicating successful user creation
-        resolve(true);
-      })
-      .catch((error) => {
-        console.log('Error creating new user:', error);
-        reject(error);
-      });
-  });
-}
-
-function generatePassword(){
-  // Define the characters to include in the password
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%';
-
-  // Set the desired password length
-  const passwordLength = 12;
-
-  // Generate a random string of characters
-  let password = '';
-  for (let i = 0; i < passwordLength; i++) {
-    password += characters[Math.floor(Math.random() * characters.length)];
-  }
-
-  return password;
-}
-
 const UsersController = {
 
   async getAllUsers(req, res) {
     const preschool = req.query.preschool;
-    console.log(req.query)
     try {
       if (preschool) {
         const users = await User.findAll({
           where: { preschool_id: preschool }
         });
-        return res.json(users);
+        return res.status(200).json(users);
       }
       else {
         const users = await User.findAll();
-        return res.json(users);
+        return res.status(200).json(users);
       }
     } catch (error) {
       return res.status(500).json({ message: error.message });
@@ -110,46 +59,6 @@ const UsersController = {
       return res.status(500).json({ message: error.message });
     }
   },
-
-  //to register parents in zainab's app
-  // async register(req, res) {
-  //   //  PRESCHOOL SHOULD BE SET TO NULL AND ROLE TO PARENT (HERE)
-  //   const { email, password, name } = req.body;
-  //   const user = { email, password, name };
-  //   try {
-  //     if (user.email && user.password && user.name) {
-  //       //find user 
-  //       const userFound = await User.findOne({
-  //         where: { email: email }
-  //       });
-  //       if (userFound) {
-  //         return res.status(500).json({ message: "User already exists." })
-  //       }
-  //       // hash password
-  //       user.password = await bcrypt.hash(password, 10);
-  //       const createdUser = await User.create({ email: user.email, password: user.password, role_name: "Parent", name: user.name });
-  //       return res.status(201).json({ message: 'Parent registered successfully', createdUser });
-  //     }
-  //     else {
-  //       return res.status(500).json({ message: "Incomplete information." })
-  //     }
-  //   } catch (error) {
-  //     return res.status(500).json({ message: error.message });
-  //   }
-  // },
-
-  // async register(req, res) {
-  //   const { email, password, name } = req.body;
-  //   try {
-  //     await createFirebaseUser({ email: email, password: password, role_name: "Parent", name: name }).then(async () => {
-  //       const createdUser = await User.create({ email: email, password: password, role_name: "Parent", name: name });
-  //       return res.status(201).json({ message: 'Parent Registered Successfully.', createdUser });
-  //     });
-  //   }
-  //   catch (error) {
-  //     return res.status(500).json({ message: error.message });
-  //   }
-  // },
 
   //to create users by admin and create user once preschool request approved
   async createUser(req, res) {
@@ -251,4 +160,53 @@ const UsersController = {
 
 };
 
+function createFirebaseUser(email, password, name, role_name, preschool_id) {
+  return new Promise((resolve, reject) => {
+    auth.createUser({
+      email: email,
+      emailVerified: false,
+      password: password,
+      displayName: name,
+      disabled: false,
+    })
+      .then((userRecord) => {
+        // See the UserRecord reference doc for the contents of userRecord.
+        console.log('Successfully created new user:', userRecord.uid);
+        auth.setCustomUserClaims(userRecord.uid, { "role": role_name, "preschool_id": preschool_id })
+        // Generate reset link and pass to smtp service to send it in the email
+        if (role_name != "Parent") {
+          auth.generatePasswordResetLink(email)
+            .then((link) => {
+              EmailsManager.sendCustomPasswordResetEmail(email, name, link);
+              console.log('Password reset email sent:', link);
+            })
+            .catch((error) => {
+              console.error('Error generating password reset link:', error);
+            });
+        }
+        // Return a value indicating successful user creation
+        resolve(true);
+      })
+      .catch((error) => {
+        console.log('Error creating new user:', error);
+        reject(error);
+      });
+  });
+}
+
+function generatePassword(){
+  // Define the characters to include in the password
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%';
+
+  // Set the desired password length
+  const passwordLength = 12;
+
+  // Generate a random string of characters
+  let password = '';
+  for (let i = 0; i < passwordLength; i++) {
+    password += characters[Math.floor(Math.random() * characters.length)];
+  }
+
+  return password;
+}
 module.exports = UsersController;

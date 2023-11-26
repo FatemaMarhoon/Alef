@@ -76,10 +76,10 @@ export async function logout() {
   const auth = getAuth(FirebaseSetup());
   signOut(auth).then(() => {
     // Sign-out successful.
-
     console.log("logged out")
   }).catch((error) => {
     // An error happened.
+    throw error;
   });
 }
 
@@ -87,7 +87,6 @@ export async function currentUser(): Promise<User | null> {
   const auth = getAuth(FirebaseSetup());
   return new Promise((resolve) => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      console.log(user)
       resolve(user);
       unsubscribe(); // Unsubscribe after resolving to avoid memory leaks
     });
@@ -99,18 +98,6 @@ export async function currentToken(): Promise<string | undefined> {
   const token = (await user?.getIdToken())?.toString();
   return token;
 }
-
-//   export function currentToken(): string | undefined {
-//      currentUser().then(async (user) => {
-//         await user?.getIdToken().then((token) => {
-//             return token;
-//         })
-//     })
-//     return undefined;
-//     // const user = await currentUser();
-//     // const token = (await user?.getIdToken())?.toString();
-//     // return token;
-//   }
 
 
 export async function currentPreschool(): Promise<unknown | undefined> {

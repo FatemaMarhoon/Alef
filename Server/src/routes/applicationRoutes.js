@@ -25,7 +25,7 @@ router.get('/:id', ApplicationController.getApplicationById);
 router.post('/',multerMiddleware, ApplicationController.createApplication);
 
 // Update an application by ID
-router.put('/:id', ApplicationController.updateApplication);
+router.put('/:id', multerMiddleware, ApplicationController.updateApplication);
 
 // Delete an application by ID
 router.delete('/:id', ApplicationController.deleteApplication);

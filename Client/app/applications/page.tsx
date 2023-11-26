@@ -1,10 +1,12 @@
 'use client'
 import React, { useState, useEffect } from 'react';
 import { Application } from '@/types/application';
-import { getApplications } from '@/services/applicationsService';
+import { getApplications,deleteApplication  } from '@/services/applicationsService';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function ApplicationsTable() {
+    const router = useRouter();
     const [applications, setApplications] = useState<Application[]>([]);
 
     useEffect(() => {
@@ -19,6 +21,11 @@ export default function ApplicationsTable() {
         fetchApplicaions();
     }, []);
 
+
+    async function handleDelete(id:number) {
+       await deleteApplication(id);
+       router.refresh();
+    }
     return (
         <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark-bg-boxdark sm-px-7.5 xl-pb-1">
 
@@ -54,9 +61,6 @@ export default function ApplicationsTable() {
                             <th className="py-4 px-4 font-medium text-center text-black dark-text-white">
                                 Submitted By
                             </th>
-                            {/* <th className="py-4 px-4 font-medium text-black dark-text-white">
-                                Evaluation
-                            </th> */}
                             <th className="py-4 px-4 font-medium text-center text-black dark-text-white">
                                 Actions
                             </th>
@@ -86,9 +90,6 @@ export default function ApplicationsTable() {
                                     </p>
                                 </td>
                                 <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark text-center">
-                                    {/* <p className="text-black dark-text-white">
-                                        {application.status}
-                                    </p> */}
                                     <p
                                         className={`inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium 
                                             ${application.status === "Accepted"
@@ -108,16 +109,11 @@ export default function ApplicationsTable() {
                                         {application.User?.name}
                                     </p>
                                 </td>
-                                {/* <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                                    <p className="text-black dark-text-white">
-                                        {application.Application_Evaluation ? application.Application_Evaluation.id : "None"}
-                                    </p>
-                                </td> */}
+                                
                                 <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark text-center">
                                     <div className="flex items-center space-x-3.5">
                                         <button className="hover:text-primary">
                                             <Link href={`/applications/${application.id}`}>
-                                            {/* <Link href={{ pathname:`/applications/${application.id}`, query: { id: `${application.id}` } }}> */}
                                                 <svg
                                                     className="fill-current"
                                                     width="18"
@@ -137,8 +133,13 @@ export default function ApplicationsTable() {
                                                 </svg>
                                             </Link>
                                         </button>
-                                        <button className="hover:text-primary">
-                                            <Link href={`/applications/delete/${application.id}`}>
+                                        <button className="hover:text-primary"
+                                        onClick={() => {
+                                            if (window.confirm("Are you sure you want to delete this application?")) {
+                                              handleDelete(application.id);
+                                            }
+                                          }}>
+                                            {/* <Link href={`/applications/delete/${application.id}`}> */}
                                                 <svg
                                                     className="fill-current"
                                                     width="18"
@@ -164,8 +165,7 @@ export default function ApplicationsTable() {
                                                         fill=""
                                                     />
                                                 </svg>
-
-                                            </Link>
+                                            {/* </Link> */}
                                         </button>
                                         <button className="hover:text-primary">
                                             <Link href={`/applications/edit/${application.id}`}>

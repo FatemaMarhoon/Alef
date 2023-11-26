@@ -1,13 +1,15 @@
 import { GradeCapacity } from '@/types/gradeCapacity'
-import { currentUser } from './userService';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { currentToken, currentPreschool } from './authService';
 
-const BASE_URL = 'http://localhost:3000/grades'; // Replace with your backend URL
+const BASE_URL = 'http://localhost:3000/grades'; 
 
 export async function getGrades(): Promise<GradeCapacity[]> {
     try {
-        const token = localStorage.getItem('token'); // Get the JWT token from localStorage
-
+        var token; var preschool;
+        await currentToken().then((returnedTOken) => { token = returnedTOken; })
+        await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
+    
         // Set up the request config with headers
         const config: AxiosRequestConfig = {
             headers: {
@@ -15,8 +17,7 @@ export async function getGrades(): Promise<GradeCapacity[]> {
             },
         };
 
-        // const response = await axios.get<GradeCapacity[]>(`${BASE_URL}?preschool=${currentUser()?.preschool_id}`);
-        const response = await axios.get<GradeCapacity[]>(`${BASE_URL}?preschool=1`);
+        const response = await axios.get<GradeCapacity[]>(`${BASE_URL}?preschool=${preschool}`);
 
         return response.data;
     } catch (error) {

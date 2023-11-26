@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react';
 import Breadcrumb from '@/components/Breadcrumbs/Breadcrumb';
-import { getApplicationById, updateStatus } from '@/services/applicationsService';
+import { getApplicationById, updateApplication } from '@/services/applicationsService';
 import { Application } from '@/types/application';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -31,13 +31,13 @@ export default function Page({ params }: { params: { id: number } }) {
 
     const handleAccept = async () => {
         if (application) {
-            updateStatus(application?.id, "Accepted")
+            updateApplication({ id: application.id, status: "Approved" });
         }
     };
 
     const handleReject = async () => {
         if (application) {
-            updateStatus(application?.id, "Rejected")
+            updateApplication({ id: application.id, status: "Rejected" });
         }
     };
 
@@ -55,23 +55,23 @@ export default function Page({ params }: { params: { id: number } }) {
                         <h3 className="font-medium text-black dark:text-white">ِApplication Details</h3>
                     </div>
                     <div className="p-6.5">
-                    <div className="mb-4.5">
+                        <div className="mb-4.5">
                             <label className="mb-2.5 block text-black dark:text-white">
                                 Application Status
                             </label>
                             <div><p
-                                        className={`inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium 
+                                className={`inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium 
                                             ${application.status === "Accepted"
-                                                ? "text-success bg-success"
-                                                : application.status === "Rejected" || application.status === "Cancelled"
-                                                    ? "text-danger bg-danger"
-                                                    : application.status === "Waitlist"
-                                                    ? "text-warning bg-warning"
-                                                    : "text-black bg-bodydark"
-                                            }`}
-                                    >
-                                        {application.status}
-                                    </p></div>
+                                        ? "text-success bg-success"
+                                        : application.status === "Rejected" || application.status === "Cancelled"
+                                            ? "text-danger bg-danger"
+                                            : application.status === "Waitlist"
+                                                ? "text-warning bg-warning"
+                                                : "text-black bg-bodydark"
+                                    }`}
+                            >
+                                {application.status}
+                            </p></div>
                         </div>
                         <div className="mb-4.5">
                             <label className="mb-2.5 block text-black dark:text-white">

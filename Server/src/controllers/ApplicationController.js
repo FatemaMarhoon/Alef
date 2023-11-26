@@ -8,6 +8,7 @@ const Evaluation = require('../models/application_evaluation')(sequelize, DataTy
 const GradesController = require('../controllers/GradeCapacityController')
 const FilesManager = require('./FilesManager');
 const admin = require('../config/firebase.config')
+const NotificationController = require('./NotificationController');
 
 //associations
 Application.belongsTo(User, { foreignKey: 'created_by' });
@@ -74,7 +75,7 @@ const ApplicationController = {
 
             const passport = req.files['passport'][0];
             const passport_url = await FilesManager.upload(passport);
-            application.passport = passport_url;  
+            application.passport = passport_url;
 
             //set status 
             const capacity = await GradesController.checkGradeCapacity(preschool_id, grade);
@@ -121,32 +122,48 @@ const ApplicationController = {
         const { email, preschool_id, guardian_type, status, student_name, guardian_name, student_CPR, phone, student_DOB, medical_history, created_by, gender, personal_picture, grade, certificate_of_birth, passport } = req.body;
 
         try {
-            console.log(req.body.status);
             // Fetch the existing application
             const applicationObject = await Application.findByPk(id);
+            if (applicationObject) {
+                // Check and update each property individually
+                if (email) applicationObject.email = email;
+                if (preschool_id) applicationObject.preschool_id = preschool_id;
+                if (guardian_type) applicationObject.guardian_type = guardian_type;
+                if (status) applicationObject.status = status;
+                if (student_name) applicationObject.student_name = student_name;
+                if (guardian_name) applicationObject.guardian_name = guardian_name;
+                if (student_CPR) applicationObject.student_CPR = student_CPR;
+                if (phone) applicationObject.phone = phone;
+                if (student_DOB) applicationObject.student_DOB = student_DOB;
+                if (medical_history) applicationObject.medical_history = medical_history;
+                if (created_by) applicationObject.created_by = created_by;
+                if (gender) applicationObject.gender = gender;
+                if (personal_picture) applicationObject.personal_picture = personal_picture;
+                if (grade) applicationObject.grade = grade;
+                if (certificate_of_birth) applicationObject.certificate_of_birth = certificate_of_birth;
+                if (passport) applicationObject.passport = passport;
 
-            // Check and update each property individually
-            if (email) applicationObject.email = email;
-            if (preschool_id) applicationObject.preschool_id = preschool_id;
-            if (guardian_type) applicationObject.guardian_type = guardian_type;
-            if (status) applicationObject.status = status;
-            if (student_name) applicationObject.student_name = student_name;
-            if (guardian_name) applicationObject.guardian_name = guardian_name;
-            if (student_CPR) applicationObject.student_CPR = student_CPR;
-            if (phone) applicationObject.phone = phone;
-            if (student_DOB) applicationObject.student_DOB = student_DOB;
-            if (medical_history) applicationObject.medical_history = medical_history;
-            if (created_by) applicationObject.created_by = created_by;
-            if (gender) applicationObject.gender = gender;
-            if (personal_picture) applicationObject.personal_picture = personal_picture;
-            if (grade) applicationObject.grade = grade;
-            if (certificate_of_birth) applicationObject.certificate_of_birth = certificate_of_birth;
-            if (passport) applicationObject.passport = passport;
+                // Save the updated applicationObject
+                await applicationObject.save();
 
-            // Save the updated applicationObject
-            await applicationObject.save();
-
-            res.json({ message: 'Application updated successfully.' });
+                //if status updated, notify parent
+                if (status) {
+                    // Lookup the user associated with the application.
+                    const parentUser = await User.findByPk(applicationObject.created_by);
+                    if (parentUser) {
+                        let regToken;
+                        //retrieve registration token and push notification 
+                        await admin.auth().getUserByEmail(parentUser.email).then((userRecord) => {
+                            regToken = userRecord.customClaims['regToken'];
+                            NotificationController.pushNotification(token, "Application Updates", "Your application staus has been updated");
+                        });
+                    }
+                }
+                return res.status(200).json({ message: 'Application updated successfully.' });
+            }
+            else {
+                return res.status(404).json({ message: 'Application not found.' });
+            }
         } catch (error) {
             res.status(500).json({ message: error.message });
         }
@@ -167,5 +184,6 @@ const ApplicationController = {
         }
     },
 };
+
 
 module.exports = ApplicationController;
