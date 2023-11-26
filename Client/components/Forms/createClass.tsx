@@ -2,20 +2,20 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import Breadcrumb from '@/components/Breadcrumbs/Breadcrumb';
-import { createClass, getSumOfClassCapacitiesByGrade } from '@/services/classService';
+import { createClass } from '@/services/classService';
 import { useRouter } from 'next/navigation';
 import { Class } from '@/types/class';
 import { UserStorage } from "@/types/user";
-import { getNotAssignedStaff } from '@/services/staffService';
+import { getStaff } from '@/services/staffService';
 import { Staff } from '@/types/staff';
 import { getGrades, getGradeCapacityById } from '@/services/gradeCapacityService';
 import { GradeCapacity } from '@/types/gradeCapacity';
 import { format } from 'url';
 import Link from 'next/link';
 
-// interface ClassFormProps {
-//     onCreateClasses: (newClasses: Class[], classIds: number[]) => void;
-// }
+interface ClassFormProps {
+    onCreateClasses: (newClasses: Class[]) => void;
+}
 
 const ClassForm: React.FC<ClassFormProps> = ({ onCreateClasses }) => {
     //declare variables
@@ -31,134 +31,16 @@ const ClassForm: React.FC<ClassFormProps> = ({ onCreateClasses }) => {
     const [staffList, setStaffList] = useState<Staff[]>([]);
     const [gradesList, setGradesList] = useState<GradeCapacity[]>([]);
     const [selectedGradeCapacity, setSelectedGradeCapacity] = useState<number | null>(null);
-    const [selectedClassesCapacity, setSelectedClassesCapacity] = useState<number | null>(null);
 
-    const [remainingCapacity, setRemainingCapacity] = useState<number | null>(null);
-
-    const [selectedGradeId, setSelectedGradeId] = useState<number | null>(null);
-
-
-    const handleGradeChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const selectedGradeId = e.target.value;
-
-        console.log("Selected Grade ID:", selectedGradeId);
-
-        try {
-            // Find the corresponding grade name based on the selected grade ID
-            const selectedGrade = gradesList.find(grade => grade.id === Number(selectedGradeId));
-            if (selectedGrade) {
-                const gradeName = selectedGrade.grade;
-                setGrade(gradeName);
-            }
-
-            // Assuming you have a function to fetch grade capacity by ID
-            const response = await getGradeCapacityById(selectedGradeId);
-            console.log(response);
-
-            // Assuming the response contains the grade capacity
-            const gradeCapacity = response?.capacity || null;
-            // Ensure gradeCapacity is a number before setting it
-            const numericGradeCapacity = typeof gradeCapacity === 'number' ? gradeCapacity : null;
-
-            setSelectedGradeCapacity(numericGradeCapacity);
-
-
-        } catch (error) {
-            console.error("Error fetching grade capacity:", error);
-        }
-    };
-
-
-    useEffect(() => {
-        console.log("Grade:", grade);
-
-        async function fetchData() {
-            try {
-                // Fetch the sum of class capacities for the grade
-                const sumOfClassCapacitiesResponse = await getSumOfClassCapacitiesByGrade(grade);
-                const sumOfClassCapacities = sumOfClassCapacitiesResponse?.sumOfCapacities;
-                console.log("Sum of class capacities for the grade:", sumOfClassCapacities);
-                setSelectedClassesCapacity(sumOfClassCapacities);
-
-                console.log("selected grade capacity", selectedGradeCapacity);
-                const numericGradeCapacity = parseInt(selectedGradeCapacity!.toString(), 10); // Use the appropriate radix
-
-                console.log(numericGradeCapacity - sumOfClassCapacities);
-                setSelectedClassesCapacity(sumOfClassCapacities);
-                const remainingCapacity = numericGradeCapacity - sumOfClassCapacities;
-                setRemainingCapacity(remainingCapacity);
-            } catch (error) {
-                console.error("Error fetching sum of class capacities:", error);
-            }
-        };
-
-        fetchData();
-    }, [grade, selectedGradeCapacity]);
-
-
-    // const handleGradeChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-    //     const selectedGradeId = e.target.value;
-    //     console.log("Selected Grade ID:", selectedGradeId);
-
-    //     try {
-
-
-    //         // Assuming you have a function to fetch grade capacity by ID
-    //         const response = await getGradeCapacityById(selectedGradeId);
-    //         console.log(response);
-
-    //         // Assuming the response contains the grade capacity
-    //         const gradeCapacity = response?.capacity || null;
-
-    //         setSelectedGradeCapacity(gradeCapacity);
-
-    //         // Find the corresponding grade name based on the selected grade ID
-    //         const selectedGrade = gradesList.find(grade => grade.id === Number(selectedGradeId));
-    //         if (selectedGrade) {
-    //             const gradeName = selectedGrade.grade;
-    //             setGrade(gradeName);
-    //         }
-    //         console.log(grade)
-    //         // Fetch the sum of class capacities for the grade
-    //         const sumOfClassCapacitiesResponse = await getSumOfClassCapacitiesByGrade(grade);
-    //         const sumOfClassCapacities = sumOfClassCapacitiesResponse?.sumOfCapacities
-    //         console.log("Sum of class capacities for the grade:", sumOfClassCapacities);
-    //         const numericGradeCapacity = parseInt(gradeCapacity.toString(), 10); // Use the appropriate radix
-
-    //         console.log(numericGradeCapacity - sumOfClassCapacities);
-    //         setSelectedClassesCapacity(sumOfClassCapacities);
-    //         const remainingCapacity = numericGradeCapacity - sumOfClassCapacities;
-    //         setRemainingCapacity(remainingCapacity);
-
-
-
-    //     } catch (error) {
-    //         console.error("Error fetching grade capacity:", error);
-    //     }
-    // };
 
 
     const handleClassnameChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
         updateClassData(index, 'class_name', e.target.value);
     };
-    //this code is working for selected supervisor
-    // const handleSupervisorChange = (selectedSupervisorId: string, index: number) => {
-    //     updateClassData(index, 'supervisor', selectedSupervisorId);
-    //     setSelectedSupervisors((prevSelected) => [...prevSelected, selectedSupervisorId]);
-    // };
 
     const handleSupervisorChange = (selectedSupervisorId: string, index: number) => {
-
-        // Filter out the selected supervisor from other drop-down lists
-        const updatedStaffList = staffList.filter((supervisor) => supervisor.id !== parseInt(selectedSupervisorId));
-        setStaffList(updatedStaffList);
-
         updateClassData(index, 'supervisor', selectedSupervisorId);
-
-        // Update selected supervisors state
         setSelectedSupervisors((prevSelected) => [...prevSelected, selectedSupervisorId]);
-
-
     };
 
     const handleClassroomChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
@@ -201,6 +83,29 @@ const ClassForm: React.FC<ClassFormProps> = ({ onCreateClasses }) => {
     //     }
     // };
 
+    const handleGradeChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const selectedGradeId = e.target.value;
+
+        try {
+            // Assuming you have a function to fetch grade capacity by ID
+            const response = await getGradeCapacityById(selectedGradeId);
+            console.log(response);
+
+            // Assuming the response contains the grade capacity
+            const gradeCapacity = response?.capacity || null;
+
+            setSelectedGradeCapacity(gradeCapacity);
+
+            // Find the corresponding grade name based on the selected grade ID
+            const selectedGrade = gradesList.find(grade => grade.id === Number(selectedGradeId));
+            if (selectedGrade) {
+                const gradeName = selectedGrade.grade;
+                setGrade(gradeName);
+            }
+        } catch (error) {
+            console.error("Error fetching grade capacity:", error);
+        }
+    };
 
 
 
@@ -209,7 +114,7 @@ const ClassForm: React.FC<ClassFormProps> = ({ onCreateClasses }) => {
         setNumClasses(newNumClasses);
 
         // Calculate default class capacities
-        const defaultClassCapacities = calculateDefaultClassCapacity(remainingCapacity, newNumClasses);
+        const defaultClassCapacities = calculateDefaultClassCapacity(selectedGradeCapacity, newNumClasses);
 
         // Update classData with default capacities
         setClassData(Array.from({ length: newNumClasses }, (_, index) => ({
@@ -221,13 +126,13 @@ const ClassForm: React.FC<ClassFormProps> = ({ onCreateClasses }) => {
 
     };
 
-    const calculateDefaultClassCapacity = (remainingCapacity: number | null, numClasses: number): number => {
-        if (remainingCapacity !== null && !isNaN(remainingCapacity) && !isNaN(numClasses) && numClasses > 0) {
+    const calculateDefaultClassCapacity = (gradeCapacity: number | null, numClasses: number): number => {
+        if (gradeCapacity !== null && !isNaN(gradeCapacity) && !isNaN(numClasses) && numClasses > 0) {
             // Divide the selected grade capacity by the number of classes
-            const baseCapacity = Math.floor(remainingCapacity / numClasses);
+            const baseCapacity = Math.floor(gradeCapacity / numClasses);
 
             // Calculate the remainder
-            const remainder = remainingCapacity % numClasses;
+            const remainder = gradeCapacity % numClasses;
 
             // Distribute the remainder to the first few classes
             const distributedCapacity = Array.from({ length: numClasses }, (_, index) =>
@@ -246,7 +151,7 @@ const ClassForm: React.FC<ClassFormProps> = ({ onCreateClasses }) => {
     useEffect(() => {
         async function fetchStaffList() {
             try {
-                const response = await getNotAssignedStaff();
+                const response = await getStaff();
                 console.log('Staff List Response:', response);
 
                 // Log the response.data or the actual array
@@ -267,8 +172,6 @@ const ClassForm: React.FC<ClassFormProps> = ({ onCreateClasses }) => {
 
 
 
-
-
     // Fetch grades when the component mounts
     useEffect(() => {
         async function fetchGradesList() {
@@ -281,6 +184,7 @@ const ClassForm: React.FC<ClassFormProps> = ({ onCreateClasses }) => {
 
                 setGradesList(response || []);
                 // Set loading to false after fetching data (if needed)
+                console.log("staffff", staffList);
             } catch (error) {
                 console.error("Error fetching staff list:", error);
                 setStaffList([]);
@@ -300,7 +204,7 @@ const ClassForm: React.FC<ClassFormProps> = ({ onCreateClasses }) => {
             const totalCapacity = classData.reduce((sum, classInfo) => sum + classInfo.capacity, 0);
 
             // Check if the total capacity exceeds the grade capacity
-            if (remainingCapacity !== null && totalCapacity > remainingCapacity) {
+            if (selectedGradeCapacity !== null && totalCapacity > selectedGradeCapacity) {
                 // Display an error message (you can use a state to manage the error message)
                 console.error("Error: Total capacity exceeds grade capacity.");
                 setErrorMessage("Error: Total capacity exceeds grade capacity.");
@@ -325,19 +229,10 @@ const ClassForm: React.FC<ClassFormProps> = ({ onCreateClasses }) => {
 
             // Wait for all class creations to complete
             const createdClasses = await Promise.all(createClassPromises);
-            console.log(createdClasses);
-            const classIds = createdClasses.map((createdClass) => createdClass.newClass.id);
-            console.log('Class IDs:', classIds);
 
-            const validClassIDs = classIds.filter((id) => id !== undefined && id !== 0);
+            // Pass the created classes to the parent component or perform any other actions
+            onCreateClasses(createdClasses);
 
-            if (validClassIDs.length === 0) {
-                console.error('No valid class IDs found.');
-                return; // or handle the error in an appropriate way
-            }
-
-            const classIDsQueryString = validClassIDs.join(',');
-            console.log(classIDsQueryString);
             // Redirect to the new page with query parameters
             router.push(
                 format({
@@ -345,15 +240,12 @@ const ClassForm: React.FC<ClassFormProps> = ({ onCreateClasses }) => {
                     query: {
                         numClasses,
                         grade,
-                        classIds: classIDsQueryString
                     },
-                },
-
-
-                )
+                })
             );
 
-            // <Link href={{ pathname: `class/view2`, query: { numClasses, grade } }}> </Link
+            // <Link href={{ pathname: `class/view2`, query: { numClasses, grade } }}> </Link>
+
 
         } catch (error) {
             // Handle error
@@ -405,32 +297,15 @@ const ClassForm: React.FC<ClassFormProps> = ({ onCreateClasses }) => {
                         {grade && (
                             <div className="mb-4.5">
                                 <label className="mb-2.5 block text-black dark:text-white">
-                                    {grade !== null ? grade.toString() : ''}     Grade Capacity
+                                    Grade Capacity <span className="text-meta-1">*</span>
                                 </label>
-                                <p >
-                                    {selectedGradeCapacity !== null ? selectedGradeCapacity.toString() : ''}
-                                </p>
-                            </div>
-                        )}
+                                <input
+                                    type="text"
+                                    disabled
+                                    value={selectedGradeCapacity !== null ? selectedGradeCapacity.toString() : ''}
+                                    className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                                />
 
-                        {grade && (
-                            <div className="mb-4.5">
-                                <label className="mb-2.5 block text-black dark:text-white">
-                                    Current Classes Capacity
-                                </label>
-                                <p >                                    {selectedClassesCapacity !== null ? selectedClassesCapacity.toString() : ''}
-                                </p>
-                            </div>
-                        )}
-
-                        {grade && (
-                            <div className="mb-4.5">
-                                <label className="mb-2.5 block text-black dark:text-white">
-                                    Current Remaining Capacity
-                                </label>
-                                <p>
-                                    {remainingCapacity !== null ? remainingCapacity.toString() : ''}
-                                </p>
                             </div>
                         )}
 
