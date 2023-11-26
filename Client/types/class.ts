@@ -1,7 +1,7 @@
 export interface Class {
     id: number;
     preschool_id: number;
-    supervisor: string;
+    supervisor: number;
     class_name: string;
     grade: string;
     capacity: number;

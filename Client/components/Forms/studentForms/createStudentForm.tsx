@@ -36,7 +36,15 @@ export default function CreateForm() {
             setErrors((prevErrors) => ({ ...prevErrors, studentName: 'Student name cannot be empty.' }));
             hasErrors = true;
         }
+        if (!guardianName.trim()) {
+            setErrors((prevErrors) => ({ ...prevErrors, guardianName: 'Guardian name cannot be empty.' }));
+            hasErrors = true;
+        }
 
+        if (!medicalHistory.trim()) {
+            setErrors((prevErrors) => ({ ...prevErrors, medicalHistory: 'Medical History cannot be empty.' }));
+            hasErrors = true;
+        }
         // Ensure CPR is a number and not empty
         if (isNaN(Number(CPR)) || CPR.trim() === "") {
             setErrors((prevErrors) => ({ ...prevErrors, CPR: 'Please enter a valid CPR.' }));
@@ -54,9 +62,40 @@ export default function CreateForm() {
             hasErrors = true;
         }
 
-        // Ensure enrollment date is not empty
-        if (!enrollmentDate.trim()) {
-            setErrors((prevErrors) => ({ ...prevErrors, enrollmentDate: 'Enrollment date cannot be empty.' }));
+        // Inside handleSubmit function
+
+        // Validate Contact Number 1
+        const contactNumber1Regex = /^\d{8}$/; // Assuming a 10-digit phone number
+        if (!contactNumber1.trim() || !contactNumber1Regex.test(contactNumber1)) {
+            setErrors((prevErrors) => ({ ...prevErrors, contactNumber1: 'Please enter a valid Contact Number.' }));
+            hasErrors = true;
+        }
+
+        // Validate Contact Number 2
+        const contactNumber2Regex = /^\d{8}$/; // Assuming a 10-digit phone number
+        if (!contactNumber2.trim() || !contactNumber2Regex.test(contactNumber2)) {
+            setErrors((prevErrors) => ({ ...prevErrors, contactNumber2: 'Please enter a valid Contact Number.' }));
+            hasErrors = true;
+        }
+
+
+        // Validate Date of Birth
+        if (!DOB.trim() || isNaN(Date.parse(DOB))) {
+            setErrors((prevErrors) => ({ ...prevErrors, DOB: 'Please enter a valid Date of Birth.' }));
+            hasErrors = true;
+        }
+
+        // Validate Enrollment Date
+        if (!enrollmentDate.trim() || isNaN(Date.parse(enrollmentDate))) {
+            setErrors((prevErrors) => ({ ...prevErrors, enrollmentDate: 'Please enter a valid Enrollment Date.' }));
+            hasErrors = true;
+        }
+
+        // Inside handleSubmit function
+
+        // Validate Gender
+        if (gender === "") {
+            setErrors((prevErrors) => ({ ...prevErrors, gender: 'Please select a valid Gender.' }));
             hasErrors = true;
         }
 
@@ -131,22 +170,29 @@ export default function CreateForm() {
                                         type="date"
                                         value={DOB}
                                         onChange={(e) => setDOB(e.target.value)}
-                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                                        className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.DOB ? 'border-error' : ''
+                                            }`}
                                     />
+                                    {errors.studentName && (
+                                        <p className="text-error text-sm mt-1">{errors.DOB}</p>
+                                    )}
                                 </div>
                                 <div className="mb-4.5">
                                     <label className="mb-2.5 block text-black dark:text-white">Gender:</label>
                                     <select
                                         value={gender}
                                         onChange={(e) => setGender(e.target.value)}
-                                        className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary`}
+                                        className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.gender ? 'border-error' : ''
+                                            }`}
                                     >
+                                        <option value={""}>Select Gender</option>
                                         <option value="Male">Male</option>
                                         <option value="Female">Female</option>
                                     </select>
+                                    {errors.gender && (
+                                        <p className="text-error text-sm mt-1">{errors.gender}</p>
+                                    )}
                                 </div>
-
-                                {/* Add other input fields for CPR, contact numbers, guardian name, enrollment date, and medical history */}
 
                                 <div className="mb-4.5">
                                     <label className="mb-2.5 block text-black dark:text-white">
@@ -241,8 +287,12 @@ export default function CreateForm() {
                                         value={medicalHistory}
                                         onChange={(e) => setMedicalHistory(e.target.value)}
                                         placeholder="Enter student's medical history"
-                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                                        className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.medicalHistory ? 'border-error' : ''
+                                            }`}
                                     />
+                                    {errors.guardianName && (
+                                        <p className="text-error text-sm mt-1">{errors.medicalHistory}</p>
+                                    )}
                                 </div>
 
                                 <button type="submit" className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray">
