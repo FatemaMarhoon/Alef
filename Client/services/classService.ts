@@ -19,7 +19,7 @@ export async function getClassById(classId: string): Promise<Class> {
         const response = await axios.get<Class>(`${BASE_URL}/${classId}`);
         return response.data;
     } catch (error) {
-        console.error("Error updating student:", error);
+        console.error("Error:", error);
         // Type assertion for error variable
         const axiosError = error as AxiosError;
 
@@ -71,6 +71,55 @@ export async function createClass(newClass: Class): Promise<Class> {
     }
 }
 
+// Function to check supervisor availability
+// async function checkSupervisorAvailability(supervisor: string): Promise<boolean> {
+//     try {
+//         const url = `${BASE_URL}/check/${supervisor}`;
+//         console.log("Checking supervisor availability. URL:", url);
+
+//         const response = await axios.get<boolean>(url);
+//         return response.data;
+//     } catch (error) {
+//         console.error("Error checking supervisor availability:", error);
+//         throw error;
+//     }
+// }
+
+// // Function to create a new class
+// export async function createClass(newClass: Class): Promise<Class> {
+//     try {
+//         // Check supervisor availability
+//         const isSupervisorAvailable = await checkSupervisorAvailability(newClass.supervisor.toString());
+
+//         if (!isSupervisorAvailable) {
+//             throw new Error('Supervisor is already assigned to another class in this grade.');
+//         }
+
+//         // If supervisor is available, proceed with class creation
+//         // const response = await axios.post<Class>(`${BASE_URL}/`, newClass);
+//         const response = await axios.post<Class>(BASE_URL, newClass);
+//         return response.data;
+//     } catch (error) {
+//         console.error("Error creating class:", error);
+//         // Type assertion for error variable
+//         const axiosError = error as AxiosError;
+
+//         // Print Axios error details
+//         if (axiosError.response) {
+//             console.error("Response data:", axiosError.response.data);
+//             console.error("Response status:", axiosError.response.status);
+//             console.error("Response headers:", axiosError.response.headers);
+//         } else if (axiosError.request) {
+//             console.error("No response received:", axiosError.request);
+//         } else {
+//             console.error("Error setting up the request:", axiosError.message);
+//         }
+
+//         throw axiosError;
+//     }
+// }
+
+
 
 // Function to update a class by ID
 export async function updateClass(classId: string, updatedClass: Class): Promise<Class> {
@@ -108,5 +157,32 @@ export async function deleteClass(classId: string): Promise<void> {
         await axios.delete(`${BASE_URL}/${classId}`);
     } catch (error) {
         throw error;
+    }
+}
+
+
+// Function to get the sum of class capacities for a specific grade
+export async function getSumOfClassCapacitiesByGrade(grade: string): Promise<number> {
+    try {
+        const response = await axios.get<number>(`${BASE_URL}/preschool/${currentUser?.preschool_id}/sum/${grade}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error getting sum of class capacities:", error);
+
+        // Type assertion for error variable
+        const axiosError = error as AxiosError;
+
+        // Print Axios error details
+        if (axiosError.response) {
+            console.error("Response data:", axiosError.response.data);
+            console.error("Response status:", axiosError.response.status);
+            console.error("Response headers:", axiosError.response.headers);
+        } else if (axiosError.request) {
+            console.error("No response received:", axiosError.request);
+        } else {
+            console.error("Error setting up the request:", axiosError.message);
+        }
+
+        throw axiosError;
     }
 }
