@@ -1,6 +1,6 @@
 // services/userService.ts
 import { Evaluation } from '@/types/evaluation';
-import { currentUser } from './userService';
+import { currentPreschool, currentToken } from './authService';
 
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 
@@ -25,8 +25,8 @@ export async function createEvaluation(
     total_mark: number
 ): Promise<Evaluation> {
     try {
-        const token = localStorage.getItem('token'); // Get the JWT token from localStorage
-        // Set up the request config with headers
+      var token; 
+      await currentToken().then((returnedTOken) => { token = returnedTOken; })
         const config: AxiosRequestConfig = {
             headers: {
                 Authorization: `Bearer ${token}`, // Include the token in the Authorization header
@@ -60,8 +60,8 @@ export async function createEvaluation(
 
 export async function getEvaluationById(id:number) : Promise<Evaluation>{
         try {
-      const token = localStorage.getItem('token'); // Get the JWT token from localStorage
-  
+          var token;
+          await currentToken().then((returnedTOken) => { token = returnedTOken; })
       // Set up the request config with headers
       const config: AxiosRequestConfig = {
         headers: {

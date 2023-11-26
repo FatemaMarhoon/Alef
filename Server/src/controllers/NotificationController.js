@@ -66,15 +66,13 @@ const NotificationController = {
         }
     },
 
-    async pushNotification() {
-        // This registration token comes from the client FCM SDKs.
-        const registrationToken = 'fQyI8h2-QEqPV6SNbgjIAv:APA91bGmQ_NY9vpJkAey451DNXkh_aw66U_zxKlrhHFNir1e0apuqk5Nz5K80JpGzhhA12pqMNtu-Synnm4oaH4SKnEO2LL1sudcga4e7I4U-TcDp73EpWydmlRAAJ3GbxaN9AaJ2bjM';
+    async pushNotification(registrationToken,title,body) {
 
         const message = {
             token: registrationToken,
             notification: {
-                title: 'Hi From Bakcend',
-                body: 'Kawthar is talking to Zainab',
+                title: title,
+                body: body,
             }
         };
 
