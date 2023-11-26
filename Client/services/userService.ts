@@ -66,11 +66,10 @@ export async function gerUser({ userId, email }: { userId?: number, email?: stri
   }
 }
 
-export async function createUser(email: string, name: string, role: string,) {
+export async function createUser(email: string, name: string, role: string,preschool:number) {
   //retrieve data from current user
-  var token; var preschool;
+  var token; 
   await currentToken().then((returnedTOken) => { token = returnedTOken; })
-  await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
   try {
     const config: AxiosRequestConfig = {
       headers: {
