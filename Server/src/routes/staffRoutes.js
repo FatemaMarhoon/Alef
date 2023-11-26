@@ -18,8 +18,4 @@ router.put('/:staff_id', StaffController.updateStaff);
 // Delete a staff member
 router.delete('/:staff_id', StaffController.deleteStaff);
 
-
-// Get all staff members uniquely
-router.get('/preschoolC/:preschoolId', StaffController.getAllStaffC);
-
 module.exports = router;

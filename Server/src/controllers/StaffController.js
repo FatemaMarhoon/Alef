@@ -79,28 +79,6 @@ const StaffController = {
             res.status(500).json({ message: error.message });
         }
     },
-
-    async getAllStaffC(req, res) {
-        try {
-            const { preschoolId } = req.params;
-
-            const staffMembers = await Staff.findAll({
-                where: sequelize.literal(`
-                \`Staff\`.\`id\` NOT IN (
-                  SELECT \`supervisor\` FROM \`Classes\`
-                  WHERE \`supervisor\` IS NOT NULL
-                )
-                AND \`Staff\`.\`preschool_id\` = ${preschoolId}
-              `),
-                include: [Preschool],
-            });
-
-            res.json(staffMembers);
-        } catch (error) {
-            res.status(500).json({ message: error.message });
-        }
-    }
-
 };
 
 module.exports = StaffController;

@@ -5,7 +5,7 @@ import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 const currentUser = UserStorage.getCurrentUser();
 // const BASE_URL = `http://localhost:3000/student/preschool/${currentUser?.preschool_id}`; // Backend URL for students
-const BASE_URL = 'http://localhost:3000/student' // Backend URL for students
+const BASE_URL = 'http://localhost:3000/student/' // Backend URL for students
 
 // export async function getStudents(): Promise<Student[]> {
 //     try {
@@ -62,7 +62,7 @@ export async function getStudents(grade?: string): Promise<Student[]> {
 
         // Append the grade parameter to the URL if provided
         if (grade) {
-            url += `/grade/${grade}`; // Use /{grade} to match your server route
+            url += `/${grade}`; // Use /{grade} to match your server route
             console.log(url);
         }
 

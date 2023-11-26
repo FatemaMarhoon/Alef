@@ -23,24 +23,6 @@ export async function getStaff(): Promise<Staff[]> {
     }
 }
 
-export async function getNotAssignedStaff(): Promise<Staff[]> {
-    try {
-        const token = localStorage.getItem('token'); // Get the JWT token from localStorage
-
-        // Set up the request config with headers
-        const config: AxiosRequestConfig = {
-            headers: {
-                Authorization: `Bearer ${token}`, // Include the token in the Authorization header
-            },
-        };
-
-        const response = await axios.get<Staff[]>(`${BASE_URL}/preschoolC/${currentUser?.preschool_id}`);
-        return response.data;
-    } catch (error) {
-        throw error;
-    }
-}
-
 export async function createStaff(staff: Staff): Promise<Staff> {
     try {
         const token = localStorage.getItem('token'); // Get the JWT token from localStorage
@@ -129,7 +111,4 @@ export async function getStaffById(staffId: number): Promise<Staff> {
 
         throw axiosError;
     }
-
-
-
 }
