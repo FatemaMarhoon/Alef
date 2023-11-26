@@ -10,7 +10,7 @@ export async function getUsers(): Promise<User[]> {
   var token; var preschool;
   await currentToken().then((returnedTOken) => { token = returnedTOken; })
   await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
-  console.log(preschool)
+  console.log("preschool: ", preschool)
   try {
     // Set up the request config with headers
     const config: AxiosRequestConfig = {
@@ -43,12 +43,33 @@ export async function login(email: string, password: string): Promise<any> {
   }
 }
 
+export async function gerUser({ userId, email }: { userId?: number, email?: string }) {
+  try {
 
-export async function createUser(email: string, name: string, role: string,){
+    var token;
+    await currentToken().then((returnedTOken) => { token = returnedTOken; })
+    const config: AxiosRequestConfig = {
+      headers: {
+        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+      },
+    };
+
+    if (userId) {
+      const response = await axios.get(`${BASE_URL}/${userId}`, config);
+      return response;
+    }
+    else if (email) {
+
+    }
+  } catch (error) {
+
+  }
+}
+
+export async function createUser(email: string, name: string, role: string,preschool:number) {
   //retrieve data from current user
-  var token; var preschool;
+  var token; 
   await currentToken().then((returnedTOken) => { token = returnedTOken; })
-  await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
   try {
     const config: AxiosRequestConfig = {
       headers: {
@@ -62,7 +83,7 @@ export async function createUser(email: string, name: string, role: string,){
       preschool_id: preschool
     }, config);
     return response;
-    
+
   } catch (error) {
     throw error;
   }
@@ -91,7 +112,7 @@ export async function updateUser(userData: { id: number, name?: string, role_nam
   }
 }
 
-export async function deleteUser(userid:number) {
+export async function deleteUser(userid: number) {
   //retrieve data from current user
   var token;
   await currentToken().then((returnedTOken) => { token = returnedTOken; });

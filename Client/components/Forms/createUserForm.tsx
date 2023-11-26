@@ -4,6 +4,7 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { createUser } from '@/services/userService';
 import { useRouter } from 'next/navigation'
 import ErrorAlert from "../ErrorAlert";
+import { currentPreschool } from "@/services/authService";
 
 
 export default function CreateForm() {
@@ -17,13 +18,15 @@ export default function CreateForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await createUser(email, fullName, role);
-      if (response.status === 200){
-        router.push('/users?message=' + response.data.message);
-      }
-      else {
-        setError(response.data.message);
-      }
+      await currentPreschool().then( async (preschoolId) => {
+        const response = await createUser(email, fullName, role, Number(preschoolId));
+        if (response.status === 201){
+          router.push('/users?message=' + response.data.message);
+        }
+        else {
+          setError(response.data.message);
+        }
+      });
 
     } catch (error) {
       // Handle error
