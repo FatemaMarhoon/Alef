@@ -3,9 +3,17 @@ import React, { useState, useEffect } from 'react';
 import { getStaff } from '../../services/staffService'; // Import the staff service
 import { Staff } from '../../types/staff';
 import Link from 'next/link';
-
+import TextField from '@mui/material/TextField';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
+import Pagination from '@mui/material/Pagination';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
 export default function StaffTable() {
     const [staff, setStaff] = useState<Staff[]>([]);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5; // Set the number of items to display per page
 
     useEffect(() => {
         async function fetchStaff() {
@@ -20,6 +28,17 @@ export default function StaffTable() {
         fetchStaff();
     }, []);
 
+    // Filter the staff based on the search term
+    const filteredStaff = staff.filter((staffMember) =>
+        staffMember.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    // Calculate the indexes for the current page
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentStaff = filteredStaff.slice(indexOfFirstItem, indexOfLastItem);
+
+
     return (
         <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark-bg-boxdark sm-px-7.5 xl-pb-1">
             <h4 className="mb-6 text-xl font-semibold text-black dark-text-white">
@@ -32,6 +51,21 @@ export default function StaffTable() {
                     Add new staff
 
                 </Link>
+            </div>
+            <div className="flex justify-between mb-4">
+                <TextField
+                    label="Search by Name"
+                    variant="outlined"
+                    size="small"
+                    fullWidth
+                    value={searchTerm}
+                    onChange={(e) => {
+                        setSearchTerm(e.target.value);
+                        setCurrentPage(1); // Reset to the first page when searching
+                    }}
+                    className="mb-4"
+                />
+
             </div>
             <div className="max-w-full overflow-x-auto">
                 <table className="w-full table-auto">
@@ -63,7 +97,7 @@ export default function StaffTable() {
                         </tr>
                     </thead>
                     <tbody>
-                        {Array.isArray(staff) && staff.map((staffMember, key) => (<tr key={key}>
+                        {Array.isArray(currentStaff) && currentStaff.map((staffMember, key) => (<tr key={key}>
                             <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                                 <p className="text-black dark-text-white">
                                     {staffMember.id}
@@ -180,6 +214,14 @@ export default function StaffTable() {
                         ))}
                     </tbody>
                 </table>
+            </div>
+            <div className="flex justify-end mt-4">
+                <Pagination
+                    count={Math.ceil(filteredStaff.length / itemsPerPage)}
+                    page={currentPage}
+                    onChange={(event, value) => setCurrentPage(value)}
+                // color="primary"
+                />
             </div>
         </div>
     );

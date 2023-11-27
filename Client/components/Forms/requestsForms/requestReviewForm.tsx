@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { getRequestById, updateRequestStatus } from '@/services/requestService';
 import { Request } from '@/types/request';
 import { useRouter } from 'next/navigation';
-import { createPreschool } from '@/services//preschoolService'; // Import the preschool service
+import { createPreschool } from '@/services/preschoolService'; // Import the preschool service
+import { createUser } from '@/services/userService'; // Import the preschool service
 
 interface RequestReviewPageProps {
     requestId: string;
@@ -56,21 +57,38 @@ const RequestReviewPage: React.FC<RequestReviewPageProps> = ({ requestId }) => {
                 console.log('Request ID:', parseInt(requestId));
                 console.log('Plan ID:', updatedRequestData?.plan_id);
 
-                await createPreschool({
+                // Create the preschool
+                await createPreschool(
                     // Pass relevant information from the request object
-                    preschool_name: updatedRequestData?.preschool_name,
-                    request_id: parsedRequestId,
-                    plan_id: updatedRequestData?.plan_id,
+                    updatedRequestData?.preschool_name,
+                    parsedRequestId,
+                    updatedRequestData?.plan_id,
                     // Add other properties as needed
+                ).then(async (createdPreschool) => {
+                    console.log('Preschool created successfully.');
+
+                    // Fetch the data for the newly created preschool
+                    console.log("created preschool id", createdPreschool.preschool.id // Use the preschool ID here
+                    );
+                    const preschoolId = createdPreschool.preschool.id;
+                    console.log("created preschool id", preschoolId// Use the preschool ID here
+                    );
+                    // Create the user with information about the preschool
+                    await createUser(
+                        updatedRequestData?.email,
+                        updatedRequestData?.representitive_name,
+                        'Admin',
+                        preschoolId// Use the preschool ID here
+                    );
+
+                    console.log('User created successfully.');
                 });
-
-                console.log('Preschool created successfully.');
             }
-
         } catch (error) {
             console.error('Error updating status:', error);
         }
     };
+
 
 
     if (!request) {

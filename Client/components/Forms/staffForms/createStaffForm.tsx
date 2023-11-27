@@ -6,6 +6,8 @@ import { createStaff } from '@/services/staffService'; // Assuming you have a se
 import { useRouter } from 'next/navigation';
 import { Staff } from '@/types/staff'; // Import the Staff interface
 import { UserStorage } from "@/types/user";
+import { StaticValue } from "@/types/staticValue";
+
 export default function CreateStaffPage() {
     const router = useRouter();
     const currentUser = UserStorage.getCurrentUser();

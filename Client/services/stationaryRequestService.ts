@@ -35,7 +35,7 @@ export async function createStationaryRequest(request: StationaryRequest): Promi
         const response = await axios.post<StationaryRequest>(BASE_URL, request, config);
         return response.data;
     } catch (error) {
-        console.error("Error updating student:", error);
+        console.error("Error :", error);
         // Type assertion for error variable
         const axiosError = error as AxiosError;
 

@@ -23,7 +23,7 @@ export async function getPreschools(): Promise<Preschool[]> {
     }
 }
 
-export async function createPreschool(newPreschool: Preschool): Promise<Preschool> {
+export async function createPreschool(preschool_name: string, request_id: number, plan_id: number): Promise<Preschool> {
     try {
         const token = localStorage.getItem('token');
         const config: AxiosRequestConfig = {
@@ -32,7 +32,7 @@ export async function createPreschool(newPreschool: Preschool): Promise<Preschoo
             },
         };
 
-        const response = await axios.post<Preschool>(BASE_URL, newPreschool, config);
+        const response = await axios.post<Preschool>(BASE_URL, { preschool_name: preschool_name, request_id: request_id, plan_id: plan_id }, config);
         return response.data;
     } catch (error) {
         console.error("Error updating status:", error);
@@ -86,6 +86,23 @@ export async function deletePreschool(preschoolId: string): Promise<void> {
         const url = `${BASE_URL}/${preschoolId}`;
         await axios.delete(url, config);
     } catch (error) {
+        throw error;
+    }
+}
+export async function getPreschoolById(preschoolId: string): Promise<Preschool> {
+    try {
+        const token = localStorage.getItem('token');
+        const config: AxiosRequestConfig = {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        };
+
+        const url = `${BASE_URL}/${preschoolId}`;
+        const response = await axios.get<Preschool>(url, config);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching preschool by ID:', error);
         throw error;
     }
 }
