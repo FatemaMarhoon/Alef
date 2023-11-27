@@ -99,7 +99,6 @@ export async function currentToken(): Promise<string | undefined> {
   return token;
 }
 
-
 export async function currentPreschool(): Promise<unknown | undefined> {
   const user = await currentUser();
   const preschool = user?.getIdTokenResult(true).then((idTokenResult) => {
@@ -108,4 +107,5 @@ export async function currentPreschool(): Promise<unknown | undefined> {
   });
   return preschool;
 }
+
 
