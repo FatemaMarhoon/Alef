@@ -108,12 +108,4 @@ export async function currentPreschool(): Promise<unknown | undefined> {
   return preschool;
 }
 
-export async function currentRole(): Promise<string | undefined> {
-  const user = await currentUser();
-  const role = user?.getIdTokenResult(true).then((idTokenResult) => {
-    const customClaims = idTokenResult.claims;
-    return customClaims.role.toString();
-  });
-  return role;
-}
 
