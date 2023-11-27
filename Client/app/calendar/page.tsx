@@ -1,3 +1,4 @@
+'use client'
 import Calendar from "@/components/Calender";
 import { Metadata } from "next";
 

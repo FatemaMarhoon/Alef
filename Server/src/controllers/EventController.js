@@ -109,7 +109,10 @@ const EventController = {
     async getEventById(req, res) {
         const { id } = req.params;
         try {
-            const event = await Event.findByPk(id);
+            const event = await Event.findOne({
+                where: { id: id },
+                include: { model: Class, as: "Classes" },
+            });
             if (!event) {
                 return res.status(404).json({ message: 'Event not found.' });
             }
@@ -121,21 +124,21 @@ const EventController = {
 
     async updateEvent(req, res) {
         const { id } = req.params;
-        const {event_name, event_date, notes, public_event, classes} = req.body;
+        const { event_name, event_date, notes, public_event, classes } = req.body;
         try {
             const event = await Event.findByPk(id);
 
-            if (event){
+            if (event) {
                 if (event_name) event.event_name = event_name;
                 if (event_date) event.event_date = event_date;
                 if (notes) event.notes = notes;
                 if (public_event) event.public_event = public_event;
-                
+
                 if (classes && classes.length) {
                     //remove existing records in EventClass 
                     await EventClass.destroy({
                         where: { event_id: event.id },
-                      });
+                    });
 
                     //insert new records
                     const eventClassBulkData = [];
