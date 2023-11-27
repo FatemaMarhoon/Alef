@@ -1,6 +1,15 @@
 const express = require('express');
 const StudentController = require('../controllers/StudentController');
 const router = express.Router();
+const multer = require('multer');
+
+const multerMiddleware = multer({
+    storage: multer.memoryStorage(),
+}).fields([
+    { name: 'personal_picture', maxCount: 1 },
+    { name: 'certificate_of_birth', maxCount: 1 },
+    { name: 'passport', maxCount: 1 },
+]);
 
 // Get all students
 // router.get('/', StudentController.getAllStudents);
@@ -10,7 +19,7 @@ router.get('/preschool/:preschoolId', StudentController.getAllStudents);
 router.get('/:student_id', StudentController.getStudentById);
 
 // Create a new student
-router.post('/', StudentController.createStudent);
+router.post('/', multerMiddleware, StudentController.createStudent);
 
 // Update student
 router.put('/:student_id', StudentController.updateStudent);
