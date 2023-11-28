@@ -94,13 +94,34 @@ export async function createStudent(student: Student): Promise<Student> {
         const config: AxiosRequestConfig = {
             headers: {
                 Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+                'Content-Type': 'multipart/form-data', // Make sure to set the content type
+
             },
         };
 
         const response = await axios.post<Student>(BASE_URL, student, config);
         return response.data;
     } catch (error) {
-        throw error;
+        console.error("Error creating student:", error);
+        // Type assertion for error variable
+        const axiosError = error as AxiosError;
+
+        // Print Axios error details
+        if (axiosError.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            console.error("Response data:", axiosError.response.data);
+            console.error("Response status:", axiosError.response.status);
+            console.error("Response headers:", axiosError.response.headers);
+        } else if (axiosError.request) {
+            // The request was made but no response was received
+            console.error("No response received:", axiosError.request);
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            console.error("Error setting up the request:", axiosError.message);
+        }
+
+        throw axiosError;
     }
 }
 export async function deleteStudent(studentId: string): Promise<void> {

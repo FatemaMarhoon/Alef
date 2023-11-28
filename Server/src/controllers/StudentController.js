@@ -5,6 +5,7 @@ const Student = require('../models/student')(sequelize, DataTypes);
 const Preschool = require('../models/preschool')(sequelize, DataTypes);
 const User = require('../models/user')(sequelize, DataTypes);
 const Class = require('../models/class')(sequelize, DataTypes);
+const FilesManager = require('./FilesManager');
 
 Student.belongsTo(User, { foreignKey: 'user_id' });
 Student.belongsTo(Preschool, { foreignKey: 'preschool_id' });
@@ -74,8 +75,29 @@ const StudentController = {
     },
 
     async createStudent(req, res) {
-        const studentData = req.body;
+        const { student_name, DOB, CPR, contact_number1, contact_number2, guardian_name, enrollment_date, medical_history, preschool_id, gender, certificate_of_birth, passport, personal_picture } = req.body;
+        const studentData = { student_name, DOB, CPR, contact_number1, contact_number2, guardian_name, enrollment_date, medical_history, preschool_id, gender, certificate_of_birth, passport, personal_picture };
+        console.log('Req Body:', req.body);
+        console.log('Req Files:', req.files);
         try {
+            //upload files
+            const personal_picture = req.files['personal_picture'][0];
+            const picture_url = await FilesManager.upload(personal_picture);
+            studentData.personal_picture = picture_url;
+
+            const certificate_of_birth = req.files['certificate_of_birth'][0];
+            const certificate_url = await FilesManager.upload(certificate_of_birth);
+            studentData.certificate_of_birth = certificate_url;
+
+            const passport = req.files['passport'][0];
+            const passport_url = await FilesManager.upload(passport);
+            studentData.passport = passport_url;
+
+            console.log("personaaal:", studentData.personal_picture);
+            console.log("certificate:", studentData.certificate_of_birth);
+            console.log("passport:", studentData.passport);
+
+
             const student = await Student.create(studentData);
             res.json({ message: 'Student created successfully', student });
         } catch (error) {

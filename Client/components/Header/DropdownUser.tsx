@@ -6,10 +6,11 @@ import { logout } from "@/services/authService";
 
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-    const router = useRouter();
+  const router = useRouter();
   const trigger = useRef<any>(null);
   const dropdown = useRef<any>(null);
 
+  
   // close on click outside
   useEffect(() => {
         const clickHandler = ({ target }: MouseEvent) => {
@@ -41,11 +42,8 @@ const DropdownUser = () => {
       document.addEventListener("keydown", keyHandler);
       return () => document.removeEventListener("keydown", keyHandler);
     });
-
-
   return (
     <>
-
       <div className="relative">
         <Link
           ref={trigger}
