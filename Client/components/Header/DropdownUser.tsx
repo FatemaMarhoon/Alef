@@ -10,9 +10,10 @@ const DropdownUser = () => {
   const trigger = useRef<any>(null);
   const dropdown = useRef<any>(null);
 
+  
   // close on click outside
   useEffect(() => {
-    const clickHandler = ({ target }: MouseEvent) => {
+        const clickHandler = ({ target }: MouseEvent) => {
       if (!dropdown.current) return;
       if (
         !dropdownOpen ||
@@ -27,22 +28,20 @@ const DropdownUser = () => {
   });
 
 
-  async function handleLogout() {
-    await logout();
+    async function handleLogout() {
+      await logout();
+      router.push('/login')
 
-    router.push('/login')
-
-  }
-  // close if the esc key is pressed
-  useEffect(() => {
-    const keyHandler = ({ keyCode }: KeyboardEvent) => {
-      if (!dropdownOpen || keyCode !== 27) return;
-      setDropdownOpen(false);
-    };
-    document.addEventListener("keydown", keyHandler);
-    return () => document.removeEventListener("keydown", keyHandler);
-  });
-
+    }
+    // close if the esc key is pressed
+    useEffect(() => {
+      const keyHandler = ({ keyCode }: KeyboardEvent) => {
+        if (!dropdownOpen || keyCode !== 27) return;
+        setDropdownOpen(false);
+      };
+      document.addEventListener("keydown", keyHandler);
+      return () => document.removeEventListener("keydown", keyHandler);
+    });
   return (
     <>
       <div className="relative">
