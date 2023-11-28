@@ -7,10 +7,10 @@ import { useRouter } from 'next/navigation';
 import { Staff } from '@/types/staff'; // Import the Staff interface
 import { UserStorage } from "@/types/user";
 import { StaticValue } from "@/types/staticValue";
+import { currentPreschool } from '@/services/authService';
 
 export default function CreateStaffPage() {
     const router = useRouter();
-    const currentUser = UserStorage.getCurrentUser();
 
     const [staffRole, setStaffRole] = useState("");
     const [staffName, setStaffName] = useState("");
@@ -64,14 +64,17 @@ export default function CreateStaffPage() {
         }
 
         try {
+            var preschool;
+            await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
             const staffData: Staff = {
                 staff_role_name: staffRole,
                 name: staffName,
                 CPR: Number(CPR),
                 phone: Number(phone),
                 hire_date: new Date(hireDate),
-                email: email || undefined, // Make email optional
-                preschool_id: currentUser?.preschool_id || 0, // Assuming currentUser is available
+                email: email || undefined,
+                preschool_id: preschool || 0,
+
             };
 
             // Log the complete staff data
@@ -106,18 +109,25 @@ export default function CreateStaffPage() {
                                     <label className="mb-2.5 block text-black dark:text-white">
                                         Staff Role <span className="text-meta-1">*</span>
                                     </label>
-                                    <input
-                                        type="text"
+                                    <select
                                         value={staffRole}
                                         onChange={(e) => setStaffRole(e.target.value)}
-                                        placeholder="Enter staff's role"
                                         className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.staffRole ? 'border-error' : ''
                                             }`}
-                                    />
+                                    >
+                                        <option value="" disabled>Select staff role</option>
+                                        <option value="Teacher">Teacher</option>
+                                        <option value="Nurse">Nurse</option>
+                                        <option value="Cleaner">Cleaner</option>
+                                        <option value="Administrative Staff">Administrative Staff</option>
+                                        <option value="Assistant Teacher">Assistant Teacher</option>
+                                        {/* Add more options as needed */}
+                                    </select>
                                     {errors.staffRole && (
                                         <p className="text-error text-sm mt-1">{errors.staffRole}</p>
                                     )}
                                 </div>
+
 
                                 <div className="mb-4.5">
                                     <label className="mb-2.5 block text-black dark:text-white">

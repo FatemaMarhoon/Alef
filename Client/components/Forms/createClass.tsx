@@ -36,7 +36,27 @@ const ClassForm: React.FC<ClassFormProps> = ({ onCreateClasses }) => {
     const [remainingCapacity, setRemainingCapacity] = useState<number | null>(null);
 
     const [selectedGradeId, setSelectedGradeId] = useState<number | null>(null);
+    // Fetch grades when the component mounts
+    useEffect(() => {
+        async function fetchGradesList() {
+            try {
+                const response = await getGrades();
+                console.log('Grade List Response:', response);
 
+                // Log the response.data or the actual array
+                console.log('Grade List Data:', response || response);
+
+                setGradesList(response || []);
+                // Set loading to false after fetching data (if needed)
+            } catch (error) {
+                console.error("Error fetching staff list:", error);
+                setStaffList([]);
+                // Set loading to false in case of an error (if needed)
+            }
+        }
+
+        fetchGradesList();
+    }, []); // Empty
 
     const handleGradeChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedGradeId = e.target.value;
@@ -269,27 +289,7 @@ const ClassForm: React.FC<ClassFormProps> = ({ onCreateClasses }) => {
 
 
 
-    // Fetch grades when the component mounts
-    useEffect(() => {
-        async function fetchGradesList() {
-            try {
-                const response = await getGrades();
-                console.log('Grade List Response:', response);
 
-                // Log the response.data or the actual array
-                console.log('Grade List Data:', response || response);
-
-                setGradesList(response || []);
-                // Set loading to false after fetching data (if needed)
-            } catch (error) {
-                console.error("Error fetching staff list:", error);
-                setStaffList([]);
-                // Set loading to false in case of an error (if needed)
-            }
-        }
-
-        fetchGradesList();
-    }, []); // Empty
 
     //handle form submitting
     const handleSubmit = async (e: React.FormEvent) => {
