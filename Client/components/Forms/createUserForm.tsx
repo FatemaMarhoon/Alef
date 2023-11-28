@@ -5,11 +5,12 @@ import { createUser } from '@/services/userService';
 import { useRouter } from 'next/navigation'
 import ErrorAlert from "../ErrorAlert";
 import { currentPreschool } from "@/services/authService";
+import { useSuccessMessageContext } from "../SuccessMessageContext";
 
 
 export default function CreateForm() {
   const router = useRouter();
-
+  const { setSuccessMessage } = useSuccessMessageContext();
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [role, setRole] = useState("");
@@ -18,25 +19,30 @@ export default function CreateForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await currentPreschool().then( async (preschoolId) => {
+      await currentPreschool().then(async (preschoolId) => {
         const response = await createUser(email, fullName, role, Number(preschoolId));
-        if (response.status === 201){
-          router.push('/users?message=' + response.data.message);
+        if (response.status === 201 || response.status == 200) {
+          setSuccessMessage(response.data.message);
+          router.push('/users');
         }
-        else {
+        else if (response.status == 400 || response.status == 404 || response.status == 500) {
           setError(response.data.message);
         }
       });
 
-    } catch (error) {
-      // Handle error
-      setError(String(error));
+    } catch (error: any) {
+      if (error.response) {
+        setError(error.response.data.message);
+      }
+      else if (error.message) {
+        setError(error.message);
+      }
     }
   };
 
   return (
     <>
-    {error && <ErrorAlert message={error}></ErrorAlert>}
+      {error && <ErrorAlert message={error}></ErrorAlert>}
       <Breadcrumb pageName="Create User" />
 
       <div className="grid grid-cols-1 gap-9 sm:grid-cols-2">
@@ -80,10 +86,10 @@ export default function CreateForm() {
                     Role <span className="text-meta-1">*</span>
                   </label>
                   <div className="relative z-20 bg-transparent dark:bg-form-input">
-                    <select 
-                    value={role} // Bind the selected value to the state
-                    onChange={(e) => setRole(e.target.value)}
-                    className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary">
+                    <select
+                      value={role} // Bind the selected value to the state
+                      onChange={(e) => setRole(e.target.value)}
+                      className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary">
                       <option value="">Select user's role</option>
                       <option value="Admin">Admin</option>
                       <option value="Staff">Staff</option>
