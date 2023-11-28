@@ -19,7 +19,7 @@ export async function getUsers(): Promise<User[]> {
       },
     };
 
-    const response = await axios.get<User[]>(`${BASE_URL}?${preschool}`, config);
+    const response = await axios.get<User[]>(`${BASE_URL}?preschool=${preschool}`, config);
     return response.data;
   } catch (error) {
     throw error;

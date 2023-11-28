@@ -94,7 +94,7 @@ const UsersController = {
       // Create Firebase user with validated data
       await createFirebaseUser(email, password, name, role_name, preschool_id).then(async () => {
         // Create local user record with validated data
-        const createdUser = await User.create({ email, password, preschool_id, role_name, name });
+        const createdUser = await User.create({ email, preschool_id, role_name, name });
 
         // Send successful response with created user data
         return res.status(201).json({ message: 'User created successfully', createdUser });
