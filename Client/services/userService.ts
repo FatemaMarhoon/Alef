@@ -80,7 +80,7 @@ export async function createUser(email: string, name: string, role: string, pres
       email: email,
       name: name,
       role_name: role,
-      preschool_id: preschool
+      preschool_id: 1
     }, config);
     return response;
 

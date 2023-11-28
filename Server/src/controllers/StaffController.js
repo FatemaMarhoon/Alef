@@ -1,7 +1,7 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../config/seq');
 
-const Staff = require('../models/Staff')(sequelize, DataTypes);
+const Staff = require('../models/staff')(sequelize, DataTypes);
 const Preschool = require('../models/preschool')(sequelize, DataTypes);
 
 Staff.belongsTo(Preschool, { foreignKey: 'preschool_id' });
@@ -122,12 +122,13 @@ const StaffController = {
 
             const staffMembers = await Staff.findAll({
                 where: sequelize.literal(`
-                \`Staff\`.\`id\` NOT IN (
-                  SELECT \`supervisor\` FROM \`Classes\`
-                  WHERE \`supervisor\` IS NOT NULL
-                )
-                AND \`Staff\`.\`preschool_id\` = ${preschoolId}
-              `),
+                    \`Staff\`.\`id\` NOT IN (
+                      SELECT \`supervisor\` FROM \`Classes\`
+                      WHERE \`supervisor\` IS NOT NULL
+                    )
+                    AND \`Staff\`.\`preschool_id\` = ${preschoolId}
+                    AND \`Staff\`.\`staff_role_name\` = 'teacher'
+                `),
                 include: [Preschool],
             });
 
@@ -136,6 +137,7 @@ const StaffController = {
             res.status(500).json({ message: error.message });
         }
     }
+
 
 };
 

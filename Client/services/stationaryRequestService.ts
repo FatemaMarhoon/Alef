@@ -1,12 +1,14 @@
 import { StationaryRequest } from '@/types/stationaryRequest'; // Import the Stationary_Request type
 import axios, { AxiosRequestConfig, AxiosError } from 'axios';
+import { currentPreschool, currentToken } from './authService';
 
 const BASE_URL = 'http://localhost:3000/stationaryRequest'; // Backend URL for stationary requests
 
 export async function getStationaryRequests(): Promise<StationaryRequest[]> {
     try {
-        const token = localStorage.getItem('token'); // Get the JWT token from localStorage
-
+        var token; var preschool;
+        await currentToken().then((returnedTOken) => { token = returnedTOken; })
+        await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
         // Set up the request config with headers
         const config: AxiosRequestConfig = {
             headers: {
@@ -14,7 +16,7 @@ export async function getStationaryRequests(): Promise<StationaryRequest[]> {
             },
         };
 
-        const response = await axios.get<StationaryRequest[]>(BASE_URL, config);
+        const response = await axios.get<StationaryRequest[]>((`${BASE_URL}/preschool/${preschool}`), config);
         return response.data;
     } catch (error) {
         throw error;
@@ -23,8 +25,9 @@ export async function getStationaryRequests(): Promise<StationaryRequest[]> {
 
 export async function createStationaryRequest(request: StationaryRequest): Promise<StationaryRequest> {
     try {
-        const token = localStorage.getItem('token'); // Get the JWT token from localStorage
-
+        var token; var preschool;
+        await currentToken().then((returnedTOken) => { token = returnedTOken; })
+        await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
         // Set up the request config with headers
         const config: AxiosRequestConfig = {
             headers: {
@@ -60,10 +63,13 @@ export async function createStationaryRequest(request: StationaryRequest): Promi
 
 export async function updateStationaryRequest(id: string, updatedRequest: StationaryRequest): Promise<StationaryRequest> {
     try {
-        const token = localStorage.getItem('token');
+        var token; var preschool;
+        await currentToken().then((returnedTOken) => { token = returnedTOken; })
+        await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
+        // Set up the request config with headers
         const config: AxiosRequestConfig = {
             headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${token}`, // Include the token in the Authorization header
             },
         };
         const url = `${BASE_URL}/${id}`;
@@ -76,10 +82,13 @@ export async function updateStationaryRequest(id: string, updatedRequest: Statio
 
 export async function deleteStationaryRequest(id: string): Promise<void> {
     try {
-        const token = localStorage.getItem('token');
+        var token; var preschool;
+        await currentToken().then((returnedTOken) => { token = returnedTOken; })
+        await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
+        // Set up the request config with headers
         const config: AxiosRequestConfig = {
             headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${token}`, // Include the token in the Authorization header
             },
         };
         const url = `${BASE_URL}/${id}`;
@@ -91,15 +100,15 @@ export async function deleteStationaryRequest(id: string): Promise<void> {
 
 export async function getStationaryRequestById(id: string): Promise<StationaryRequest> {
     try {
-        const token = localStorage.getItem('token'); // Get the JWT token from localStorage
-
+        var token; var preschool;
+        await currentToken().then((returnedTOken) => { token = returnedTOken; })
+        await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
         // Set up the request config with headers
         const config: AxiosRequestConfig = {
             headers: {
                 Authorization: `Bearer ${token}`, // Include the token in the Authorization header
             },
         };
-
         const response = await axios.get<StationaryRequest>(`${BASE_URL}/${id}`, config);
         return response.data;
     } catch (error) {

@@ -5,12 +5,13 @@ import Breadcrumb from '@/components/Breadcrumbs/Breadcrumb';
 import { createStationary } from '@/services/stationaryService';
 import { useRouter } from 'next/navigation';
 import { Stationary } from '@/types/stationary';
-import { UserStorage } from '@/types/user';
+// import { UserStorage } from '@/types/user';
 import TemporarySuccessMessage from '@/app/ui/alerts/TempSuccessMsg'; // Import the success message component
+import { currentPreschool } from '@/services/authService';
 
 export default function CreateForm() {
     const router = useRouter();
-    const currentUser = UserStorage.getCurrentUser();
+    // const currentUser = UserStorage.getCurrentUser();
 
     const [stationaryName, setStationaryName] = useState('');
     const [quantityAvailable, setQuantityAvailable] = useState(0);
@@ -44,10 +45,12 @@ export default function CreateForm() {
         }
 
         try {
+            var preschool;
+            await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
             const stationaryData: Stationary = {
                 stationary_name: stationaryName,
                 quantity_available: quantityAvailable,
-                preschool_id: currentUser?.preschool_id,
+                preschool_id: preschool || 0,
             };
 
             // Log the complete stationary data
