@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 
 const BASE_URL = 'http://localhost:3000/applications'; // Replace with your backend URL
 
-export async function getApplications(): Promise<Application[]> {
+export async function getApplications(): Promise<any> {
   try {
     var token; var preschool;
     await currentToken().then((returnedTOken) => { token = returnedTOken; })
@@ -19,7 +19,7 @@ export async function getApplications(): Promise<Application[]> {
     };
 
     const response = await axios.get<Application[]>(`${BASE_URL}?preschool=${preschool}`, config);
-    return response.data;
+    return response;
   } catch (error) {
     throw error;
   }
@@ -61,7 +61,7 @@ export async function createApplication(
   // passport:string
   certificate_of_birth: File | undefined,
   passport: File | undefined
-): Promise<Application> {
+): Promise<any> {
   var token; var preschool;
   await currentToken().then((returnedTOken) => { token = returnedTOken; })
   await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
@@ -75,7 +75,6 @@ export async function createApplication(
 
       },
     };
-    const created_by = await axios.get("", config)
     const status = "Pending";
     const createdBy = "17"
     const response = await axios.post(`${BASE_URL}`, {
@@ -96,7 +95,7 @@ export async function createApplication(
       created_by: createdBy,
       preschool_id: preschool
     }, config);
-    return response.data;
+    return response;
   } catch (error) {
     console.log(error)
     throw error;

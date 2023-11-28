@@ -6,9 +6,11 @@ import { getGuardianTypes } from "@/services/staticValuesService";
 import { useRouter } from "next/navigation";
 import { StaticValue } from "@/types/staticValue";
 import { getGrades } from "@/services/gradeCapacityService";
+import { useSuccessMessageContext } from '../../../components/SuccessMessageContext';
 
 export default function CreateApplicationForm() {
     const router = useRouter();
+    const { setSuccessMessage } = useSuccessMessageContext();
 
     const [email, setEmail] = useState("");
     const [guardianType, setGuardianType] = useState("");
@@ -81,8 +83,11 @@ export default function CreateApplicationForm() {
                 certificateOfBirth,
                 passport
             );
-            console.log(response);
-            router.push("/applications"); // Redirect to the applications page after submission
+            if (response.status == 200 || response.status == 201){
+                setSuccessMessage(response.data.message);
+                console.log(response);
+                router.push("/applications"); // Redirect to the applications page after submission
+            }
         } catch (error) {
             // Handle error
             console.error("Error creating application:", error);
