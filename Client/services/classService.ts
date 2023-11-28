@@ -1,13 +1,23 @@
 // services/userService.ts
 import { Class } from '@/types/class'
 import axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
-import { UserStorage } from "@/types/user";
-const currentUser = UserStorage.getCurrentUser();
+
 const BASE_URL = 'http://localhost:3000/class'
+import { currentPreschool, currentToken } from './authService';
 
 export async function getClasses(): Promise<Class[]> {
     try {
-        const response = await axios.get<Class[]>(`${BASE_URL}/preschool/${currentUser?.preschool_id}`);
+        var token; var preschool;
+        await currentToken().then((returnedTOken) => { token = returnedTOken; })
+        await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
+        // Set up the request config with headers
+        const config: AxiosRequestConfig = {
+            headers: {
+                Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+            },
+        };
+
+        const response = await axios.get<Class[]>(`${BASE_URL}/preschool/${preschool}`);
         return response.data;
     } catch (error) {
         throw error;
@@ -164,7 +174,17 @@ export async function deleteClass(classId: string): Promise<void> {
 // Function to get the sum of class capacities for a specific grade
 export async function getSumOfClassCapacitiesByGrade(grade: string): Promise<number> {
     try {
-        const response = await axios.get<number>(`${BASE_URL}/preschool/${currentUser?.preschool_id}/sum/${grade}`);
+        var token; var preschool;
+        await currentToken().then((returnedTOken) => { token = returnedTOken; })
+        await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
+        // Set up the request config with headers
+        const config: AxiosRequestConfig = {
+            headers: {
+                Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+            },
+        };
+
+        const response = await axios.get<number>(`${BASE_URL}/preschool/${preschool}/sum/${grade}`);
         return response.data;
     } catch (error) {
         console.error("Error getting sum of class capacities:", error);

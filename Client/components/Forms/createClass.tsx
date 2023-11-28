@@ -17,7 +17,7 @@ import Link from 'next/link';
 //     onCreateClasses: (newClasses: Class[], classIds: number[]) => void;
 // }
 
-const ClassForm: React.FC<ClassFormProps> = ({ onCreateClasses }) => {
+const ClassForm: React.FC = ({ }) => {
     //declare variables
     const currentUser = UserStorage.getCurrentUser();
     const router = useRouter();

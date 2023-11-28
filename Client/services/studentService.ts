@@ -1,9 +1,8 @@
 import { Student } from '@/types/student'; // Import the Student type
 //import { currentUser } from './userService';
-import { UserStorage } from "@/types/user";
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { currentPreschool, currentToken } from './authService';
 
-const currentUser = UserStorage.getCurrentUser();
 // const BASE_URL = `http://localhost:3000/student/preschool/${currentUser?.preschool_id}`; // Backend URL for students
 const BASE_URL = 'http://localhost:3000/student' // Backend URL for students
 
@@ -49,8 +48,9 @@ const BASE_URL = 'http://localhost:3000/student' // Backend URL for students
 
 export async function getStudents(grade?: string): Promise<Student[]> {
     try {
-        const token = localStorage.getItem('token'); // Get the JWT token from localStorage
-
+        var token; var preschool;
+        await currentToken().then((returnedTOken) => { token = returnedTOken; })
+        await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
         // Set up the request config with headers
         const config: AxiosRequestConfig = {
             headers: {
@@ -58,7 +58,7 @@ export async function getStudents(grade?: string): Promise<Student[]> {
             },
         };
 
-        let url = `${BASE_URL}/preschool/${currentUser?.preschool_id}`;
+        let url = `${BASE_URL}/preschool/${preschool}`;
 
         // Append the grade parameter to the URL if provided
         if (grade) {
@@ -88,14 +88,13 @@ export async function getStudentById(studentId: string | null): Promise<Student>
 }
 export async function createStudent(student: Student): Promise<Student> {
     try {
-        const token = localStorage.getItem('token'); // Get the JWT token from localStorage
-
+        var token; var preschool;
+        await currentToken().then((returnedTOken) => { token = returnedTOken; })
+        await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
         // Set up the request config with headers
         const config: AxiosRequestConfig = {
             headers: {
                 Authorization: `Bearer ${token}`, // Include the token in the Authorization header
-                'Content-Type': 'multipart/form-data', // Make sure to set the content type
-
             },
         };
 
@@ -126,15 +125,15 @@ export async function createStudent(student: Student): Promise<Student> {
 }
 export async function deleteStudent(studentId: string): Promise<void> {
     try {
-        const token = localStorage.getItem('token'); // Get the JWT token from localStorage
-
+        var token; var preschool;
+        await currentToken().then((returnedTOken) => { token = returnedTOken; })
+        await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
         // Set up the request config with headers
         const config: AxiosRequestConfig = {
             headers: {
                 Authorization: `Bearer ${token}`, // Include the token in the Authorization header
             },
-        }; console.log("Deleting student...");
-
+        };
 
         // Make the DELETE request to the API
         await axios.delete(`${BASE_URL}/${studentId}`, config);
@@ -163,8 +162,9 @@ export async function deleteStudent(studentId: string): Promise<void> {
 }
 export async function updateStudent(studentId: string, studentData: Student): Promise<void> {
     try {
-        const token = localStorage.getItem('token'); // Get the JWT token from localStorage
-
+        var token; var preschool;
+        await currentToken().then((returnedTOken) => { token = returnedTOken; })
+        await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
         // Set up the request config with headers
         const config: AxiosRequestConfig = {
             headers: {
@@ -205,7 +205,16 @@ export async function updateStudent(studentId: string, studentData: Student): Pr
 
 export async function getStudentsByClassId(classId: string): Promise<Student[]> {
     try {
-        const response = await axios.get<Student[]>(`${BASE_URL}/${currentUser?.preschool_id}/${classId}`);
+        var token; var preschool;
+        await currentToken().then((returnedTOken) => { token = returnedTOken; })
+        await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
+        // Set up the request config with headers
+        const config: AxiosRequestConfig = {
+            headers: {
+                Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+            },
+        };
+        const response = await axios.get<Student[]>(`${BASE_URL}/${preschool}/${classId}`);
         return response.data;
     } catch (error) {
         console.error("Error updating student:", error);

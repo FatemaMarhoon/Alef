@@ -32,7 +32,11 @@ const validateStationaryRequestData = (stationaryRequestData) => {
 const StationaryRequestController = {
     async getAllStationaryRequests(req, res) {
         try {
+            const { preschoolId } = req.params;
+
             const stationaryRequests = await StationaryRequest.findAll({
+                where: { preschool_id: preschoolId },
+
                 include: Stationary
             });
             res.json(stationaryRequests);

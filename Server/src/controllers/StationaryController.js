@@ -1,16 +1,20 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../config/seq');
 
-const Stationary = require('../models/Stationary')(sequelize, DataTypes);
+const Stationary = require('../models/stationary')(sequelize, DataTypes);
 const Preschool = require('../models/preschool')(sequelize, DataTypes);
 
 Preschool.hasMany(Stationary, { foreignKey: 'preschool_id' });
 Stationary.belongsTo(Preschool, { foreignKey: 'preschool_id' });
 
 const StationaryController = {
+
     async getAllStationary(req, res) {
         try {
+            const { preschoolId } = req.params;
             const stationary = await Stationary.findAll({
+                where: { preschool_id: preschoolId },
+
                 include: Preschool
             });
             res.json(stationary);
