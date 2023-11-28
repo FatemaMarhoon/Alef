@@ -1,7 +1,7 @@
 // services/userService.ts
 import { Application } from '@/types/application';
 import { currentPreschool, currentToken } from './authService';
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { useRouter } from 'next/navigation';
 
 const BASE_URL = 'http://localhost:3000/applications'; // Replace with your backend URL
@@ -95,10 +95,13 @@ export async function createApplication(
       created_by: createdBy,
       preschool_id: preschool
     }, config);
+
     return response;
   } catch (error) {
-    console.log(error)
-    throw error;
+    console.error("Error creating user:", error);
+    // Type assertion for error variable
+    const axiosError = error as AxiosError;
+    throw axiosError;
   }
 }
 

@@ -24,14 +24,6 @@ export default function ApplicationsTable() {
         }
         fetchApplicaions();
         console.log("Message on Applications load: ",successMessage);
-        // if (successMessage) {
-        //     const dismissTimeout = setTimeout(() => {
-        //       // Code to hide the success message after a certain period of time
-        //       clearSuccessMessage(); // Call this function to hide or clear the success message
-        //     }, 5000); // Set the timeout duration as needed
-      
-        //     return () => clearTimeout(dismissTimeout); // Clear the timeout when the component unmounts
-        //   }
         }, [successMessage]);
 
     async function handleDelete(id: number) {
@@ -50,7 +42,6 @@ export default function ApplicationsTable() {
                     <Link href="/applications/create"
                         className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
                         Add new Application
-
                     </Link>
                 </div>
                 <div className="max-w-full overflow-x-auto">

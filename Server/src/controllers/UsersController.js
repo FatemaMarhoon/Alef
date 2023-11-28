@@ -90,7 +90,7 @@ const UsersController = {
          password = generatePassword();        
         console.log(password)
       }
-
+ 
       // Create Firebase user with validated data
       await createFirebaseUser(email, password, name, role_name, preschool_id).then(async () => {
         // Create local user record with validated data
