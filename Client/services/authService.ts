@@ -1,5 +1,5 @@
-import { FirebaseApp, initializeApp } from 'firebase/app';
-import { getAuth, signOut, signInWithEmailAndPassword, GoogleAuthProvider, signInWithRedirect, getRedirectResult, Auth, signInWithPopup, onAuthStateChanged, User } from "firebase/auth";
+import { FirebaseApp, FirebaseError, initializeApp } from 'firebase/app';
+import { getAuth, signOut, signInWithEmailAndPassword, GoogleAuthProvider, sendPasswordResetEmail, signInWithPopup, onAuthStateChanged, User, UserCredential } from "firebase/auth";
 
 export function FirebaseSetup(): FirebaseApp {
   const firebaseConfig = {
@@ -35,41 +35,29 @@ export async function loginWithGoogle() {
   }
 }
 
-
-//with redirect (idk it's stopped working)
-export async function loginWithGoogle2() {
+export async function loginWithEmail(email: string, password: string): Promise<UserCredential | any> {
   const auth = getAuth(FirebaseSetup());
-  const provider = new GoogleAuthProvider();
-
-  try {
-    // Start the Google sign-in process
-    await signInWithRedirect(auth, provider);
-
-    // This will trigger a full page redirect away from your app
-    // Handle the redirect result when the user comes back to your app
-    const result = await getRedirectResult(auth);
-
-    // You can access the user information from the result
-    const user = result?.user;
-    console.log(user);
-
-  } catch (error) {
-    console.error(error);
-    // Handle errors
-  }
-}
-
-export async function loginWithEmail(email: string, password: string) {
-  const auth = getAuth(FirebaseSetup());
-  const response = signInWithEmailAndPassword(auth, email, password)
+  await signInWithEmailAndPassword(auth, email, password)
     .then(async (userCredential) => {
       // Signed in 
       console.log("logged in")
+      return userCredential;
     })
     .catch((error) => {
-      console.log(error.message)
-      throw error;
+      const firebaseError = error as FirebaseError;
+      throw firebaseError;
     });
+}
+
+export async function forgetPassword(email: string) {
+  try {
+    const auth = getAuth(FirebaseSetup());
+    await sendPasswordResetEmail(auth, email);
+  } catch (error) {
+    const firebaseError = error as FirebaseError;
+    throw firebaseError;
+  }
+
 }
 
 export async function logout() {
