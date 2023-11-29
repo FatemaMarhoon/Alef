@@ -7,11 +7,13 @@ import { useRouter } from 'next/navigation';
 import { Stationary } from '@/types/stationary';
 import { UserStorage } from '@/types/user';
 import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
+import ErrorAlert from "@/components/ErrorAlert";
 
 export default function EditForm({ params }: { params: { stationaryId: number } }) {
     const router = useRouter();
     const currentUser = UserStorage.getCurrentUser();
     const { setSuccessMessage } = useSuccessMessageContext();
+    const [error, setError] = useState("");
 
     const [stationary, setStationary] = useState<Stationary>({
         stationary_name: '',
@@ -36,30 +38,30 @@ export default function EditForm({ params }: { params: { stationaryId: number } 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Reset errors
-        setErrors({});
+        // // Reset errors
+        // setErrors({});
 
-        // Validate form data
-        let hasErrors = false;
+        // // Validate form data
+        // let hasErrors = false;
 
-        // Ensure stationary name is not empty
-        if (!stationary.stationary_name.trim()) {
-            setErrors((prevErrors) => ({ ...prevErrors, stationaryName: 'Stationary name cannot be empty.' }));
-            hasErrors = true;
-        }
+        // // Ensure stationary name is not empty
+        // if (!stationary.stationary_name.trim()) {
+        //     setErrors((prevErrors) => ({ ...prevErrors, stationaryName: 'Stationary name cannot be empty.' }));
+        //     hasErrors = true;
+        // }
 
-        // Ensure quantity is a non-negative number
-        if (stationary.quantity_available < 0 || isNaN(stationary.quantity_available)) {
-            setErrors((prevErrors) => ({
-                ...prevErrors,
-                quantityAvailable: 'Quantity must be a non-negative number.',
-            }));
-            hasErrors = true;
-        }
+        // // Ensure quantity is a non-negative number
+        // if (stationary.quantity_available < 0 || isNaN(stationary.quantity_available)) {
+        //     setErrors((prevErrors) => ({
+        //         ...prevErrors,
+        //         quantityAvailable: 'Quantity must be a non-negative number.',
+        //     }));
+        //     hasErrors = true;
+        // }
 
-        if (hasErrors) {
-            return;
-        }
+        // if (hasErrors) {
+        //     return;
+        // }
 
         try {
             // Log the complete stationary data
@@ -76,7 +78,10 @@ export default function EditForm({ params }: { params: { stationaryId: number } 
                 // Check the status after ensuring response and data are defined
                 if (response.status === 200 || response.status === 201) {
                     setSuccessMessage(successMsg);
+                } else if (response.status == 400 || response.status == 404 || response.status == 500) {
+                    setError(response.data.message);
                 }
+
 
                 console.log("Staff member deleted successfully");
                 router.push("/stationary");
@@ -85,23 +90,22 @@ export default function EditForm({ params }: { params: { stationaryId: number } 
             }
             router.push('/stationary'); // Update the route accordingly
 
-        } catch (error) {
-            console.error('Error updating stationary item:', error);
+        } catch (error: any) {
+            if (error.response) {
+                setError(error.response.data.message);
+            }
+            else if (error.message) {
+                setError(error.message);
+            }
         }
     };
 
     return (
         <>
-            <style jsx>{`
-                .border-error {
-                    border-color: #e53e3e; // Red color for error border
-                }
-                .text-error {
-                    color: #e53e3e; // Red color for error text
-                }
-            `}</style>
+
             <Breadcrumb pageName="Edit Stationary Item" />
             <div className="items-center justify-center min-h-screen">
+                {error && <ErrorAlert message={error}></ErrorAlert>}
 
 
                 <div className="items-center justify-center min-h-screen">

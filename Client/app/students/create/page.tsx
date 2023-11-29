@@ -9,6 +9,7 @@ import { useSuccessMessageContext } from '../../../components/SuccessMessageCont
 import { currentPreschool } from '@/services/authService';
 import { getGrades } from '@/services/gradeCapacityService';
 import { GradeCapacity } from '@/types/gradeCapacity';
+import ErrorAlert from "@/components/ErrorAlert";
 
 export default function CreateForm() {
   //declare variables
@@ -30,6 +31,7 @@ export default function CreateForm() {
   const [passport, setPassport] = useState<File | undefined>(undefined);
   const [certificate_of_birth, setCertificateOfBirth] = useState<File | undefined>(undefined);
   const [selectedGradeId, setSelectedGradeId] = useState<number | null>(null);
+  const [error, setError] = useState("");
 
   // Update the handleFileChange function
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>, setFile: React.Dispatch<React.SetStateAction<File | undefined>>) => {
@@ -40,83 +42,7 @@ export default function CreateForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Reset errors
-    setErrors({});
 
-    // Validate form data
-    let hasErrors = false;
-
-    // Ensure student name is not empty
-    if (!studentName.trim()) {
-      setErrors((prevErrors) => ({ ...prevErrors, studentName: 'Student name cannot be empty.' }));
-      hasErrors = true;
-    }
-    if (!guardianName.trim()) {
-      setErrors((prevErrors) => ({ ...prevErrors, guardianName: 'Guardian name cannot be empty.' }));
-      hasErrors = true;
-    }
-
-    if (!medicalHistory.trim()) {
-      setErrors((prevErrors) => ({ ...prevErrors, medicalHistory: 'Medical History cannot be empty.' }));
-      hasErrors = true;
-    }
-    // Ensure CPR is a number and not empty
-    if (isNaN(Number(CPR)) || CPR.trim() === "") {
-      setErrors((prevErrors) => ({ ...prevErrors, CPR: 'Please enter a valid CPR.' }));
-      hasErrors = true;
-    }
-
-    // Ensure contact numbers are numbers and not empty
-    if (isNaN(Number(contactNumber1)) || contactNumber1.trim() === "") {
-      setErrors((prevErrors) => ({ ...prevErrors, contactNumber1: 'Please enter a valid contact number.' }));
-      hasErrors = true;
-    }
-
-    if (isNaN(Number(contactNumber2)) || contactNumber2.trim() === "") {
-      setErrors((prevErrors) => ({ ...prevErrors, contactNumber2: 'Please enter a valid contact number.' }));
-      hasErrors = true;
-    }
-
-    // Inside handleSubmit function
-
-    // Validate Contact Number 1
-    const contactNumber1Regex = /^\d{8}$/; // Assuming a 10-digit phone number
-    if (!contactNumber1.trim() || !contactNumber1Regex.test(contactNumber1)) {
-      setErrors((prevErrors) => ({ ...prevErrors, contactNumber1: 'Please enter a valid Contact Number.' }));
-      hasErrors = true;
-    }
-
-    // Validate Contact Number 2
-    const contactNumber2Regex = /^\d{8}$/; // Assuming a 10-digit phone number
-    if (!contactNumber2.trim() || !contactNumber2Regex.test(contactNumber2)) {
-      setErrors((prevErrors) => ({ ...prevErrors, contactNumber2: 'Please enter a valid Contact Number.' }));
-      hasErrors = true;
-    }
-
-
-    // Validate Date of Birth
-    if (!DOB.trim() || isNaN(Date.parse(DOB))) {
-      setErrors((prevErrors) => ({ ...prevErrors, DOB: 'Please enter a valid Date of Birth.' }));
-      hasErrors = true;
-    }
-
-    // Validate Enrollment Date
-    if (!enrollmentDate.trim() || isNaN(Date.parse(enrollmentDate))) {
-      setErrors((prevErrors) => ({ ...prevErrors, enrollmentDate: 'Please enter a valid Enrollment Date.' }));
-      hasErrors = true;
-    }
-
-    // Inside handleSubmit function
-
-    // Validate Gender
-    if (gender === "") {
-      setErrors((prevErrors) => ({ ...prevErrors, gender: 'Please select a valid Gender.' }));
-      hasErrors = true;
-    }
-
-    if (hasErrors) {
-      return;
-    }
 
     try {
       //get the preschool id
@@ -147,13 +73,20 @@ export default function CreateForm() {
       const successMsg = response.data.message;
       if (response.status == 200 || response.status == 201) {
         setSuccessMessage(successMsg);
+      } else if (response.status == 400 || response.status == 404 || response.status == 500) {
+        setError(response.data.message);
       }
       router.push('/students');
 
       // Redirect after successful submission
       // router.push('/students');
-    } catch (error) {
-      console.error("Error creating student:", error);
+    } catch (error: any) {
+      if (error.response) {
+        setError(error.response.data.message);
+      }
+      else if (error.message) {
+        setError(error.message);
+      }
     }
   };
   useEffect(() => {
@@ -179,6 +112,7 @@ export default function CreateForm() {
   return (
     <>
       <Breadcrumb pageName="Create Student" />
+      {error && <ErrorAlert message={error}></ErrorAlert>}
 
       <div className=" items-center justify-center min-h-screen">
         <div className="flex flex-col gap-9">

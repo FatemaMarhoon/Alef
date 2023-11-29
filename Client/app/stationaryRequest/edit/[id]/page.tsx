@@ -11,6 +11,7 @@ import { getStaffById } from '@/services/staffService'; // Add the actual servic
 import { Stationary } from '@/types/stationary';
 import { StaticValue } from "@/types/staticValue";
 import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
+import ErrorAlert from "@/components/ErrorAlert";
 
 export default function EditStationaryRequestForm({ params }: { params: { id: number } }) {
     const router = useRouter();
@@ -31,6 +32,7 @@ export default function EditStationaryRequestForm({ params }: { params: { id: nu
     const [staffName, setStaffName] = useState<string>('');
     const [stationaryList, setStationaryList] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
 
     useEffect(() => {
         const fetchStationaryRequestData = async () => {
@@ -77,23 +79,23 @@ export default function EditStationaryRequestForm({ params }: { params: { id: nu
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Reset errors
-        setErrors({});
+        // // Reset errors
+        // setErrors({});
 
-        // Validate form data
-        let hasErrors = false;
+        // // Validate form data
+        // let hasErrors = false;
 
-        // Validation logic
-        if (stationaryRequest.status_name === 'Accepted' && stationaryRequest.requested_quantity > getStationaryQuantity(stationaryRequest.stationary_id)) {
-            setErrors({ requestedQuantity: 'Requested quantity is greater than the existing quantity.' });
-            hasErrors = true;
-        }
+        // // Validation logic
+        // if (stationaryRequest.status_name === 'Accepted' && stationaryRequest.requested_quantity > getStationaryQuantity(stationaryRequest.stationary_id)) {
+        //     setErrors({ requestedQuantity: 'Requested quantity is greater than the existing quantity.' });
+        //     hasErrors = true;
+        // }
 
-        // Add validation logic here
+        // // Add validation logic here
 
-        if (hasErrors) {
-            return;
-        }
+        // if (hasErrors) {
+        //     return;
+        // }
 
         try {
             // Send the request and log the response
@@ -106,13 +108,20 @@ export default function EditStationaryRequestForm({ params }: { params: { id: nu
                 // Check the status after ensuring response and data are defined
                 if (response.status === 200 || response.status === 201) {
                     setSuccessMessage(successMsg);
+                } else if (response.status == 400 || response.status == 404 || response.status == 500) {
+                    setError(response.data.message);
                 }
 
             }
             router.push('/stationaryRequest'); // Update the route accordingly
 
-        } catch (error) {
-            console.error('Error updating stationary request:', error);
+        } catch (error: any) {
+            if (error.response) {
+                setError(error.response.data.message);
+            }
+            else if (error.message) {
+                setError(error.message);
+            }
         }
     };
     const getStationaryName = (stationaryId: number): string => {
@@ -129,10 +138,11 @@ export default function EditStationaryRequestForm({ params }: { params: { id: nu
     };
     return (
         <>
-            <style jsx>{`
-                /* Add your custom styles here */
-            `}</style>
+
+
             <Breadcrumb pageName="Edit Stationary Request" />
+            {error && <ErrorAlert message={error}></ErrorAlert>}
+
             <div className="items-center justify-center min-h-screen">
 
 

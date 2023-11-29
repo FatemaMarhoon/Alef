@@ -9,6 +9,7 @@ import { UserStorage } from "@/types/user";
 import { StaticValue } from "@/types/staticValue";
 import { currentPreschool } from '@/services/authService';
 import { useSuccessMessageContext } from '../../../components/SuccessMessageContext';
+import ErrorAlert from "@/components/ErrorAlert";
 
 export default function CreateStaffPage() {
     const router = useRouter();
@@ -21,49 +22,50 @@ export default function CreateStaffPage() {
     const [email, setEmail] = useState("");
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
     const { setSuccessMessage } = useSuccessMessageContext();
+    const [error, setError] = useState("");
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         // Reset errors
-        setErrors({});
+        // setErrors({});
 
-        // Validate form data
-        let hasErrors = false;
+        // // Validate form data
+        // let hasErrors = false;
 
-        // Ensure staff role is not empty
-        if (!staffRole.trim()) {
-            setErrors((prevErrors) => ({ ...prevErrors, staffRole: 'Staff role cannot be empty.' }));
-            hasErrors = true;
-        }
+        // // Ensure staff role is not empty
+        // if (!staffRole.trim()) {
+        //     setErrors((prevErrors) => ({ ...prevErrors, staffRole: 'Staff role cannot be empty.' }));
+        //     hasErrors = true;
+        // }
 
-        // Ensure staff name is not empty
-        if (!staffName.trim()) {
-            setErrors((prevErrors) => ({ ...prevErrors, staffName: 'Staff name cannot be empty.' }));
-            hasErrors = true;
-        }
+        // // Ensure staff name is not empty
+        // if (!staffName.trim()) {
+        //     setErrors((prevErrors) => ({ ...prevErrors, staffName: 'Staff name cannot be empty.' }));
+        //     hasErrors = true;
+        // }
 
-        // Ensure CPR is a number and not empty
-        if (isNaN(Number(CPR)) || CPR.trim() === "") {
-            setErrors((prevErrors) => ({ ...prevErrors, CPR: 'Please enter a valid CPR.' }));
-            hasErrors = true;
-        }
+        // // Ensure CPR is a number and not empty
+        // if (isNaN(Number(CPR)) || CPR.trim() === "") {
+        //     setErrors((prevErrors) => ({ ...prevErrors, CPR: 'Please enter a valid CPR.' }));
+        //     hasErrors = true;
+        // }
 
-        // Ensure phone is a number and not empty
-        if (isNaN(Number(phone)) || phone.trim() === "") {
-            setErrors((prevErrors) => ({ ...prevErrors, phone: 'Please enter a valid phone number.' }));
-            hasErrors = true;
-        }
+        // // Ensure phone is a number and not empty
+        // if (isNaN(Number(phone)) || phone.trim() === "") {
+        //     setErrors((prevErrors) => ({ ...prevErrors, phone: 'Please enter a valid phone number.' }));
+        //     hasErrors = true;
+        // }
 
-        // Ensure hire date is not empty
-        if (!hireDate.trim()) {
-            setErrors((prevErrors) => ({ ...prevErrors, hireDate: 'Hire date cannot be empty.' }));
-            hasErrors = true;
-        }
+        // // Ensure hire date is not empty
+        // if (!hireDate.trim()) {
+        //     setErrors((prevErrors) => ({ ...prevErrors, hireDate: 'Hire date cannot be empty.' }));
+        //     hasErrors = true;
+        // }
 
-        if (hasErrors) {
-            return;
-        }
+        // if (hasErrors) {
+        //     return;
+        // }
 
         try {
             var preschool;
@@ -88,17 +90,25 @@ export default function CreateStaffPage() {
             const successMsg = response.data.message;
             if (response.status == 200 || response.status == 201) {
                 setSuccessMessage(successMsg);
+            } else if (response.status == 400 || response.status == 404 || response.status == 500) {
+                setError(response.data.message);
             }
             // Redirect after successful submission
             router.push('/staff'); // Assuming you have a staff page
-        } catch (error) {
-            console.error("Error creating staff:", error);
+        } catch (error: any) {
+            if (error.response) {
+                setError(error.response.data.message);
+            }
+            else if (error.message) {
+                setError(error.message);
+            }
         }
     };
 
     return (
         <>
             <Breadcrumb pageName="Create Staff" />
+            {error && <ErrorAlert message={error}></ErrorAlert>}
 
             <div className=" items-center justify-center min-h-screen">
                 <div className="flex flex-col gap-9">
