@@ -13,7 +13,7 @@ Preschool.hasMany(Student, { foreignKey: 'preschool_id' });
 Class.hasMany(Student, { foreignKey: 'class_id' });
 
 const validateStudentData = (studentData) => {
-    const requiredFields = ['student_name', 'DOB', 'CPR', 'contact_number1', 'contact_number2', 'guardian_name', 'enrollment_date', 'medical_history', 'preschool_id', 'gender', 'certificate_of_birth', 'passport', 'personal_picture'];
+    const requiredFields = ['student_name', 'DOB', 'CPR', 'contact_number1', 'contact_number2', 'guardian_name', 'enrollment_date', 'medical_history', 'preschool_id', 'gender'];
 
     for (const field of requiredFields) {
         if (!studentData[field]) {
@@ -24,9 +24,9 @@ const validateStudentData = (studentData) => {
     const currentYear = new Date().getFullYear();
     const dobYear = new Date(studentData.DOB).getFullYear();
 
-    if (dobYear >= currentYear) {
-        return { isValid: false, message: 'DOB must be before the current year' };
-    }
+    // if (dobYear > currentYear) {
+    //     return { isValid: false, message: 'DOB must be before the current year' };
+    // }
     if (dobYear < 2018 || dobYear > 2023) {
         return { isValid: false, message: 'DOB must be between 2018 and 2023' };
     }
@@ -105,8 +105,8 @@ const StudentController = {
     },
 
     async createStudent(req, res) {
-        const { student_name, DOB, CPR, contact_number1, contact_number2, guardian_name, enrollment_date, medical_history, preschool_id, gender, certificate_of_birth, passport, personal_picture } = req.body;
-        const studentData = { student_name, DOB, CPR, contact_number1, contact_number2, guardian_name, enrollment_date, medical_history, preschool_id, gender, certificate_of_birth, passport, personal_picture };
+        const { student_name, DOB, CPR, grade, contact_number1, contact_number2, guardian_name, enrollment_date, medical_history, preschool_id, gender, certificate_of_birth, passport, personal_picture } = req.body;
+        const studentData = { student_name, DOB, grade, CPR, contact_number1, contact_number2, guardian_name, enrollment_date, medical_history, preschool_id, gender, certificate_of_birth, passport, personal_picture };
         console.log('Req Body:', req.body);
         console.log('Req Files:', req.files);
         const validation = validateStudentData(studentData);
@@ -143,11 +143,11 @@ const StudentController = {
     async updateStudent(req, res) {
         const { student_id } = req.params;
         const updatedStudentData = req.body;
-        // Add validation logic here
-        const validation = validateStudentData(updatedStudentData);
-        if (!validation.isValid) {
-            return res.status(400).json({ message: validation.message });
-        }
+        // // Add validation logic here
+        // const validation = validateStudentData(updatedStudentData);
+        // if (!validation.isValid) {
+        //     return res.status(400).json({ message: validation.message });
+        // }
 
         try {
             const student = await Student.findByPk(student_id);

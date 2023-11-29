@@ -3,6 +3,7 @@ import axios, { AxiosRequestConfig, AxiosError } from 'axios';
 import { UserStorage } from "@/types/user";
 // const currentUser = UserStorage.getCurrentUser();
 import { currentPreschool, currentToken } from './authService';
+import { responsiveProperty } from '@mui/material/styles/cssUtils';
 
 const BASE_URL = 'http://localhost:3000/staff';
 // Backend URL for staff
@@ -82,7 +83,7 @@ export async function getNotAssignedStaff(): Promise<Staff[]> {
     }
 }
 
-export async function createStaff(staff: Staff): Promise<Staff> {
+export async function createStaff(staff: Staff): Promise<any> {
     try {
         var token; var preschool;
         await currentToken().then((returnedTOken) => { token = returnedTOken; })
@@ -96,7 +97,7 @@ export async function createStaff(staff: Staff): Promise<Staff> {
 
 
         const response = await axios.post<Staff>(BASE_URL, staff, config);
-        return response.data;
+        return response;
     } catch (error) {
         console.error("Error adding student:", error);
         // Type assertion for error variable
@@ -121,7 +122,7 @@ export async function createStaff(staff: Staff): Promise<Staff> {
     }
 }
 
-export async function updateStaff(staffId: number, updatedStaff: Staff): Promise<Staff> {
+export async function updateStaff(staffId: number, updatedStaff: Staff): Promise<any> {
     try {
         var token; var preschool;
         await currentToken().then((returnedTOken) => { token = returnedTOken; })
@@ -134,7 +135,7 @@ export async function updateStaff(staffId: number, updatedStaff: Staff): Promise
         };
 
         const response = await axios.put<Staff>(`${BASE_URL}/${staffId}`, updatedStaff, config);
-        return response.data;
+        return response;
     } catch (error) {
         console.error("Error updating staff:", error);
         // Type assertion for error variable
@@ -159,7 +160,7 @@ export async function updateStaff(staffId: number, updatedStaff: Staff): Promise
     }
 }
 
-export async function deleteStaff(staffId: number): Promise<void> {
+export async function deleteStaff(staffId: number): Promise<any> {
     try {
         var token; var preschool;
         await currentToken().then((returnedTOken) => { token = returnedTOken; })
@@ -172,7 +173,8 @@ export async function deleteStaff(staffId: number): Promise<void> {
         };
 
 
-        await axios.delete(`${BASE_URL}/${staffId}`, config);
+        const response = await axios.delete(`${BASE_URL}/${staffId}`, config);
+        return response;
     } catch (error) {
         console.error("Error deleting staff:", error);
         // Type assertion for error variable

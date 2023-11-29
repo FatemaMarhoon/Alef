@@ -127,7 +127,7 @@ const StaffController = {
                       WHERE \`supervisor\` IS NOT NULL
                     )
                     AND \`Staff\`.\`preschool_id\` = ${preschoolId}
-                    AND \`Staff\`.\`staff_role_name\` = 'teacher'
+                    AND \`Staff\`.\`staff_role_name\` = 'Teacher'
                 `),
                 include: [Preschool],
             });

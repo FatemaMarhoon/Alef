@@ -6,46 +6,6 @@ import { currentPreschool, currentToken } from './authService';
 // const BASE_URL = `http://localhost:3000/student/preschool/${currentUser?.preschool_id}`; // Backend URL for students
 const BASE_URL = 'http://localhost:3000/student' // Backend URL for students
 
-// export async function getStudents(): Promise<Student[]> {
-//     try {
-//         const token = localStorage.getItem('token'); // Get the JWT token from localStorage
-
-//         // Set up the request config with headers
-//         const config: AxiosRequestConfig = {
-//             headers: {
-//                 Authorization: `Bearer ${token}`, // Include the token in the Authorization header
-//             },
-//         };
-
-//         //  const response = await axios.get<Student[]>(BASE_URL, config);
-//         // const response = await axios.get<Student[]>(BASE_URL, config);
-//         const response = await axios.get<Student[]>(`${BASE_URL}/preschool/${currentUser?.preschool_id}`);
-
-//         return response.data;
-//     } catch (error) {
-//         console.error("Error deleting student:", error);
-//         // Type assertion for error variable
-//         const axiosError = error as AxiosError;
-
-//         // Print Axios error details
-//         if (axiosError.response) {
-//             // The request was made and the server responded with a status code
-//             // that falls out of the range of 2xx
-//             console.error("Response data:", axiosError.response.data);
-//             console.error("Response status:", axiosError.response.status);
-//             console.error("Response headers:", axiosError.response.headers);
-//         } else if (axiosError.request) {
-//             // The request was made but no response was received
-//             console.error("No response received:", axiosError.request);
-//         } else {
-//             // Something happened in setting up the request that triggered an Error
-//             console.error("Error setting up the request:", axiosError.message);
-//         }
-
-//         throw axiosError;
-//     }
-// }
-
 export async function getStudents(grade?: string): Promise<Student[]> {
     try {
         var token; var preschool;
@@ -86,7 +46,22 @@ export async function getStudentById(studentId: string | null): Promise<Student>
         throw error;
     }
 }
-export async function createStudent(student: Student): Promise<Student> {
+export async function createStudent(
+    preschool_id: number,
+    student_name: string,
+    grade: string,
+    DOB: Date,
+    CPR: number,
+    contact_number1: number,
+    contact_number2: number,
+    guardian_name: string,
+    enrollment_date: Date,
+    medical_history: string,
+    gender: string,
+    personal_picture: string | null,
+    certificate_of_birth: string | null,
+    passport: string | null
+): Promise<any> {
     try {
         var token; var preschool;
         await currentToken().then((returnedTOken) => { token = returnedTOken; })
@@ -95,11 +70,31 @@ export async function createStudent(student: Student): Promise<Student> {
         const config: AxiosRequestConfig = {
             headers: {
                 Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+                'Content-Type': 'multipart/form-data', // Make sure to set the content type
+
             },
         };
 
-        const response = await axios.post<Student>(BASE_URL, student, config);
-        return response.data;
+        const response = await axios.post<Student>(BASE_URL,
+            {
+                preschool_id: preschool,
+                // class_id: class_id,
+                student_name: student_name,
+                grade: grade,
+                DOB: DOB,
+                CPR: CPR,
+                contact_number1: contact_number1,
+                contact_number2: contact_number2,
+                guardian_name: guardian_name,
+                enrollment_date: enrollment_date,
+                medical_history: medical_history,
+                gender: gender,
+                personal_picture: personal_picture,
+                certificate_of_birth: certificate_of_birth,
+                passport: passport
+            }
+            , config);
+        return response;
     } catch (error) {
         console.error("Error creating student:", error);
         // Type assertion for error variable
@@ -123,7 +118,7 @@ export async function createStudent(student: Student): Promise<Student> {
         throw axiosError;
     }
 }
-export async function deleteStudent(studentId: string): Promise<void> {
+export async function deleteStudent(studentId: string): Promise<any> {
     try {
         var token; var preschool;
         await currentToken().then((returnedTOken) => { token = returnedTOken; })
@@ -136,7 +131,8 @@ export async function deleteStudent(studentId: string): Promise<void> {
         };
 
         // Make the DELETE request to the API
-        await axios.delete(`${BASE_URL}/${studentId}`, config);
+        const response = await axios.delete(`${BASE_URL}/${studentId}`, config);
+        return response;
     } catch (error) {
         console.error("Error deleting student:", error);
         // Type assertion for error variable
@@ -160,25 +156,103 @@ export async function deleteStudent(studentId: string): Promise<void> {
         throw axiosError;
     }
 }
-export async function updateStudent(studentId: string, studentData: Student): Promise<void> {
+// export async function updateStudent(studentId: string, studentData: Student): Promise<any> {
+//     try {
+//         var token; var preschool;
+//         await currentToken().then((returnedTOken) => { token = returnedTOken; })
+//         await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
+//         // Set up the request config with headers
+//         const config: AxiosRequestConfig = {
+//             headers: {
+//                 Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+//                 'Content-Type': 'multipart/form-data', // Make sure to set the content type
+
+//             },
+//         };
+
+//         // Make the PUT request to update the student
+//         const response = await axios.put(`${BASE_URL}/${studentId}`, studentData, config);
+
+//         // Handle the successful response here, if needed
+//         console.log('Student updated successfully', response.data);
+//         return response;
+//         //return response;
+//     } catch (error) {
+//         console.error("Error updating student:", error);
+//         // Type assertion for error variable
+//         const axiosError = error as AxiosError;
+
+//         // Print Axios error details
+//         if (axiosError.response) {
+//             // The request was made and the server responded with a status code
+//             // that falls out of the range of 2xx
+//             console.error("Response data:", axiosError.response.data);
+//             console.error("Response status:", axiosError.response.status);
+//             console.error("Response headers:", axiosError.response.headers);
+//         } else if (axiosError.request) {
+//             // The request was made but no response was received
+//             console.error("No response received:", axiosError.request);
+//         } else {
+//             // Something happened in setting up the request that triggered an Error
+//             console.error("Error setting up the request:", axiosError.message);
+//         }
+
+//         throw axiosError;
+//     }
+
+
+// }
+export async function updateStudent(
+    studentId: string,
+    studentAttributes: Partial<Student>
+): Promise<any> {
     try {
-        var token; var preschool;
-        await currentToken().then((returnedTOken) => { token = returnedTOken; })
-        await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
+        let token;
+        let preschool;
+
+        await currentToken().then((returnedToken) => {
+            token = returnedToken;
+        });
+
+        await currentPreschool().then((preschoolId) => {
+            preschool = preschoolId;
+        });
+
         // Set up the request config with headers
         const config: AxiosRequestConfig = {
             headers: {
                 Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+                'Content-Type': 'application/json', // Set the content type to JSON
             },
         };
 
+        // Construct the data payload with only the attributes to be updated
+        const studentData: Partial<Student> = {
+            student_name: studentAttributes.student_name,
+            DOB: studentAttributes.DOB ? new Date(studentAttributes.DOB) : null,
+            CPR: studentAttributes.CPR,
+            contact_number1: studentAttributes.contact_number1,
+            contact_number2: studentAttributes.contact_number2,
+            guardian_name: studentAttributes.guardian_name,
+            enrollment_date: studentAttributes.enrollment_date
+                ? new Date(studentAttributes.enrollment_date)
+                : null,
+            // Add other properties as needed
+        };
+
         // Make the PUT request to update the student
-        const response = await axios.put(`${BASE_URL}/${studentId}`, studentData, config);
+        const response = await axios.put(
+            `${BASE_URL}/${studentId}`,
+            studentData,
+            config
+        );
 
         // Handle the successful response here, if needed
         console.log('Student updated successfully', response.data);
+        return response;
     } catch (error) {
-        console.error("Error updating student:", error);
+        console.error('Error updating student:', error);
+
         // Type assertion for error variable
         const axiosError = error as AxiosError;
 
@@ -186,21 +260,19 @@ export async function updateStudent(studentId: string, studentData: Student): Pr
         if (axiosError.response) {
             // The request was made and the server responded with a status code
             // that falls out of the range of 2xx
-            console.error("Response data:", axiosError.response.data);
-            console.error("Response status:", axiosError.response.status);
-            console.error("Response headers:", axiosError.response.headers);
+            console.error('Response data:', axiosError.response.data);
+            console.error('Response status:', axiosError.response.status);
+            console.error('Response headers:', axiosError.response.headers);
         } else if (axiosError.request) {
             // The request was made but no response was received
-            console.error("No response received:", axiosError.request);
+            console.error('No response received:', axiosError.request);
         } else {
             // Something happened in setting up the request that triggered an Error
-            console.error("Error setting up the request:", axiosError.message);
+            console.error('Error setting up the request:', axiosError.message);
         }
 
         throw axiosError;
     }
-
-
 }
 
 export async function getStudentsByClassId(classId: string): Promise<Student[]> {

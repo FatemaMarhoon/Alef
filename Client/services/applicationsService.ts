@@ -140,7 +140,7 @@ export async function updateApplication({
 }): Promise<Application[]> {
 
   try {
-    var token; 
+    var token;
     await currentToken().then((returnedTOken) => { token = returnedTOken; })
 
     // Set up the request config with headers
@@ -198,10 +198,10 @@ export async function updateApplication({
 //   }
 // }
 
-export async function deleteApplication(id:number) {
+export async function deleteApplication(id: number) {
 
   try {
-    var token; 
+    var token;
     await currentToken().then((returnedTOken) => { token = returnedTOken; })
     // Set up the request config with headers
     const config: AxiosRequestConfig = {
@@ -214,7 +214,7 @@ export async function deleteApplication(id:number) {
     const response = await axios.delete(`${BASE_URL}/${id}`, config);
     return response;
   }
-  catch (error){
+  catch (error) {
     throw error;
   }
 }

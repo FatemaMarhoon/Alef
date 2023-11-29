@@ -13,9 +13,7 @@ import { GradeCapacity } from '@/types/gradeCapacity';
 import { format } from 'url';
 import Link from 'next/link';
 
-// interface ClassFormProps {
-//     onCreateClasses: (newClasses: Class[], classIds: number[]) => void;
-// }
+
 
 const ClassForm: React.FC = ({ }) => {
     //declare variables

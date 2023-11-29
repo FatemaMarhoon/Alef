@@ -1,6 +1,7 @@
 import { Stationary } from '@/types/stationary'; // Import the Stationary type
 import { currentPreschool, currentToken } from './authService';
 import axios, { AxiosRequestConfig } from 'axios';
+import { resolve } from 'path';
 
 const BASE_URL = 'http://localhost:3000/Stationary'; // backend URL
 
@@ -24,7 +25,7 @@ export async function getStationary(): Promise<Stationary[]> {
     }
 }
 
-export async function createStationary(stationaryData: Stationary): Promise<void> {
+export async function createStationary(stationaryData: Stationary): Promise<any> {
     try {
         var token; var preschool;
         await currentToken().then((returnedTOken) => { token = returnedTOken; })
@@ -37,12 +38,13 @@ export async function createStationary(stationaryData: Stationary): Promise<void
         };
 
 
-        await axios.post(BASE_URL, stationaryData, config);
+        const response = await axios.post(BASE_URL, stationaryData, config);
+        return response;
     } catch (error) {
         throw error;
     }
 }
-export async function updateStationary(stationaryId: string, stationaryData: Stationary): Promise<void> {
+export async function updateStationary(stationaryId: string, stationaryData: Stationary): Promise<any> {
     try {
         var token; var preschool;
         await currentToken().then((returnedTOken) => { token = returnedTOken; })
@@ -55,7 +57,8 @@ export async function updateStationary(stationaryId: string, stationaryData: Sta
         };
 
 
-        await axios.put(`${BASE_URL}/${stationaryId}`, stationaryData, config);
+        const response = await axios.put(`${BASE_URL}/${stationaryId}`, stationaryData, config);
+        return response;
     } catch (error) {
         throw error;
     }
@@ -80,7 +83,7 @@ export async function getStationaryById(stationaryId: string): Promise<Stationar
         throw error;
     }
 }
-export async function deleteStationary(stationaryId: string): Promise<void> {
+export async function deleteStationary(stationaryId: string): Promise<any> {
     try {
         var token; var preschool;
         await currentToken().then((returnedTOken) => { token = returnedTOken; })
@@ -93,7 +96,8 @@ export async function deleteStationary(stationaryId: string): Promise<void> {
         };
 
 
-        await axios.delete(`${BASE_URL}/${stationaryId}`, config);
+        const response = await axios.delete(`${BASE_URL}/${stationaryId}`, config);
+        return response;
     } catch (error) {
         throw error;
     }
