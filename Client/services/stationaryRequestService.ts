@@ -23,7 +23,7 @@ export async function getStationaryRequests(): Promise<StationaryRequest[]> {
     }
 }
 
-export async function createStationaryRequest(request: StationaryRequest): Promise<StationaryRequest> {
+export async function createStationaryRequest(request: StationaryRequest): Promise<any> {
     try {
         var token; var preschool;
         await currentToken().then((returnedTOken) => { token = returnedTOken; })
@@ -36,7 +36,7 @@ export async function createStationaryRequest(request: StationaryRequest): Promi
         };
 
         const response = await axios.post<StationaryRequest>(BASE_URL, request, config);
-        return response.data;
+        return response;
     } catch (error) {
         console.error("Error :", error);
         // Type assertion for error variable
@@ -61,7 +61,7 @@ export async function createStationaryRequest(request: StationaryRequest): Promi
     }
 }
 
-export async function updateStationaryRequest(id: string, updatedRequest: StationaryRequest): Promise<StationaryRequest> {
+export async function updateStationaryRequest(id: string, updatedRequest: StationaryRequest): Promise<any> {
     try {
         var token; var preschool;
         await currentToken().then((returnedTOken) => { token = returnedTOken; })
@@ -74,13 +74,13 @@ export async function updateStationaryRequest(id: string, updatedRequest: Statio
         };
         const url = `${BASE_URL}/${id}`;
         const response = await axios.put<StationaryRequest>(url, updatedRequest, config);
-        return response.data;
+        return response;
     } catch (error) {
         throw error;
     }
 }
 
-export async function deleteStationaryRequest(id: string): Promise<void> {
+export async function deleteStationaryRequest(id: string): Promise<any> {
     try {
         var token; var preschool;
         await currentToken().then((returnedTOken) => { token = returnedTOken; })
@@ -92,7 +92,8 @@ export async function deleteStationaryRequest(id: string): Promise<void> {
             },
         };
         const url = `${BASE_URL}/${id}`;
-        await axios.delete(url, config);
+        const response = await axios.delete(url, config);
+        return response;
     } catch (error) {
         throw error;
     }

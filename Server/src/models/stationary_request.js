@@ -12,6 +12,18 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
     },
+    preschool_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        notNull: {
+          msg: 'Preschool ID is required',
+        },
+        isInt: {
+          msg: 'Preschool ID must be an integer',
+        },
+      },
+    },
     staff_id: {
       type: DataTypes.STRING,
       allowNull: false,

@@ -53,10 +53,10 @@ export async function getClassById(classId: string): Promise<Class> {
 }
 
 // Function to create a new class
-export async function createClass(newClass: Class): Promise<Class> {
+export async function createClass(newClass: Class): Promise<any> {
     try {
         const response = await axios.post<Class>(BASE_URL, newClass);
-        return response.data;
+        return response;
     } catch (error) {
         console.error("Error updating student:", error);
         // Type assertion for error variable
@@ -135,7 +135,7 @@ export async function createClass(newClass: Class): Promise<Class> {
 export async function updateClass(classId: string, updatedClass: Class): Promise<Class> {
     try {
         const response = await axios.put<Class>(`${BASE_URL}/${classId}`, updatedClass);
-        return response.data;
+        return response;
     } catch (error) {
         console.error("Error updating student:", error);
         // Type assertion for error variable
