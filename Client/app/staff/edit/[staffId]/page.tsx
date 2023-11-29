@@ -6,11 +6,13 @@ import { getStaffById, updateStaff } from '@/services/staffService'; // Assuming
 import { UserStorage } from '@/types/user';
 import { Staff } from '@/types/staff';
 import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
+import ErrorAlert from "@/components/ErrorAlert";
 
 export default function EditStaffForm({ params }: { params: { staffId: number } }) {
     const router = useRouter();
     const currentUser = UserStorage.getCurrentUser();
     const { setSuccessMessage } = useSuccessMessageContext();
+    const [error, setError] = useState("");
 
     const [staff, setStaff] = useState<Staff>({
         preschool_id: 0,
@@ -51,32 +53,6 @@ export default function EditStaffForm({ params }: { params: { staffId: number } 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        setErrors({});
-
-        let hasErrors = false;
-
-        if (!staff.name.trim()) {
-            setErrors((prevErrors) => ({ ...prevErrors, name: 'Name cannot be empty.' }));
-            hasErrors = true;
-        }
-
-        if (isNaN(Number(staff.CPR)) || staff.CPR.toString().trim() === '') {
-            setErrors((prevErrors) => ({ ...prevErrors, CPR: 'Please enter a valid CPR.' }));
-            hasErrors = true;
-        }
-
-        if (isNaN(Number(staff.phone)) || staff.phone.toString().trim() === '') {
-            setErrors((prevErrors) => ({ ...prevErrors, phone: 'Please enter a valid phone number.' }));
-            hasErrors = true;
-        }
-
-        if (hasErrors) {
-            setTimeout(() => {
-                focusOnFirstError(errors);
-            }, 0);
-            return;
-        }
-
         try {
             const updatedStaff: Staff = {
                 ...staff,
@@ -93,17 +69,25 @@ export default function EditStaffForm({ params }: { params: { staffId: number } 
                 // Check the status after ensuring response and data are defined
                 if (response.status === 200 || response.status === 201) {
                     setSuccessMessage(successMsg);
+                } else if (response.status == 400 || response.status == 404 || response.status == 500) {
+                    setError(response.data.message);
                 }
             }
             router.push('/staff'); // Redirect after successful submission
-        } catch (error) {
-            console.error('Error updating staff:', error);
+        } catch (error: any) {
+            if (error.response) {
+                setError(error.response.data.message);
+            }
+            else if (error.message) {
+                setError(error.message);
+            }
         }
     };
 
     return (
         <>
             <Breadcrumb pageName="Edit Staff" />
+            {error && <ErrorAlert message={error}></ErrorAlert>}
 
             <div className="items-center justify-center min-h-screen">
                 <div className="flex flex-col gap-9">

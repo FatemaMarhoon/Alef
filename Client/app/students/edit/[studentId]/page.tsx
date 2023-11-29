@@ -7,23 +7,15 @@ import { getStudentById, updateStudent } from '@/services/studentService';
 import { UserStorage } from "@/types/user";
 import { Student } from '@/types/student';
 import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
+import ErrorAlert from "@/components/ErrorAlert";
 
 export default function EditForm({ params }: { params: { studentId: number } }) {
     const router = useRouter();
     const currentUser = UserStorage.getCurrentUser();
     const { setSuccessMessage } = useSuccessMessageContext();
 
-    // const [student, setStudent] = useState<Student>({
-    //     student_name: "",
-    //     DOB: "",
-    //     CPR: null,
-    //     contact_number1: null,
-    //     contact_number2: "",
-    //     guardian_name: "",
-    //     enrollment_date: "",
-    //     medical_history: "",
-    //     gender: ""
-    // });
+    const [error, setError] = useState("");
+
     const [student, setStudent] = useState<Student>({});
 
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -59,49 +51,6 @@ export default function EditForm({ params }: { params: { studentId: number } }) 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Reset errors
-        setErrors({});
-
-        // Validate form data
-        let hasErrors = false;
-
-        // Ensure student name is not empty
-        if (!student.student_name.trim()) {
-            setErrors((prevErrors) => ({ ...prevErrors, student_name: 'Student name cannot be empty.' }));
-            hasErrors = true;
-        }
-
-        // Ensure CPR is a number and not empty
-        if (isNaN(Number(student.CPR)) || student.CPR === null || student.CPR === undefined) {
-            setErrors((prevErrors) => ({ ...prevErrors, CPR: 'Please enter a valid CPR.' }));
-            hasErrors = true;
-        }
-
-        // Ensure contact numbers are numbers and not empty
-        if (isNaN(Number(student.contact_number1)) || student.contact_number1 === null || student.contact_number1 === undefined) {
-            setErrors((prevErrors) => ({ ...prevErrors, contact_number1: 'Please enter a valid contact number.' }));
-            hasErrors = true;
-        }
-
-        if (isNaN(Number(student.contact_number2)) || student.contact_number2 === null || student.contact_number2 === undefined) {
-            setErrors((prevErrors) => ({ ...prevErrors, contact_number2: 'Please enter a valid contact number.' }));
-            hasErrors = true;
-        }
-
-        // Ensure enrollment date is not empty
-        if (!student.enrollment_date) {
-            setErrors((prevErrors) => ({ ...prevErrors, enrollment_date: 'Enrollment date cannot be empty.' }));
-            hasErrors = true;
-        }
-
-        if (hasErrors) {
-            setTimeout(() => {
-                focusOnFirstError(errors);
-            }, 0);
-            return;
-        }
-
-
         try {
             // Update the student data with the form values
             const updatedStudent: Student = {
@@ -125,18 +74,26 @@ export default function EditForm({ params }: { params: { studentId: number } }) 
                 // Check the status after ensuring response and data are defined
                 if (response.status === 200 || response.status === 201) {
                     setSuccessMessage(successMsg);
+                } else if (response.status == 400 || response.status == 404 || response.status == 500) {
+                    setError(response.data.message);
                 }
             }
             // Redirect after successful submission
             router.push('/students');
-        } catch (error) {
-            console.error("Error updating student:", error);
+        } catch (error: any) {
+            if (error.response) {
+                setError(error.response.data.message);
+            }
+            else if (error.message) {
+                setError(error.message);
+            }
         }
     };
 
     return (
         <>
             <Breadcrumb pageName="Edit Student" />
+            {error && <ErrorAlert message={error}></ErrorAlert>}
 
             <div className=" items-center justify-center min-h-screen">
                 <div className="flex flex-col gap-9">

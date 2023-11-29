@@ -8,6 +8,7 @@ import { Stationary } from '@/types/stationary';
 // import { UserStorage } from '@/types/user';
 import { currentPreschool } from '@/services/authService';
 import { useSuccessMessageContext } from '../../../components/SuccessMessageContext';
+import ErrorAlert from "@/components/ErrorAlert";
 
 export default function CreateForm() {
     const router = useRouter();
@@ -18,31 +19,32 @@ export default function CreateForm() {
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
     const [errors, setErrors] = useState<{ stationaryName?: string; quantityAvailable?: string }>({});
     const { setSuccessMessage } = useSuccessMessageContext();
+    const [error, setError] = useState("");
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Reset errors
-        setErrors({});
+        // // Reset errors
+        // setErrors({});
 
-        // Validate form data
-        let hasErrors = false;
+        // // Validate form data
+        // let hasErrors = false;
 
-        // Ensure stationary name is not empty
-        if (!stationaryName.trim()) {
-            setErrors((prevErrors) => ({ ...prevErrors, stationaryName: 'Stationary name cannot be empty.' }));
-            hasErrors = true;
-        }
+        // // Ensure stationary name is not empty
+        // if (!stationaryName.trim()) {
+        //     setErrors((prevErrors) => ({ ...prevErrors, stationaryName: 'Stationary name cannot be empty.' }));
+        //     hasErrors = true;
+        // }
 
-        // Ensure quantity is a non-negative number
-        if (quantityAvailable <= 0 || isNaN(quantityAvailable)) {
-            setErrors((prevErrors) => ({ ...prevErrors, quantityAvailable: 'Quantity must be a non-negative number.' }));
-            hasErrors = true;
-        }
+        // // Ensure quantity is a non-negative number
+        // if (quantityAvailable <= 0 || isNaN(quantityAvailable)) {
+        //     setErrors((prevErrors) => ({ ...prevErrors, quantityAvailable: 'Quantity must be a non-negative number.' }));
+        //     hasErrors = true;
+        // }
 
-        if (hasErrors) {
-            return;
-        }
+        // if (hasErrors) {
+        //     return;
+        // }
 
         try {
             var preschool;
@@ -62,30 +64,28 @@ export default function CreateForm() {
             const successMsg = response.data.message;
             if (response.status == 200 || response.status == 201) {
                 setSuccessMessage(successMsg);
+            } else if (response.status == 400 || response.status == 404 || response.status == 500) {
+                setError(response.data.message);
             }
 
             router.push('/stationary'); // Update the route accordingly
 
-        } catch (error) {
-            console.error('Error creating stationary item:', error);
+        } catch (error: any) {
+            if (error.response) {
+                setError(error.response.data.message);
+            }
+            else if (error.message) {
+                setError(error.message);
+            }
         }
     };
 
     return (
         <>
-            <style jsx>{`
-                .border-error {
-                    border-color: #e53e3e; // Red color for error border
-                }
-                .text-error {
-                    color: #e53e3e; // Red color for error text
-                }
-            `}</style>
+
             <Breadcrumb pageName="Create Stationary Item" />
             <div className="items-center justify-center min-h-screen">
-                {showSuccessMessage && (
-                    <TemporarySuccessMessage message={successMessage} onClose={() => setShowSuccessMessage(false)} />
-                )}
+                {error && <ErrorAlert message={error}></ErrorAlert>}
 
                 <div className="items-center justify-center min-h-screen">
                     <div className="flex flex-col gap-9">

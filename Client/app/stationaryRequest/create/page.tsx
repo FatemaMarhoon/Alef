@@ -9,20 +9,20 @@ import { getStationary } from '@/services/stationaryService'; // Assuming you ha
 import { Stationary } from '@/types/stationary';
 import { useSuccessMessageContext } from '../../../components/SuccessMessageContext';
 import { currentPreschool } from '@/services/authService';
+import ErrorAlert from "@/components/ErrorAlert";
 
 export default function CreateForm() {
     const router = useRouter();
     const currentUser = UserStorage.getCurrentUser();
-
     const [statusName, setStatusName] = useState("");
     const [staffId, setStaffId] = useState(currentUser?.id || ""); // Set default value to current user's id
     const [stationaryId, setStationaryId] = useState(""); // Set an appropriate default value
-
     const [requestedQuantity, setRequestedQuantity] = useState(0);
     const [notes, setNotes] = useState("");
     const [stationaryList, setStationaryList] = useState([]);
     const [loading, setLoading] = useState(true);
     const { setSuccessMessage } = useSuccessMessageContext();
+    const [error, setError] = useState("");
 
     // useEffect(() => {
     //     const fetchStationaryList = async () => {
@@ -99,11 +99,19 @@ export default function CreateForm() {
             const successMsg = response.data.message;
             if (response.status == 200 || response.status == 201) {
                 setSuccessMessage(successMsg);
+            } else if (response.status == 400 || response.status == 404 || response.status == 500) {
+                setError(response.data.message);
             }
             // Redirect after successful submission
             router.push('/stationaryRequest'); // Update the route accordingly
-        } catch (error) {
-            console.error("Error creating stationary request:", error);
+
+        } catch (error: any) {
+            if (error.response) {
+                setError(error.response.data.message);
+            }
+            else if (error.message) {
+                setError(error.message);
+            }
         }
     };
 
@@ -111,6 +119,7 @@ export default function CreateForm() {
     return (
         <>
             <Breadcrumb pageName="Create Stationary Request" />
+            {error && <ErrorAlert message={error}></ErrorAlert>}
 
             <div className="items-center justify-center min-h-screen">
                 <div className="flex flex-col gap-9">
