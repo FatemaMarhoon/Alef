@@ -56,9 +56,9 @@ export async function getClassById(classId: string): Promise<Class> {
 export async function createClass(newClass: Class): Promise<any> {
     try {
         const response = await axios.post<Class>(BASE_URL, newClass);
-        return response;
+        return response.data;
     } catch (error) {
-        console.error("Error updating student:", error);
+        console.error("Error:", error);
         // Type assertion for error variable
         const axiosError = error as AxiosError;
 
