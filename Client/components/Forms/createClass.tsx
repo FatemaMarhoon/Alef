@@ -34,7 +34,6 @@ const ClassForm: React.FC = ({ }) => {
     const [grade, setGrade] = useState('');
     const [selectedGradeId, setSelectedGradeId] = useState('');
     const [selectedSupervisor, setSelectedSupervisor] = useState('');
-
     // Fetch grades when the component mounts
     useEffect(() => {
         async function fetchGradesList() {
@@ -93,13 +92,13 @@ const ClassForm: React.FC = ({ }) => {
 
 
     useEffect(() => {
-        console.log("Grade:", getGradeName(grade));
+        console.log("Grade:", (grade));
 
         async function fetchData() {
             try {
 
                 // Fetch the sum of class capacities for the grade
-                const sumOfClassCapacitiesResponse = await getSumOfClassCapacitiesByGrade(getGradeName(grade));
+                const sumOfClassCapacitiesResponse = await getSumOfClassCapacitiesByGrade(grade);
                 const sumOfClassCapacities = sumOfClassCapacitiesResponse?.sumOfCapacities;
                 console.log("Sum of class capacities for the grade:", sumOfClassCapacities);
                 setSelectedClassesCapacity(sumOfClassCapacities);
@@ -277,7 +276,8 @@ const ClassForm: React.FC = ({ }) => {
                             pathname: '/class/view2',
                             query: {
                                 numClasses,
-                                grade: getGradeName(grade),
+                                // grade: getGradeName(grade),
+                                grade,
                                 classIds: classIDsQueryString
                             },
                         })
@@ -306,6 +306,7 @@ const ClassForm: React.FC = ({ }) => {
         const selectedGrade = gradesList.find((grade) => grade.id === Number(selectedGradeId));
         return selectedGrade ? selectedGrade.grade : "";
     };
+
     return (
         <div className=" items-center justify-center min-h-screen">
             <div className="flex flex-col gap-9">
@@ -331,7 +332,7 @@ const ClassForm: React.FC = ({ }) => {
                                 value={grade} // Use grade directly instead of e.target.value
                                 onChange={(e) => {
                                     handleGradeChange(e, e.target.value);
-                                    setGrade(e.target.value);
+                                    // setGrade(e.target.value);
 
                                 }}
                                 className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
@@ -348,7 +349,7 @@ const ClassForm: React.FC = ({ }) => {
                         {grade && (
                             <div className="mb-4.5">
                                 <label className="mb-2.5 block text-black dark:text-white">
-                                    {getGradeName(grade)}     Grade Capacity
+                                    {grade}     Grade Capacity
                                 </label>
                                 <p >
                                     {selectedGradeCapacity !== null ? selectedGradeCapacity.toString() : ''}

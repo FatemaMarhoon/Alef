@@ -232,8 +232,7 @@ const CreateForm: React.FC = () => {
         e.dataTransfer.setData('studentId', studentId.toString());
     };
 
-
-    const handleOnDrop = (e: React.DragEvent<HTMLDivElement>, destinationClassName: string) => {
+    const handleOnDrop = (e: React.DragEvent<HTMLDivElement>, destinationClassName: string | null) => {
         e.preventDefault();
         const studentId = e.dataTransfer.getData('studentId');
         const student = students.find(student => student.id.toString() === studentId);
@@ -241,29 +240,42 @@ const CreateForm: React.FC = () => {
         if (student) {
             const updatedClassAssignments = { ...classAssignments };
 
-            // Remove the student from the main list
-            setStudents(prevStudents => prevStudents.filter(s => s.id.toString() !== studentId));
+            // If dropping outside class areas, add the student back to the list
+            if (destinationClassName === null) {
+                setStudents(prevStudents => [...prevStudents, student]);
+            } else {
+                // If the student is dragged from the list, remove it from the list
+                // setStudents(prevStudents => prevStudents.filter(s => s.id.toString() !== studentId));
 
-            // Remove the student from the source class
-            const previousClass = Object.keys(updatedClassAssignments).find(
-                key => updatedClassAssignments[key].some((s: { id: { toString: () => any; }; }) => s.id.toString() === studentId)
-            );
-
-            if (previousClass && previousClass !== destinationClassName) {
-                updatedClassAssignments[previousClass] = updatedClassAssignments[previousClass].filter(
-                    (s: { id: { toString: () => any; }; }) => s.id.toString() !== studentId
+                // Remove the student from the source class
+                const previousClass = Object.keys(updatedClassAssignments).find(
+                    key => updatedClassAssignments[key].some((s: { id: { toString: () => any; }; }) => s.id.toString() === studentId)
                 );
-            }
 
-            // Add the student to the destination class
-            updatedClassAssignments[destinationClassName] = [...updatedClassAssignments[destinationClassName], student];
-            setClassAssignments(updatedClassAssignments);
+                if (previousClass && previousClass !== destinationClassName) {
+                    updatedClassAssignments[previousClass] = updatedClassAssignments[previousClass].filter(
+                        (s: { id: { toString: () => any; }; }) => s.id.toString() !== studentId
+                    );
+                }
+
+                // Add the student to the destination class
+                updatedClassAssignments[destinationClassName] = [...updatedClassAssignments[destinationClassName], student];
+                setClassAssignments(updatedClassAssignments);
+
+            }
         }
     };
 
 
-    const handleDragOver = (e: { preventDefault: () => void; }) => {
+    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
+        // Add a visual indication, for example:
+        e.currentTarget.style.backgroundColor = 'lightblue';
+    };
+
+    const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+        // Remove the visual indication when the dragged element leaves
+        e.currentTarget.style.backgroundColor = '';
     };
 
     const handleToggleStudents = () => {
@@ -334,9 +346,10 @@ const CreateForm: React.FC = () => {
                     {Object.keys(classAssignments).map(className => (
                         <div
                             key={className}
-                            className="class-area w-60  bg-white p-4 border-2 border-dashed border-gray-400 rounded-md"
+                            className="class-area w-60 bg-white p-4 border-2 border-dashed border-gray-400 rounded-md"
                             onDrop={e => handleOnDrop(e, className)}
                             onDragOver={handleDragOver}
+                            onDragLeave={handleDragLeave}
                         >
                             <h2 className="text-lg font-semibold">{className}</h2>
                             {classAssignments[className].map((student: { id: React.Key | null | undefined; student_name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined; }) => (
