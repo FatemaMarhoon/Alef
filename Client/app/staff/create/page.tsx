@@ -10,6 +10,7 @@ import { StaticValue } from "@/types/staticValue";
 import { currentPreschool } from '@/services/authService';
 import { useSuccessMessageContext } from '../../../components/SuccessMessageContext';
 import ErrorAlert from "@/components/ErrorAlert";
+import { createUser } from '@/services/userService';
 
 export default function CreateStaffPage() {
     const router = useRouter();
@@ -93,6 +94,14 @@ export default function CreateStaffPage() {
             } else if (response.status == 400 || response.status == 404 || response.status == 500) {
                 setError(response.data.message);
             }
+            // Create the user with information about the preschool
+            await createUser(
+                staffData.email,
+                staffData.name,
+                staffData.staff_role_name,
+                staffData.preschool_id
+            );
+
             // Redirect after successful submission
             router.push('/staff'); // Assuming you have a staff page
         } catch (error: any) {

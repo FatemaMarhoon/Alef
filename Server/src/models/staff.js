@@ -15,6 +15,11 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
     },
+    user_id: {
+      type: DataTypes.INTEGER,
+      // allowNull: false,
+
+    },
     staff_role_name: {
       type: DataTypes.STRING,
       allowNull: false,

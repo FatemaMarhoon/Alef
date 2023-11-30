@@ -145,6 +145,10 @@ module.exports = (sequelize, DataTypes) => {
     passport: {
       type: DataTypes.STRING,
       // allowNull: false
+    },
+    hasConsent: {
+      type: DataTypes.BOOLEAN,
+      // allowNull: false
     }
   });
 
