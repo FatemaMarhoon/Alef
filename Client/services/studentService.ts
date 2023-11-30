@@ -311,3 +311,63 @@ export async function getStudentsByClassId(classId: string): Promise<Student[]> 
         throw axiosError;
     }
 }
+export async function updateStudentClassId(studentId: string, classId: number): Promise<any> {
+    try {
+        let token;
+        let preschool;
+
+        await currentToken().then((returnedToken) => {
+            token = returnedToken;
+        });
+
+        await currentPreschool().then((preschoolId) => {
+            preschool = preschoolId;
+        });
+
+        // Set up the request config with headers
+        const config: AxiosRequestConfig = {
+            headers: {
+                Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+                'Content-Type': 'application/json', // Set the content type to JSON
+            },
+        };
+
+        // Construct the data payload with only the class_id to be updated
+        const studentData: Partial<Student> = {
+            class_id: classId,
+        };
+
+        // Make the PUT request to update the class_id of the student
+        const response = await axios.put(
+            `${BASE_URL}/${studentId}`,
+            studentData,
+            config
+        );
+
+        // Handle the successful response here, if needed
+        console.log('Student class_id updated successfully', response.data);
+        return response;
+    } catch (error) {
+        console.error('Error updating student class_id:', error);
+
+        // Type assertion for error variable
+        const axiosError = error as AxiosError;
+
+        // Print Axios error details
+        if (axiosError.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            console.error('Response data:', axiosError.response.data);
+            console.error('Response status:', axiosError.response.status);
+            console.error('Response headers:', axiosError.response.headers);
+        } else if (axiosError.request) {
+            // The request was made but no response was received
+            console.error('No response received:', axiosError.request);
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            console.error('Error setting up the request:', axiosError.message);
+        }
+
+        throw axiosError;
+    }
+}
