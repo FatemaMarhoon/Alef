@@ -4,6 +4,7 @@ import "./data-tables-css.css";
 import "./satoshi.css";
 import { useState, useEffect, useContext } from "react";
 import Loader from "@/components/common/Loader";
+import { SuccessMessageProvider } from '../components/SuccessMessageContext';
 
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
@@ -25,6 +26,8 @@ export default function RootLayout({
 
 
   return (
+    <SuccessMessageProvider>
+
     <html lang="en">
       <body suppressHydrationWarning={true}>
         <div className="dark:bg-boxdark-2 dark:text-bodydark">
@@ -62,5 +65,6 @@ export default function RootLayout({
         </div>
       </body>
     </html>
+    </SuccessMessageProvider>
   );
 }

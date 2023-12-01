@@ -68,33 +68,37 @@ const UsersController = {
 
       // Validate required fields
       if (!email) {
-        return res.status(500).json({ message: "Email is Required" });
+        return res.status(400).json({ message: "Email is Required" });
       }
 
       if (!name) {
-        return res.status(500).json({ message: "Name is Required" });
+        return res.status(400).json({ message: "Name is Required" });
       }
 
       if (!role_name) {
-        return res.status(500).json({ message: "Role is Required" });
+        return res.status(400).json({ message: "Role is Required" });
       }
 
       // Handle password based on role
       if (role_name === 'Parent' && !password) {
-        return res.status(500).json({ message: "Password is Required" });
+        return res.status(400).json({ message: "Password is Required" });
       } else if (['Admin', 'Staff', 'Teacher'].includes(role_name)) {
         if (!preschool_id) {
-          res.status(500).json({ message: "Preschool is Required" });
+          return res.status(400).json({ message: "Preschool is Required" });
         }
         //generate random password
-         password = generatePassword();        
+        password = generatePassword();
         console.log(password)
       }
 
       // Create Firebase user with validated data
       await createFirebaseUser(email, password, name, role_name, preschool_id).then(async () => {
         // Create local user record with validated data
-        const createdUser = await User.create({ email, password, preschool_id, role_name, name });
+        const createdUser = await User.create({ email, preschool_id, role_name, name });
+
+        //store db userid into firebase user
+        const uid = (await auth.getUserByEmail(email)).uid;
+        await auth.createCustomToken(uid, { 'user_id': createdUser.id });
 
         // Send successful response with created user data
         return res.status(201).json({ message: 'User created successfully', createdUser });
@@ -122,8 +126,13 @@ const UsersController = {
         if (status == "Enabled") await admin.auth().updateUser(firebaseUser.uid, { disabled: false });
         if (name) dbUser.set({ name: name });
         if (name) await admin.auth().updateUser(firebaseUser.uid, { displayName: name });
-        if (role_name) dbUser.set({ name: name });
-        if (role_name) await admin.auth().setCustomUserClaims(firebaseUser.uid, { role: role_name });
+        if (role_name) dbUser.set({ role_name: role_name });
+        const currentClaims = firebaseUser.customClaims;
+        const updatedClaims = {
+          ...currentClaims,
+          role: role_name,
+        };
+        if (role_name) await admin.auth().setCustomUserClaims(firebaseUser.uid, updatedClaims);
         await dbUser.save();
         return res.status(201).json({ message: "User updated successfully." });
       }
@@ -158,6 +167,31 @@ const UsersController = {
     }
   },
 
+  async updateAll(req, res) {
+    try {
+      const users = await User.findAll();
+      for (const user of users) {
+
+        const uid = (await auth.getUserByEmail(user.email)).uid;
+        const currentClaims = (await auth.getUser(uid)).customClaims;
+        const updatedClaims = {
+          ...currentClaims,
+          preschool_id: user.preschool_id,
+          role: user.role_name,
+          dbId:user.id
+        };
+
+        await auth.setCustomUserClaims(uid, updatedClaims);
+        const stored = (await auth.getUser(uid)).customClaims;
+        console.log(stored)
+      }
+
+      res.status(200).json({ message: 'User records updated successfully.' });
+    } catch (error) {
+      console.error('Error updating user records:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  }
 };
 
 function createFirebaseUser(email, password, name, role_name, preschool_id) {
@@ -194,7 +228,7 @@ function createFirebaseUser(email, password, name, role_name, preschool_id) {
   });
 }
 
-function generatePassword(){
+function generatePassword() {
   // Define the characters to include in the password
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%';
 

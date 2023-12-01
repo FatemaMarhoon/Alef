@@ -66,8 +66,7 @@ const NotificationController = {
         }
     },
 
-    async pushNotification(registrationToken,title,body) {
-
+    async pushSingleNotification(registrationToken, title, body) {
         const message = {
             token: registrationToken,
             notification: {
@@ -79,15 +78,66 @@ const NotificationController = {
         // Send a message to the device corresponding to the provided
         // registration token.
         messaging.send(message)
-            .then((response) => {
+            .then(async (response) => {
                 // Response is a message ID string.
                 console.log('Successfully sent message:', response);
-                res.json({ message: 'Successfully sent message', response });
-
+                // const newNotification = await Notification.create({ notification_title: title, notification_content: body, user_id:uid});
             })
             .catch((error) => {
                 console.log('Error sending message:', error);
-                res.json({ message: error.message });
+            });
+    },
+
+    async pushMultipleNotification(registrationTokens, title, body) {
+
+        const message = {
+            tokens: registrationTokens,
+            notification: {
+                title: title,
+                body: body,
+            }
+        };
+
+        messaging.sendEachForMulticast(message)
+            .then(async (response) => {
+                console.log(response.successCount + ' messages were sent successfully');
+
+                if (response.failureCount > 0) {
+                    const failedTokens = [];
+                    response.responses.forEach((resp, idx) => {
+                        if (!resp.success) {
+                            failedTokens.push(registrationTokens[idx]);
+                        }
+                    });
+                    console.log('List of tokens that caused failures: ' + failedTokens);
+                }
+                //generate notification records for successfully pushed notifications
+                //   await Notification.bulkCreate()
+            })
+            .catch((error) => {
+                console.log('Error sending message:', error);
+            });
+    },
+
+
+
+    async pushTopicNotification(topic, title, body) {
+        const message = {
+            topic: topic,
+            notification: {
+                title: title,
+                body: body,
+            }
+        };
+
+        // Send a message to all client devices subscribed to the specific topic
+        messaging.send(message)
+            .then(async (response) => {
+                // Response is a message ID string.
+                console.log('Successfully sent message:', response);
+            })
+            .catch((error) => {
+                console.log('Error sending message:', error);
             });
     },
 
@@ -95,8 +145,29 @@ const NotificationController = {
         const { uid, token } = req.body;
         try {
             //set regToken for firebase user
-            await admin.auth().setCustomUserClaims(uid, { regToken: token }).then(() => {
-                return res.status(201).json({ message: 'Registration Token Stored Successfully.' });
+            const currentClaims = (await auth.getUser(uid)).customClaims;
+            const updatedClaims = {
+                ...currentClaims,
+                regToken:token
+            };
+            await admin.auth().setCustomUserClaims(uid, updatedClaims).then(async () => {
+                //get preschool to specify the topic
+                await admin.auth().getUser(uid).then((userRecord) => {
+                    const preschool = userRecord.customClaims['preschool_id'];
+                    const role = userRecord.customClaims['role'];
+                    const topic = preschool + '_' + role;
+                    if (preschool) {
+                        //subscribe client to topic (for preschool public notifications)
+                        messaging.subscribeToTopic(registrationTokens, topic)
+                            .then((response) => {
+                                console.log('Successfully subscribed to topic:', response);
+                            })
+                            .catch((error) => {
+                                console.log('Error subscribing to topic:', error);
+                            });
+                    }
+                    return res.status(201).json({ message: 'Registration Token Stored Successfully.' });
+                });
             }).catch((error) => {
                 return res.status(500).json({ message: error.message });
             })

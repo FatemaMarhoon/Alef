@@ -3,7 +3,7 @@ const StationaryRequestController = require('../controllers/StationaryRequestCon
 const router = express.Router();
 
 // Get all stationary requests
-router.get('/', StationaryRequestController.getAllStationaryRequests);
+router.get('/preschool/:preschoolId', StationaryRequestController.getAllStationaryRequests);
 
 // Get stationary request by request_id
 router.get('/:request_id', StationaryRequestController.getStationaryRequestById);

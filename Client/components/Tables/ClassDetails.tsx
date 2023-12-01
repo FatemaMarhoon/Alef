@@ -19,8 +19,6 @@ const ClassDetails: React.FC<ClassDetailsProps> = (props) => {
     useEffect(() => {
         async function fetchData() {
             try {
-
-
                 // Fetch students for the class
                 const studentsData = await getStudentsByClassId(classId as string);
                 setStudents(studentsData);
@@ -50,20 +48,18 @@ const ClassDetails: React.FC<ClassDetailsProps> = (props) => {
                     Class Details
                 </h3>
             </div>
-            {/* Display class details for the first item in the array when available */}
             {classDetails && (
-                <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark-bg-boxdark sm-px-7.5 xl-pb-1">
-                    <p>Class Name: {classDetails.class.class_name}</p>
-                    <p>Supervisor: {classDetails.class.supervisor}</p>
-                    <p>Grade: {classDetails.class.grade}</p>
-                    <p>Capacity: {classDetails.class.capacity}</p>
-                    <p>Classroom: {classDetails.class.classroom}</p>
+                <div className="mb-4.5">
+                    <h1 className="mb-4.5">Class Name: {classDetails.class.class_name}</h1>
+                    <h1 className="mb-4.5">Supervisor: {classDetails.class.supervisor}</h1>
+                    <h1 className="mb-4.5">Grade: {classDetails.class.grade}</h1>
+                    <h1 className="mb-4.5">Capacity: {classDetails.class.capacity}</h1>
+                    <h1 className="mb-4.5">Classroom: {classDetails.class.classroom}</h1>
 
                     {/* Add more details as needed */}
                 </div>
-
-
             )}
+
 
 
 

@@ -1,12 +1,12 @@
 // services/userService.ts
 import { Application } from '@/types/application';
-import { currentPreschool, currentToken } from './authService';
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { currentPreschool, currentToken, currentUserId } from './authService';
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { useRouter } from 'next/navigation';
 
 const BASE_URL = 'http://localhost:3000/applications'; // Replace with your backend URL
 
-export async function getApplications(): Promise<Application[]> {
+export async function getApplications(): Promise<any> {
   try {
     var token; var preschool;
     await currentToken().then((returnedTOken) => { token = returnedTOken; })
@@ -19,7 +19,7 @@ export async function getApplications(): Promise<Application[]> {
     };
 
     const response = await axios.get<Application[]>(`${BASE_URL}?preschool=${preschool}`, config);
-    return response.data;
+    return response;
   } catch (error) {
     throw error;
   }
@@ -38,7 +38,6 @@ export async function getApplicationById(id: number): Promise<Application> {
     };
 
     const response = await axios.get<Application>(`${BASE_URL}/${id}`, config);
-    console.log(response)
     return response.data;
   } catch (error) {
     throw error;
@@ -61,10 +60,11 @@ export async function createApplication(
   // passport:string
   certificate_of_birth: File | undefined,
   passport: File | undefined
-): Promise<Application> {
-  var token; var preschool;
+): Promise<any> {
+  var token; var preschool; var userId;
   await currentToken().then((returnedTOken) => { token = returnedTOken; })
   await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
+  await currentUserId().then((user_id) => { userId = user_id; })
 
   try {
     // Set up the request config with headers
@@ -75,9 +75,6 @@ export async function createApplication(
 
       },
     };
-    const created_by = await axios.get("", config)
-    const status = "Pending";
-    const createdBy = "17"
     const response = await axios.post(`${BASE_URL}`, {
       email: email,
       student_name: student_name,
@@ -92,14 +89,16 @@ export async function createApplication(
       personal_picture: personal_picture,
       certificate_of_birth: certificate_of_birth,
       passport: passport,
-      status: status,
-      created_by: createdBy,
+      created_by: userId,
       preschool_id: preschool
     }, config);
-    return response.data;
+
+    return response;
   } catch (error) {
-    console.log(error)
-    throw error;
+    console.error("Error creating user:", error);
+    // Type assertion for error variable
+    const axiosError = error as AxiosError;
+    throw axiosError;
   }
 }
 
@@ -135,10 +134,10 @@ export async function updateApplication({
   certificate_of_birth?: File | undefined;
   passport?: File | undefined;
   status?: string;
-}): Promise<Application[]> {
+}) {
 
   try {
-    var token; 
+    var token;
     await currentToken().then((returnedTOken) => { token = returnedTOken; })
 
     // Set up the request config with headers
@@ -165,10 +164,11 @@ export async function updateApplication({
       passport: passport,
       status: status,
     }, config);
-    return response.data;
+    return response;
   } catch (error) {
     console.log(error)
-    throw error;
+    const axiosError = error as AxiosError;
+    throw axiosError;
   }
 }
 
@@ -196,10 +196,10 @@ export async function updateApplication({
 //   }
 // }
 
-export async function deleteApplication(id:number) {
+export async function deleteApplication(id: number) {
 
   try {
-    var token; 
+    var token;
     await currentToken().then((returnedTOken) => { token = returnedTOken; })
     // Set up the request config with headers
     const config: AxiosRequestConfig = {
@@ -212,7 +212,7 @@ export async function deleteApplication(id:number) {
     const response = await axios.delete(`${BASE_URL}/${id}`, config);
     return response;
   }
-  catch (error){
+  catch (error) {
     throw error;
   }
 }

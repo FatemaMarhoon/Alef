@@ -19,14 +19,11 @@ import React from 'react';
 import CreateForm from '@/components/Forms/createClass';
 
 const createPage: React.FC = () => {
-    const handleCreateClasses = (newClasses) => {
-        // Handle the new classes
-        console.log("New classes:", newClasses);
-    };
+
 
     return (
         <>
-            <CreateForm onCreateClasses={handleCreateClasses} />
+            <CreateForm />
         </>
     );
 };

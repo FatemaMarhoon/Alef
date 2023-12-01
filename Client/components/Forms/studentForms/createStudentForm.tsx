@@ -5,11 +5,14 @@ import Breadcrumb from '@/components/Breadcrumbs/Breadcrumb';
 import { createStudent } from '@/services/studentService';
 import { useRouter } from 'next/navigation';
 import { Student } from '@/types/student';
-import { UserStorage } from "@/types/user";
+import { useSuccessMessageContext } from '../../../components/SuccessMessageContext';
+import { currentPreschool } from '@/services/authService';
 
 export default function CreateForm() {
     const router = useRouter();
-    const currentUser = UserStorage.getCurrentUser();
+    const { setSuccessMessage } = useSuccessMessageContext();
+    const [error, setError] = useState("");
+
 
     const [studentName, setStudentName] = useState("");
     const [DOB, setDOB] = useState("");
@@ -21,9 +24,9 @@ export default function CreateForm() {
     const [medicalHistory, setMedicalHistory] = useState("");
     const [gender, setGender] = useState("");
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
-    const [personalPicture, setPersonalPicture] = useState<File | undefined>(undefined);
+    const [personal_picture, setPersonalPicture] = useState<File | undefined>(undefined);
     const [passport, setPassport] = useState<File | undefined>(undefined);
-    const [certificateOfBirth, setCertificateOfBirth] = useState<File | undefined>(undefined);
+    const [certificate_of_birth, setCertificateOfBirth] = useState<File | undefined>(undefined);
 
     // Update the handleFileChange function
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>, setFile: React.Dispatch<React.SetStateAction<File | undefined>>) => {
@@ -113,6 +116,8 @@ export default function CreateForm() {
         }
 
         try {
+            var preschool;
+            await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
             const studentData: Student = {
                 student_name: studentName,
                 DOB: new Date(DOB),
@@ -122,19 +127,28 @@ export default function CreateForm() {
                 guardian_name: guardianName,
                 enrollment_date: new Date(enrollmentDate),
                 medical_history: medicalHistory,
-                preschool_id: currentUser?.preschool_id,
-                gender: gender
+                preschool_id: preschool || 0,
+                gender: gender,
+                personal_picture,
+                certificate_of_birth,
+                passport
             };
+
 
             // Log the complete student data
             console.log('Student Data:', studentData);
 
             // Send the request and log the response
             const response = await createStudent(studentData);
-            console.log('API Response:', response);
+            console.log('API Response:', response.data.message);
+            const successMsg = response.data.message;
+            if (response.status == 200 || response.status == 201) {
+                setSuccessMessage(successMsg);
+            }
+            router.push('/students');
 
             // Redirect after successful submission
-            router.push('/students');
+            // router.push('/students');
         } catch (error) {
             console.error("Error creating student:", error);
         }
@@ -152,7 +166,7 @@ export default function CreateForm() {
                                 Create Student
                             </h3>
                         </div>
-                        <form onSubmit={handleSubmit}>
+                        <form onSubmit={handleSubmit} encType="multipart/form-data">
                             <div className="p-6.5">
                                 <div className="mb-4.5">
                                     <label className="mb-2.5 block text-black dark:text-white">
@@ -311,6 +325,7 @@ export default function CreateForm() {
                                     </label>
                                     <input
                                         type="file"
+                                        // name="personal_picture"
                                         onChange={(e) => handleFileChange(e, setPersonalPicture)}
                                         className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
                                     />
@@ -323,6 +338,7 @@ export default function CreateForm() {
                                     </label>
                                     <input
                                         type="file"
+                                        // name="certificate_of_birth"
                                         onChange={(e) => handleFileChange(e, setCertificateOfBirth)}
                                         className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
                                     />
@@ -335,6 +351,7 @@ export default function CreateForm() {
                                     </label>
                                     <input
                                         type="file"
+                                        // name="passport"
                                         onChange={(e) => handleFileChange(e, setPassport)}
                                         className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
                                     />

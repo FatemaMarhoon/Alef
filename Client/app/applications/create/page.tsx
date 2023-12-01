@@ -6,10 +6,14 @@ import { getGuardianTypes } from "@/services/staticValuesService";
 import { useRouter } from "next/navigation";
 import { StaticValue } from "@/types/staticValue";
 import { getGrades } from "@/services/gradeCapacityService";
+import { useSuccessMessageContext } from '../../../components/SuccessMessageContext';
+import { AxiosError } from "axios";
+import ErrorAlert from "@/components/ErrorAlert";
 
 export default function CreateApplicationForm() {
     const router = useRouter();
-
+    const { setSuccessMessage } = useSuccessMessageContext();
+    const [error, setError] = useState("");
     const [email, setEmail] = useState("");
     const [guardianType, setGuardianType] = useState("");
     const [studentName, setStudentName] = useState("");
@@ -81,18 +85,28 @@ export default function CreateApplicationForm() {
                 certificateOfBirth,
                 passport
             );
-            console.log(response);
-            router.push("/applications"); // Redirect to the applications page after submission
-        } catch (error) {
-            // Handle error
-            console.error("Error creating application:", error);
+
+            if (response.status == 200 || response.status == 201) {
+                setSuccessMessage(response.data.message);
+                router.push("/applications"); // Redirect to the applications page after submission
+            }
+            else if (response.status == 400 || response.status == 404 || response.status == 500) {
+                setError(response.data.message);
+            }
+        } catch (error : any) {
+            if (error.response){
+                setError(error.response.data.message);
+            }
+            else if (error.message) {
+                setError(error.message);
+            }
         }
     };
 
     return (
         <>
             <Breadcrumb pageName="Create Application" />
-
+            {error && <ErrorAlert message={error}></ErrorAlert>}
             <div className="grid grid-cols-1 gap-9 sm:grid-cols-2">
                 <div className="flex flex-col gap-9">
                     {/* FORM STARTS HERE */}

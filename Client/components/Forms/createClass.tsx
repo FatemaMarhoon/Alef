@@ -13,15 +13,11 @@ import { GradeCapacity } from '@/types/gradeCapacity';
 import { format } from 'url';
 import Link from 'next/link';
 
-// interface ClassFormProps {
-//     onCreateClasses: (newClasses: Class[], classIds: number[]) => void;
-// }
 
-const ClassForm: React.FC<ClassFormProps> = ({ onCreateClasses }) => {
+const ClassForm: React.FC = ({ }) => {
     //declare variables
     const currentUser = UserStorage.getCurrentUser();
     const router = useRouter();
-    const [grade, setGrade] = useState('');
     const [numClasses, setNumClasses] = useState(0);
     const [classData, setClassData] = useState<Array<{ class_name: string, supervisor: string, classroom: string, capacity: number }>>(
         Array.from({ length: numClasses }, () => ({ class_name: '', supervisor: '', classroom: '', capacity: 0 })));
@@ -35,24 +31,51 @@ const ClassForm: React.FC<ClassFormProps> = ({ onCreateClasses }) => {
 
     const [remainingCapacity, setRemainingCapacity] = useState<number | null>(null);
 
-    const [selectedGradeId, setSelectedGradeId] = useState<number | null>(null);
+    const [grade, setGrade] = useState('');
+    const [selectedGradeId, setSelectedGradeId] = useState('');
+    const [selectedSupervisor, setSelectedSupervisor] = useState('');
+    // Fetch grades when the component mounts
+    useEffect(() => {
+        async function fetchGradesList() {
+            try {
+                const response = await getGrades();
+                console.log('Grade List Response:', response);
 
+                // Log the response.data or the actual array
+                console.log('Grade List Data:', response || response);
 
-    const handleGradeChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const selectedGradeId = e.target.value;
+                setGradesList(response || []);
+                // Set loading to false after fetching data (if needed)
+            } catch (error) {
+                console.error("Error fetching staff list:", error);
+                setStaffList([]);
+                // Set loading to false in case of an error (if needed)
+            }
+        }
+
+        fetchGradesList();
+    }, []); // Empty
+
+    const handleGradeChange = async (e: React.ChangeEvent<HTMLSelectElement>, selectedId: string) => {
+        console.log("handleGradeChange called"); // Add this line
+
+        //const selectedGradeId = e.target.value;
 
         console.log("Selected Grade ID:", selectedGradeId);
 
         try {
             // Find the corresponding grade name based on the selected grade ID
-            const selectedGrade = gradesList.find(grade => grade.id === Number(selectedGradeId));
+            const selectedGrade = gradesList.find(grade => grade.id === Number(selectedId));
             if (selectedGrade) {
                 const gradeName = selectedGrade.grade;
+                console.log("SETTING GRAADDDEEE")
                 setGrade(gradeName);
+                console.log("Updated grade:", gradeName); // Add this line
+
             }
 
             // Assuming you have a function to fetch grade capacity by ID
-            const response = await getGradeCapacityById(selectedGradeId);
+            const response = await getGradeCapacityById(selectedId);
             console.log(response);
 
             // Assuming the response contains the grade capacity
@@ -70,10 +93,11 @@ const ClassForm: React.FC<ClassFormProps> = ({ onCreateClasses }) => {
 
 
     useEffect(() => {
-        console.log("Grade:", grade);
+        console.log("Grade:", (grade));
 
         async function fetchData() {
             try {
+
                 // Fetch the sum of class capacities for the grade
                 const sumOfClassCapacitiesResponse = await getSumOfClassCapacitiesByGrade(grade);
                 const sumOfClassCapacities = sumOfClassCapacitiesResponse?.sumOfCapacities;
@@ -96,70 +120,21 @@ const ClassForm: React.FC<ClassFormProps> = ({ onCreateClasses }) => {
     }, [grade, selectedGradeCapacity]);
 
 
-    // const handleGradeChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-    //     const selectedGradeId = e.target.value;
-    //     console.log("Selected Grade ID:", selectedGradeId);
-
-    //     try {
-
-
-    //         // Assuming you have a function to fetch grade capacity by ID
-    //         const response = await getGradeCapacityById(selectedGradeId);
-    //         console.log(response);
-
-    //         // Assuming the response contains the grade capacity
-    //         const gradeCapacity = response?.capacity || null;
-
-    //         setSelectedGradeCapacity(gradeCapacity);
-
-    //         // Find the corresponding grade name based on the selected grade ID
-    //         const selectedGrade = gradesList.find(grade => grade.id === Number(selectedGradeId));
-    //         if (selectedGrade) {
-    //             const gradeName = selectedGrade.grade;
-    //             setGrade(gradeName);
-    //         }
-    //         console.log(grade)
-    //         // Fetch the sum of class capacities for the grade
-    //         const sumOfClassCapacitiesResponse = await getSumOfClassCapacitiesByGrade(grade);
-    //         const sumOfClassCapacities = sumOfClassCapacitiesResponse?.sumOfCapacities
-    //         console.log("Sum of class capacities for the grade:", sumOfClassCapacities);
-    //         const numericGradeCapacity = parseInt(gradeCapacity.toString(), 10); // Use the appropriate radix
-
-    //         console.log(numericGradeCapacity - sumOfClassCapacities);
-    //         setSelectedClassesCapacity(sumOfClassCapacities);
-    //         const remainingCapacity = numericGradeCapacity - sumOfClassCapacities;
-    //         setRemainingCapacity(remainingCapacity);
-
-
-
-    //     } catch (error) {
-    //         console.error("Error fetching grade capacity:", error);
-    //     }
-    // };
 
 
     const handleClassnameChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
         updateClassData(index, 'class_name', e.target.value);
     };
-    //this code is working for selected supervisor
-    // const handleSupervisorChange = (selectedSupervisorId: string, index: number) => {
-    //     updateClassData(index, 'supervisor', selectedSupervisorId);
-    //     setSelectedSupervisors((prevSelected) => [...prevSelected, selectedSupervisorId]);
-    // };
-
+    // this code is working for selected supervisor
     const handleSupervisorChange = (selectedSupervisorId: string, index: number) => {
-
-        // Filter out the selected supervisor from other drop-down lists
-        const updatedStaffList = staffList.filter((supervisor) => supervisor.id !== parseInt(selectedSupervisorId));
-        setStaffList(updatedStaffList);
-
         updateClassData(index, 'supervisor', selectedSupervisorId);
-
-        // Update selected supervisors state
         setSelectedSupervisors((prevSelected) => [...prevSelected, selectedSupervisorId]);
 
-
+        //     // Filter out the selected supervisor from other drop-down lists
+        //     const updatedStaffList = staffList.filter((supervisor) => supervisor.id !== parseInt(selectedSupervisorId));
+        //     setStaffList(updatedStaffList);
     };
+
 
     const handleClassroomChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
         updateClassData(index, 'classroom', e.target.value);
@@ -176,33 +151,6 @@ const ClassForm: React.FC<ClassFormProps> = ({ onCreateClasses }) => {
             return newData;
         });
     };
-
-    // const handleGradeChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-    //     console.log("Selected Grade ID:", e.target.value); // Add this line to log the selected grade ID
-
-    //     const selectedGradeId = e.target.value;
-    //     // Find the corresponding grade value based on the selected grade ID
-    //     const selectedGrade = gradesList.find(grade => grade.id === Number(selectedGradeId));
-    //     if (selectedGrade) {
-    //         const gradeValue = selectedGrade.grade;
-    //         setGrade(gradeValue);
-    //         console.log(grade);
-    //     }
-    //     try {
-    //         // Assuming you have a function to fetch grade capacity by ID
-    //         const response = await getGradeCapacityById(selectedGradeId);
-    //         console.log(response);
-    //         // Assuming the response contains the grade capacity
-    //         const gradeCapacity = response?.capacity || null;
-
-    //         setSelectedGradeCapacity(gradeCapacity);
-    //     } catch (error) {
-    //         console.error("Error fetching grade capacity:", error);
-    //     }
-    // };
-
-
-
 
     const handleNumClassesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newNumClasses = Number(e.target.value);
@@ -269,29 +217,9 @@ const ClassForm: React.FC<ClassFormProps> = ({ onCreateClasses }) => {
 
 
 
-    // Fetch grades when the component mounts
-    useEffect(() => {
-        async function fetchGradesList() {
-            try {
-                const response = await getGrades();
-                console.log('Grade List Response:', response);
 
-                // Log the response.data or the actual array
-                console.log('Grade List Data:', response || response);
 
-                setGradesList(response || []);
-                // Set loading to false after fetching data (if needed)
-            } catch (error) {
-                console.error("Error fetching staff list:", error);
-                setStaffList([]);
-                // Set loading to false in case of an error (if needed)
-            }
-        }
-
-        fetchGradesList();
-    }, []); // Empty
-
-    //handle form submitting
+    // handle form submitting
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -309,7 +237,8 @@ const ClassForm: React.FC<ClassFormProps> = ({ onCreateClasses }) => {
                 ("An error occurred while creating classes. Please try again.");
                 if (errorRef.current) {
                     errorRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                } return; // Prevent form submission
+                }
+                return; // Prevent form submission
             }
 
             // Create an array of promises for each class creation
@@ -324,36 +253,45 @@ const ClassForm: React.FC<ClassFormProps> = ({ onCreateClasses }) => {
             });
 
             // Wait for all class creations to complete
-            const createdClasses = await Promise.all(createClassPromises);
-            console.log(createdClasses);
-            const classIds = createdClasses.map((createdClass) => createdClass.newClass.id);
-            console.log('Class IDs:', classIds);
+            Promise.all(createClassPromises)
+                .then((createdClasses) => {
+                    console.log('Created Classes:', createdClasses);
 
-            const validClassIDs = classIds.filter((id) => id !== undefined && id !== 0);
+                    const classIds = createdClasses.map((createdClass) => createdClass?.newClass?.id).filter(Boolean);
 
-            if (validClassIDs.length === 0) {
-                console.error('No valid class IDs found.');
-                return; // or handle the error in an appropriate way
-            }
+                    console.log('Class IDs:', classIds);
 
-            const classIDsQueryString = validClassIDs.join(',');
-            console.log(classIDsQueryString);
-            // Redirect to the new page with query parameters
-            router.push(
-                format({
-                    pathname: '/class/view2',
-                    query: {
-                        numClasses,
-                        grade,
-                        classIds: classIDsQueryString
-                    },
-                },
+                    const validClassIDs = classIds.filter((id) => id !== undefined && id !== 0);
 
+                    if (validClassIDs.length === 0) {
+                        console.error('No valid class IDs found.');
+                        return; // or handle the error in an appropriate way
+                    }
 
-                )
-            );
+                    const classIDsQueryString = validClassIDs.join(',');
+                    console.log(classIDsQueryString);
 
-            // <Link href={{ pathname: `class/view2`, query: { numClasses, grade } }}> </Link
+                    // Redirect to the new page with query parameters
+                    router.push(
+                        format({
+                            pathname: '/class/view2',
+                            query: {
+                                numClasses,
+                                // grade: getGradeName(grade),
+                                grade,
+                                classIds: classIDsQueryString
+                            },
+                        })
+                    );
+                })
+                .catch((error) => {
+                    // Handle error
+                    console.error("Error creating classes:", error);
+                    setErrorMessage("Error creating classes");
+                    if (errorRef.current) {
+                        errorRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
 
         } catch (error) {
             // Handle error
@@ -362,10 +300,13 @@ const ClassForm: React.FC<ClassFormProps> = ({ onCreateClasses }) => {
             if (errorRef.current) {
                 errorRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
-
         }
     };
 
+    const getGradeName = (selectedGradeId: string) => {
+        const selectedGrade = gradesList.find((grade) => grade.id === Number(selectedGradeId));
+        return selectedGrade ? selectedGrade.grade : "";
+    };
 
     return (
         <div className=" items-center justify-center min-h-screen">
@@ -390,7 +331,11 @@ const ClassForm: React.FC<ClassFormProps> = ({ onCreateClasses }) => {
                             <select
                                 name="grade"
                                 value={grade} // Use grade directly instead of e.target.value
-                                onChange={handleGradeChange}
+                                onChange={(e) => {
+                                    handleGradeChange(e, e.target.value);
+                                    // setGrade(e.target.value);
+
+                                }}
                                 className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                             >
                                 <option value="">Select Grade</option>
@@ -405,7 +350,7 @@ const ClassForm: React.FC<ClassFormProps> = ({ onCreateClasses }) => {
                         {grade && (
                             <div className="mb-4.5">
                                 <label className="mb-2.5 block text-black dark:text-white">
-                                    {grade !== null ? grade.toString() : ''}     Grade Capacity
+                                    {grade}     Grade Capacity
                                 </label>
                                 <p >
                                     {selectedGradeCapacity !== null ? selectedGradeCapacity.toString() : ''}
@@ -468,7 +413,14 @@ const ClassForm: React.FC<ClassFormProps> = ({ onCreateClasses }) => {
                                     key={index}
                                     name={`supervisor-${index}`}
                                     value={classInfo.supervisor}
-                                    onChange={(e) => handleSupervisorChange(e.target.value, index)}
+                                    onChange={(e) => {
+                                        handleSupervisorChange(e.target.value, index);
+                                        setSelectedSupervisor(e.target.value);
+                                    }
+
+
+
+                                    }
                                     className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                                 >
                                     <option value="">Select Supervisor</option>

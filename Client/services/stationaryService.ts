@@ -1,13 +1,15 @@
 import { Stationary } from '@/types/stationary'; // Import the Stationary type
-
+import { currentPreschool, currentToken } from './authService';
 import axios, { AxiosRequestConfig } from 'axios';
+import { resolve } from 'path';
 
 const BASE_URL = 'http://localhost:3000/Stationary'; // backend URL
 
 export async function getStationary(): Promise<Stationary[]> {
     try {
-        const token = localStorage.getItem('token'); // Get the JWT token from localStorage
-
+        var token; var preschool;
+        await currentToken().then((returnedTOken) => { token = returnedTOken; })
+        await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
         // Set up the request config with headers
         const config: AxiosRequestConfig = {
             headers: {
@@ -15,49 +17,48 @@ export async function getStationary(): Promise<Stationary[]> {
             },
         };
 
-        const response = await axios.get<Stationary[]>(BASE_URL, config);
+
+        const response = await axios.get<Stationary[]>((`${BASE_URL}/preschool/${preschool}`), config);
         return response.data;
     } catch (error) {
         throw error;
     }
 }
 
-export async function createStationary(stationaryData: Stationary): Promise<void> {
+export async function createStationary(stationaryData: Stationary): Promise<any> {
     try {
-        const token = localStorage.getItem('token');
-
-        if (!token) {
-            throw new Error('Token not found. User may not be authenticated.');
-        }
-
+        var token; var preschool;
+        await currentToken().then((returnedTOken) => { token = returnedTOken; })
+        await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
+        // Set up the request config with headers
         const config: AxiosRequestConfig = {
             headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json', // Set the content type to JSON
+                Authorization: `Bearer ${token}`, // Include the token in the Authorization header
             },
         };
 
-        await axios.post(BASE_URL, stationaryData, config);
+
+        const response = await axios.post(BASE_URL, stationaryData, config);
+        return response;
     } catch (error) {
         throw error;
     }
 }
-export async function updateStationary(stationaryId: string, stationaryData: Stationary): Promise<void> {
+export async function updateStationary(stationaryId: string, stationaryData: Stationary): Promise<any> {
     try {
-        const token = localStorage.getItem('token');
-
-        if (!token) {
-            throw new Error('Token not found. User may not be authenticated.');
-        }
-
+        var token; var preschool;
+        await currentToken().then((returnedTOken) => { token = returnedTOken; })
+        await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
+        // Set up the request config with headers
         const config: AxiosRequestConfig = {
             headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json', // Set the content type to JSON
+                Authorization: `Bearer ${token}`, // Include the token in the Authorization header
             },
         };
 
-        await axios.put(`${BASE_URL}/${stationaryId}`, stationaryData, config);
+
+        const response = await axios.put(`${BASE_URL}/${stationaryId}`, stationaryData, config);
+        return response;
     } catch (error) {
         throw error;
     }
@@ -65,17 +66,16 @@ export async function updateStationary(stationaryId: string, stationaryData: Sta
 
 export async function getStationaryById(stationaryId: string): Promise<Stationary> {
     try {
-        const token = localStorage.getItem('token');
-
-        if (!token) {
-            throw new Error('Token not found. User may not be authenticated.');
-        }
-
+        var token; var preschool;
+        await currentToken().then((returnedTOken) => { token = returnedTOken; })
+        await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
+        // Set up the request config with headers
         const config: AxiosRequestConfig = {
             headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${token}`, // Include the token in the Authorization header
             },
         };
+
 
         const response = await axios.get<Stationary>(`${BASE_URL}/${stationaryId}`, config);
         return response.data;
@@ -83,21 +83,21 @@ export async function getStationaryById(stationaryId: string): Promise<Stationar
         throw error;
     }
 }
-export async function deleteStationary(stationaryId: string): Promise<void> {
+export async function deleteStationary(stationaryId: string): Promise<any> {
     try {
-        const token = localStorage.getItem('token');
-
-        if (!token) {
-            throw new Error('Token not found. User may not be authenticated.');
-        }
-
+        var token; var preschool;
+        await currentToken().then((returnedTOken) => { token = returnedTOken; })
+        await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
+        // Set up the request config with headers
         const config: AxiosRequestConfig = {
             headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${token}`, // Include the token in the Authorization header
             },
         };
 
-        await axios.delete(`${BASE_URL}/${stationaryId}`, config);
+
+        const response = await axios.delete(`${BASE_URL}/${stationaryId}`, config);
+        return response;
     } catch (error) {
         throw error;
     }

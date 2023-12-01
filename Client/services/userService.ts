@@ -19,7 +19,7 @@ export async function getUsers(): Promise<User[]> {
       },
     };
 
-    const response = await axios.get<User[]>(`${BASE_URL}?${preschool}`, config);
+    const response = await axios.get<User[]>(`${BASE_URL}?preschool=${preschool}`, config);
     return response.data;
   } catch (error) {
     throw error;
@@ -80,30 +80,14 @@ export async function createUser(email: string, name: string, role: string, pres
       email: email,
       name: name,
       role_name: role,
-      preschool_id: preschool
+      preschool_id: 1
     }, config);
+    
     return response;
 
   } catch (error) {
-    console.error("Error creating user:", error);
     // Type assertion for error variable
     const axiosError = error as AxiosError;
-
-    // Print Axios error details
-    if (axiosError.response) {
-      // The request was made and the server responded with a status code
-      // that falls out of the range of 2xx
-      console.error("Response data:", axiosError.response.data);
-      console.error("Response status:", axiosError.response.status);
-      console.error("Response headers:", axiosError.response.headers);
-    } else if (axiosError.request) {
-      // The request was made but no response was received
-      console.error("No response received:", axiosError.request);
-    } else {
-      // Something happened in setting up the request that triggered an Error
-      console.error("Error setting up the request:", axiosError.message);
-    }
-
     throw axiosError;
   }
 }

@@ -1,17 +1,17 @@
 import { GradeCapacity } from '@/types/gradeCapacity'
 import { UserStorage } from "@/types/user";
 const currentUser = UserStorage.getCurrentUser();
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { currentToken, currentPreschool } from './authService';
 
-const BASE_URL = 'http://localhost:3000/grades'; 
+const BASE_URL = 'http://localhost:3000/grades';
 
 export async function getGrades(): Promise<GradeCapacity[]> {
     try {
         var token; var preschool;
         await currentToken().then((returnedTOken) => { token = returnedTOken; })
         await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
-    
+
         // Set up the request config with headers
         const config: AxiosRequestConfig = {
             headers: {
@@ -23,9 +23,29 @@ export async function getGrades(): Promise<GradeCapacity[]> {
 
         return response.data;
     } catch (error) {
-        throw error;
+        console.error("Error getting grades:", error);
+        // Type assertion for error variable
+        const axiosError = error as AxiosError;
+
+        // Print Axios error details
+        if (axiosError.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            console.error("Response data:", axiosError.response.data);
+            console.error("Response status:", axiosError.response.status);
+            console.error("Response headers:", axiosError.response.headers);
+        } else if (axiosError.request) {
+            // The request was made but no response was received
+            console.error("No response received:", axiosError.request);
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            console.error("Error setting up the request:", axiosError.message);
+        }
+
+        throw axiosError;
     }
 }
+
 
 export async function getGradeCapacityById(gradeId: string): Promise<GradeCapacity> {
     try {

@@ -1,3 +1,4 @@
+'use client'
 import React, { useEffect, useState } from 'react';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -13,49 +14,66 @@ import MenuItem from '@mui/material/MenuItem';
 import { getClasses } from '@/services/classService';
 import { Class } from '@/types/class';
 import { FormControl, InputLabel } from '@mui/material';
+import ErrorAlert from '@/components/ErrorAlert';
+import { createEvent } from '@/services/eventsService';
+import { AxiosError } from 'axios';
 
 interface CreateEventModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onCreate: (newEvent: any) => void;
-}
-
-const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, onCreate }) => {
+    onCreate: (newEvent: any) => Promise<void>; // Now onCreate returns a Promise
+    onSuccess: () => void; // Callback for success in the parent component
+  }
+  
+  const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, onCreate, onSuccess }) => {
     const [classesList, setClassesList] = useState<Class[]>([]);
     const [newEvent, setNewEvent] = useState({
-        // Initialize fields based on the Event type, leaving them optional
-        event_name: '',
-        event_date: new Date(),
-        notes: '',
-        notify_parents: false,
-        notify_staff: false,
-        public_event: true,
-        classes: []
+      event_name: '',
+      event_date: new Date(),
+      notes: '',
+      notify_parents: false,
+      notify_staff: false,
+      public_event: true,
+      classes: [],
     });
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         async function fetchClasses() {
-            try {
-                const classList = await getClasses();
-                setClassesList(classList);
-            } catch (error) {
-                console.error('Error fetching classes:', error);
-            }
+          try {
+            const classList = await getClasses();
+            setClassesList(classList);
+          } catch (error) {
+            console.error('Error fetching classes:', error);
+          }
         }
         fetchClasses();
-    }, []);
-
-    const handleCreateEvent = () => {
-        console.log("handling create")
-        // You can perform validation or other actions before creating the event
-        onCreate(newEvent);
-        onClose();
-    };
+      }, []);
+    
+      const handleCreateEvent = async () => {
+        try {
+          // Reset create event error on each creation attempt
+          setError(null);
+    
+          // Call the onCreate function provided by the parent
+          await onCreate(newEvent);
+    
+          // If creation is successful, trigger the onSuccess callback
+          onSuccess();
+          onClose();
+        } catch (error:any) {
+            const axiosError = error as AxiosError;
+            console.error('Error creating event:', error.response.data.message);
+          // If there's an error, set the error in the CreateEventModal
+          setError(error.response.data.message);
+        }
+      };
 
     return (
         <Dialog open={isOpen} onClose={onClose}>
             <DialogTitle>Create New Event</DialogTitle>
             <DialogContent>
+                {error && <ErrorAlert message={error} />}
                 {/* Form Fields */}
                 <TextField
                     label="Event Name"
