@@ -4,7 +4,7 @@ import "../data-tables-css.css";
 import "../satoshi.css";
 import { useState, useEffect } from "react";
 import Loader from "@/components/common/Loader";
-import { currentUser } from "@/services/authService";
+import { SuccessMessageProvider } from "@/components/SuccessMessageContext";
 
 
 export default function RootLayout({
@@ -20,6 +20,8 @@ export default function RootLayout({
   }, []);
 
   return (
+    <SuccessMessageProvider>
+
     <html lang="en">
       <body suppressHydrationWarning={true}>
         <div className="dark:bg-boxdark-2 dark:text-bodydark">
@@ -46,5 +48,7 @@ export default function RootLayout({
         </div>
       </body>
     </html>
+        </SuccessMessageProvider>
+
   );
 }

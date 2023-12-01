@@ -4,6 +4,7 @@ const sequelize = require('../config/seq');
 const Application = require('../models/preschool_application')(sequelize, DataTypes);
 const Preschool = require('../models/preschool')(sequelize, DataTypes);
 const User = require('../models/user')(sequelize, DataTypes);
+const Student = require('../models/student')(sequelize, DataTypes);
 const Evaluation = require('../models/application_evaluation')(sequelize, DataTypes);
 const GradesController = require('../controllers/GradeCapacityController')
 const FilesManager = require('./FilesManager');
@@ -64,6 +65,49 @@ const ApplicationController = {
         const { email, preschool_id, guardian_type, status, student_name, guardian_name, student_CPR, phone, student_DOB, medical_history, created_by, gender, personal_picture, grade, certificate_of_birth, passport } = req.body;
         const application = { email, preschool_id, guardian_type, status, student_name, guardian_name, student_CPR, phone, student_DOB, medical_history, created_by, gender, grade, certificate_of_birth, passport, personal_picture };
         try {
+            if (!email) {
+                return res.status(400).json({ message: "Email is required." });
+            }
+            if (!preschool_id) {
+                return res.status(400).json({ message: "Preschool ID is required." });
+            }
+            if (!guardian_type) {
+                return res.status(400).json({ message: "Guardian type is required." });
+            }
+            if (!student_name) {
+                return res.status(400).json({ message: "Student name is required." });
+            }
+            if (!guardian_name) {
+                return res.status(400).json({ message: "Guardian name is required." });
+            }
+            if (!student_CPR) {
+                return res.status(400).json({ message: "Student CPR is required." });
+            }
+            if (!phone) {
+                return res.status(400).json({ message: "Phone number is required." });
+            }
+            if (!student_DOB) {
+                return res.status(400).json({ message: "Student DOB is required." });
+            }
+            if (!created_by) {
+                return res.status(400).json({ message: "Created By is required." });
+            }
+            if (!gender) {
+                return res.status(400).json({ message: "Gender is required." });
+            }
+            if (!grade) {
+                return res.status(400).json({ message: "Grade is required." });
+            }
+            if (!req.files['personal_picture'][0]){
+                return res.status(400).json({ message: "Personal Picture is required." });
+            }
+            if (!req.files['certificate_of_birth'][0]){
+                return res.status(400).json({ message: "Certificate of Birth is required." });
+            }
+            if (!req.files['passport'][0]){
+                return res.status(400).json({ message: "Passport is required." });
+            }
+
             //upload files
             const personal_picture = req.files['personal_picture'][0];
             const picture_url = await FilesManager.upload(personal_picture);
@@ -155,17 +199,39 @@ const ApplicationController = {
                         //retrieve registration token and push notification 
                         await admin.auth().getUserByEmail(parentUser.email).then((userRecord) => {
                             regToken = userRecord.customClaims['regToken'];
-                            NotificationController.pushNotification(token, "Application Updates", "Your application staus has been updated");
+                            NotificationController.pushSingleNotification(token, "Application Updates", "Your application status has been updated");
                         });
                     }
                 }
+                //once application has been accepted, create a student and payment record
+                if (status == "Accepted") {
+                    const creator = await User.findByPk(applicationObject.created_by);
+                    const student = await Student.create({
+                        preschool_id: applicationObject.preschool_id,
+                        student_name: applicationObject.student_name,
+                        grade: applicationObject.grade,
+                        DOB: applicationObject.student_DOB,
+                        CPR: applicationObject.student_CPR,
+                        contact_number1: applicationObject.phone,
+                        guardian_name: applicationObject.guardian_name,
+                        enrollment_date: new Date(),
+                        medical_history: applicationObject.medical_history,
+                        gender: applicationObject.gender,
+                        personal_picture: applicationObject.personal_picture,
+                        certificate_of_birth: applicationObject.certificate_of_birth,
+                        passport: applicationObject.passport,
+                        user_id: creator.role_name == "Parent" ? applicationObject.created_by : "" //link parent account to the student
+                    })
+                    return res.status(201).json({ message: 'Application Accepted and Student Registered Successfully.', student });
+                }
+
                 return res.status(200).json({ message: 'Application updated successfully.' });
             }
             else {
                 return res.status(404).json({ message: 'Application not found.' });
             }
         } catch (error) {
-            res.status(500).json({ message: error.message });
+            return res.status(500).json({ message: error.message });
         }
     },
 
