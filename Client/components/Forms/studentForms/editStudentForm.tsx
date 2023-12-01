@@ -4,6 +4,7 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { getStudentById, updateStudent } from '@/services/studentService';
 import { UserStorage } from "@/types/user";
 import { Student } from '@/types/student';
+import { useSuccessMessageContext } from '../../../components/SuccessMessageContext';
 
 export default function EditForm({ studentId }: { studentId: string }) {
     const router = useRouter();
@@ -154,7 +155,7 @@ export default function EditForm({ studentId }: { studentId: string }) {
                                     </label>
                                     <input
                                         type="date"
-                                        value={new Date(student.DOB).toLocaleDateString()}
+                                        value={student.DOB ? new Date(student.DOB).toISOString().substring(0, 10) : ''}
                                         onChange={(e) => setStudent({ ...student, DOB: new Date(e.target.value) })}
                                         className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.DOB ? 'border-error' : ''
                                             }`}
@@ -242,7 +243,7 @@ export default function EditForm({ studentId }: { studentId: string }) {
                                     </label>
                                     <input
                                         type="date"
-                                        value={new Date(student.enrollment_date).toLocaleDateString()}
+                                        value={student.enrollment_date ? new Date(student.enrollment_date).toISOString().substring(0, 10) : ''}
                                         onChange={(e) => setStudent({ ...student, enrollment_date: new Date(e.target.value) })}
                                         className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.enrollment_date ? 'border-error' : ''
                                             }`}

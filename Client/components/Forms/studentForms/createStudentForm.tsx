@@ -5,11 +5,14 @@ import Breadcrumb from '@/components/Breadcrumbs/Breadcrumb';
 import { createStudent } from '@/services/studentService';
 import { useRouter } from 'next/navigation';
 import { Student } from '@/types/student';
-import { UserStorage } from "@/types/user";
+import { useSuccessMessageContext } from '../../../components/SuccessMessageContext';
+import { currentPreschool } from '@/services/authService';
 
 export default function CreateForm() {
     const router = useRouter();
-    const currentUser = UserStorage.getCurrentUser();
+    const { setSuccessMessage } = useSuccessMessageContext();
+    const [error, setError] = useState("");
+
 
     const [studentName, setStudentName] = useState("");
     const [DOB, setDOB] = useState("");
@@ -113,6 +116,8 @@ export default function CreateForm() {
         }
 
         try {
+            var preschool;
+            await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
             const studentData: Student = {
                 student_name: studentName,
                 DOB: new Date(DOB),
@@ -122,22 +127,28 @@ export default function CreateForm() {
                 guardian_name: guardianName,
                 enrollment_date: new Date(enrollmentDate),
                 medical_history: medicalHistory,
-                preschool_id: currentUser?.preschool_id,
+                preschool_id: preschool || 0,
                 gender: gender,
                 personal_picture,
                 certificate_of_birth,
                 passport
             };
 
+
             // Log the complete student data
             console.log('Student Data:', studentData);
 
             // Send the request and log the response
             const response = await createStudent(studentData);
-            console.log('API Response:', response);
+            console.log('API Response:', response.data.message);
+            const successMsg = response.data.message;
+            if (response.status == 200 || response.status == 201) {
+                setSuccessMessage(successMsg);
+            }
+            router.push('/students');
 
             // Redirect after successful submission
-            router.push('/students');
+            // router.push('/students');
         } catch (error) {
             console.error("Error creating student:", error);
         }

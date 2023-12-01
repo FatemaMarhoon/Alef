@@ -1,11 +1,33 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../config/seq');
 
-const Staff = require('../models/Staff')(sequelize, DataTypes);
+const Staff = require('../models/staff')(sequelize, DataTypes);
 const Preschool = require('../models/preschool')(sequelize, DataTypes);
 
 Staff.belongsTo(Preschool, { foreignKey: 'preschool_id' });
 Preschool.hasMany(Staff, { foreignKey: 'preschool_id' });
+
+const validateStaffData = (staffData) => {
+    const requiredFields = ['preschool_id', 'staff_role_name', 'name', 'CPR', 'phone', 'hire_date'];
+    for (const field of requiredFields) {
+        if (!staffData[field]) {
+            return { isValid: false, message: `${field} is required` };
+        }
+    }
+
+    // Additional validations for specific fields
+    if (!Number.isInteger(staffData.CPR) || String(staffData.CPR).length !== 9) {
+        return { isValid: false, message: 'CPR must be a 9-digit integer' };
+    }
+
+    if (!Number.isInteger(staffData.phone) || String(staffData.phone).length !== 8) {
+        return { isValid: false, message: 'Phone must be an 8-digit integer' };
+    }
+
+    // Add more validations as needed
+
+    return { isValid: true };
+}
 
 const StaffController = {
     async getAllStaff(req, res) {
@@ -39,6 +61,13 @@ const StaffController = {
 
     async createStaff(req, res) {
         const staffData = req.body;
+        // Perform validations
+        const validation = validateStaffData(staffData);
+
+        if (!validation.isValid) {
+            return res.status(400).json({ message: validation.message });
+        }
+
         try {
             const staff = await Staff.create(staffData);
             res.json({ message: 'Staff member created successfully', staff });
@@ -50,6 +79,13 @@ const StaffController = {
     async updateStaff(req, res) {
         const { staff_id } = req.params;
         const updatedStaffData = req.body;
+        // Perform validations
+        const validation = validateStaffData(updatedStaffData);
+
+        if (!validation.isValid) {
+            return res.status(400).json({ message: validation.message });
+        }
+
         try {
             const staff = await Staff.findByPk(staff_id);
 
@@ -86,12 +122,13 @@ const StaffController = {
 
             const staffMembers = await Staff.findAll({
                 where: sequelize.literal(`
-                \`Staff\`.\`id\` NOT IN (
-                  SELECT \`supervisor\` FROM \`Classes\`
-                  WHERE \`supervisor\` IS NOT NULL
-                )
-                AND \`Staff\`.\`preschool_id\` = ${preschoolId}
-              `),
+                    \`Staff\`.\`id\` NOT IN (
+                      SELECT \`supervisor\` FROM \`Classes\`
+                      WHERE \`supervisor\` IS NOT NULL
+                    )
+                    AND \`Staff\`.\`preschool_id\` = ${preschoolId}
+                    AND \`Staff\`.\`staff_role_name\` = 'Teacher'
+                `),
                 include: [Preschool],
             });
 
@@ -100,6 +137,7 @@ const StaffController = {
             res.status(500).json({ message: error.message });
         }
     }
+
 
 };
 

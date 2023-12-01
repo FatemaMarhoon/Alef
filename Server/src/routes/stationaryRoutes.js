@@ -3,7 +3,7 @@ const StationaryController = require('../controllers/StationaryController');
 const router = express.Router();
 
 // Get all stationary items
-router.get('/', StationaryController.getAllStationary);
+router.get('/preschool/:preschoolId', StationaryController.getAllStationary);
 
 // Get stationary item by stationary_id
 router.get('/:stationary_id', StationaryController.getStationaryById);

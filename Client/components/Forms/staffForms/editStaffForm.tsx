@@ -81,7 +81,7 @@ export default function EditStaffForm({ staffId }: { staffId: string }) {
                 phone: Number(staff.phone),
             };
 
-            const response = await updateStaff(parseInt(staffId), updatedStaff);
+            const response = await updateStaff(Number(staffId), updatedStaff);
             console.log('API Response:', response);
 
             router.push('/staff'); // Redirect after successful submission
@@ -122,16 +122,22 @@ export default function EditStaffForm({ staffId }: { staffId: string }) {
                                     <label className="mb-2.5 block text-black dark:text-white">
                                         Role <span className="text-meta-1">*</span>
                                     </label>
-                                    <input
-                                        type="text"
+                                    <select
                                         value={staff.staff_role_name}
                                         onChange={(e) => setStaff({ ...staff, staff_role_name: e.target.value })}
-                                        placeholder="Enter staff's name"
-                                        className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.name ? 'border-error' : ''
+                                        className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.staff_role_name ? 'border-error' : ''
                                             }`}
-                                    />
-                                    {errors.name && (
-                                        <p className="text-error text-sm mt-1">{errors.name}</p>
+                                    >
+                                        <option value="" disabled>Select staff's role</option>
+                                        <option value="Teacher">Teacher</option>
+                                        <option value="Nurse">Nurse</option>
+                                        <option value="Cleaner">Cleaner</option>
+                                        <option value="Administrative Staff">Administrative Staff</option>
+                                        <option value="Assistant Teacher">Assistant Teacher</option>
+                                        {/* Add more options or fetch roles dynamically as needed */}
+                                    </select>
+                                    {errors.staff_role_name && (
+                                        <p className="text-error text-sm mt-1">{errors.staff_role_name}</p>
                                     )}
                                 </div>
                                 <div className="mb-4.5">
@@ -158,7 +164,7 @@ export default function EditStaffForm({ staffId }: { staffId: string }) {
                                         type="text"
                                         value={staff.phone}
                                         onChange={(e) => setStaff({ ...staff, phone: parseInt(e.target.value) })}
-                                        placeholder="Enter staff's name"
+                                        placeholder="Enter staff's phone"
                                         className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.name ? 'border-error' : ''
                                             }`}
                                     />
@@ -172,7 +178,7 @@ export default function EditStaffForm({ staffId }: { staffId: string }) {
                                     </label>
                                     <input
                                         type="date"
-                                        value={new Date(staff.hire_date).toLocaleDateString()}
+                                        value={new Date(staff.hire_date).toISOString().substring(0, 10)}
                                         onChange={(e) => setStaff({ ...staff, hire_date: new Date(e.target.value) })}
                                         className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.DOB ? 'border-error' : ''
                                             }`}
