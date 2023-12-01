@@ -31,8 +31,8 @@ const DropdownUser = () => {
     async function handleLogout() {
       await logout();
       router.push('/login')
-
     }
+
     // close if the esc key is pressed
     useEffect(() => {
       const keyHandler = ({ keyCode }: KeyboardEvent) => {
@@ -58,14 +58,14 @@ const DropdownUser = () => {
             <span className="block text-xs">Admin</span>
           </span>
 
-          {/* <span className="h-12 w-12 rounded-full">
+          <span className="h-12 w-12 rounded-full">
           <Image
             width={112}
             height={112}
             src={"/images/user/user-01.png"}
             alt="User"
           />
-        </span> */}
+        </span>
 
           <svg
             className="hidden fill-current sm:block"
