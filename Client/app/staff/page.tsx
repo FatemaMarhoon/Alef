@@ -97,7 +97,8 @@ export default function StaffTable() {
                         </tr>
                     </thead>
                     <tbody>
-                        {Array.isArray(currentStaff) && currentStaff.map((staffMember, key) => (<tr key={key}>
+                        {Array.isArray(currentStaff) && currentStaff.map((staffMember, key) => (
+                        <tr key={key}>
                             <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                                 <p className="text-black dark-text-white">
                                     {staffMember.id}

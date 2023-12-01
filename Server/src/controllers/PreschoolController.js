@@ -1,11 +1,10 @@
-const express = require('express');
 const { Op, DataTypes } = require('sequelize');
 const sequelize = require('../config/seq');
 
 const Preschool = require('../models/preschool')(sequelize, DataTypes);
 const User = require('../models/user')(sequelize, DataTypes);
 const Address = require('../models/address')(sequelize, DataTypes);
-const Student = require('../models/Student')(sequelize, DataTypes);
+const Student = require('../models/student')(sequelize, DataTypes);
 
 Preschool.hasMany(User, { foreignKey: 'preschool_id' });
 Address.belongsTo(Preschool, { foreignKey: 'preschool_id' });

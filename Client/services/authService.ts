@@ -96,4 +96,15 @@ export async function currentPreschool(): Promise<unknown | undefined> {
   return preschool;
 }
 
+export async function currentUserId(): Promise<unknown | undefined> {
+  const user = await currentUser();
+  console.log(user)
+  const id = await user?.getIdTokenResult(true).then((idTokenResult) => {
+    const customClaims = idTokenResult.claims;
+    console.log(customClaims.dbId)
+    return customClaims.dbId;
+  });  
+  return id;
+}
+
 

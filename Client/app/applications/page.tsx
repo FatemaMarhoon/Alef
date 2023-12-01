@@ -1,20 +1,25 @@
 'use client'
 import React, { useState, useEffect } from 'react';
-import { Application } from '@/types/application';
 import { getApplications, deleteApplication } from '@/services/applicationsService';
 import Link from 'next/link';
 import { useSuccessMessageContext } from '../../components/SuccessMessageContext';
 import { useRouter } from 'next/navigation';
-import Alert from '@/components/SuccessAlert';
+import {Application} from '../../types/application'
 import SuccessAlert from '@/components/SuccessAlert';
+import TextField from '@mui/material/TextField';
+import Pagination from '@mui/material/Pagination';
+import Button from '@mui/material/Button';
 
 export default function ApplicationsTable() {
     const router = useRouter();
     const [applications, setApplications] = useState<Application[]>([]);
-    const { successMessage, clearSuccessMessage } = useSuccessMessageContext();
+    const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+    const { successMessage } = useSuccessMessageContext();
 
     useEffect(() => {
-        async function fetchApplicaions() {
+        async function fetchApplications() {
             try {
                 const applicationsList = await getApplications();
                 setApplications(applicationsList.data);
@@ -22,30 +27,57 @@ export default function ApplicationsTable() {
                 console.error('Error fetching applications:', error);
             }
         }
-        fetchApplicaions();
-        console.log("Message on Applications load: ",successMessage);
-        }, [successMessage]);
+        fetchApplications();
+        console.log("Message on Applications load: ", successMessage);
+    }, [successMessage]);
 
     async function handleDelete(id: number) {
         await deleteApplication(id);
         router.refresh();
     }
+
+    // Filter the applications based on the search term
+    const filteredApplications = applications.filter(application =>
+        application.student_name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    // Calculate the indexes for the current page
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentApplications = filteredApplications.slice(indexOfFirstItem, indexOfLastItem);
+
+    // Handle pagination change
+    const handlePaginationChange = (event: React.ChangeEvent<unknown>, value: number) => {
+        setCurrentPage(value);
+    };
+
     return (
         <>
-            {successMessage && <SuccessAlert message={successMessage}/>}
+            {successMessage && <SuccessAlert message={successMessage} />}
             <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark-bg-boxdark sm-px-7.5 xl-pb-1">
-
                 <h4 className="mb-6 text-xl font-semibold text-black dark-text-white">
                     Applications
                 </h4>
                 <div className="flex justify-end mb-4">
-                    <Link href="/applications/create"
-                        className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
+                    <Link href="/applications/create" className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
                         Add new Application
                     </Link>
                 </div>
+                <div className="mb-4">
+                    <TextField
+                        label="Search by Student Name"
+                        variant="outlined"
+                        size="small"
+                        fullWidth
+                        value={searchTerm}
+                        onChange={(e) => {
+                            setSearchTerm(e.target.value);
+                            setCurrentPage(1);
+                        }}
+                    />
+                </div>
                 <div className="max-w-full overflow-x-auto">
-                    <table className="w-full table-auto">
+                <table className="w-full table-auto">
                         <thead>
                             <tr className="bg-gray-2 text-left dark-bg-meta-4">
                                 <th className="min-w-220px py-4 px-4 text-center font-medium text-black dark-text-white xl-pl-11">
@@ -72,8 +104,7 @@ export default function ApplicationsTable() {
                             </tr>
                         </thead>
                         <tbody>
-                            { applications && applications.map((application, key) => (
-                                <tr key={key}>
+                        {Array.isArray(currentApplications) && currentApplications.map((application, key) => (<tr key={key}>
                                     <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark text-center">
                                         <h5 className="font-medium text-black dark-text-white">
                                             {application.id}
@@ -144,7 +175,6 @@ export default function ApplicationsTable() {
                                                         handleDelete(application.id);
                                                     }
                                                 }}>
-                                                {/* <Link href={`/applications/delete/${application.id}`}> */}
                                                 <svg
                                                     className="fill-current"
                                                     width="18"
@@ -170,7 +200,6 @@ export default function ApplicationsTable() {
                                                         fill=""
                                                     />
                                                 </svg>
-                                                {/* </Link> */}
                                             </button>
                                             <button className="hover:text-primary">
                                                 <Link href={`/applications/edit/${application.id}`}>
@@ -196,10 +225,19 @@ export default function ApplicationsTable() {
                                         </div>
                                     </td>
                                 </tr>
-                            ))}
+                        ))}
                         </tbody>
                     </table>
                 </div>
-            </div></>
+                <div className="flex justify-end mt-4">
+                <Pagination
+                    count={Math.ceil(filteredApplications.length / itemsPerPage)}
+                    page={currentPage}
+                    onChange={(event, value) => setCurrentPage(value)}
+                // color="primary"
+                />
+            </div>
+            </div>
+        </>
     );
 }

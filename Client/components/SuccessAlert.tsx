@@ -21,7 +21,7 @@ const SuccessAlert: React.FC<AlertProps> = ({ message }) => {
         <div className="text-sm text-success font-medium ml-3">{message}</div>
       </div>
       <div className="absolute sm:relative sm:top-auto sm:right-auto ml-auto right-4 top-4 text-gray-400 hover:text-gray-800 cursor-pointer">
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+       <button onClick={handleDismiss}><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button> 
       </div>
     </div>
     // <div className="bg-opacity-10 text-success bg-success px-4 py-3 rounded relative mb-3" role="alert">
