@@ -68,6 +68,7 @@ const ClassForm: React.FC = ({ }) => {
             const selectedGrade = gradesList.find(grade => grade.id === Number(selectedId));
             if (selectedGrade) {
                 const gradeName = selectedGrade.grade;
+                console.log("SETTING GRAADDDEEE")
                 setGrade(gradeName);
                 console.log("Updated grade:", gradeName); // Add this line
 
