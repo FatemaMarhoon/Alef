@@ -18,20 +18,23 @@ const AppointmentController = {
     },
 
     async createAppointment(req, res) {
-        const {date, time, preschool_id, application_id} = req.body;
+        let { date, time, preschool_id, application_id } = req.body;
         try {
             if (!date) {
                 return res.status(404).json({ message: 'Date is Required.' });
             }
-            if (!time){
+            if (!time) {
                 return res.status(404).json({ message: 'Time is Required.' });
             }
-            if (!preschool_id){
+            if (!preschool_id) {
                 return res.status(404).json({ message: 'Preschool Id is Required.' });
             }
-            if (!application_id){
+            if (!application_id) {
                 return res.status(404).json({ message: 'Application Id is Required.' });
             }
+            date = new Date(date);
+            req.body.date = date.setHours(0, 0, 0, 0); // Set the time to midnight for accurate date comparison later
+
 
             const newAppointment = await Appointment.create(req.body);
             res.status(201).json({
@@ -39,7 +42,7 @@ const AppointmentController = {
                 appointment: newAppointment,
             });
         } catch (error) {
-            res.status(400).json({ message: 'Failed to create a new appointment. Please check your request data.', message: error.message });
+            res.status(500).json({ message: error.message });
         }
     },
 
@@ -52,24 +55,33 @@ const AppointmentController = {
             if (!appointment) {
                 return res.status(404).json({ message: 'Appointment not found.' });
             }
-            res.json(appointment);
+            return res.status(200).json(appointment);
         } catch (error) {
-            res.status(500).json({ message: 'Internal server error while retrieving the appointment.', message: error.message });
+            return res.status(500).json({ message: error.message });
         }
     },
 
     async updateAppointment(req, res) {
         const { id } = req.params;
         try {
+            if (!id) {
+                return res.status(404).json({ message: 'Appointment Id must be specified.' });
+            }
+
+            if (req.body.date) {
+                let formattedDate = new Date(req.body.date);
+                req.body.date = formattedDate.setHours(0, 0, 0, 0); // Set the time to midnight for accurate date comparison
+            }
+
             const [updatedCount] = await Appointment.update(req.body, {
-                where: { id }
+                where: { id: id }
             });
             if (updatedCount === 0) {
                 return res.status(404).json({ message: 'Appointment not found for updating.' });
             }
-            res.json({ message: 'Appointment updated successfully.' });
+            res.status(200).json({ message: 'Appointment updated successfully.' });
         } catch (error) {
-            res.status(500).json({ message: 'Internal server error while updating the appointment.', message: error.message });
+            res.status(500).json({ message: error.message });
         }
     },
 
@@ -84,7 +96,7 @@ const AppointmentController = {
             }
             res.json({ message: 'Appointment deleted successfully.' });
         } catch (error) {
-            res.status(500).json({ message: 'Internal server error while deleting the appointment.', message: error.message });
+            res.status(500).json({ message: error.message });
         }
     },
 
@@ -126,15 +138,15 @@ const AppointmentController = {
             let currentDate = new Date();
             currentDate.setHours(0, 0, 0, 0); // Set the time to midnight for accurate date comparison
             currentDate = currentDate.toLocaleDateString();
-             console.log("current date:", currentDate)
-             const currentTime = new Date().toLocaleTimeString();
-             console.log("current time:", currentTime)
+            console.log("current date:", currentDate)
+            const currentTime = new Date().toLocaleTimeString();
+            console.log("current time:", currentTime)
 
             if (passedDate.toLocaleDateString() < currentDate) {
                 return res.status(400).json({ message: 'Please select a date in the future.' });
-            } 
+            }
             else if (passedDate.toLocaleDateString() == currentDate) {
-                 availableSlots = availableSlots.filter((slot) => {
+                availableSlots = availableSlots.filter((slot) => {
                     const formattedSlot = slot + ':00';
                     return formattedSlot > currentTime;
                 });
