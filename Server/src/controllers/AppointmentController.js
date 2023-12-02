@@ -1,4 +1,5 @@
-const { Sequelize, DataTypes } = require('sequelize');
+const moment = require('moment')
+const { Sequelize, Op, DataTypes } = require('sequelize');
 const sequelize = require('../config/seq');
 const Application = require('../models/preschool_application')(sequelize, DataTypes);
 const Appointment = require('../models/appointment')(sequelize, DataTypes);
@@ -17,7 +18,21 @@ const AppointmentController = {
     },
 
     async createAppointment(req, res) {
+        const {date, time, preschool_id, application_id} = req.body;
         try {
+            if (!date) {
+                return res.status(404).json({ message: 'Date is Required.' });
+            }
+            if (!time){
+                return res.status(404).json({ message: 'Time is Required.' });
+            }
+            if (!preschool_id){
+                return res.status(404).json({ message: 'Preschool Id is Required.' });
+            }
+            if (!application_id){
+                return res.status(404).json({ message: 'Application Id is Required.' });
+            }
+
             const newAppointment = await Appointment.create(req.body);
             res.status(201).json({
                 message: 'Appointment created successfully',
@@ -72,6 +87,85 @@ const AppointmentController = {
             res.status(500).json({ message: 'Internal server error while deleting the appointment.', message: error.message });
         }
     },
+
+    async availableSlots(req, res) {
+        const { preschool, date } = req.query;
+        console.log("Date in slots: ", date)
+        try {
+            if (!preschool) {
+                return res.status(400).json({ message: 'Please pass preschool as query parameters.' });
+            }
+            if (!date) {
+                return res.status(400).json({ message: 'Please pass date as query parameters.' });
+            }
+
+            // Get booked appointments for the specified date
+            const bookedAppointments = await Appointment.findAll({
+                where: {
+                    preschool_id: preschool,
+                    date: date,
+                },
+                attributes: ['time'], // Only retrieve the appointmentTime
+            });
+
+            // Extract booked slots from booked appointments
+            const bookedSlots = bookedAppointments.map((appointment) => appointment.time);
+
+            // Generate all possible slots
+            const allSlots = generateSlots();
+
+            //filter for available slots
+            let availableSlots = allSlots.filter((slot) => {
+                const formattedSlot = slot + ':00';
+                console.log(formattedSlot)
+                return !bookedSlots.includes(formattedSlot);
+            });
+
+            //verify that returned slots are all in future
+            const passedDate = new Date(date); // Replace this with your actual passed date
+            let currentDate = new Date();
+            currentDate.setHours(0, 0, 0, 0); // Set the time to midnight for accurate date comparison
+            currentDate = currentDate.toLocaleDateString();
+             console.log("current date:", currentDate)
+             const currentTime = new Date().toLocaleTimeString();
+             console.log("current time:", currentTime)
+
+            if (passedDate.toLocaleDateString() < currentDate) {
+                return res.status(400).json({ message: 'Please select a date in the future.' });
+            } 
+            else if (passedDate.toLocaleDateString() == currentDate) {
+                 availableSlots = availableSlots.filter((slot) => {
+                    const formattedSlot = slot + ':00';
+                    return formattedSlot > currentTime;
+                });
+            }
+
+            return res.status(200).json({ availableSlots });
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({ message: error.message });
+        }
+    }
 };
+
+function generateSlots() {
+    const slots = [];
+    const startTime = 8;
+    const endTime = 12;
+    const slotDuration = 30; // in minutes
+
+    let currentTime = new Date();
+
+    currentTime.setHours(startTime, 0, 0, 0);
+
+    while (currentTime.getHours() < endTime) {
+        const formattedTime = currentTime.toTimeString().slice(0, 5);
+        slots.push(formattedTime);
+        currentTime.setMinutes(currentTime.getMinutes() + slotDuration);
+    }
+
+    return slots;
+}
+
 
 module.exports = AppointmentController;
