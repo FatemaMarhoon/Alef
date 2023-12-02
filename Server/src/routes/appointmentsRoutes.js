@@ -9,8 +9,11 @@ router.get('/', AppointmentController.getAllAppointments);
 // Create a new appointment
 router.post('/', AppointmentController.createAppointment);
 
+//Available Slots 
+router.get('/availableSlots', AppointmentController.availableSlots);
+
 // Get an appointment by ID
-// router.get('/:id', AppointmentController.getAppointmentById);
+router.get('/:id', AppointmentController.getAppointmentById);
 
 // Update an appointment by ID
 router.put('/:id', AppointmentController.updateAppointment);
@@ -18,7 +21,6 @@ router.put('/:id', AppointmentController.updateAppointment);
 // Delete an appointment by ID
 router.delete('/:id', AppointmentController.deleteAppointment);
 
-//Available Slots 
-router.get('/availableSlots', AppointmentController.availableSlots);
+
 
 module.exports = router;
