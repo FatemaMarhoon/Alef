@@ -14,8 +14,9 @@ import EditEventModal from '../../components/Calender/editEventModal';
 import ErrorAlert from '@/components/ErrorAlert';
 import DetailsModal from '@/components/Calender/DetailsModal';
 import CreateAppointmentModal from '@/components/Calender/createAppointmentModal';
-import { createAppointment, getAppointments } from '@/services/appointmentService';
+import { createAppointment, deleteAppointment, getAppointments } from '@/services/appointmentService';
 import { Appointment } from '@/types/appointment';
+import EditAppointmentModal from '@/components/Calender/EditAppointmentModal';
 
 const Calendar = () => {
   const { successMessage, setSuccessMessage } = useSuccessMessageContext();
@@ -118,13 +119,15 @@ const Calendar = () => {
     }
   };
 
-  const handleEdit = async (event?: MyEvent, appointment?: Appointment) => {
+  const handleEdit = async (appointment?: Appointment, event?: MyEvent) => {
+    console.log("Main page is handling edit....")
     if (event) {
       setSelectedEvent(event)
       setIsEditEventModalOpen(true);
       closeDetailsModal();
     }
     else if (appointment) {
+      console.log("Appointment is found")
       setSelectedAppointment(appointment)
       setIsEditAppointmentModalOpen(true);
       closeDetailsModal();
@@ -194,19 +197,33 @@ const Calendar = () => {
   };
 
   //delete
-  async function handleDelete(id: number) {
+  async function handleDelete(appointment?: Appointment, event?: MyEvent) {
     try {
-      console.log("Start delete function");
-      if (confirm("Are you sure you want to delete this event?")) {
-        const response = await deleteEvent(id);
-        if (response.status === 200 || response.status === 201) {
-          closeDetailsModal(); // Close the modal
-          setSuccessMessage(response.data.message);
-          fetchEvents();
-        } else if (response.status === 400 || response.status === 404 || response.status === 500) {
-          setError(response.data.message);
+      if (event) {
+        if (confirm("Are you sure you want to delete this event?")) {
+          const response = await deleteEvent(event.id);
+          if (response.status === 200 || response.status === 201) {
+            closeDetailsModal(); // Close the modal
+            setSuccessMessage(response.data.message);
+            fetchEvents();
+          } else if (response.status === 400 || response.status === 404 || response.status === 500) {
+            setError(response.data.message);
+          }
         }
       }
+      else if (appointment) {
+        if (confirm("Are you sure you want to delete this appointment?")) {
+          const response = await deleteAppointment(appointment.id);
+          if (response.status === 200 || response.status === 201) {
+            closeDetailsModal(); // Close the modal
+            setSuccessMessage(response.data.message);
+            fetchAppointments();
+          } else if (response.status === 400 || response.status === 404 || response.status === 500) {
+            setError(response.data.message);
+          }
+        }
+      }
+
     } catch (error: any) {
       if (error.response) {
         setError(error.response.data.message);
@@ -257,9 +274,33 @@ const Calendar = () => {
   };
 
   //edit
+  const closeAppointmentEditModal = () => {
+    setIsEditAppointmentModalOpen(false);
+  };
+
 
   //delete
-
+  async function handleDeleteAppointment(id: number) {
+    try {
+      console.log("Start delete function");
+      if (confirm("Are you sure you want to delete this event?")) {
+        const response = await deleteAppointment(id);
+        if (response.status === 200 || response.status === 201) {
+          closeDetailsModal(); // Close the modal
+          setSuccessMessage(response.data.message);
+          fetchAppointments();
+        } else if (response.status === 400 || response.status === 404 || response.status === 500) {
+          setError(response.data.message);
+        }
+      }
+    } catch (error: any) {
+      if (error.response) {
+        setError(error.response.data.message);
+      } else if (error.message) {
+        setError(error.message);
+      }
+    }
+  }
 
   return (
     <>
@@ -318,6 +359,16 @@ const Calendar = () => {
       </div>
       {/* Calendar Section End */}
 
+      {/* Details Modal */}
+      <DetailsModal
+        isOpen={isDetailsModalOpen}
+        onClose={closeDetailsModal}
+        dayItems={selectedDayItems}
+        onDelete={handleDelete}
+        error={error}
+        handleEdit={handleEdit}
+      />
+
       {/* Create Event Modal */}
       <CreateEventModal
         isOpen={isAddEventModalOpen}
@@ -327,27 +378,6 @@ const Calendar = () => {
           // Re-fetch updated events after successful creation
           fetchEvents();
         }}
-      />
-
-      {/* Create Appointment Modal */}
-      <CreateAppointmentModal
-        isOpen={isAddApointmentModalOpen}
-        onClose={() => setIsAddApointmentModalOpen(false)}
-        onCreate={handleCreateAppointment}
-        onSuccess={() => {
-          // Fetch updated events after successful creation
-          fetchEvents();
-        }}
-      />
-
-      {/* Event Details Modal */}
-      <DetailsModal
-        isOpen={isDetailsModalOpen}
-        onClose={closeDetailsModal}
-        dayItems={selectedDayItems}
-        onDelete={handleDelete}
-        error={error}
-        handleEdit={handleEdit}
       />
 
       {/* Edit Event Modal */}
@@ -362,6 +392,32 @@ const Calendar = () => {
           event={selectedEvent} // Pass the selectedEvent to be edited
         />
       }
+
+      {/* Create Appointment Modal */}
+      <CreateAppointmentModal
+        isOpen={isAddApointmentModalOpen}
+        onClose={() => setIsAddApointmentModalOpen(false)}
+        onCreate={handleCreateAppointment}
+        onSuccess={() => {
+          // Fetch updated events after successful creation
+          fetchEvents();
+        }}
+      />
+
+      {/* Edit Appointment Modal */}
+      {selectedAppointment &&
+        <EditAppointmentModal
+          isOpen={isEditAppointmentModalOpen}
+          onClose={closeAppointmentEditModal}
+          onSuccess={() => {
+            // Fetch updated events after successful creation
+            fetchAppointments();
+          }}
+          appointment={selectedAppointment} // Pass the selectedEvent to be edited
+        />
+      }
+
+
     </>
   );
 };

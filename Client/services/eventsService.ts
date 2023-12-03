@@ -1,11 +1,11 @@
-import { Event } from '@/types/event'
+import { MyEvent } from '@/types/event'
 import { currentPreschool, currentToken, currentUserId } from './authService';
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Class } from '@/types/class';
 
 const BASE_URL = 'http://localhost:3000/events'; // Replace with your backend URL
 
-export async function getEvents(): Promise<Event[]> {
+export async function getEvents(): Promise<MyEvent[]> {
   //retrieve data from current user
   var token; var preschool;
   await currentToken().then((returnedTOken) => { token = returnedTOken; })
@@ -26,7 +26,7 @@ export async function getEvents(): Promise<Event[]> {
   }
 }
 
-export async function getEventById(id: number): Promise<Event> {
+export async function getEventById(id: number): Promise<MyEvent> {
   //retrieve data from current user
   var token;
   await currentToken().then((returnedTOken) => { token = returnedTOken; })
