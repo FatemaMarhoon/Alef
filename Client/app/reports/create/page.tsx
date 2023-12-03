@@ -3,8 +3,9 @@
 import React, { useState } from 'react';
 import ReportForm from '@/components/Forms/reports/documentTypeForm';
 import TripReportForm from '@/components/Forms/reports/tripForm';
-
 import GeneratedReport from '@/components/Forms/reports/generatedTripReport';
+import GeneralReportForm from '@/components/Forms/reports/generalReportForm';
+
 import html2pdf from 'html2pdf.js';
 import { useRouter } from 'next/navigation'; // Import the useRouter hook
 
@@ -19,19 +20,24 @@ const Home: React.FC = () => {
 
     // State to determine whether to show the TripReportForm
     const [showTripForm, setShowTripForm] = useState(false);
+    const [showGeneralForm, setShowGeneralForm] = useState(false);
 
     const handleReportSubmit = (data: { title: string; content: string, documentType: string }) => {
         // Check the selected document type
         if (data.documentType === 'trip') {
             // If the document type is 'trip', show the TripReportForm
             setShowTripForm(true);
-        } else {
-            // Otherwise, continue with the report generation logic
             setGeneratedReport(data);
 
-            // Generate and download PDF
-            const pdfElement = document.getElementById('pdf-element');
-            html2pdf(pdfElement);
+        }
+        else if (data.documentType === 'general') {
+            // Otherwise, continue with the report generation logic
+            setShowGeneralForm(true);
+            // Set generatedReport with the data for the general report
+            setGeneratedReport(data);
+
+            // const pdfElement = document.getElementById('pdf-element');
+            // html2pdf(pdfElement);
         }
     };
 
@@ -43,9 +49,11 @@ const Home: React.FC = () => {
             {/* Conditional rendering of TripReportForm based on showTripForm state */}
             {showTripForm && <TripReportForm onSubmit={handleReportSubmit} />}
 
+            {showGeneralForm && <GeneralReportForm onSubmit={handleReportSubmit} />}
+
             <div id="pdf-element">
                 {/* Render the GeneratedReport component */}
-                {generatedReport && <GeneratedReport data={generatedReport} />}
+                {generatedReport && showTripForm && <GeneratedReport data={generatedReport} />}
             </div>
         </div>
     );

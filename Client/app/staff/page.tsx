@@ -133,7 +133,7 @@ export default function StaffTable() {
                                 </td>
                                 <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                                     <p className="text-black dark-text-white">
-                                        {staffMember.hire_date.toString()}
+                                        {new Date(staffMember.hire_date).toLocaleDateString()}
                                     </p>
                                 </td>
                                 <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">

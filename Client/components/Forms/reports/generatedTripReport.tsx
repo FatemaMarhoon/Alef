@@ -45,7 +45,7 @@ const GeneratedTripReport: React.FC<GeneratedTripReportProps> = ({ data }) => {
 
 
       <footer>
-        <p><strong>Signature:</strong> {data.signature}</p>
+        <p><strong>Signature:</strong></p>
       </footer>
 
       <style jsx>{`

@@ -49,7 +49,7 @@ export async function getRequestById(requestId: string): Promise<Request> {
     }
 }
 
-export async function updateRequestStatus(requestId: string, newStatus: string): Promise<Request> {
+export async function updateRequestStatus(requestId: string, newStatus: string): Promise<any> {
     try {
         const token = localStorage.getItem('token'); // Get the JWT token from localStorage
 
@@ -65,7 +65,7 @@ export async function updateRequestStatus(requestId: string, newStatus: string):
             { status: newStatus },
             config
         );
-        return response.data;
+        return response;
     } catch (error) {
         console.error("Error updating status:", error);
         // Type assertion for error variable
