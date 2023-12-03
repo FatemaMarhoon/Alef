@@ -185,10 +185,22 @@ const ApplicationController = {
                 if (medical_history) applicationObject.medical_history = medical_history;
                 if (created_by) applicationObject.created_by = created_by;
                 if (gender) applicationObject.gender = gender;
-                if (personal_picture) applicationObject.personal_picture = personal_picture;
                 if (grade) applicationObject.grade = grade;
-                if (certificate_of_birth) applicationObject.certificate_of_birth = certificate_of_birth;
-                if (passport) applicationObject.passport = passport;
+
+
+                //check for updating files 
+                if (req.files['personal_picture']){
+                    const picture_url = await FilesManager.upload(req.files['personal_picture'][0]);
+                    applicationObject.personal_picture = picture_url;
+                }
+                if(req.files['certificate_of_birth']){
+                    const certificate_of_birth_url = await FilesManager.upload(req.files['certificate_of_birth'][0]);
+                    applicationObject.certificate_of_birth = certificate_of_birth_url;
+                }
+                if (req.files['passport']){
+                    const passport_url = await FilesManager.upload(req.files['passport'][0]);
+                    applicationObject.passport = passport_url;
+                }
 
                 // Save the updated applicationObject
                 await applicationObject.save();
