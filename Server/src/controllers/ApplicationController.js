@@ -83,6 +83,9 @@ const ApplicationController = {
             if (!student_CPR) {
                 return res.status(400).json({ message: "Student CPR is required." });
             }
+            if (student_CPR.length != 9){
+                return res.status(400).json({ message: "Student CPR is must be 9 digits." });
+            }
             if (!phone) {
                 return res.status(400).json({ message: "Phone number is required." });
             }
@@ -194,12 +197,14 @@ const ApplicationController = {
                 if (status) {
                     // Lookup the user associated with the application.
                     const parentUser = await User.findByPk(applicationObject.created_by);
-                    if (parentUser) {
+                    if (parentUser.role_name == "Parent") {
                         let regToken;
                         //retrieve registration token and push notification 
                         await admin.auth().getUserByEmail(parentUser.email).then((userRecord) => {
                             regToken = userRecord.customClaims['regToken'];
-                            NotificationController.pushSingleNotification(token, "Application Updates", "Your application status has been updated");
+                            if (regToken) {
+                                NotificationController.pushSingleNotification(regToken, "Application Updates", "Your application status has been updated");
+                            }
                         });
                     }
                 }

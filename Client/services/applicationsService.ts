@@ -1,5 +1,6 @@
 // services/userService.ts
 import { Application } from '@/types/application';
+import { ApplicationPOST } from "@/types/applicationPOST";
 import { currentPreschool, currentToken, currentUserId } from './authService';
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { useRouter } from 'next/navigation';
@@ -102,39 +103,7 @@ export async function createApplication(
   }
 }
 
-export async function updateApplication({
-  id,
-  email,
-  guardian_type,
-  student_name,
-  student_CPR,
-  gender,
-  grade,
-  guardian_name,
-  phone,
-  student_DOB,
-  medical_history,
-  personal_picture,
-  certificate_of_birth,
-  passport,
-  status
-}: {
-  id: number;
-  email?: string;
-  guardian_type?: string;
-  student_name?: string;
-  student_CPR?: number;
-  gender?: string;
-  grade?: string;
-  guardian_name?: string;
-  phone?: string;
-  student_DOB?: Date;
-  medical_history?: string;
-  personal_picture?: File | undefined;
-  certificate_of_birth?: File | undefined;
-  passport?: File | undefined;
-  status?: string;
-}) {
+export async function updateApplication(id:number, updatedApplication:ApplicationPOST) {
 
   try {
     var token;
@@ -149,20 +118,20 @@ export async function updateApplication({
     };
 
     const response = await axios.put(`${BASE_URL}/${id}`, {
-      email: email,
-      student_name: student_name,
-      student_CPR: student_CPR,
-      student_DOB: student_DOB ? new Date(student_DOB) : undefined,
-      phone: phone,
-      gender: gender,
-      grade: grade,
-      guardian_name: guardian_name,
-      guardian_type: guardian_type,
-      medical_history: medical_history,
-      personal_picture: personal_picture,
-      certificate_of_birth: certificate_of_birth,
-      passport: passport,
-      status: status,
+      email: updatedApplication.email,
+      student_name: updatedApplication.student_name,
+      student_CPR: updatedApplication.student_CPR,
+      student_DOB: updatedApplication.student_DOB ? new Date(updatedApplication.student_DOB) : undefined,
+      phone: updatedApplication.phone,
+      gender: updatedApplication.gender,
+      grade: updatedApplication.grade,
+      guardian_name: updatedApplication.guardian_name,
+      guardian_type: updatedApplication.guardian_type,
+      medical_history: updatedApplication.medical_history,
+      personal_picture: updatedApplication.personal_picture,
+      certificate_of_birth: updatedApplication.certificate_of_birth,
+      passport: updatedApplication.passport,
+      status: updatedApplication.status,
     }, config);
     return response;
   } catch (error) {
