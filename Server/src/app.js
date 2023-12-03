@@ -3,6 +3,8 @@ const express = require('express');
 const cors = require('cors')
 const app = express();
 const PORT = process.env.PORT || 3000;
+const cron = require('node-cron');
+const cronJob = require('./cron-job'); 
 
 
 //imports
@@ -34,6 +36,7 @@ const gradesRoutes = require('./routes/gradesRoutes');
 app.use(express.json());
 app.use(cors());
 
+
 //routes
 app.use('/users', userRoutes);
 app.use('/applications', applicationRoutes);
@@ -58,6 +61,9 @@ app.use('/stationaryRequest', stationaryRequestRoutes);
 app.use('/evaluations', applicationEvaluationRoutes);
 app.use('/grades', gradesRoutes);
 
+
+//schedule the cron job for reminders
+cron.schedule('0,30 * * * *', cronJob);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

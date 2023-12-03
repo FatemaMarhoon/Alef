@@ -1,5 +1,4 @@
-const moment = require('moment')
-const { Sequelize, Op, DataTypes } = require('sequelize');
+const { Op, DataTypes } = require('sequelize');
 const sequelize = require('../config/seq');
 const Application = require('../models/preschool_application')(sequelize, DataTypes);
 const Appointment = require('../models/appointment')(sequelize, DataTypes);
@@ -7,13 +6,21 @@ const Appointment = require('../models/appointment')(sequelize, DataTypes);
 Appointment.belongsTo(Application, { foreignKey: 'application_id' });
 const AppointmentController = {
     async getAllAppointments(req, res) {
+        const {preschool} = req.query;
         try {
-            const appointments = await Appointment.findAll({
-                include: Application
-            });
-            res.json(appointments);
+            if (preschool) {
+                const appointments = await Appointment.findAll({
+                    where : {preschool_id:preschool},
+                    include: Application
+                });
+                return res.status(200).json(appointments);
+            }
+            else {
+                return res.status(404).json({ message: 'Preschool id must be passed in the query.' });
+            }
+            
         } catch (error) {
-            res.status(500).json({ message: 'Internal server error while retrieving appointments.' });
+            return res.status(500).json({ message: error.message});
         }
     },
 
@@ -157,6 +164,30 @@ const AppointmentController = {
             console.log(error);
             return res.status(500).json({ message: error.message });
         }
+    },
+
+    async fetchUpcoming() {
+        // retrieve any appointment that should occur after 30 min 
+        let currentDate = new Date();
+        currentDate.setHours(0, 0, 0, 0); // Set the time to midnight for accurate date comparison
+        let currentTime = new Date();
+        currentTime.setMinutes(currentTime.getMinutes() + 30); // Add 30 minutes to the current time
+        currentTime.setSeconds(0); //set seconds to 0
+        currentTime = currentTime.toLocaleString('en-GB', { hour12: false, hour: 'numeric', minute: 'numeric', second: 'numeric' });
+        const upcomingAppointments = await Appointment.findAll({
+            where: {
+                date: {
+                    [Op.eq]: currentDate.toLocaleDateString(),
+                },
+                time: {
+                    [Op.eq]: currentTime,
+                },
+            },
+        });
+        console.log("upcoming appointments: ", upcomingAppointments)
+        console.log('Appointment check complete at:', new Date());
+
+        //logic for pushing reminders for associated users 
     }
 };
 
