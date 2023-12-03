@@ -54,7 +54,8 @@ const EventController = {
             }
             else if (preschool_id) {
                 events = await Event.findAll(({
-                    where: { preschool_id: preschool_id }
+                    where: { preschool_id: preschool_id },
+                    include:[{ model:Class, as: "Classes"}]
                 }));
 
                 if (!events) {

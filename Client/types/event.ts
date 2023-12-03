@@ -1,6 +1,6 @@
 import { Class } from "./class";
 
-export interface Event {
+export interface MyEvent {
     id: number;
     preschool_id: number;
     event_name: string,

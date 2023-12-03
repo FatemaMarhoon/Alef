@@ -2,6 +2,7 @@ const defaultTheme = require("tailwindcss/defaultTheme");
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  mode: 'jit',
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -22,14 +23,15 @@ module.exports = {
       bodydark: "#AEB7C0",
       bodydark1: "#DEE4EE",
       bodydark2: "#8A99AF",
-      // primary: "#A8D1D1", //main color  
-      primary: "#7db0b0", //f8f8f8 for the background
+      primary: "#7db0b0", 
       secondary: "#FD8A8A", //the pinky one 
       stroke: "#E2E8F0",
       gray: "#EFF4FB",
       graydark: "#333A48",
       "gray-2": "#F7F9FC",
       "gray-3": "#FAFAFA",
+      "alef-purple":"#9EA1D4",
+      "alef-yellow":"#F1F7B5",
       whiten: "#f8f8f8", //body bg
       whiter: "#F5F7FD",
       boxdark: "#24303F", //

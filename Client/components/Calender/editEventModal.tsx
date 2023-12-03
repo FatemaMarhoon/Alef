@@ -4,7 +4,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
-import { Event } from '@/types/event';
+import { MyEvent } from '@/types/event';
 import { editEvent } from '@/services/eventsService'; // Import your editEvent function
 import { getClasses } from '@/services/classService';
 import { Class } from '@/types/class';
@@ -24,7 +24,7 @@ interface EditEventModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSuccess: () => void;
-    event: Event; // Pass the event to be edited
+    event: MyEvent; // Pass the event to be edited
 }
 
 const EditEventModal: React.FC<EditEventModalProps> = ({ isOpen, onClose, onSuccess, event }) => {
@@ -200,7 +200,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({ isOpen, onClose, onSucc
                                 label="Classes"
                                 multiple
                                 value={classIds}
-                                onChange={handleChange}
+                                onChange={() => handleChange}
                                 name="Classes"
                             >
                                 {classesList.map((classItem) => (

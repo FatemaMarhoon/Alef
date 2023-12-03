@@ -8,7 +8,6 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import { Event } from '@/types/event';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { getClasses } from '@/services/classService';
