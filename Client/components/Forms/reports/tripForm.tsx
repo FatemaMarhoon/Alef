@@ -4,6 +4,9 @@ import { getClasses, getClassById } from '@/services/classService';
 import { Student } from '@/types/student';
 import { getStudentsByClassId } from '@/services/studentService';
 import { Class } from '@/types/class';
+import html2pdf from 'html2pdf.js';
+import ReactDOM from 'react-dom';
+import GeneratedReport from '@/components/Forms/reports/generatedTripReport';
 
 interface TripFormData {
     studentName: string;
@@ -22,7 +25,6 @@ interface TripReportFormProps {
 }
 
 
-// ... (imports remain unchanged)
 
 const TripReportForm: React.FC<TripReportFormProps> = ({ onSubmit }) => {
     const { register, handleSubmit, setValue } = useForm<TripFormData>();
@@ -30,7 +32,7 @@ const TripReportForm: React.FC<TripReportFormProps> = ({ onSubmit }) => {
     const [classList, setClassList] = useState<Class[]>([]); // List of classes
     const [students, setStudents] = useState<Student[]>([]);
     const [selectedClassId, setselectedClassId] = useState("");
-
+    const [className, setClassName] = useState("");
     useEffect(() => {
         async function fetchData() {
             try {
@@ -57,22 +59,35 @@ const TripReportForm: React.FC<TripReportFormProps> = ({ onSubmit }) => {
         setValue('className', selectedClassId);
         const classDetailsData = await getClassById(selectedClassId);
         setClassDetails(classDetailsData);
+        const selectedClass = classList.find((classItem) => classItem.id === parseInt(selectedClassId));
+        const className = selectedClass ? selectedClass.class_name : '';
+        setClassName(className);
 
         const studentsData = await getStudentsByClassId(selectedClassId);
         setStudents(studentsData);
     };
 
+
+
     return (
         <form
-            onSubmit={handleSubmit((formData) => {
-                const selectedStudent = students.find((student) => student.student_name === formData.studentName);
-
-                if (selectedStudent) {
+            onSubmit={handleSubmit(async (formData) => {
+                // Generate and download PDF for each student
+                for (const student of students) {
                     const tripReport: TripFormData = {
                         ...formData,
-                        studentName: selectedStudent.student_name,
+                        studentName: student.student_name,
+                        className: className
                     };
-                    onSubmit(tripReport);
+
+                    // Await the asynchronous onSubmit operation
+                    await onSubmit(tripReport);
+                    // Generate and download PDF with a custom filename
+                    const pdfElement = document.getElementById('pdf-element');
+                    const pdfOptions = {
+                        filename: `trip - ${student.student_name}.pdf`,
+                    };
+                    html2pdf(pdfElement, pdfOptions);
                 }
             })}
 
@@ -166,17 +181,7 @@ const TripReportForm: React.FC<TripReportFormProps> = ({ onSubmit }) => {
                         className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary"
                     />
                 </div>
-                <div className="mb-4.5">
-                    <label htmlFor="signature" className="mb-2.5 block text-black dark:text-white">
-                        Signature <span className="text-meta-1">*</span>
-                    </label>
-                    <input
-                        type="text"
-                        {...register('signature', { required: true })}
-                        placeholder="Enter signature"
-                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary"
-                    />
-                </div>
+
                 <button
                     type="submit"
                     className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray"

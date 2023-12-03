@@ -8,7 +8,8 @@ import { UserStorage } from "@/types/user";
 import { Student } from '@/types/student';
 import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
 import ErrorAlert from "@/components/ErrorAlert";
-
+import { getGrades } from '@/services/gradeCapacityService';
+import { GradeCapacity } from '@/types/gradeCapacity';
 export default function EditForm({ params }: { params: { studentId: number } }) {
     const router = useRouter();
     const currentUser = UserStorage.getCurrentUser();
@@ -17,6 +18,7 @@ export default function EditForm({ params }: { params: { studentId: number } }) 
     const [error, setError] = useState("");
 
     const [student, setStudent] = useState<Student>({});
+    const [gradesList, setGradesList] = useState<GradeCapacity[]>([]);
 
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
     const [personalPicture, setPersonalPicture] = useState<File | undefined>(undefined);
@@ -54,7 +56,26 @@ export default function EditForm({ params }: { params: { studentId: number } }) 
         const file = e.target.files?.[0];
         setFile(file);
     };
+    useEffect(() => {
+        async function fetchGradesList() {
+            try {
+                const response = await getGrades();
+                console.log('Grade List Response:', response);
 
+                // Log the response.data or the actual array
+                console.log('Grade List Data:', response || response);
+
+                setGradesList(response || []);
+                // Set loading to false after fetching data (if needed)
+            } catch (error) {
+                console.error("Error fetching staff list:", error);
+                setGradesList([]);
+                // Set loading to false in case of an error (if needed)
+            }
+        }
+
+        fetchGradesList();
+    }, []); // Empty
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -153,6 +174,25 @@ export default function EditForm({ params }: { params: { studentId: number } }) 
                                         <option value="Male">Male</option>
                                         <option value="Female">Female</option>
                                     </select>
+                                </div>
+                                <div className="mb-4.5">
+                                    <label className="mb-2.5 block text-black dark:text-white">
+                                        Grade <span className="text-meta-1">*</span>
+                                    </label>
+                                    <select
+                                        name="grade"
+                                        value={student.grade}
+                                        onChange={(e) => setStudent({ ...student, grade: (e.target.value) })}
+                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                                    >
+                                        <option value="">Select Grade</option>
+                                        {gradesList.map((grade, optionIndex) => (
+                                            <option key={optionIndex} value={grade.grade}>
+                                                {grade.grade}
+                                            </option>
+                                        ))}
+                                    </select>
+
                                 </div>
                                 <div className="mb-4.5">
                                     <label className="mb-2.5 block text-black dark:text-white">
