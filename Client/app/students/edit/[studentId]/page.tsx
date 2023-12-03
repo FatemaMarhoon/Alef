@@ -1,6 +1,6 @@
 
 'use client'
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { useRouter } from 'next/navigation';
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { getStudentById, updateStudent } from '@/services/studentService';
@@ -19,7 +19,9 @@ export default function EditForm({ params }: { params: { studentId: number } }) 
     const [student, setStudent] = useState<Student>({});
 
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
-
+    const [personalPicture, setPersonalPicture] = useState<File | undefined>(undefined);
+    const [passport, setPassport] = useState<File | undefined>(undefined);
+    const [certificateOfBirth, setCertificateOfBirth] = useState<File | undefined>(undefined);
     useEffect(() => {
         // Fetch the existing student data when the component mounts
         const fetchStudentData = async () => {
@@ -46,6 +48,11 @@ export default function EditForm({ params }: { params: { studentId: number } }) 
         if (errorFieldElement) {
             errorFieldElement.focus();
         }
+    };
+    // Update the handleFileChange function
+    const handleFileChange = (e: ChangeEvent<HTMLInputElement>, setFile: React.Dispatch<React.SetStateAction<File | undefined>>) => {
+        const file = e.target.files?.[0];
+        setFile(file);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -240,8 +247,44 @@ export default function EditForm({ params }: { params: { studentId: number } }) 
                                         <p className="text-error text-sm mt-1">{errors.medical_history}</p>
                                     )}
                                 </div>
-                                {/* ... (Repeat similar structure for other input fields) */}
+                                {/* Personal Picture */}
+                                <div className="mb-4.5">
+                                    <label className="mb-3 block text-black dark:text-white">
+                                        Personal Picture <span className="text-meta-1">*</span>
+                                    </label>
+                                    <label>{student?.personal_picture}</label>
+                                    <input
+                                        type="file"
+                                        onChange={(e) => handleFileChange(e, setPersonalPicture)}
+                                        className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary   dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
+                                    />
+                                </div>
 
+                                {/* Certificate of Birth */}
+                                <div className="mb-4.5">
+                                    <label className="mb-3 block text-black dark:text-white">
+                                        Certificate of Birth <span className="text-meta-1">*</span>
+                                    </label>
+                                    <label>{student?.certificate_of_birth}</label>
+                                    <input
+                                        type="file"
+                                        onChange={(e) => handleFileChange(e, setCertificateOfBirth)}
+                                        className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary   dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
+                                    />
+                                </div>
+
+                                {/* Passport */}
+                                <div className="mb-4.5">
+                                    <label className="mb-3 block text-black dark:text-white">
+                                        Passport <span className="text-meta-1">*</span>
+                                    </label>
+                                    <label>{student?.passport}</label>
+                                    <input
+                                        type="file"
+                                        onChange={(e) => handleFileChange(e, setPassport)}
+                                        className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary   dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
+                                    />
+                                </div>
                                 <button type="submit" className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray">
                                     Update
                                 </button>

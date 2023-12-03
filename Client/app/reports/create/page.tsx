@@ -1,9 +1,15 @@
-// pages/index.tsx
+// pages/index.ts
 'use client'
 import React, { useState } from 'react';
-import ReportForm from '@/components/Forms/reports/reportForm';
-import GeneratedReport from '@/components/Forms/reports/generatedReport';
+import ReportForm from '@/components/Forms/reports/documentTypeForm';
+import TripReportForm from '@/components/Forms/reports/tripForm';
+
+import GeneratedReport from '@/components/Forms/reports/generatedTripReport';
 import html2pdf from 'html2pdf.js';
+import { useRouter } from 'next/navigation'; // Import the useRouter hook
+
+// pages/index.tsx
+// ... (other imports)
 
 const Home: React.FC = () => {
     const [generatedReport, setGeneratedReport] = useState<{
@@ -11,21 +17,34 @@ const Home: React.FC = () => {
         content: string;
     } | null>(null);
 
-    const handleReportSubmit = (data: { title: string; content: string }) => {
-        setGeneratedReport(data);
+    // State to determine whether to show the TripReportForm
+    const [showTripForm, setShowTripForm] = useState(false);
 
-        // Generate and download PDF
-        const pdfElement = document.getElementById('pdf-element');
-        html2pdf(pdfElement);
+    const handleReportSubmit = (data: { title: string; content: string, documentType: string }) => {
+        // Check the selected document type
+        if (data.documentType === 'trip') {
+            // If the document type is 'trip', show the TripReportForm
+            setShowTripForm(true);
+        } else {
+            // Otherwise, continue with the report generation logic
+            setGeneratedReport(data);
+
+            // Generate and download PDF
+            const pdfElement = document.getElementById('pdf-element');
+            html2pdf(pdfElement);
+        }
     };
 
     return (
-
         <div className=" items-center justify-center min-h-screen">
-
+            {/* Render the DocumentTypeForm component */}
             <ReportForm onSubmit={handleReportSubmit} />
-            {/* {generatedReport && <GeneratedReport data={generatedReport} />} */}
+
+            {/* Conditional rendering of TripReportForm based on showTripForm state */}
+            {showTripForm && <TripReportForm onSubmit={handleReportSubmit} />}
+
             <div id="pdf-element">
+                {/* Render the GeneratedReport component */}
                 {generatedReport && <GeneratedReport data={generatedReport} />}
             </div>
         </div>

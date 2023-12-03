@@ -330,10 +330,10 @@ const ClassForm: React.FC = ({ }) => {
                             </label>
                             <select
                                 name="grade"
-                                value={grade} // Use grade directly instead of e.target.value
+                                value={selectedGradeId} // Use grade directly instead of e.target.value
                                 onChange={(e) => {
                                     handleGradeChange(e, e.target.value);
-                                    // setGrade(e.target.value);
+                                    setSelectedGradeId(e.target.value);
 
                                 }}
                                 className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"

@@ -16,6 +16,7 @@
     "@mui/icons-material": "^5.14.18",
     "@mui/material": "^5.14.18",
     "axios": "^1.6.0",
+    "encoding": "^0.1.13",
     "firebase": "^10.6.0",
     "html2pdf.js": "^0.10.1",
     "next": "14.0.1",
