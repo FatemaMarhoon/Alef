@@ -343,7 +343,7 @@ export async function updateStudentClassId(studentId: string, classId: number): 
             studentData,
             config
         );
-
+        return response;
         // Handle the successful response here, if needed
         console.log('Student class_id updated successfully', response.data);
         return response;

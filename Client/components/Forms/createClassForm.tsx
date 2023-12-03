@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getClasses } from '../../services/classService'; // Import the class service
 import { Class } from '../../types/class';
+import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
 
 
 const CreateForm: React.FC = () => {
@@ -16,11 +17,13 @@ const CreateForm: React.FC = () => {
     const classIds = typeof classIDsParam === 'string' ? classIDsParam : '';
     const classIDsArray = Array.isArray(classIds) ? classIds : [classIds];
     console.log('classIds:', classIDsArray);
+    const router = useRouter();
 
     const [students, setStudents] = useState<Student[]>([]);
     const [classAssignments, setClassAssignments] = useState<Record<string, Student[]>>({});
     const [showStudents, setShowStudents] = useState(true);
     const [classes, setClasses] = useState<Class[]>([]);
+    const { setSuccessMessage } = useSuccessMessageContext();
 
     useEffect(() => {
         // Fetch class data when the component mounts
@@ -208,18 +211,29 @@ const CreateForm: React.FC = () => {
 
 
                 // console.log('Updating student:', student);
-                await updateStudentClassId(student.id.toString(), student.class_id);
+                const response = await updateStudentClassId(student.id.toString(), student.class_id);
+
             }
 
-            // Example: Update students in your state (replace this with your actual logic)
-            setStudents(updatedStudents);
 
-            // Reset class assignments or perform any other necessary actions
-            generateClassAssignments();
-            setShowStudents(true);
+            // //  Update students in your state 
+            // setStudents(updatedStudents);
+
+            // // Reset class assignments or perform any other necessary actions
+            // generateClassAssignments();
+            // setShowStudents(true);
+            // Set the success message
+
+
+            setSuccessMessage("Classes created and students are assigned successfully!");
+
+            // Wait for the router to finish the redirect
+            console.log('Before router.push');
+            await router.push('/class');
+            console.log('After router.push');
 
             // Log the final state of classAssignments after the update
-            console.log('Class Assignments after update:', classAssignments);
+            //  console.log('Class Assignments after update:', classAssignments);
         } catch (error) {
             // Handle errors here
             console.error('Error updating students:', error);

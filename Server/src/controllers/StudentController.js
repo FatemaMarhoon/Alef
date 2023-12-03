@@ -94,6 +94,10 @@ const StudentController = {
         const { student_id } = req.params;
         try {
             const student = await Student.findByPk(student_id);
+            //generate and set urls for files 
+            student.personal_picture = await FilesManager.generateSignedUrl(student.personal_picture);
+            student.passport = await FilesManager.generateSignedUrl(student.passport);
+            student.certificate_of_birth = await FilesManager.generateSignedUrl(student.certificate_of_birth);
             if (student) {
                 res.json(student);
             } else {
