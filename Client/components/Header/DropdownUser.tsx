@@ -2,15 +2,30 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { logout } from "@/services/authService";
+import { currentUser, logout } from "@/services/authService";
+import { User } from "firebase/auth";
 
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [user, setUser] = useState<User | null>();
+  const [role, setRole] = useState("");
   const router = useRouter();
   const trigger = useRef<any>(null);
   const dropdown = useRef<any>(null);
-
   
+  useEffect(() => {
+
+    async function loadCurrentUser(){
+      await currentUser().then(async (userRecord)=> {
+        setUser(userRecord);    
+        await userRecord?.getIdTokenResult(true).then((IdTokenResult) => {
+          setRole(String(IdTokenResult.claims.role));
+        })
+    });
+  }
+    loadCurrentUser();
+  },[]);
+
   // close on click outside
   useEffect(() => {
         const clickHandler = ({ target }: MouseEvent) => {
@@ -53,19 +68,19 @@ const DropdownUser = () => {
         >
           <span className="hidden text-right lg:block">
             <span className="block text-sm font-medium text-black dark:text-white">
-              Kawthar
+              {user?.displayName}
             </span>
-            <span className="block text-xs">Admin</span>
+            <span className="block text-xs">{role}</span>
           </span>
 
-          <span className="h-12 w-12 rounded-full">
+          {/* <span className="h-12 w-12 rounded-full">
           <Image
             width={112}
             height={112}
             src={"/images/user/user-01.png"}
             alt="User"
           />
-        </span>
+        </span> */}
 
           <svg
             className="hidden fill-current sm:block"
