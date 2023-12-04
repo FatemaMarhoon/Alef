@@ -1,5 +1,7 @@
 const { DataTypes, Op } = require('sequelize');
 const sequelize = require('../config/seq');
+const admin = require('../config/firebase.config')
+const auth = admin.auth();
 
 const Event = require('../models/event')(sequelize, DataTypes);
 const EventClass = require('../models/event_class')(sequelize, DataTypes);
@@ -15,6 +17,8 @@ Student.belongsTo(Class, { foreignKey: 'class_id' });
 Student.belongsTo(User, { foreignKey: 'user_id' });
 Class.belongsTo(Staff, { foreignKey: 'supervisor' })
 Staff.hasMany(Class, { foreignKey: 'supervisor' })
+// User.belongsTo(Staff,{ foreignKey: 'user_id' })
+Staff.belongsTo(User,{ foreignKey: 'user_id' })
 // EventClass.belongsTo(Class, { foreignKey: 'class_id' });
 
 // Define the many-to-many relationships
@@ -267,7 +271,9 @@ const EventController = {
         } catch (error) {
             return res.status(500).json({ message: 'Internal server error while deleting the event.', message: error.message });
         }
-    }
+    },
+
+    
 
 };
 
@@ -307,35 +313,38 @@ async function getParentsTokens(classes) {
 async function getSupervisorsTokens(classes) {
     try {
         let supervisorsEmails = [];
+        let registrationTokens = [];
         if (classes && classes.length > 0) {
             // Find all students in the specified classes
-            const classList = await Class.findAll({
+             const classList = await Class.findAll({
                 where: { id: { [Op.in]: classes } },
                 include: [
                     {
                         model: Staff, as: 'Staff',
                         distinct: true,
+                        include:[{model:User, as: 'User'}]
                     }
                 ],
             });
             // Extract associated user email from each student and add to 
-            const supervisorsEmailsSet = new Set(classList.map(classObject => classObject.Staff.email));
+            const supervisorsEmailsSet = new Set(classList.map(classObject => classObject.Staff.User.email));
             supervisorsEmails = Array.from(supervisorsEmailsSet);
         }
 
         for (const email of supervisorsEmails) {
             try {
                 const regToken = (await auth.getUserByEmail(email)).customClaims['regToken'];
-                registrationTokens.push({ email, regToken });
+                registrationTokens.push(regToken);
             } catch (error) {
                 // Handle errors, such as the user not having a registration token
                 console.error(`Error for email ${email}: ${error.message}`);
             }
         }
-        return registrationTokens;
+        return res.json(registrationTokens);
+
     }
     catch (error) {
-        throw error;
+        return res.json({message:error.message})
     }
 }
 

@@ -63,7 +63,8 @@ app.use('/grades', gradesRoutes);
 
 
 //schedule the cron job for reminders
-cron.schedule('0,30 * * * *', cronJob);
+cron.schedule('25,30 * * * *', cronJob.appointmentsReminder);
+cron.schedule('0 12 * * *', cronJob.eventsReminder);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

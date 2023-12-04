@@ -6,6 +6,8 @@ import { Application } from '@/types/application';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Evaluation } from '@/types/evaluation';
+import { ApplicationPOST } from '@/types/applicationPOST';
+import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
 
 // Functional component for viewing application details
 export default function Page({ params }: { params: { id: number } }) {
@@ -13,6 +15,8 @@ export default function Page({ params }: { params: { id: number } }) {
 
     const [application, setApplication] = useState<Application | null>(null);
     const [evaluation, setEvaluation] = useState<Evaluation | null>(null);
+    const { setSuccessMessage } = useSuccessMessageContext();
+    const [error, setError] = useState("");
 
     useEffect(() => {
         // Fetch application data when the component mounts
@@ -30,14 +34,63 @@ export default function Page({ params }: { params: { id: number } }) {
     }, [params.id]);
 
     const handleAccept = async () => {
-        if (application) {
-            updateApplication({ id: application.id, status: "Approved" });
+        try {
+            const updated: ApplicationPOST = {};
+            if (application) {
+                updated.status = "Accepted";
+                console.log(updated)
+                const response = await updateApplication(application.id, updated);
+                if (response.status == 200 || response.status == 201) {
+                    setSuccessMessage(response.data.message);
+                    router.push("/applications"); // Redirect to the applications page after submission
+                }
+                else if (response.status == 400 || response.status == 404 || response.status == 500) {
+                    setError(response.data.message);
+                }
+            }
+        }
+        catch (error: any) {
+            if (error.response) {
+                setError(error.response.data.message);
+            }
+            else if (error.message) {
+                setError(error.message);
+            }
         }
     };
 
+    async function quickAction(newStatus: string) {
+        try {
+            const updated: ApplicationPOST = {};
+            if (application) {
+                updated.status = newStatus;
+                console.log(updated)
+                const response = await updateApplication(application.id, updated);
+                if (response.status == 200 || response.status == 201) {
+                    setSuccessMessage(response.data.message);
+                    router.push("/applications"); // Redirect to the applications page after submission
+                }
+                else if (response.status == 400 || response.status == 404 || response.status == 500) {
+                    setError(response.data.message);
+                }
+            }
+        }
+        catch (error: any) {
+            if (error.response) {
+                setError(error.response.data.message);
+            }
+            else if (error.message) {
+                setError(error.message);
+            }
+        }
+
+    };
+
     const handleReject = async () => {
+        const updated: ApplicationPOST = {};
         if (application) {
-            updateApplication({ id: application.id, status: "Rejected" });
+            updated.status = "Rejected";
+            updateApplication(application.id, updated);
         }
     };
 
@@ -154,21 +207,23 @@ export default function Page({ params }: { params: { id: number } }) {
                                 </div>
                             )}
 
-                            {/* Approve Button */}
+                            {/* Accept Button */}
                             {evaluation && application.status === "Pending" && (
                                 <div className="mr-4">
                                     <button
-                                        onClick={handleAccept}
+                                        onClick={() => quickAction("Accepted")}
                                         className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90"
                                     >
                                         Accept
                                     </button>
                                 </div>
                             )}
+
+                            {/* Reject Button */}
                             {evaluation && application.status === "Pending" && (
                                 <div>
                                     <button
-                                        onClick={handleReject}
+                                        onClick={() => quickAction("Rejected")}
                                         className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90"
                                     >
                                         Reject

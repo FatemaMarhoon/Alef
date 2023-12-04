@@ -149,7 +149,11 @@ module.exports = (sequelize, DataTypes) => {
     hasConsent: {
       type: DataTypes.BOOLEAN,
       // allowNull: false
-    }
+    },
+    user_id: {
+      type: DataTypes.INTEGER,
+      // allowNull: false
+    },
   });
 
   return Student;
