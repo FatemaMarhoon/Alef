@@ -10,6 +10,7 @@ import { Stationary } from '@/types/stationary';
 import { useSuccessMessageContext } from '../../../components/SuccessMessageContext';
 import { currentPreschool } from '@/services/authService';
 import ErrorAlert from "@/components/ErrorAlert";
+import { StaticValue } from "@/types/staticValue";
 
 export default function CreateForm() {
     const router = useRouter();
@@ -23,6 +24,7 @@ export default function CreateForm() {
     const [loading, setLoading] = useState(true);
     const { setSuccessMessage } = useSuccessMessageContext();
     const [error, setError] = useState("");
+    const [requestStatuses, setRequestStatuses] = useState<StaticValue[]>([]);
 
     // useEffect(() => {
     //     const fetchStationaryList = async () => {
@@ -44,6 +46,8 @@ export default function CreateForm() {
 
     //     fetchStationaryList();
     // }, []);
+
+
     useEffect(() => {
         async function fetchStationaryList() {
             try {

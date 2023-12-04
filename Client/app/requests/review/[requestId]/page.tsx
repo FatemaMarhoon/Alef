@@ -7,6 +7,8 @@ import { createPreschool } from '@/services/preschoolService'; // Import the pre
 import { createUser } from '@/services/userService'; // Import the preschool service
 import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
 import ErrorAlert from "@/components/ErrorAlert";
+import { StaticValue } from "@/types/staticValue";
+import { getRequestStatuses } from "@/services/staticValuesService";
 // interface RequestReviewPageProps {
 //     requestId: string;
 // }
@@ -17,8 +19,11 @@ export default function RequestReviewPage({ params }: { params: { requestId: num
     const [newStatus, setNewStatus] = useState<string>('');
     const router = useRouter();
     const { setSuccessMessage } = useSuccessMessageContext();
+    const [requestStatuses, setRequestStatuses] = useState<StaticValue[]>([]);
 
     // const parsedRequestId = parseInt(params.requestId.toString());
+
+
 
     useEffect(() => {
         async function fetchRequest() {
@@ -36,7 +41,19 @@ export default function RequestReviewPage({ params }: { params: { requestId: num
 
         fetchRequest();
     }, [params.requestId]);
-
+    useEffect(() => {
+        // Fetch gender types when the component mounts
+        async function fetchRequestStatuses() {
+            try {
+                const types = await getRequestStatuses();
+                setRequestStatuses(types);
+                console.log(types);
+            } catch (error) {
+                console.error("Error fetching staff Roles:", error);
+            }
+        }
+        fetchRequestStatuses();
+    }, []);
     const handleStatusChange = async () => {
         try {
             console.log('Updating status...');
@@ -180,10 +197,11 @@ export default function RequestReviewPage({ params }: { params: { requestId: num
                                 className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary`}
                             >
                                 <option value="">Select status....</option>
-                                <option value="Pending">Pending</option>
-                                <option value="Accepted">Accepted</option>
-                                <option value="Rejected">Rejected</option>
-                                {/* Add other status options as needed */}
+                                {requestStatuses.map((status, index) => (
+                                    <option key={index} value={status.ValueName}>
+                                        {status.ValueName}
+                                    </option>
+                                ))}
                             </select>
                         </div>
                         <button

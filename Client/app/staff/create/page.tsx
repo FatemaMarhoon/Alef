@@ -1,6 +1,6 @@
 // Import necessary modules and components
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Breadcrumb from '@/components/Breadcrumbs/Breadcrumb';
 import { createStaff } from '@/services/staffService'; // Assuming you have a service for staff
 import { useRouter } from 'next/navigation';
@@ -11,6 +11,7 @@ import { currentPreschool } from '@/services/authService';
 import { useSuccessMessageContext } from '../../../components/SuccessMessageContext';
 import ErrorAlert from "@/components/ErrorAlert";
 import { createUser } from '@/services/userService';
+import { getStaffRoles } from "@/services/staticValuesService";
 
 export default function CreateStaffPage() {
     const router = useRouter();
@@ -24,6 +25,21 @@ export default function CreateStaffPage() {
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
     const { setSuccessMessage } = useSuccessMessageContext();
     const [error, setError] = useState("");
+    const [staffRoles, setStaffRoles] = useState<StaticValue[]>([]);
+
+    useEffect(() => {
+        // Fetch staff roles when the component mounts
+        async function fetchStaffRoles() {
+            try {
+                const types = await getStaffRoles();
+                setStaffRoles(types);
+                console.log(types);
+            } catch (error) {
+                console.error("Error fetching staff Roles:", error);
+            }
+        }
+        fetchStaffRoles();
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -139,13 +155,13 @@ export default function CreateStaffPage() {
                                         className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.staffRole ? 'border-error' : ''
                                             }`}
                                     >
-                                        <option value="" disabled>Select staff role</option>
-                                        <option value="Teacher">Teacher</option>
-                                        <option value="Nurse">Nurse</option>
-                                        <option value="Cleaner">Cleaner</option>
-                                        <option value="Administrative Staff">Administrative Staff</option>
-                                        <option value="Assistant Teacher">Assistant Teacher</option>
-                                        {/* Add more options as needed */}
+                                        <option value="">Select Staff Role</option>
+
+                                        {staffRoles.map((staff, index) => (
+                                            <option key={index} value={staff.ValueName}>
+                                                {staff.ValueName}
+                                            </option>
+                                        ))}
                                     </select>
                                     {errors.staffRole && (
                                         <p className="text-error text-sm mt-1">{errors.staffRole}</p>

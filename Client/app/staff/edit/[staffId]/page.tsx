@@ -7,25 +7,32 @@ import { UserStorage } from '@/types/user';
 import { Staff } from '@/types/staff';
 import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
 import ErrorAlert from "@/components/ErrorAlert";
+import { StaticValue } from "@/types/staticValue";
+import { getStaffRoles } from "@/services/staticValuesService";
 
 export default function EditStaffForm({ params }: { params: { staffId: number } }) {
     const router = useRouter();
     const currentUser = UserStorage.getCurrentUser();
     const { setSuccessMessage } = useSuccessMessageContext();
     const [error, setError] = useState("");
+    const [staffRoles, setStaffRoles] = useState<StaticValue[]>([]);
 
-    const [staff, setStaff] = useState<Staff>({
-        preschool_id: 0,
-        staff_role_name: '',
-        name: '',
-        CPR: 0,
-        phone: 0,
-        hire_date: new Date(),
-        email: '',
-    });
+    const [staff, setStaff] = useState<Staff>({});
 
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
-
+    useEffect(() => {
+        // Fetch staff roles when the component mounts
+        async function fetchStaffRoles() {
+            try {
+                const types = await getStaffRoles();
+                setStaffRoles(types);
+                console.log(types);
+            } catch (error) {
+                console.error("Error fetching staff Roles:", error);
+            }
+        }
+        fetchStaffRoles();
+    }, []);
     useEffect(() => {
         const fetchStaffData = async () => {
             try {
@@ -123,13 +130,13 @@ export default function EditStaffForm({ params }: { params: { staffId: number } 
                                         className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.staff_role_name ? 'border-error' : ''
                                             }`}
                                     >
-                                        <option value="" disabled>Select staff's role</option>
-                                        <option value="Teacher">Teacher</option>
-                                        <option value="Nurse">Nurse</option>
-                                        <option value="Cleaner">Cleaner</option>
-                                        <option value="Administrative Staff">Administrative Staff</option>
-                                        <option value="Assistant Teacher">Assistant Teacher</option>
-                                        {/* Add more options or fetch roles dynamically as needed */}
+                                        <option value="">Select Staff Role</option>
+
+                                        {staffRoles.map((staff, index) => (
+                                            <option key={index} value={staff.ValueName}>
+                                                {staff.ValueName}
+                                            </option>
+                                        ))}
                                     </select>
                                     {errors.staff_role_name && (
                                         <p className="text-error text-sm mt-1">{errors.staff_role_name}</p>
@@ -173,7 +180,7 @@ export default function EditStaffForm({ params }: { params: { staffId: number } 
                                     </label>
                                     <input
                                         type="date"
-                                        value={new Date(staff.hire_date).toISOString().substring(0, 10)}
+                                        value={staff.hire_date ? new Date(staff.hire_date).toISOString().substring(0, 10) : ''}
                                         onChange={(e) => setStaff({ ...staff, hire_date: new Date(e.target.value) })}
                                         className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.DOB ? 'border-error' : ''
                                             }`}
