@@ -10,16 +10,18 @@ import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
 import ErrorAlert from "@/components/ErrorAlert";
 import { getGrades } from '@/services/gradeCapacityService';
 import { GradeCapacity } from '@/types/gradeCapacity';
+import { StaticValue } from "@/types/staticValue";
+import { getGender } from "@/services/staticValuesService";
 export default function EditForm({ params }: { params: { studentId: number } }) {
     const router = useRouter();
     const currentUser = UserStorage.getCurrentUser();
     const { setSuccessMessage } = useSuccessMessageContext();
-
     const [error, setError] = useState("");
+    // const [newGender, setNewGender] = useState("");
 
     const [student, setStudent] = useState<Student>({});
     const [gradesList, setGradesList] = useState<GradeCapacity[]>([]);
-
+    const [genderTypes, setGenderTypes] = useState<StaticValue[]>([]);
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
     const [personalPicture, setPersonalPicture] = useState<File | undefined>(undefined);
     const [passport, setPassport] = useState<File | undefined>(undefined);
@@ -30,7 +32,6 @@ export default function EditForm({ params }: { params: { studentId: number } }) 
             try {
                 const existingStudent = await getStudentById(params.studentId.toString());
                 setStudent(existingStudent);
-
             } catch (error) {
                 console.error("Error fetching student data:", error);
             }
@@ -39,6 +40,19 @@ export default function EditForm({ params }: { params: { studentId: number } }) 
         fetchStudentData();
     }, [params.studentId]);
 
+    useEffect(() => {
+        // Fetch gender types when the component mounts
+        async function fetchGender() {
+            try {
+                const types = await getGender();
+                setGenderTypes(types);
+                console.log(types);
+            } catch (error) {
+                console.error("Error fetching guardian types:", error);
+            }
+        }
+        fetchGender();
+    }, []);
     const focusOnFirstError = (errors: Record<string, string>) => {
         // Get the first input field name with an error
         const firstErrorField = Object.keys(errors)[0];
@@ -83,13 +97,19 @@ export default function EditForm({ params }: { params: { studentId: number } }) 
             // Update the student data with the form values
             const updatedStudent: Student = {
                 ...student,
-
+                gender: student.gender,
+                grade: student.grade,
                 DOB: new Date(student.DOB),
                 CPR: Number(student.CPR),
                 contact_number1: Number(student.contact_number1),
                 contact_number2: Number(student.contact_number2),
                 enrollment_date: new Date(student.enrollment_date),
             };
+            // Use the functional form of setStudent to get the latest state
+            setStudent((prevStudent) => ({
+                ...prevStudent,
+                ...updatedStudent,
+            }));
 
             // Send the request and log the response
             const response = await updateStudent(params.studentId.toString(), updatedStudent);
@@ -168,11 +188,20 @@ export default function EditForm({ params }: { params: { studentId: number } }) 
                                     <label className="mb-2.5 block text-black dark:text-white">Gender:</label>
                                     <select
                                         value={student.gender}
-                                        onChange={(e) => setStudent({ ...student, gender: (e.target.value) })}
+                                        onChange={
+                                            (e) => {
+                                                setStudent({ ...student, gender: (e.target.value) })
+                                                // setNewGender(e.target.value);
+                                            }
+                                        }
                                         className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary`}
                                     >
-                                        <option value="Male">Male</option>
-                                        <option value="Female">Female</option>
+                                        <option value="">Select Gender</option>
+                                        {genderTypes.map((genderValue, index) => (
+                                            <option key={index} value={genderValue.ValueName}>
+                                                {genderValue.ValueName}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
                                 <div className="mb-4.5">
@@ -295,7 +324,14 @@ export default function EditForm({ params }: { params: { studentId: number } }) 
                                     <label>{student?.personal_picture}</label>
                                     <input
                                         type="file"
-                                        onChange={(e) => handleFileChange(e, setPersonalPicture)}
+                                        onChange={(e) => {
+                                            handleFileChange(e, setPersonalPicture)
+                                            // setStudent({ ...student, personal_picture: e.target.files?.[0] })
+                                        }
+
+                                        }
+
+
                                         className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary   dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
                                     />
                                 </div>

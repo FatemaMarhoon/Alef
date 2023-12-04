@@ -10,6 +10,8 @@ import { currentPreschool } from '@/services/authService';
 import { getGrades } from '@/services/gradeCapacityService';
 import { GradeCapacity } from '@/types/gradeCapacity';
 import ErrorAlert from "@/components/ErrorAlert";
+import { StaticValue } from "@/types/staticValue";
+import { getGender } from "@/services/staticValuesService";
 
 export default function CreateForm() {
   //declare variables
@@ -32,6 +34,23 @@ export default function CreateForm() {
   const [certificate_of_birth, setCertificateOfBirth] = useState<File | undefined>(undefined);
   const [selectedGradeId, setSelectedGradeId] = useState<number | null>(null);
   const [error, setError] = useState("");
+  const [genderTypes, setGenderTypes] = useState<StaticValue[]>([]);
+
+
+
+  useEffect(() => {
+    // Fetch gender types when the component mounts
+    async function fetchGender() {
+      try {
+        const types = await getGender();
+        setGenderTypes(types);
+        console.log(types);
+      } catch (error) {
+        console.error("Error fetching guardian types:", error);
+      }
+    }
+    fetchGender();
+  }, []);
 
   // Update the handleFileChange function
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>, setFile: React.Dispatch<React.SetStateAction<File | undefined>>) => {
@@ -41,8 +60,6 @@ export default function CreateForm() {
   //handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-
 
     try {
       //get the preschool id
@@ -164,9 +181,12 @@ export default function CreateForm() {
                     className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.gender ? 'border-error' : ''
                       }`}
                   >
-                    <option value={""}>Select Gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
+                    <option value="">Select Gender</option>
+                    {genderTypes.map((genderValue, index) => (
+                      <option key={index} value={genderValue.ValueName}>
+                        {genderValue.ValueName}
+                      </option>
+                    ))}
                   </select>
                   {errors.gender && (
                     <p className="text-error text-sm mt-1">{errors.gender}</p>

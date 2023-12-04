@@ -10,5 +10,8 @@ router.get('/paymentStatuses', StaticValuesController.getAllPaymentStatuses);
 router.get('/guardianTypes', StaticValuesController.getAllGuardianTypes);
 router.get('/attendanceStatuses', StaticValuesController.getAllAttendanceStatuses);
 router.get('/applicationStatuses', StaticValuesController.getAllApplicationStatuses);
+router.get('/gender', StaticValuesController.getGender);
+router.get('/staffRoles', StaticValuesController.getStaffRoles);
+
 
 module.exports = router;
