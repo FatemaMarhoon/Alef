@@ -167,7 +167,7 @@ const ApplicationController = {
     async updateApplication(req, res) {
         const { id } = req.params;
         const { email, preschool_id, guardian_type, status, student_name, guardian_name, student_CPR, phone, student_DOB, medical_history, created_by, gender, personal_picture, grade, certificate_of_birth, passport } = req.body;
-
+        console.log(status);
         try {
             // Fetch the existing application
             const applicationObject = await Application.findByPk(id);
@@ -186,7 +186,6 @@ const ApplicationController = {
                 if (created_by) applicationObject.created_by = created_by;
                 if (gender) applicationObject.gender = gender;
                 if (grade) applicationObject.grade = grade;
-
 
                 //check for updating files 
                 if (req.files['personal_picture']){
@@ -208,14 +207,20 @@ const ApplicationController = {
                 //if status updated, notify parent
                 if (status) {
                     // Lookup the user associated with the application.
+                    console.log("Status updated");
                     const parentUser = await User.findByPk(applicationObject.created_by);
                     if (parentUser.role_name == "Parent") {
                         let regToken;
                         //retrieve registration token and push notification 
+                        console.log("User is parent")
                         await admin.auth().getUserByEmail(parentUser.email).then((userRecord) => {
                             regToken = userRecord.customClaims['regToken'];
                             if (regToken) {
-                                NotificationController.pushSingleNotification(regToken, "Application Updates", "Your application status has been updated");
+                                console.log("Token found, trying to push")
+                                NotificationController.pushSingleNotification(parentUser.email, "Application Updates", "Your application status has been updated");
+                            }
+                            else {
+                                console.log("No token")
                             }
                         });
                     }
@@ -223,6 +228,7 @@ const ApplicationController = {
                 //once application has been accepted, create a student and payment record
                 if (status == "Accepted") {
                     const creator = await User.findByPk(applicationObject.created_by);
+                    console.log("Originally created by: ", applicationObject.created_by)
                     const student = await Student.create({
                         preschool_id: applicationObject.preschool_id,
                         student_name: applicationObject.student_name,
@@ -230,6 +236,7 @@ const ApplicationController = {
                         DOB: applicationObject.student_DOB,
                         CPR: applicationObject.student_CPR,
                         contact_number1: applicationObject.phone,
+                        contact_number2: applicationObject.phone,
                         guardian_name: applicationObject.guardian_name,
                         enrollment_date: new Date(),
                         medical_history: applicationObject.medical_history,

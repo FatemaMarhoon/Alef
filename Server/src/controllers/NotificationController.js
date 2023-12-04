@@ -66,7 +66,35 @@ const NotificationController = {
         }
     },
 
-    async pushSingleNotification(registrationToken, title, body) {
+    // async pushSingleNotification(registrationToken, title, body) {
+    //     const message = {
+    //         token: registrationToken,
+    //         notification: {
+    //             title: title,
+    //             body: body,
+    //         }
+    //     };
+
+    //     // Send a message to the device corresponding to the provided
+    //     // registration token.
+    //     messaging.send(message)
+    //         .then(async (response) => {
+    //             // Response is a message ID string.
+    //             console.log('Successfully sent message:', response);
+    //             // const newNotification = await Notification.create({ notification_title: title, notification_content: body, user_id:uid});
+    //         })
+    //         .catch((error) => {
+    //             console.log('Error sending message:', error);
+    //         });
+    // },
+
+    async pushSingleNotification(email, title, body) {
+        let registrationToken; let userId;
+        await admin.auth().getUserByEmail(email).then((userRecord) => {
+            registrationToken = userRecord.customClaims['regToken'];
+            userId = userRecord.customClaims['dbId'];
+        })
+        console.log("Inside push notification")
         const message = {
             token: registrationToken,
             notification: {
@@ -81,7 +109,57 @@ const NotificationController = {
             .then(async (response) => {
                 // Response is a message ID string.
                 console.log('Successfully sent message:', response);
-                // const newNotification = await Notification.create({ notification_title: title, notification_content: body, user_id:uid});
+                const response2 = await Notification.create({ notification_title: title, notification_content: body, user_id:userId});
+                if (response2){
+                    console.log("DB inserted")
+                }
+            })
+            .catch((error) => {
+                console.log('Error sending message:', error);
+            });
+    },
+
+    async pushMultipleNotification(emails, title, body) {
+        //get users objects for both id and tokens 
+        let userIds = [];
+        let tokens = [];
+        for (const email in emails) {
+            await admin.auth().getUserByEmail(email).then((userRecord) => {
+                const regToken = userRecord.customClaims['regToken'];
+                const userId = userRecord.customClaims['dbId'];
+                userIds.push(userId);
+                tokens.push(regToken);
+            });
+        }
+        const message = {
+            tokens: tokens,
+            notification: {
+                title: title,
+                body: body,
+            }
+        };
+
+        messaging.sendEachForMulticast(message)
+            .then(async (response) => {
+                    console.log(response.successCount + ' messages were sent successfully');
+
+                if (response.failureCount > 0) {
+                    const failedTokens = [];
+                    response.responses.forEach((resp, idx) => {
+                        if (!resp.success) {
+                            failedTokens.push(tokens[idx]);
+                        }
+                    });
+                    console.log('List of tokens that caused failures: ' + failedTokens);
+                }
+                //generate notification records for successfully pushed notifications
+                let notifications = [];
+                for (const userId in userIds) {
+                    const notification = { notification_title: title, notification_content: body, user_id:userId};
+                    notifications.push(notification);
+                }
+                   await Notification.bulkCreate(notifications);
+
             })
             .catch((error) => {
                 console.log('Error sending message:', error);
@@ -148,7 +226,7 @@ const NotificationController = {
             const currentClaims = (await auth.getUser(uid)).customClaims;
             const updatedClaims = {
                 ...currentClaims,
-                regToken:token
+                regToken: token
             };
             await admin.auth().setCustomUserClaims(uid, updatedClaims).then(async () => {
                 //get preschool to specify the topic

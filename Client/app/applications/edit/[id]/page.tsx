@@ -21,10 +21,7 @@ export default function EditApplicationForm({ params }: { params: { id: number }
     const [grades, setGrades] = useState<string[]>([]);
     const { setSuccessMessage } = useSuccessMessageContext();
     const [error, setError] = useState("");
-    //updated values storage 
-    const [personalPicture, setPersonalPicture] = useState<File | undefined>(undefined);
-    const [passport, setPassport] = useState<File | undefined>(undefined);
-    const [certificateOfBirth, setCertificateOfBirth] = useState<File | undefined>(undefined);
+
 
     useEffect(() => {
         async function fetchGuardianTypes() {
@@ -76,13 +73,6 @@ export default function EditApplicationForm({ params }: { params: { id: number }
         };
         fetchApplicationData();
     }, [params.id]);
-
-
-    // Update the handleFileChange function
-    const handleFileChange = (e: ChangeEvent<HTMLInputElement>, setFile: React.Dispatch<React.SetStateAction<File | undefined>>) => {
-        const file = e.target.files?.[0];
-        setFile(file);
-    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

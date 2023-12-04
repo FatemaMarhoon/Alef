@@ -23,6 +23,6 @@ export interface Application {
     User? : User;
     Application_Evaluation : Evaluation;
     Preschool: Preschool;
-    createdAt: string;
-    updatedAt: string;
+    created_at: string;
+    updated_at: string;
   }

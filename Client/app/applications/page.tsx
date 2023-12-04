@@ -21,8 +21,18 @@ export default function ApplicationsTable() {
     useEffect(() => {
         async function fetchApplications() {
             try {
-                const applicationsList = await getApplications();
-                setApplications(applicationsList.data);
+                const response = await getApplications();
+                const sortedApplicationsList = response.data.sort((a: Application, b: Application) => {
+                    // Convert the date strings to Date objects for comparison
+                    const dateA = new Date(a.updated_at);
+                    const dateB = new Date(b.updated_at);
+                  
+                    // Compare the dates
+                    return dateA.getTime() - dateB.getTime();
+                  });
+                  
+                  setApplications(sortedApplicationsList);
+                  
             } catch (error) {
                 console.error('Error fetching applications:', error);
             }
@@ -46,10 +56,6 @@ export default function ApplicationsTable() {
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentApplications = filteredApplications.slice(indexOfFirstItem, indexOfLastItem);
 
-    // Handle pagination change
-    const handlePaginationChange = (event: React.ChangeEvent<unknown>, value: number) => {
-        setCurrentPage(value);
-    };
 
     return (
         <>
@@ -81,7 +87,7 @@ export default function ApplicationsTable() {
                         <thead>
                             <tr className="bg-gray-2 text-left dark-bg-meta-4">
                                 <th className="min-w-220px py-4 px-4 text-center font-medium text-black dark-text-white xl-pl-11">
-                                    Application ID
+                                     ID
                                 </th>
                                 <th className="min-w-150px py-4 px-4 text-center font-medium text-black dark-text-white">
                                     Applicant Name
@@ -93,7 +99,8 @@ export default function ApplicationsTable() {
                                     CPR
                                 </th>
                                 <th className="py-4 px-4 font-medium text-center text-black dark-text-white">
-                                    Application Status
+                                    
+                                     Status
                                 </th>
                                 <th className="py-4 px-4 font-medium text-center text-black dark-text-white">
                                     Submitted By
