@@ -10,7 +10,7 @@ const GradesController = require('../controllers/GradeCapacityController')
 const FilesManager = require('./FilesManager');
 const admin = require('../config/firebase.config')
 const NotificationController = require('./NotificationController');
-
+const Payment = require('../models/payment')(sequelize, DataTypes);
 //associations
 Application.belongsTo(User, { foreignKey: 'created_by' });
 Application.belongsTo(Preschool, { foreignKey: 'preschool_id' });
@@ -228,7 +228,6 @@ const ApplicationController = {
                 //once application has been accepted, create a student and payment record
                 if (status == "Accepted") {
                     const creator = await User.findByPk(applicationObject.created_by);
-                    console.log("Originally created by: ", applicationObject.created_by)
                     const student = await Student.create({
                         preschool_id: applicationObject.preschool_id,
                         student_name: applicationObject.student_name,
@@ -244,8 +243,18 @@ const ApplicationController = {
                         personal_picture: applicationObject.personal_picture,
                         certificate_of_birth: applicationObject.certificate_of_birth,
                         passport: applicationObject.passport,
-                        user_id: creator.role_name == "Parent" ? applicationObject.created_by : "" //link parent account to the student
+                        user_id: creator.role_name == "Parent" ? applicationObject.created_by : null //link parent account to the student
                     })
+
+                    const preschool = await Preschool.findByPk(applicationObject.preschool_id);
+                    const payment = await Payment.create({
+                        status: "Pending",
+                        type:"Registration Fees",
+                        fees: preschool.registration_fees,
+                        due_date: new Date(),
+                        notes:"Registration Fees",
+                        student_id:student.id
+                    });
                     return res.status(201).json({ message: 'Application Accepted and Student Registered Successfully.', student });
                 }
 

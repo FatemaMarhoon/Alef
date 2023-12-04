@@ -21,6 +21,10 @@ module.exports = (sequelize, DataTypes) => {
     },
     notes: DataTypes.STRING,
     paid_on: DataTypes.DATE,
+    student_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    }
   });
 
   return Payment;

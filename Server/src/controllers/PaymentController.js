@@ -1,19 +1,55 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../config/seq');
+const preschool = require('../models/preschool');
+const Preschool = require('../models/preschool')(sequelize, DataTypes);
 const Payment = require('../models/payment')(sequelize, DataTypes);
-const Student = require('../models/Student')(sequelize, DataTypes);
+const Student = require('../models/student')(sequelize, DataTypes);
 
 Payment.belongsTo(Student, { foreignKey: 'student_id' });
+Student.belongsTo(Preschool, { foreignKey: 'preschool_id' });
 
 const PaymentController = {
     async getAllPayments(req, res) {
+        const {preschool_id} = req.query;
+        const {student_id} = req.query;
+
         try {
-            const payments = await Payment.findAll({
-                include: Student
-            });
-            res.json(payments);
+            if (preschool_id) {
+                const payments = await Payment.findAll({
+                    include: { model: Student, as: 'Student', where: {preschool_id : preschool_id} }
+                });
+    
+                return res.status(200).json(payments);
+            }
+            else if(student_id){
+                const payments = await Payment.findAll({
+                    where:{student_id:student_id}
+                });
+    
+                return res.status(200).json(payments);
+            }
+            else {
+                return res.status(400).json({ message: "Specify Preschool or Student Id to get list of payments." })
+            }
+
         } catch (error) {
-            res.status(500).json({ message: 'Internal server error while retrieving payments.' });
+            return res.status(500).json({ message:error.message});
+        }
+    },
+
+    async getPaymentById(req, res){
+        const paymentId = req.params.id;
+        try {
+            const payment = await Payment.findByPk(paymentId);
+
+            if (payment) {
+                return res.status(200).json( payment );
+            }
+            else {
+                return res.status(404).json({ message: 'Payment not found.' });
+            }
+        } catch (error) {
+            return res.status(500).json({ message:error.message});
         }
     },
 
@@ -37,15 +73,18 @@ const PaymentController = {
             const payment = await Payment.findByPk(paymentId);
 
             if (payment) {
+                if (updatedPaymentData.status == "Paid"){
+                    updatedPaymentData.paid_on = new Date();
+                }
                 payment.set(updatedPaymentData);
                 await payment.save();
 
-                res.json({ message: 'Payment updated successfully', payment: payment });
+                return res.status(200).json({ message: 'Payment updated successfully', payment: payment });
             } else {
-                res.status(404).json({ message: 'Payment not found or no changes made' });
+                return res.status(404).json({ message: 'Payment not found or no changes made' });
             }
         } catch (error) {
-            res.status(500).json({ message: 'Internal server error while updating the payment.', message: error.message });
+            return res.status(500).json({ message: error.message });
         }
     },
 
