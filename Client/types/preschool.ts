@@ -1,3 +1,5 @@
+import { Address } from "cluster";
+
 export interface Preschool {
     // preschool_name: string;
     preschool_name: string | undefined;
@@ -8,5 +10,6 @@ export interface Preschool {
     monthly_fees: number | undefined;
     cirriculum: string | undefined;
     registration_fees: number | undefined;
-
+    Address?: Address;
+    Media?:string;
 }

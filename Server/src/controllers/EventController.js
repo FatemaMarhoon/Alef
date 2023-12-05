@@ -137,20 +137,20 @@ const EventController = {
                 }
                 else {
                     //notify parents of students in those classes 
-                    const tokens = getParentsTokens(classes);
-                    NotificationController.pushMultipleNotification(tokens, title, body)
+                    const tokens = await getParentsTokens(classes);
+                    await NotificationController.pushMultipleNotification(tokens, title, body)
                 }
             }
 
             if (notify_staff == true) {
                 //notify all teachers (let them subscribe to topics)
                 if (public_event == true) {
-                    NotificationController.pushTopicNotification(preschool_id + '_Staff')
+                    await NotificationController.pushTopicNotification(preschool_id + '_Staff')
                 }
                 //notify classes supervisors only
                 else {
-                    const tokens = getSupervisorsTokens(classes);
-                    NotificationController.pushMultipleNotification(tokens, title, body)
+                    const tokens = await getSupervisorsTokens(classes);
+                    await NotificationController.pushMultipleNotification(tokens, title, body)
                 }
             }
 
@@ -293,16 +293,16 @@ async function getParentsTokens(classes) {
             studentEmails = students.map(student => student.User.email);
         }
 
-        for (const email of studentEmails) {
-            try {
-                const regToken = (await auth.getUserByEmail(email)).customClaims['regToken'];
-                registrationTokens.push({ email, regToken });
-            } catch (error) {
-                // Handle errors, such as the user not having a registration token
-                console.error(`Error for email ${email}: ${error.message}`);
-            }
-        }
-        return registrationTokens;
+        // for (const email of studentEmails) {
+        //     try {
+        //         const regToken = (await auth.getUserByEmail(email)).customClaims['regToken'];
+        //         registrationTokens.push({ email, regToken });
+        //     } catch (error) {
+        //         // Handle errors, such as the user not having a registration token
+        //         console.error(`Error for email ${email}: ${error.message}`);
+        //     }
+        // }
+        return studentEmails;
 
     }
     catch (error) {

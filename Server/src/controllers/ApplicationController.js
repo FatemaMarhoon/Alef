@@ -213,15 +213,20 @@ const ApplicationController = {
                         let regToken;
                         //retrieve registration token and push notification 
                         console.log("User is parent")
-                        await admin.auth().getUserByEmail(parentUser.email).then((userRecord) => {
+                        await admin.auth().getUserByEmail(parentUser.email).then(async (userRecord) => {
                             regToken = userRecord.customClaims['regToken'];
                             if (regToken) {
                                 console.log("Token found, trying to push")
                                 if (status == "Accepted"){
-                                    NotificationController.pushSingleNotification(parentUser.email, "Congratulations!", "Your application has been accepted. Please pay any pending fees.");
+                                    //send notification
+                                    await NotificationController.pushSingleNotification(parentUser.email, "Congratulations!", "Your application has been accepted. Please pay any pending fees.");
+
+                                    //subscribe to preschool topic 
+                                    await NotificationController.subscribeToTopic(parentUser.email, applicationObject.preschool_id + '_Parent')
+
                                 }
                                 else {
-                                    NotificationController.pushSingleNotification(parentUser.email, "Application Updates", "Your application status has been updated.");
+                                    await NotificationController.pushSingleNotification(parentUser.email, "Application Updates", "Your application status has been updated.");
                                 }
                             }
                             else {
