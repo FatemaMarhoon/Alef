@@ -9,6 +9,9 @@ import TextField from '@mui/material/TextField';
 import Pagination from '@mui/material/Pagination';
 import ErrorAlert from '@/components/ErrorAlert';
 import { useRouter } from 'next/navigation';
+import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { getPaymentStatuses, getPaymentTypes } from '@/services/staticValuesService';
+import { StaticValue } from '@/types/staticValue';
 
 export default function PaymentTable() {
     const router = useRouter();
@@ -17,6 +20,11 @@ export default function PaymentTable() {
 
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
+    const [selectedStatus, setsSelectedStatus] = useState("");
+    const [statuses, setStatuses] = useState<StaticValue[]>([]);
+    const [selectedType, setsSelectedType] = useState("");
+
+    const [types, setTypes] = useState<StaticValue[]>([]);
     const itemsPerPage = 10;
     const { successMessage, setSuccessMessage } = useSuccessMessageContext();
 
@@ -31,6 +39,28 @@ export default function PaymentTable() {
         }
         fetchPayments();
     }, [successMessage]);
+
+    useEffect(() => {
+        async function fetchStatuses() {
+            try {
+                const statuses = await getPaymentStatuses();
+                setStatuses(statuses);
+            } catch (error: any) {
+                setError(error.message);
+            }
+        };
+        async function fetchTypes() {
+            try {
+                const types = await getPaymentTypes();
+                setTypes(types);
+            } catch (error: any) {
+                setError(error.message);
+            }
+        };
+
+        fetchStatuses();
+        fetchTypes();
+    }, []);
 
     async function handleDelete(id: number) {
         try {
@@ -75,7 +105,12 @@ export default function PaymentTable() {
             }
         }
     }
-    const filteredPayments = payments;
+    // const filteredPayments = payments;
+    const filteredPayments = payments.filter(
+        (payment) =>
+            payment.Student?.student_name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+            (selectedStatus === '' || payment.status === selectedStatus) && (selectedType === '' || payment.type === selectedType)
+    );
 
     // Calculate the indexes for the current page
     const indexOfLastItem = currentPage * itemsPerPage;
@@ -109,6 +144,44 @@ export default function PaymentTable() {
                             setCurrentPage(1);
                         }}
                     />
+                    <FormControl variant="outlined" size="small" style={{ minWidth: 150 }}>
+                        <InputLabel>Status</InputLabel>
+                        <Select
+                            value={selectedStatus}
+                            onChange={(e) => {
+                                setsSelectedStatus(e.target.value as string);
+                                setCurrentPage(1);
+                            }}
+                            label="Status"
+                        >
+                            <MenuItem value="">All</MenuItem>
+                            {statuses.map((status) => (
+                                <MenuItem key={status.ValueName} value={status.ValueName}>
+                                    {status.ValueName}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+
+                    <FormControl variant="outlined" size="small" style={{ minWidth: 150 }}>
+                        <InputLabel>Type</InputLabel>
+                        <Select
+                            value={selectedType}
+                            onChange={(e) => {
+                                setsSelectedType(e.target.value as string);
+                                setCurrentPage(1);
+                            }}
+                            label="Type"
+                        >
+                            <MenuItem value="">All</MenuItem>
+                            {types.map((type) => (
+                                <MenuItem key={type.ValueName} value={type.ValueName}>
+                                    {type.ValueName}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+
                 </div>
                 <div className="max-w-full overflow-x-auto">
                     <table className="w-full table-auto">
@@ -273,6 +346,13 @@ export default function PaymentTable() {
                         </tbody>
                     </table>
                 </div>
+
+                {filteredPayments.length === 0 && (
+                    <div className="text-center text-gray-700 dark:text-gray-300 mt-4">
+                        No Payment Records Found.
+                    </div>
+                )}
+
                 <div className="flex justify-end mt-4">
                     <Pagination
                         count={Math.ceil(filteredPayments.length / itemsPerPage)}

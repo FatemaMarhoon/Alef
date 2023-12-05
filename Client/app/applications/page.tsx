@@ -9,11 +9,16 @@ import SuccessAlert from '@/components/SuccessAlert';
 import TextField from '@mui/material/TextField';
 import Pagination from '@mui/material/Pagination';
 import Button from '@mui/material/Button';
+import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { StaticValue } from '@/types/staticValue';
+import { getApplicationStatuses } from '@/services/staticValuesService';
 
 export default function ApplicationsTable() {
     const router = useRouter();
     const [applications, setApplications] = useState<Application[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedStatus, setsSelectedStatus] = useState("");
+    const [statuses, setStatuses] = useState<StaticValue[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
     const { successMessage } = useSuccessMessageContext();
@@ -24,8 +29,8 @@ export default function ApplicationsTable() {
                 const response = await getApplications();
                 const sortedApplicationsList = response.data.sort((a: Application, b: Application) => {
                     // Convert the date strings to Date objects for comparison
-                    const dateA = new Date(a.updated_at);
-                    const dateB = new Date(b.updated_at);
+                    const dateA = new Date(a.updatedAt);
+                    const dateB = new Date(b.updatedAt);
                   
                     // Compare the dates
                     return dateA.getTime() - dateB.getTime();
@@ -41,6 +46,17 @@ export default function ApplicationsTable() {
         console.log("Message on Applications load: ", successMessage);
     }, [successMessage]);
 
+    useEffect(() => {
+        async function fetchStatuses() {
+            try {
+                const statuses = await getApplicationStatuses();
+                setStatuses(statuses);
+            } catch (error: any) {
+                console.error('Error fetching statuses:', error);
+            }
+        };
+        fetchStatuses();
+    },[])
     async function handleDelete(id: number) {
         await deleteApplication(id);
         router.refresh();
@@ -48,7 +64,8 @@ export default function ApplicationsTable() {
 
     // Filter the applications based on the search term
     const filteredApplications = applications.filter(application =>
-        application.student_name.toLowerCase().includes(searchTerm.toLowerCase())
+        application.student_name.toLowerCase().includes(searchTerm.toLowerCase()) && 
+        (selectedStatus === '' || application.status === selectedStatus)
     );
 
     // Calculate the indexes for the current page
@@ -81,6 +98,24 @@ export default function ApplicationsTable() {
                             setCurrentPage(1);
                         }}
                     />
+                     <FormControl variant="outlined" size="small" style={{ minWidth: 150 }}>
+                        <InputLabel>Status</InputLabel>
+                        <Select
+                            value={selectedStatus}
+                            onChange={(e) => {
+                                setsSelectedStatus(e.target.value as string);
+                                setCurrentPage(1);
+                            }}
+                            label="Status"
+                        >
+                            <MenuItem value="">All</MenuItem>
+                            {statuses.map((status) => (
+                                <MenuItem key={status.ValueName} value={status.ValueName}>
+                                    {status.ValueName}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
                 </div>
                 <div className="max-w-full overflow-x-auto">
                 <table className="w-full table-auto">
@@ -236,6 +271,12 @@ export default function ApplicationsTable() {
                         </tbody>
                     </table>
                 </div>
+                {filteredApplications.length === 0 && (
+                    <div className="text-center text-gray-700 dark:text-gray-300 mt-4">
+                        No Applications Found.
+                    </div>
+                )}
+
                 <div className="flex justify-end mt-4">
                 <Pagination
                     count={Math.ceil(filteredApplications.length / itemsPerPage)}

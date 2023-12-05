@@ -121,3 +121,20 @@ export async function getPaymentStatuses(): Promise<StaticValue[]> {
       throw error;
     }
   }
+
+  export async function getApplicationStatuses(): Promise<StaticValue[]> {
+    try {
+        var token;
+        await currentToken().then((returnedToken) => { token = returnedToken; })
+        // Set up the request config with headers
+        const config: AxiosRequestConfig = {
+          headers: {
+            Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+          },
+        };
+          const response = await axios.get<StaticValue[]>(`${BASE_URL}/applicationStatuses`, config);
+     return response.data;
+      } catch (error) {
+        throw error;
+      }
+    }
