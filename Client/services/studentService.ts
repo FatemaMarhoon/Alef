@@ -229,6 +229,8 @@ export async function updateStudent(
         // Construct the data payload with only the attributes to be updated
         const studentData: Partial<Student> = {
             student_name: studentAttributes.student_name,
+            gender: studentAttributes.gender,
+            grade: studentAttributes.grade,
             DOB: studentAttributes.DOB ? new Date(studentAttributes.DOB) : null,
             CPR: studentAttributes.CPR,
             contact_number1: studentAttributes.contact_number1,

@@ -72,23 +72,28 @@ const TripReportForm: React.FC<TripReportFormProps> = ({ onSubmit }) => {
     return (
         <form
             onSubmit={handleSubmit(async (formData) => {
+
                 // Generate and download PDF for each student
                 for (const student of students) {
+                    // Generate trip report data for the current student
                     const tripReport: TripFormData = {
                         ...formData,
                         studentName: student.student_name,
-                        className: className
+                        className: className,
                     };
 
-                    // Await the asynchronous onSubmit operation
-                    await onSubmit(tripReport);
-                    // Generate and download PDF with a custom filename
+
+
+                    // Generate and download PDF with a custom filename for the current student
                     const pdfElement = document.getElementById('pdf-element');
                     const pdfOptions = {
                         filename: `trip - ${student.student_name}.pdf`,
                     };
                     html2pdf(pdfElement, pdfOptions);
+                    // Await the asynchronous onSubmit operation for the current trip report
+                    await onSubmit(tripReport);
                 }
+
             })}
 
             className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark"

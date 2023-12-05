@@ -23,18 +23,18 @@ const Home: React.FC = () => {
     const [showGeneralForm, setShowGeneralForm] = useState(false);
 
     const handleReportSubmit = (data: { title: string; content: string, documentType: string }) => {
+        setGeneratedReport(data);
+
         // Check the selected document type
         if (data.documentType === 'trip') {
             // If the document type is 'trip', show the TripReportForm
             setShowTripForm(true);
-            setGeneratedReport(data);
 
         }
         else if (data.documentType === 'general') {
             // Otherwise, continue with the report generation logic
             setShowGeneralForm(true);
             // Set generatedReport with the data for the general report
-            setGeneratedReport(data);
 
             // const pdfElement = document.getElementById('pdf-element');
             // html2pdf(pdfElement);
@@ -53,7 +53,7 @@ const Home: React.FC = () => {
 
             <div id="pdf-element">
                 {/* Render the GeneratedReport component */}
-                {generatedReport && showTripForm && <GeneratedReport data={generatedReport} />}
+                {generatedReport && <GeneratedReport data={generatedReport} />}
             </div>
         </div>
     );
