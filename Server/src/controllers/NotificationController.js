@@ -91,6 +91,7 @@ const NotificationController = {
     async pushSingleNotification(email, title, body) {
         let registrationToken; let userId;
         await admin.auth().getUserByEmail(email).then((userRecord) => {
+            console.loog(userRecord.customClaims)
             registrationToken = userRecord.customClaims['regToken'];
             userId = userRecord.customClaims['dbId'];
         })
@@ -232,7 +233,7 @@ const NotificationController = {
         const { uid, token } = req.body;
         try {
             //set regToken for firebase user
-            const currentClaims = (await auth.getUser(uid)).customClaims;
+            const currentClaims = (await admin.auth().getUser(uid)).customClaims;
             const updatedClaims = {
                 ...currentClaims,
                 regToken: token
@@ -245,7 +246,7 @@ const NotificationController = {
                     const topic = preschool + '_' + role;
                     if (preschool) {
                         //subscribe client to topic (for preschool public notifications)
-                        messaging.subscribeToTopic(registrationTokens, topic)
+                        messaging.subscribeToTopic(token, topic)
                             .then((response) => {
                                 console.log('Successfully subscribed to topic:', response);
                             })
