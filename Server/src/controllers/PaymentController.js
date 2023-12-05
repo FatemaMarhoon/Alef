@@ -1,31 +1,34 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../config/seq');
-const preschool = require('../models/preschool');
 const Preschool = require('../models/preschool')(sequelize, DataTypes);
 const Payment = require('../models/payment')(sequelize, DataTypes);
 const Student = require('../models/student')(sequelize, DataTypes);
+const User = require('../models/user')(sequelize, DataTypes);
+const NotificationController = require('./NotificationController');
 
 Payment.belongsTo(Student, { foreignKey: 'student_id' });
 Student.belongsTo(Preschool, { foreignKey: 'preschool_id' });
-
+Student.belongsTo(User, { foreignKey: 'user_id' });
+Student.belongsTo(Preschool, { foreignKey: 'preschool_id' });
+Preschool.hasMany(Student, { foreignKey: 'preschool_id' });
 const PaymentController = {
     async getAllPayments(req, res) {
-        const {preschool_id} = req.query;
-        const {student_id} = req.query;
+        const { preschool_id } = req.query;
+        const { student_id } = req.query;
 
         try {
             if (preschool_id) {
                 const payments = await Payment.findAll({
-                    include: { model: Student, as: 'Student', where: {preschool_id : preschool_id} }
+                    include: { model: Student, as: 'Student', where: { preschool_id: preschool_id } }
                 });
-    
+
                 return res.status(200).json(payments);
             }
-            else if(student_id){
+            else if (student_id) {
                 const payments = await Payment.findAll({
-                    where:{student_id:student_id}
+                    where: { student_id: student_id }
                 });
-    
+
                 return res.status(200).json(payments);
             }
             else {
@@ -33,36 +36,45 @@ const PaymentController = {
             }
 
         } catch (error) {
-            return res.status(500).json({ message:error.message});
+            return res.status(500).json({ message: error.message });
         }
     },
 
-    async getPaymentById(req, res){
+    async getPaymentById(req, res) {
         const paymentId = req.params.id;
         try {
             const payment = await Payment.findByPk(paymentId);
 
             if (payment) {
-                return res.status(200).json( payment );
+                return res.status(200).json(payment);
             }
             else {
                 return res.status(404).json({ message: 'Payment not found.' });
             }
         } catch (error) {
-            return res.status(500).json({ message:error.message});
+            return res.status(500).json({ message: error.message });
         }
     },
 
     async createPayment(req, res) {
         const paymentData = req.body;
         try {
+            paymentData.status = "Pending";
             const newPayment = await Payment.create(paymentData);
-            res.status(201).json({
-                message: 'Payment created successfully',
-                payment: newPayment,
-            });
+            if (newPayment) {
+                //notify parent
+                const student = await Student.findOne({ where: newPayment.student_id, include: { model: User, as: "User" } });
+                if (student.User.role_name == "Parent") {
+                    console.log("Parent User Found")
+                    const title = "New Payment Request"
+                    const body = "Dear Parent, Admin has requested a payment for your child. Please review and respond accordingly.";
+                    NotificationController.pushSingleNotification(student.User.email, title, body);
+                }
+                return res.status(201).json({ message: 'Payment Record Created Successfully', payment: newPayment });
+            }
+
         } catch (error) {
-            res.status(400).json({ message: 'Failed to create a new payment. Please check your request data.', message: error.message });
+            return res.status(400).json({ message: 'Failed to create a new payment. Please check your request data.', message: error.message });
         }
     },
 
@@ -71,9 +83,8 @@ const PaymentController = {
         const updatedPaymentData = req.body;
         try {
             const payment = await Payment.findByPk(paymentId);
-
             if (payment) {
-                if (updatedPaymentData.status == "Paid"){
+                if (updatedPaymentData.status == "Paid") {
                     updatedPaymentData.paid_on = new Date();
                 }
                 payment.set(updatedPaymentData);
@@ -102,6 +113,7 @@ const PaymentController = {
             res.status(500).json({ message: 'Internal server error while deleting the payment.' });
         }
     },
+
 };
 
 module.exports = PaymentController;

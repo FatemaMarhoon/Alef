@@ -94,7 +94,9 @@ const NotificationController = {
             registrationToken = userRecord.customClaims['regToken'];
             userId = userRecord.customClaims['dbId'];
         })
+
         console.log("Inside push notification")
+        if (registrationToken){
         const message = {
             token: registrationToken,
             notification: {
@@ -117,6 +119,11 @@ const NotificationController = {
             .catch((error) => {
                 console.log('Error sending message:', error);
             });
+        }
+        else {
+            console.log("exitting")
+            return null;
+        }
     },
 
     async pushMultipleNotification(emails, title, body) {

@@ -36,3 +36,20 @@ export async function getGuardianTypes(): Promise<StaticValue[]> {
     throw error;
   }
 }
+
+export async function getPaymentTypes(): Promise<StaticValue[]> {
+  try {
+    var token;
+    await currentToken().then((returnedToken) => { token = returnedToken; })
+    // Set up the request config with headers
+    const config: AxiosRequestConfig = {
+      headers: {
+        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+      },
+    };
+    const response = await axios.get<StaticValue[]>(`${BASE_URL}/paymentTypes`, config);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}

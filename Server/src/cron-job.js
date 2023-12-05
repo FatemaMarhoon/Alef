@@ -1,12 +1,24 @@
 const { Op, DataTypes } = require('sequelize');
 const sequelize = require('./config/seq');
+const admin = require('./config/firebase.config');
+const auth = admin.auth();
+//models
 const Application = require('./models/preschool_application')(sequelize, DataTypes);
 const Appointment = require('./models/appointment')(sequelize, DataTypes);
+const Preschool = require('./models/preschool')(sequelize, DataTypes);
+const Student = require('./models/student')(sequelize, DataTypes);
 const User = require('./models/user')(sequelize, DataTypes);
+const Payment = require('./models/payment')(sequelize, DataTypes);
+
+const NotificationController = require('./controllers/NotificationController');
+
+//associations
 Appointment.belongsTo(Application, { foreignKey: 'application_id' });
 Application.belongsTo(User, { foreignKey: 'created_by' });
-const admin = require('./config/firebase.config')
-const auth = admin.auth();
+Student.belongsTo(User, { foreignKey: 'user_id' });
+Student.belongsTo(Preschool, { foreignKey: 'preschool_id' });
+Preschool.hasMany(Student, { foreignKey: 'preschool_id' });
+
 const cronJob = {
     async appointmentsReminder() {
         try {
@@ -22,9 +34,9 @@ const cronJob = {
                     date: {
                         [Op.eq]: currentDate.toLocaleDateString(),
                     },
-                    //   time: {
-                    //       [Op.eq]: currentTime,
-                    //   },
+                      time: {
+                          [Op.eq]: currentTime,
+                      },
                 },
                 include: [{ model: Application, as: "Application", include: [{ model: User, as: "User" }] }]
             });
@@ -35,11 +47,11 @@ const cronJob = {
             let usersEmails = [];
             const usersEmailsSet = new Set(
                 upcomingAppointments
-                //   .filter(appointment => appointment.Application.User.role_name === "Parent")
-                  .map(appointment => appointment.Application.User.email)
-              );
+                    //   .filter(appointment => appointment.Application.User.role_name === "Parent")
+                    .map(appointment => appointment.Application.User.email)
+            );
 
-              
+
             usersEmails = Array.from(usersEmailsSet);
             console.log(usersEmailsSet);
 
@@ -62,6 +74,36 @@ const cronJob = {
 
     async eventsReminder() {
 
+    },
+
+    async monthlyPaymentGenerator() {
+        //loop through all preschools and generate payment record for all students 
+        try {
+        console.log("Job started at: ", new Date());
+        const preschools = await Preschool.findAll({ include: { model: Student, as: "Students", include: { model: User, as: "User" } }});
+        for (const preschool of preschools) {
+            console.log("Looping")
+            if (preschool.Students.length > 0) {
+                console.log("Looping through students:", preschool.Students.length)
+                for (const student of preschool.Students) {
+                    const paymentData = { fees: preschool.monthly_fees, type: "Monthly Fees", student_id: student.id, due_date: new Date(), status: "Pending" }
+                    paymentData.due_date.setDate(paymentData.due_date.getDate() + 7)
+                    const newPayment = await Payment.create(paymentData);
+                    if (newPayment && student.User) {
+                        if (student.User.role_name == "Parent") {
+                            const title = "Monthly Fees Payment Reminder"
+                            const body = `Dear Parent, payment is open now for monthly fees. Make sure to pay before ${paymentData.due_date.toLocaleDateString()}`;
+                            await NotificationController.pushSingleNotification(student.User.email, title, body);
+                        }
+                    }
+                }
+            }
+            
+        }
+    }
+    catch (error){
+        console.log(error.message)
+    }
     }
 };
 

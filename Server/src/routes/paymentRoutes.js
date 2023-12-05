@@ -9,7 +9,7 @@ router.get('/', PaymentController.getAllPayments);
 // Create a new payment
 router.post('/', PaymentController.createPayment);
 
-
+router.get('/:id', PaymentController.getPaymentById);
 
 // Update a payment by ID
 router.put('/:id', PaymentController.updatePayment);

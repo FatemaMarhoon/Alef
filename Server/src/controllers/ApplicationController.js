@@ -217,7 +217,12 @@ const ApplicationController = {
                             regToken = userRecord.customClaims['regToken'];
                             if (regToken) {
                                 console.log("Token found, trying to push")
-                                NotificationController.pushSingleNotification(parentUser.email, "Application Updates", "Your application status has been updated");
+                                if (status == "Accepted"){
+                                    NotificationController.pushSingleNotification(parentUser.email, "Congratulations!", "Your application has been accepted. Please pay any pending fees.");
+                                }
+                                else {
+                                    NotificationController.pushSingleNotification(parentUser.email, "Application Updates", "Your application status has been updated.");
+                                }
                             }
                             else {
                                 console.log("No token")
