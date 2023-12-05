@@ -9,20 +9,19 @@ router.get('/', checkToken, UsersController.getAllUsers);
 // // Get user by email
 // router.get('/:email', checkToken, UsersController.getUserByEmail);
 
-// // Get user by id
-// router.get('/:id', checkToken, UsersController.getUserById);
+// Get user by id
+router.get('/:id', checkToken, UsersController.getUserById);
 
-// // Create a new user
-// router.post('/', UsersController.createUser);
+// Create a new user
+router.post('/', UsersController.createUser);
 
-// // parent register 
-// router.post('/register', UsersController.createUser);
+// parent register 
+router.post('/register', UsersController.createUser);
 
-// // Update user
-// router.put('/:id', UsersController.updateUser);
+// Update user
+router.put('/:id', UsersController.updateUser);
 
-// //delete user 
-// router.delete('/:id', UsersController.deleteUser)
+//delete user 
+router.delete('/:id', UsersController.deleteUser)
 
-router.get('/updateAll', UsersController.updateAll);
 module.exports = router;

@@ -1,43 +1,116 @@
 'use client'
 import React, { useState, useEffect } from 'react';
-import { getApplications, deleteApplication } from '@/services/applicationsService';
-import { getPayments } from '@/services/paymentService';
+import { deletePayment, getPayments, remindParent } from '@/services/paymentService';
 import Link from 'next/link';
 import { useSuccessMessageContext } from '../../components/SuccessMessageContext';
-import { useRouter } from 'next/navigation';
-import { Application } from '../../types/application'
 import { Payment } from '../../types/payment'
 import SuccessAlert from '@/components/SuccessAlert';
 import TextField from '@mui/material/TextField';
 import Pagination from '@mui/material/Pagination';
-import Button from '@mui/material/Button';
+import ErrorAlert from '@/components/ErrorAlert';
+import { useRouter } from 'next/navigation';
+import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { getPaymentStatuses, getPaymentTypes } from '@/services/staticValuesService';
+import { StaticValue } from '@/types/staticValue';
 
 export default function PaymentTable() {
     const router = useRouter();
     const [payments, setPayments] = useState<Payment[]>([]);
+    const [error, setError] = useState("");
 
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
+    const [selectedStatus, setsSelectedStatus] = useState("");
+    const [statuses, setStatuses] = useState<StaticValue[]>([]);
+    const [selectedType, setsSelectedType] = useState("");
+
+    const [types, setTypes] = useState<StaticValue[]>([]);
     const itemsPerPage = 10;
-    const { successMessage } = useSuccessMessageContext();
+    const { successMessage, setSuccessMessage } = useSuccessMessageContext();
 
     useEffect(() => {
         async function fetchPayments() {
             try {
                 const response = await getPayments();
                 setPayments(response);
-            } catch (error) {
+            } catch (error: any) {
+                setError(error.message)
             }
         }
         fetchPayments();
     }, [successMessage]);
 
-    async function handleDelete(id: number) {
+    useEffect(() => {
+        async function fetchStatuses() {
+            try {
+                const statuses = await getPaymentStatuses();
+                setStatuses(statuses);
+            } catch (error: any) {
+                setError(error.message);
+            }
+        };
+        async function fetchTypes() {
+            try {
+                const types = await getPaymentTypes();
+                setTypes(types);
+            } catch (error: any) {
+                setError(error.message);
+            }
+        };
 
+        fetchStatuses();
+        fetchTypes();
+    }, []);
+
+    async function handleDelete(id: number) {
+        try {
+            setError("");
+            const response = await deletePayment(id);
+            if (response.status === 201 || response.status == 200) {
+                setSuccessMessage(response.data.message);
+                router.refresh();
+            }
+            else if (response.status == 400 || response.status == 404 || response.status == 500) {
+                setError(response.data.message);
+            }
+
+        } catch (error: any) {
+            if (error.response) {
+                setError(error.response.data.message);
+            }
+            else if (error.message) {
+                setError(error.message);
+            }
+        }
     }
 
+    async function handleNotify(id: number) {
+        try {
+            setError("");
+            const response = await remindParent(id);
+            if (response.status === 201 || response.status == 200) {
+                setSuccessMessage(response.data.message);
+                router.refresh();
+            }
+            else if (response.status == 400 || response.status == 404 || response.status == 500) {
+                setError(response.data.message);
+            }
 
-    const filteredPayments = payments;
+        } catch (error: any) {
+            if (error.response) {
+                setError(error.response.data.message);
+            }
+            else if (error.message) {
+                setError(error.message);
+            }
+        }
+    }
+    // const filteredPayments = payments;
+    const filteredPayments = payments.filter(
+        (payment) =>
+            payment.Student?.student_name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+            (selectedStatus === '' || payment.status === selectedStatus) && (selectedType === '' || payment.type === selectedType)
+    );
 
     // Calculate the indexes for the current page
     const indexOfLastItem = currentPage * itemsPerPage;
@@ -48,6 +121,8 @@ export default function PaymentTable() {
     return (
         <>
             {successMessage && <SuccessAlert message={successMessage} />}
+            {error && <ErrorAlert message={error}></ErrorAlert>}
+
             <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark-bg-boxdark sm-px-7.5 xl-pb-1">
                 <h4 className="mb-6 text-xl font-semibold text-black dark-text-white">
                     Payment Records
@@ -69,6 +144,44 @@ export default function PaymentTable() {
                             setCurrentPage(1);
                         }}
                     />
+                    <FormControl variant="outlined" size="small" style={{ minWidth: 150 }}>
+                        <InputLabel>Status</InputLabel>
+                        <Select
+                            value={selectedStatus}
+                            onChange={(e) => {
+                                setsSelectedStatus(e.target.value as string);
+                                setCurrentPage(1);
+                            }}
+                            label="Status"
+                        >
+                            <MenuItem value="">All</MenuItem>
+                            {statuses.map((status) => (
+                                <MenuItem key={status.ValueName} value={status.ValueName}>
+                                    {status.ValueName}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+
+                    <FormControl variant="outlined" size="small" style={{ minWidth: 150 }}>
+                        <InputLabel>Type</InputLabel>
+                        <Select
+                            value={selectedType}
+                            onChange={(e) => {
+                                setsSelectedType(e.target.value as string);
+                                setCurrentPage(1);
+                            }}
+                            label="Type"
+                        >
+                            <MenuItem value="">All</MenuItem>
+                            {types.map((type) => (
+                                <MenuItem key={type.ValueName} value={type.ValueName}>
+                                    {type.ValueName}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+
                 </div>
                 <div className="max-w-full overflow-x-auto">
                     <table className="w-full table-auto">
@@ -146,10 +259,10 @@ export default function PaymentTable() {
                                     <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark text-center">
                                         <div className="flex items-center space-x-3.5">
                                             {payment.status == "Pending" && payment.Student?.user_id &&
-                                                <button className="text-primary">
-                                                    <Link href={`/payment/${payment.id}`}>
-                                                        Notify
-                                                    </Link>
+                                                <button onClick={() => handleNotify(payment.id)} className="text-primary">
+
+                                                    Notify
+
                                                 </button>
                                             }
                                             <button className="hover:text-primary">
@@ -233,6 +346,13 @@ export default function PaymentTable() {
                         </tbody>
                     </table>
                 </div>
+
+                {filteredPayments.length === 0 && (
+                    <div className="text-center text-gray-700 dark:text-gray-300 mt-4">
+                        No Payment Records Found.
+                    </div>
+                )}
+
                 <div className="flex justify-end mt-4">
                     <Pagination
                         count={Math.ceil(filteredPayments.length / itemsPerPage)}

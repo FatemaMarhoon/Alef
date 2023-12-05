@@ -13,6 +13,7 @@ import Pagination from '@mui/material/Pagination';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import SuccessAlert from '@/components/SuccessAlert';
+import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
 
 // Functional component for viewing class details
 export default function ClassTable() {

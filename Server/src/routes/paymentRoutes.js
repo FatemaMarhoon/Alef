@@ -9,6 +9,9 @@ router.get('/', PaymentController.getAllPayments);
 // Create a new payment
 router.post('/', PaymentController.createPayment);
 
+//notify parent
+router.get('/remind/:id', PaymentController.remindParent);
+
 router.get('/:id', PaymentController.getPaymentById);
 
 // Update a payment by ID

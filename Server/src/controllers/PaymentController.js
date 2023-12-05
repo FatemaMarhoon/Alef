@@ -43,7 +43,7 @@ const PaymentController = {
     async getPaymentById(req, res) {
         const paymentId = req.params.id;
         try {
-            const payment = await Payment.findByPk(paymentId);
+            const payment = await Payment.findOne({ where: {id:paymentId}, include: {model:Student, as: "Student"}});
 
             if (payment) {
                 return res.status(200).json(payment);
@@ -89,7 +89,6 @@ const PaymentController = {
                 }
                 payment.set(updatedPaymentData);
                 await payment.save();
-
                 return res.status(200).json({ message: 'Payment updated successfully', payment: payment });
             } else {
                 return res.status(404).json({ message: 'Payment not found or no changes made' });
@@ -113,6 +112,40 @@ const PaymentController = {
             res.status(500).json({ message: 'Internal server error while deleting the payment.' });
         }
     },
+
+    async remindParent(req, res){
+        const {id} = req.params;
+        console.log(id);
+        try {
+            console.log("starting notify function")
+            const payment = await Payment.findOne({ where: {id:id}, include: { model: Student, as: "Student" } });
+            if (payment){
+                console.log("Payment record found")
+                const student = await Student.findOne({ where: payment.student_id, include: { model: User, as: "User" } });
+                //if student has an associated parent account
+                if (student.User){
+                    console.log("user has been found")
+                   const response = await NotificationController.pushSingleNotification(student.User.email,"Payment Reminder", "You have pending payments, please reiew and act accordingly.")
+                   if (response){
+                    return res.status(200).json({ message: 'Reminder sent successfully.' });
+                   }
+                   else {
+                    return res.status(404).json({ message: 'Couldnt deliver the notification because user has not allow recieving .' });
+                   }
+                }
+                else {
+                    return res.status(404).json({ message: 'Parent Account not found' });
+                }
+            }
+            else {
+                return res.status(404).json({ message: 'Payment not found' });
+            }
+
+        }
+        catch (error){
+            return res.status(500).json(error.message);
+        }
+    }
 
 };
 

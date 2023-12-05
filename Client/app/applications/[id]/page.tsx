@@ -130,11 +130,28 @@ export default function Page({ params }: { params: { id: number } }) {
                         </div>
                         <div className="mb-4.5">
                             <label className="mb-2.5 block text-black dark:text-white">
-                                Student Name
+                                Applicant Name
                             </label>
                             <div>{application.student_name}</div>
                         </div>
-
+                        <div className="mb-4.5">
+                            <label className="mb-2.5 block text-black dark:text-white">
+                                Applicant DOB
+                            </label>
+                            <div>{new Date(application.student_DOB).toISOString().split('T')[0]}</div>
+                        </div>
+                        <div className="mb-4.5">
+                            <label className="mb-2.5 block text-black dark:text-white">
+                                Applicant CPR
+                            </label>
+                            <div>{application.student_CPR}</div>
+                        </div>
+                        <div className="mb-4.5">
+                            <label className="mb-2.5 block text-black dark:text-white">
+                                Application Date
+                            </label>
+                            <div>{new Date(application.createdAt).toISOString().split('T')[0]}</div>
+                        </div>
                         <div className="mb-4.5">
                             <label className="mb-2.5 block text-black dark:text-white">
                                 Guardian Name

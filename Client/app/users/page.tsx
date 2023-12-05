@@ -44,11 +44,11 @@ export default function UsersTable() {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentUsers = filteredUsers.slice(indexOfFirstItem, indexOfLastItem);
 
-  const handleChangePage = (event, value) => {
+  const handleChangePage = (event: any, value: React.SetStateAction<number>) => {
     setCurrentPage(value);
   };
 
-  const statusChange = async (id, status) => {
+  const statusChange = async (id: number, status: string) => {
     const newStatus = status === 'Disabled' ? 'Enabled' : 'Disabled';
     const response = await updateUser({ id: id, status: newStatus });
     if (response) {
@@ -56,12 +56,12 @@ export default function UsersTable() {
     }
   };
 
-  const handleSearchChange = (event) => {
+  const handleSearchChange = (event: { target: { value: React.SetStateAction<string>; }; }) => {
     setSearchValue(event.target.value);
     setCurrentPage(1); // Reset to the first page when searching
   };
 
-  const handleFilterChange = (event) => {
+  const handleFilterChange = (event: { target: { value: React.SetStateAction<string>; }; }) => {
     setFilterValue(event.target.value);
     setCurrentPage(1); // Reset to the first page when changing filter
   };
