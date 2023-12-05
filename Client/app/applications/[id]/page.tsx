@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { Evaluation } from '@/types/evaluation';
 import { ApplicationPOST } from '@/types/applicationPOST';
 import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
+import ErrorAlert from '@/components/ErrorAlert';
 
 // Functional component for viewing application details
 export default function Page({ params }: { params: { id: number } }) {
@@ -101,6 +102,7 @@ export default function Page({ params }: { params: { id: number } }) {
     return (
         <>
             <Breadcrumb pageName="View Application" />
+            {error && <ErrorAlert message={error}></ErrorAlert>}
 
             <div className="items-center justify-center min-h-screen">
                 <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
