@@ -9,10 +9,10 @@ import TemporarySuccessMessage from '@/app/ui/alerts/TempSuccessMsg'; // Import 
 import { getStationary } from '@/services/stationaryService';
 import { getStaffById } from '@/services/staffService'; // Add the actual service function
 import { Stationary } from '@/types/stationary';
-import { StaticValue } from "@/types/staticValue";
 import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
 import ErrorAlert from "@/components/ErrorAlert";
-
+import { StaticValue } from "@/types/staticValue";
+import { getRequestStatuses } from "@/services/staticValuesService";
 export default function EditStationaryRequestForm({ params }: { params: { id: number } }) {
     const router = useRouter();
     const { setSuccessMessage } = useSuccessMessageContext();
@@ -30,9 +30,25 @@ export default function EditStationaryRequestForm({ params }: { params: { id: nu
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
     const [stationaries, setStationaries] = useState<Stationary[]>([]);
     const [staffName, setStaffName] = useState<string>('');
-    const [stationaryList, setStationaryList] = useState([]);
+    const [stationaryList, setStationaryList] = useState<Stationary[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [requestStatuses, setRequestStatuses] = useState<StaticValue[]>([]);
+
+    useEffect(() => {
+        // Fetch gender types when the component mounts
+        async function fetchRequestStatuses() {
+            try {
+                const types = await getRequestStatuses();
+                setRequestStatuses(types);
+                console.log(types);
+            } catch (error) {
+                console.error("Error fetching :", error);
+            }
+        }
+        fetchRequestStatuses();
+    }, []);
+
 
     useEffect(() => {
         const fetchStationaryRequestData = async () => {
@@ -190,10 +206,11 @@ export default function EditStationaryRequestForm({ params }: { params: { id: nu
                                             className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.statusName ? 'border-error' : ''
                                                 }`}
                                         >
-                                            <option value="">Select status....</option>
-                                            <option value="Pending">Pending</option>
-                                            <option value="Accepted">Accepted</option>
-                                            <option value="Rejected">Rejected</option>
+                                            {requestStatuses.map((status, index) => (
+                                                <option key={index} value={status.ValueName}>
+                                                    {status.ValueName}
+                                                </option>
+                                            ))}
                                             {/* Add other status options as needed */}
                                         </select>
                                         {errors.statusName && (

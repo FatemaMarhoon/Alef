@@ -14,9 +14,9 @@ const StaticValuesController = {
             return res.status(500).json({ message: error.message });
         }
     },
-    
-    
-    
+
+
+
     //Staff Roles 
     async getAllRoles(req, res) {
         try {
@@ -28,7 +28,7 @@ const StaticValuesController = {
             }
             return res.json(roles);
         } catch (error) {
-           return res.status(500).json({ message: error.message });
+            return res.status(500).json({ message: error.message });
         }
     },
 
@@ -93,6 +93,36 @@ const StaticValuesController = {
             res.status(500).json({ message: error.message });
         }
     },
+
+    async getGender(req, res) {
+        try {
+            const gender = await StaticValues.findAll({
+                where: { CategoryName: 'Gender' }
+            });
+            if (gender) {
+                console.log(gender)
+            }
+            return res.json(gender);
+        } catch (error) {
+            return res.status(500).json({ message: error.message });
+        }
+    },
+
+    async getStaffRoles(req, res) {
+        try {
+            const staffRole = await StaticValues.findAll({
+                where: { CategoryName: 'StaffRole' }
+            });
+            if (staffRole) {
+                console.log(staffRole)
+            }
+            return res.json(staffRole);
+        } catch (error) {
+            return res.status(500).json({ message: error.message });
+        }
+    },
+
+
 };
 
 module.exports = StaticValuesController;
