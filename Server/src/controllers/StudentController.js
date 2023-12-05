@@ -219,6 +219,27 @@ const StudentController = {
             res.status(500).json({ message: error.message });
         }
     },
+
+    async getAllStudentsByUserId(req,res) {
+        const user_id = req.query.user_id;
+        try {
+            if (user_id) {
+                const students = await Student.findAll({ where: { user_id: user_id } });
+                if (students) {
+                    res.status(200).json(students);
+                }
+                else {
+                    res.status(404).json({ message: 'No Students Found.' });
+                }
+            }
+            else {
+                res.status(404).json({ message: 'User not found.' });
+            }
+
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    }
 };
 
 module.exports = StudentController;

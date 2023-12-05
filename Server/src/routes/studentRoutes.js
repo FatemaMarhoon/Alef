@@ -12,7 +12,6 @@ const multerMiddleware = multer({
 ]);
 
 // Get all students
-// router.get('/', StudentController.getAllStudents);
 router.get('/preschool/:preschoolId', StudentController.getAllStudents);
 
 // Get student by student_id
@@ -38,5 +37,7 @@ router.get('/preschool/:preschoolId/grade/:grade?', StudentController.getAllStud
 // Get all students or students by classid if classid is provided
 router.get('/preschool/:preschoolId/class/:class_id?', StudentController.getAllStudents);
 
+// Get all students by user id (query parameter)
+router.get('/', StudentController.getAllStudentsByUserId);
 
 module.exports = router;
