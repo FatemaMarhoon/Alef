@@ -5,10 +5,10 @@ export interface Payment {
     status: string;
     type: string;
     fees: number;
-    due_date: Date;
+    due_date: string;
     notes: string;
-    paid_on: Date;
+    paid_on: string;
     student_id: number;
-    created_at:Date;
+    createdAt:string;
     Student?:Student
 }

@@ -71,3 +71,70 @@ export async function createPayment(fees:number, type:string, student_id:number,
      throw axiosError;
   }
 }
+
+export async function updatePayment(paymentRecord:Payment) {
+  var token;  
+  await currentToken().then((returnedTOken) => { token = returnedTOken; })
+
+  try {
+    // Set up the request config with headers
+    const config: AxiosRequestConfig = {
+      headers: {
+        Authorization: `Bearer ${token}` // Include the token in the Authorization header
+      },
+    };
+    
+    const response = await axios.put(`${BASE_URL}/${paymentRecord.id}`, {
+    id:paymentRecord.id,
+    fees:paymentRecord.fees,
+    type:paymentRecord.type,
+    due_date:paymentRecord.due_date,
+    status:paymentRecord.status,
+    student_id:paymentRecord.student_id,
+    notes:paymentRecord.notes,
+    paid_on:paymentRecord.paid_on
+    }, config);
+    return response;
+  } catch (error) {
+     // Type assertion for error variable
+     const axiosError = error as AxiosError;
+     throw axiosError;
+  }
+}
+
+export async function remindParent(id: number) {
+  //retrieve data from current user
+  var token;
+  await currentToken().then((returnedTOken) => { token = returnedTOken; })
+  try {
+    // Set up the request config with headers
+    const config: AxiosRequestConfig = {
+      headers: {
+        Authorization: `Bearer ${token}` // Include the token in the Authorization header
+      },
+    };
+
+    const response = await axios.get(`${BASE_URL}/remind/${id}`, config);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function deletePayment(id: number) {
+  //retrieve data from current user
+  var token;
+  await currentToken().then((returnedTOken) => { token = returnedTOken; });
+  try {
+    const config: AxiosRequestConfig = {
+      headers: {
+        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+      },
+    };
+
+    const response = await axios.delete(`${BASE_URL}/${id}`, config);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+}

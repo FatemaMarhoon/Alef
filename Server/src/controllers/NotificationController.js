@@ -115,8 +115,10 @@ const NotificationController = {
                 if (response2){
                     console.log("DB inserted")
                 }
+                return "success";
             })
             .catch((error) => {
+                return error.message;
                 console.log('Error sending message:', error);
             });
         }
