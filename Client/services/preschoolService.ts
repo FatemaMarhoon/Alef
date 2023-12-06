@@ -1,6 +1,4 @@
-import { Preschool } from '@/types/preschool'; // Import the Preschool type
-import { GradeCapacity } from '@/types/gradeCapacity'
-import { currentUser } from './userService';
+import { Address, Preschool } from '@/types/preschool'; // Import the Preschool type
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 const BASE_URL = 'http://localhost:3000/preschools'; // Backend URL for preschools
@@ -54,26 +52,30 @@ export async function createPreschool(preschool_name: string, request_id: number
             console.error("Error setting up the request:", axiosError.message);
         }
 
-        throw axiosError;
+        throw axiosError; 
     }
 }
 
-export async function updatePreschool(preschoolId: string, updatedPreschool: Preschool): Promise<Preschool> {
+export async function updatePreschool(preschoolId: string, updatedPreschool: Preschool) {
     try {
         const token = localStorage.getItem('token');
         const config: AxiosRequestConfig = {
             headers: {
                 Authorization: `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data', // Make sure to set the content type
             },
         };
 
         const url = `${BASE_URL}/${preschoolId}`;
-        const response = await axios.put<Preschool>(url, updatedPreschool, config);
-        return response.data;
+        const response = await axios.put(url, updatedPreschool, config);
+        return response;
     } catch (error) {
-        throw error;
+        console.log(error);
+        const axiosError = error as AxiosError;
+        throw axiosError;
     }
 }
+
 export async function deletePreschool(preschoolId: string): Promise<void> {
     try {
         const token = localStorage.getItem('token');
@@ -104,5 +106,23 @@ export async function getPreschoolById(preschoolId: string): Promise<Preschool> 
     } catch (error) {
         console.error('Error fetching preschool by ID:', error);
         throw error;
+    }
+}
+
+export async function updatePreschoolAddress(address: Address) {
+    try {
+        const token = localStorage.getItem('token');
+        const config: AxiosRequestConfig = {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        };
+
+        const url = `${BASE_URL}/address/${address.id}`;
+        const response = await axios.put(url, address, config);
+        return response;
+    } catch (error) {
+        const axiosError = error as AxiosError;
+        throw axiosError;
     }
 }

@@ -17,11 +17,12 @@ import CreateAppointmentModal from '@/components/Calender/createAppointmentModal
 import { createAppointment, deleteAppointment, getAppointments } from '@/services/appointmentService';
 import { Appointment } from '@/types/appointment';
 import EditAppointmentModal from '@/components/Calender/EditAppointmentModal';
+import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 
 const Calendar = () => {
   const { successMessage, setSuccessMessage } = useSuccessMessageContext();
   const [error, setError] = useState();
-
+  const [appliedFilter,setAppliedFilter] = useState("");
   //calendar 
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const monthOptions: Intl.DateTimeFormatOptions = { month: 'long' };
@@ -278,7 +279,21 @@ const Calendar = () => {
     setIsEditAppointmentModalOpen(false);
   };
 
-
+  useEffect(() => {
+    
+    if (appliedFilter == "Events"){
+      fetchEvents();
+      setAppointments([]);
+    }
+    else if (appliedFilter == "Appointments"){
+      fetchAppointments();
+      setEvents([]);
+    }
+    else {
+      fetchEvents();
+      fetchAppointments();
+    }
+  },[appliedFilter])
   //delete
   async function handleDeleteAppointment(id: number) {
     try {
@@ -318,7 +333,24 @@ const Calendar = () => {
           >
             Add
           </button>
-
+          <FormControl variant="outlined" size="small" style={{ minWidth: 150 }}>
+            <InputLabel>Filter By</InputLabel>
+            <Select
+              value={appliedFilter}
+              onChange={(e) => {
+                setAppliedFilter(e.target.value as string);
+              }}
+              label="Filter By"
+            >
+              <MenuItem value="">All</MenuItem>
+              <MenuItem value="Events">
+                Events
+                </MenuItem>
+                <MenuItem value="Appointments">
+                Appointments
+                </MenuItem>
+            </Select>
+          </FormControl>
           {isDropdownOpen && (
             <div className="origin-top-right absolute right-0 mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
               <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">

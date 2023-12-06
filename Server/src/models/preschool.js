@@ -37,6 +37,25 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       // allowNull: false,
     },
+    phone: {
+      type: DataTypes.STRING,
+      // allowNull: false,
+    },
+    email: {
+      type: DataTypes.STRING,
+      // allowNull: false,
+    },
+    logo: {
+      type: DataTypes.STRING,
+      // allowNull: false,
+    },
+    representitive_name :{
+      type: DataTypes.STRING,
+    },
+    description: {
+      type: DataTypes.STRING,
+      // allowNull: false,
+    },
   },
     {
       tableName: 'Preschools'
