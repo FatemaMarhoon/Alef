@@ -1,6 +1,4 @@
 import { Preschool } from '@/types/preschool'; // Import the Preschool type
-import { GradeCapacity } from '@/types/gradeCapacity'
-import { currentUser } from './userService';
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 const BASE_URL = 'http://localhost:3000/preschools'; // Backend URL for preschools
