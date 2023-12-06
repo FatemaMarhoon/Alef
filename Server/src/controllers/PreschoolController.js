@@ -14,7 +14,7 @@ User.belongsTo(Preschool, { foreignKey: 'preschool_id' });
 Preschool.hasMany(Student, { foreignKey: 'preschool_id' });
 
 const PreschoolController = {
-  
+
   async getAllPreschools(req, res) {
     const searchExpression = req.query.preschool_name;
     console.log(searchExpression)
@@ -25,7 +25,8 @@ const PreschoolController = {
             preschool_name: {
               [Op.like]: `%${searchExpression}%`
             }
-        }});
+          }
+        });
         return res.json(preschools);
       }
       else {
@@ -35,22 +36,22 @@ const PreschoolController = {
         return res.json(preschools);
       }
     } catch (error) {
-      res.status(500).json({ message:error.message });
+      res.status(500).json({ message: error.message });
     }
   },
 
   async getPreschoolById(req, res) {
     const preschool_id = req.params.id;
     try {
-      const preschool = await Preschool.findByPk(preschool_id,{
+      const preschool = await Preschool.findByPk(preschool_id, {
         include: Address
       });
-      if (preschool){
+      if (preschool) {
         preschool.logo = await FilesManager.generateSignedUrl(preschool.logo);
         return res.status(200).json(preschool);
       }
       else {
-        return res.status(404).json({message: "Preschool Not Found."});
+        return res.status(404).json({ message: "Preschool Not Found." });
       }
     } catch (error) {
       return res.status(500).json({ message: error.message });
@@ -63,9 +64,9 @@ const PreschoolController = {
       const preschools = await Preschool.findOne({
         where: {
           name: {
-              [Op.eq]: searchExpression
+            [Op.eq]: searchExpression
           }
-      },
+        },
         include: Address
       });
       res.json(preschools);
@@ -77,6 +78,14 @@ const PreschoolController = {
   async createPreschool(req, res) {
     try {
       const preschoolData = req.body;
+      // Calculate subscription_expiry_date as 1 year from createdAt
+      const createdAt = new Date();
+      const subscriptionExpiryDate = new Date(createdAt);
+      subscriptionExpiryDate.setFullYear(subscriptionExpiryDate.getFullYear() + 1);
+
+      // Add subscription_expiry_date to preschoolData
+      preschoolData.subscription_expiry_date = subscriptionExpiryDate;
+
       const newPreschool = await Preschool.create(preschoolData);
       res.status(201).json({
         message: 'Preschool created successfully',
@@ -125,10 +134,10 @@ const PreschoolController = {
       const preschool = await Preschool.findByPk(preschoolId);
 
       //handle upload file for logo 
-      if (req.files['logoFile']){
+      if (req.files['logoFile']) {
         const logo_url = await FilesManager.upload(req.files['logoFile'][0]);
         updatedPreschoolData.logo = logo_url;
-    }
+      }
 
       if (preschool) {
         preschool.set(updatedPreschoolData);

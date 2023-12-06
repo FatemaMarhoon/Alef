@@ -5,6 +5,7 @@ import ReportForm from '@/components/Forms/reports/documentTypeForm';
 import TripReportForm from '@/components/Forms/reports/tripForm';
 import GeneratedReport from '@/components/Forms/reports/generatedTripReport';
 import GeneralReportForm from '@/components/Forms/reports/generalReportForm';
+import Loader from "@/components/common/Loader";
 
 import html2pdf from 'html2pdf.js';
 import { useRouter } from 'next/navigation'; // Import the useRouter hook

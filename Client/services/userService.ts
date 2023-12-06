@@ -80,9 +80,9 @@ export async function createUser(email: string, name: string, role: string, pres
       email: email,
       name: name,
       role_name: role,
-      preschool_id: 1
+      preschool_id: preschool
     }, config);
-    
+
     return response;
 
   } catch (error) {
