@@ -42,24 +42,24 @@ export default function AppProfile() {
     setSelectedLongitude(longitude);
   }, []);
 
-  useEffect(() => {
-    async function fetchPreschool() {
-      try {
-        await currentPreschool().then(async (preschool_id) => {
-          const preschool = await getPreschoolById(String(preschool_id));
-          setPreschool(preschool);
-          if (preschool.Address) {
-            setAddress(preschool.Address)
-          }
-          if (preschool.Preschool_Media) {
-            setExistingMedia(preschool.Preschool_Media)
-          }
-        })
-      } catch (error: any) {
-        console.log(error.message)
-      }
+  async function fetchPreschool() {
+    try {
+      await currentPreschool().then(async (preschool_id) => {
+        const preschool = await getPreschoolById(String(preschool_id));
+        setPreschool(preschool);
+        if (preschool.Address) {
+          setAddress(preschool.Address)
+        }
+        if (preschool.Preschool_Media) {
+          setExistingMedia(preschool.Preschool_Media)
+        }
+      })
+    } catch (error: any) {
+      console.log(error.message)
     }
+  }
 
+  useEffect(() => {
     fetchPreschool();
   }, []);
 
@@ -194,6 +194,12 @@ export default function AppProfile() {
     }
   };
 
+  const resetMedia = () => {
+    setUploadedMedia([]);
+    setDeletedMedia([]);
+    if (preschool.Preschool_Media)
+      setExistingMedia(preschool.Preschool_Media);
+  }
 
   return (
     <>
@@ -333,7 +339,7 @@ export default function AppProfile() {
                       className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
                       type="text"
                       value={preschool.minimum_age}
-                      onChange={(e) => setAddress(prevState => ({ ...prevState, minimum_age: Number(e.target.value) }))}
+                      onChange={(e) => setPreschool(prevState => ({ ...prevState, minimum_age: Number(e.target.value) }))}
 
                     />
                   </div>
@@ -346,7 +352,7 @@ export default function AppProfile() {
                       className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
                       type="text"
                       value={preschool.maximum_age}
-                      onChange={(e) => setAddress(prevState => ({ ...prevState, maximum_age: Number(e.target.value) }))}
+                      onChange={(e) => setPreschool(prevState => ({ ...prevState, maximum_age: Number(e.target.value) }))}
                     />
                   </div>
                 </div>
@@ -360,7 +366,7 @@ export default function AppProfile() {
                       className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
                       type="text"
                       value={preschool.registration_fees}
-                      onChange={(e) => setAddress(prevState => ({ ...prevState, registration_fees: Number(e.target.value) }))}
+                      onChange={(e) => setPreschool(prevState => ({ ...prevState, registration_fees: Number(e.target.value) }))}
 
                     />
                   </div>
@@ -373,7 +379,7 @@ export default function AppProfile() {
                       className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
                       type="text"
                       value={preschool.monthly_fees}
-                      onChange={(e) => setAddress(prevState => ({ ...prevState, monthly_fees: Number(e.target.value) }))}
+                      onChange={(e) => setPreschool(prevState => ({ ...prevState, monthly_fees: Number(e.target.value) }))}
                     />
                   </div>
                 </div>
@@ -424,6 +430,7 @@ export default function AppProfile() {
                 </div>
                 <div className="flex justify-end gap-4.5">
                   <button
+                  onClick={() => fetchPreschool}
                     className="flex justify-center rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
                   >
                     Cancel
@@ -477,7 +484,7 @@ export default function AppProfile() {
                       accept="image/*"
                       className="absolute inset-0 z-50 m-0 h-full w-full cursor-pointer p-0 opacity-0 outline-none"
                       onChange={(e) => handleUploadLogoChange(e, setUploadedLogo)}
-                    />
+                    /> 
                     <div className="flex flex-col items-center justify-center space-y-3">
                       {!previewImage &&
                         <>
@@ -624,6 +631,7 @@ export default function AppProfile() {
                   <>
                     <Gallery
                       existingImages={existingMedia}
+                      selectedMedia={uploadedMedia}
                       onDeleteExisting={handleDeleteExisting}
                       onUpload={handleUpload}
                     ></Gallery>
@@ -631,6 +639,7 @@ export default function AppProfile() {
                 }
                 <div className="flex justify-end gap-4.5">
                   <button
+                    onClick={resetMedia}
                     className="flex justify-center rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
                   >
                     Cancel
