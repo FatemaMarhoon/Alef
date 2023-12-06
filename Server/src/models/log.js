@@ -9,16 +9,22 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
     },
     original_values: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false,
     },
     current_values: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false,
     },
     timestamp: {
       type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW, // Automatically set the timestamp to the current date and time
       allowNull: false,
+    },
+    user_id: {
+      type: DataTypes.INTEGER,
+      // allowNull: false,
+
     },
   });
 
