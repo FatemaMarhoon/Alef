@@ -9,6 +9,8 @@ import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
 import ErrorAlert from "@/components/ErrorAlert";
 import { StaticValue } from "@/types/staticValue";
 import { getRequestStatuses } from "@/services/staticValuesService";
+import Loader from "@/components/common/Loader";
+
 // interface RequestReviewPageProps {
 //     requestId: string;
 // }
@@ -80,7 +82,7 @@ export default function RequestReviewPage({ params }: { params: { requestId: num
             setRequest(updatedRequestData);
 
             // If the new status is "Accepted", create a new preschool
-            if (newStatus === 'Accepted') {
+            if (newStatus === 'Approved') {
                 console.log('Creating new preschool with the following data:');
                 console.log('Preschool Name:', updatedRequestData?.preschool_name);
                 console.log('Request ID:', (params.requestId));
@@ -92,6 +94,10 @@ export default function RequestReviewPage({ params }: { params: { requestId: num
                     updatedRequestData?.preschool_name,
                     params.requestId,
                     updatedRequestData?.plan_id,
+                    updatedRequestData?.email,
+                    updatedRequestData?.CR,
+                    updatedRequestData?.representitive_name,
+                    updatedRequestData?.phone,
                     // Add other properties as needed
                 ).then(async (createdPreschool) => {
                     console.log('Preschool created successfully.');
@@ -122,7 +128,11 @@ export default function RequestReviewPage({ params }: { params: { requestId: num
 
     if (!request) {
         // You can add loading or error handling here
-        return <div>Loading...</div>;
+        {
+            return (
+                <Loader />
+            )
+        }
     }
 
 

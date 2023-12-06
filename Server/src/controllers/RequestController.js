@@ -7,6 +7,9 @@ const Plan = require('../models/subscription_plan')(sequelize, DataTypes);
 Request.belongsTo(Plan, { foreignKey: 'plan_id' });
 Plan.hasMany(Request, { foreignKey: 'plan_id' });
 
+const LogsController = require('./LogController');
+const UsersController = require('./UsersController');
+
 const RequestsController = {
     async getAllRequests(req, res) {
         try {
@@ -22,9 +25,20 @@ const RequestsController = {
     },
 
     async createRequest(req, res) {
+        const user_id = await UsersController.getCurrentUser(req, res);
 
         const { preschool_name, representitive_name, CR, phone, email, plan_id, status } = req.body;
+        const RequestData = { preschool_name, representitive_name, CR, phone, email, plan_id, status }
         try {
+            //create log
+            await LogsController.createLog({
+                type: 'Request Creation',
+                original_values: JSON.stringify(RequestData),
+                current_values: JSON.stringify(RequestData),
+                user_id: user_id
+            });
+
+
             const newRequest = await Request.create({
                 preschool_name,
                 representitive_name,
@@ -36,6 +50,13 @@ const RequestsController = {
             });
             return res.json({ message: 'Request created successfully', request: newRequest });
         } catch (error) {
+            // Create a log entry for the error
+            await LogsController.createLog({
+                type: 'Error',
+                original_values: JSON.stringify(RequestData),
+                current_values: JSON.stringify({ error: error.message }),
+                user_id: user_id
+            });
             return res.status(500).json({ message: error.message });
         }
     },
@@ -59,6 +80,7 @@ const RequestsController = {
     async updateRequest(req, res) {
         const requestId = req.params.id;
         const { preschool_name, representitive_name, CR, phone, email, plan_id, status } = req.body;
+
         try {
             const request = await Request.findByPk(requestId);
             if (request) {

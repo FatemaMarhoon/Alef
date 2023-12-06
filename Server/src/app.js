@@ -4,8 +4,7 @@ const cors = require('cors')
 const app = express();
 const PORT = process.env.PORT || 3000;
 const cron = require('node-cron');
-const cronJob = require('./cron-job'); 
-
+const cronJob = require('./cron-job');
 
 //imports
 const userRoutes = require('./routes/userRoutes');
