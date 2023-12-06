@@ -16,21 +16,20 @@ export interface Preschool {
     representitive_name?: string;
     description?:string;
     Address?: Address;
-    Media?: string;
 }
 
-interface Address {
+export interface Address {
     id?: number;
-    longitude: number,
-    latitude: number;
-    area: string;
-    road: number;
-    building: number;
-    preschool_id: number;
+    longitude?: number,
+    latitude?: number;
+    area?: string;
+    road?: number;
+    building?: number;
+    preschool_id?: number;
 }
 
-interface Media {
+export interface Media {
     id?: number;
-    file:string;
-    type:string
+    file?:string;
+    type?:string
 }

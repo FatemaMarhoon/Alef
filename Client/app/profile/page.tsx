@@ -2,20 +2,53 @@
 import { useRouter } from 'next/navigation';
 import Image from "next/image";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import { ChangeEvent, useEffect, useState } from 'react';
-import { Preschool } from '@/types/preschool';
-import { getPreschoolById,updatePreschool } from '@/services/preschoolService';
+import { ChangeEvent, useCallback, useEffect, useState } from 'react';
+import { Address, Preschool, Media } from '@/types/preschool';
+import { getPreschoolById, updatePreschool, updatePreschoolAddress } from '@/services/preschoolService';
 import { currentPreschool } from '@/services/authService';
+import Map from '@/components/map';
+import Gallery from '@/components/gallery';
+import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
+import ErrorAlert from '@/components/ErrorAlert';
+import SuccessAlert from '@/components/SuccessAlert';
 
 export default function AppProfile() {
-  const [preschool, setPreschool] = useState<Preschool>();
+  const router = useRouter();
+  const [preschool, setPreschool] = useState<Preschool>({
+    preschool_name: undefined,
+    plan_id: undefined,
+    request_id: undefined,
+    minimum_age: undefined,
+    maximum_age: undefined,
+    monthly_fees: undefined,
+    cirriculum: undefined,
+    registration_fees: undefined
+
+  });
+  const [address, setAddress] = useState<Address>({});
+  const [existingMedia, setExistingMedia] = useState<Media[]>([]);
+  const [uploadedMedia, setUploadedMedia] = useState<File[]>([]);
   const [uploadedLogo, setUploadedLogo] = useState<File>();
+  const [selectedLatitude, setSelectedLatitude] = useState<number>(preschool?.Address?.latitude ? preschool?.Address.latitude : 26.143472094940822);
+  const [selectedLongitude, setSelectedLongitude] = useState<number>(preschool?.Address?.longitude ? preschool?.Address.longitude : 50.612205678091314);
+  const { successMessage, setSuccessMessage } = useSuccessMessageContext();
+  const [error, setError] = useState("");
+  const [previewImage, setPreviewImage] = useState<string>();
+
+  const handleLocationChange = useCallback((latitude: number, longitude: number) => {
+    setSelectedLatitude(latitude);
+    setSelectedLongitude(longitude);
+  }, []);
+
   useEffect(() => {
     async function fetchPreschool() {
       try {
         await currentPreschool().then(async (preschool_id) => {
           const preschool = await getPreschoolById(String(preschool_id));
           setPreschool(preschool);
+          if (preschool.Address) {
+            setAddress(preschool.Address)
+          }
         })
       } catch (error: any) {
         console.log(error.message)
@@ -25,28 +58,95 @@ export default function AppProfile() {
 
   }, []);
 
+  async function handleSubmitForm() {
+    try {
+      console.log("Function called")
+      if (preschool.id) {
+        const response = await updatePreschool(String(preschool.id), preschool)
+        // const response2 = await updatePreschoolAddress(address);
+        if (response.status == 200) {
+          setSuccessMessage(response.data.message);
+          router.refresh();
+        }
+        else if (response.status == 400 || response.status == 404 || response.status == 500) {
+          setError(response.data.message);
+        }
+      }
+    } catch (error: any) {
+      if (error.response) {
+        setError(error.response.data.message);
+      }
+      else if (error.message) {
+        setError(error.message);
+      }
+    }
+  }
 
   function handleUploadLogoChange(e: ChangeEvent<HTMLInputElement>, setFile: React.Dispatch<React.SetStateAction<File | undefined>>) {
     const file = e.target.files?.[0];
     setFile(file);
-  };
+    if (file) {
+      // Create a temporary URL for the uploaded image
+      const imageURL = URL.createObjectURL(file);
+      setPreviewImage(imageURL);
+    }
+  }
+
 
   async function uploadLogo() {
     try {
-      if (preschool?.id){
+      if (preschool?.id) {
         preschool.logoFile = uploadedLogo;
-        const response = await updatePreschool(String(preschool?.id),preschool)
+        const response = await updatePreschool(String(preschool?.id), preschool)
+        if (response.status == 200 || response.status == 201) {
+          setSuccessMessage(response.data.message);
+          router.refresh();
+        }
+        else if (response.status == 400 || response.status == 404 || response.status == 500) {
+          setError(response.data.message);
+        }
+      }
+    } catch (error: any) {
+      if (error.response) {
+        setError(error.response.data.message);
+      }
+      else if (error.message) {
+        setError(error.message);
+      }
+    }
+  }
+
+  async function handleUpdateLocation() {
+    try {
+      address.latitude = selectedLatitude;
+      address.longitude = selectedLongitude;
+      const response = await updatePreschoolAddress(address);
+      if (response.status == 200 || response.status == 201) {
+        setSuccessMessage(response.data.message);
+        router.refresh(); // Redirect to the applications page after submission
+        window.scrollTo(0, 0);
+
+      }
+      else if (response.status == 400 || response.status == 404 || response.status == 500) {
+        setError(response.data.message);
       }
 
     } catch (error: any) {
-
+      if (error.response) {
+        setError(error.response.data.message);
+      }
+      else if (error.message) {
+        setError(error.message);
+      }
     }
   }
 
   return (
     <>
-      <div className="mx-auto max-w-270">
+      <div className="mx-auto max-w-290">
         <Breadcrumb pageName="App Profile" />
+        {error && <ErrorAlert message={error}></ErrorAlert>}
+        {successMessage && <SuccessAlert message={successMessage} />}
 
         <div className="grid grid-cols-5 gap-8">
           <div className="col-span-5 xl:col-span-3">
@@ -92,9 +192,10 @@ export default function AppProfile() {
                         </svg>
                       </span>
                       <input
-                        className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                        className="w-full rounded border border-stroke bg-transparent py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
                         type="text"
                         value={preschool?.preschool_name}
+                        onChange={(e) => setPreschool(prevState => ({ ...prevState, preschool_name: e.target.value }))}
                       />
                     </div>
                   </div>
@@ -107,10 +208,10 @@ export default function AppProfile() {
                       Contact Number
                     </label>
                     <input
-                      className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                      className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
                       type="text"
                       value={preschool?.phone}
-
+                      onChange={(e) => setPreschool(prevState => ({ ...prevState, phone: e.target.value }))}
                     />
                   </div>
                 </div>
@@ -147,9 +248,10 @@ export default function AppProfile() {
                       </svg>
                     </span>
                     <input
-                      className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                      className="w-full rounded border border-stroke bg-transparent py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
                       type="email"
                       value={preschool?.email}
+                      onChange={(e) => setPreschool(prevState => ({ ...prevState, email: e.target.value }))}
                     />
                   </div>
                 </div>
@@ -160,43 +262,24 @@ export default function AppProfile() {
                     Cirriculum
                   </label>
                   <input
-                    className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                    className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
                     type="text"
                     value={preschool?.cirriculum}
+                    onChange={(e) => setPreschool(prevState => ({ ...prevState, cirriculum: e.target.value }))}
                   />
                 </div>
-                <label
-                  className="mb-3 block text-sm font-medium text-black dark:text-white">
-                  Address
-                </label>
-                <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
 
-                  <div className="w-full sm:w-1/2">
-                    <label
-                      className="mb-3 block text-sm font-medium text-black dark:text-white">
-                      Area
-                    </label>
-                    <div className="relative">
-                      <input
-                        className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                        type="text"
-                        value={preschool?.Address?.area}
-                      />
-                    </div>
-                  </div>
-                  <div className="w-full sm:w-1/2">
-                    <label
-                      className="mb-3 block text-sm font-medium text-black dark:text-white">
-                      Block
-                    </label>
-                    <div className="relative">
-                      <input
-                        className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                        type="text"
-                        value={preschool?.Address?.area}
-                      />
-                    </div>
-                  </div>
+                {/* <div className="mb-5.5">
+                  <label
+                    className="mb-3 block text-sm font-medium text-black dark:text-white">
+                    Address - Area
+                  </label>
+                  <input
+                    className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                    type="text"
+                    value={address.area}
+                    onChange={(e) => setAddress(prevState => ({ ...prevState, area: e.target.value }))}
+                  />
                 </div>
 
                 <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
@@ -206,9 +289,10 @@ export default function AppProfile() {
                       Road
                     </label>
                     <input
-                      className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                      className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
                       type="text"
-                      value={preschool?.phone}
+                      value={address.road}
+                      onChange={(e) => setAddress(prevState => ({ ...prevState, road: Number(e.target.value) }))}
 
                     />
                   </div>
@@ -218,9 +302,65 @@ export default function AppProfile() {
                       Building
                     </label>
                     <input
-                      className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                      className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
                       type="text"
-                      value={preschool?.phone}
+                      value={address.building}
+                      onChange={(e) => setAddress(prevState => ({ ...prevState, building: Number(e.target.value) }))}
+                    />
+                  </div>
+                </div> */}
+
+                <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
+                  <div className="w-full sm:w-1/2">
+                    <label
+                      className="mb-3 block text-sm font-medium text-black dark:text-white">
+                      Minimum Age
+                    </label>
+                    <input
+                      className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                      type="text"
+                      value={preschool.minimum_age}
+                      onChange={(e) => setAddress(prevState => ({ ...prevState, minimum_age: Number(e.target.value) }))}
+
+                    />
+                  </div>
+                  <div className="w-full sm:w-1/2">
+                    <label
+                      className="mb-3 block text-sm font-medium text-black dark:text-white">
+                      Maximum Age
+                    </label>
+                    <input
+                      className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                      type="text"
+                      value={preschool.maximum_age}
+                      onChange={(e) => setAddress(prevState => ({ ...prevState, maximum_age: Number(e.target.value) }))}
+                    />
+                  </div>
+                </div>
+                <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
+                  <div className="w-full sm:w-1/2">
+                    <label
+                      className="mb-3 block text-sm font-medium text-black dark:text-white">
+                      Registration Fees
+                    </label>
+                    <input
+                      className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                      type="text"
+                      value={preschool.registration_fees}
+                      onChange={(e) => setAddress(prevState => ({ ...prevState, registration_fees: Number(e.target.value) }))}
+
+                    />
+                  </div>
+                  <div className="w-full sm:w-1/2">
+                    <label
+                      className="mb-3 block text-sm font-medium text-black dark:text-white">
+                      Monthly Fees
+                    </label>
+                    <input
+                      className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                      type="text"
+                      value={preschool.monthly_fees}
+                      onChange={(e) => setAddress(prevState => ({ ...prevState, monthly_fees: Number(e.target.value) }))}
                     />
                   </div>
                 </div>
@@ -262,24 +402,35 @@ export default function AppProfile() {
                     </span>
 
                     <textarea
-                      className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                      className="w-full rounded border border-stroke bg-transparent py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
                       value={preschool?.description}
                       rows={6}
                       placeholder="Write a breif description about your preschool."
                     ></textarea>
                   </div>
                 </div>
-
+                {/* <div className="mb-5.5">
+                <label
+                    className="mb-3 block text-sm font-medium text-black dark:text-white">
+                    Gallery
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="absolute inset-0 z-50 m-0 h-full w-full cursor-pointer p-0 opacity-0 outline-none"
+                    // onChange={(e) => handleGalleryUploadChange(e, setGalleryImages)}
+                    multiple // This allows users to select multiple files
+                  />
+                </div> */}
                 <div className="flex justify-end gap-4.5">
                   <button
                     className="flex justify-center rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
-                    type="submit"
                   >
                     Cancel
                   </button>
                   <button
                     className="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-95"
-                    type="submit"
+                    onClick={handleSubmitForm}
                   >
                     Save
                   </button>
@@ -298,12 +449,9 @@ export default function AppProfile() {
                 <form action="#">
                   <div className="mb-4 flex items-center gap-3">
                     <div className="h-14 w-14 rounded-full">
-                      <Image
-                        src={preschool?.logo ? preschool?.logo : ""}
-                        width={55}
+                      <img src={preschool?.logo ? preschool?.logo : ""} width={55}
                         height={55}
-                        alt="User"
-                      />
+                        alt="Logo"></img>
                     </div>
                     <div>
                       <span className="mb-1.5 text-black dark:text-white">
@@ -331,41 +479,53 @@ export default function AppProfile() {
                       onChange={(e) => handleUploadLogoChange(e, setUploadedLogo)}
                     />
                     <div className="flex flex-col items-center justify-center space-y-3">
-                      <span className="flex h-10 w-10 items-center justify-center rounded-full border border-stroke bg-white dark:border-strokedark dark:bg-boxdark">
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 16 16"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            clipRule="evenodd"
-                            d="M1.99967 9.33337C2.36786 9.33337 2.66634 9.63185 2.66634 10V12.6667C2.66634 12.8435 2.73658 13.0131 2.8616 13.1381C2.98663 13.2631 3.1562 13.3334 3.33301 13.3334H12.6663C12.8431 13.3334 13.0127 13.2631 13.1377 13.1381C13.2628 13.0131 13.333 12.8435 13.333 12.6667V10C13.333 9.63185 13.6315 9.33337 13.9997 9.33337C14.3679 9.33337 14.6663 9.63185 14.6663 10V12.6667C14.6663 13.1971 14.4556 13.7058 14.0806 14.0809C13.7055 14.456 13.1968 14.6667 12.6663 14.6667H3.33301C2.80257 14.6667 2.29387 14.456 1.91879 14.0809C1.54372 13.7058 1.33301 13.1971 1.33301 12.6667V10C1.33301 9.63185 1.63148 9.33337 1.99967 9.33337Z"
-                            fill="#3C50E0"
-                          />
-                          <path
-                            fillRule="evenodd"
-                            clipRule="evenodd"
-                            d="M7.5286 1.52864C7.78894 1.26829 8.21106 1.26829 8.4714 1.52864L11.8047 4.86197C12.0651 5.12232 12.0651 5.54443 11.8047 5.80478C11.5444 6.06513 11.1223 6.06513 10.8619 5.80478L8 2.94285L5.13807 5.80478C4.87772 6.06513 4.45561 6.06513 4.19526 5.80478C3.93491 5.54443 3.93491 5.12232 4.19526 4.86197L7.5286 1.52864Z"
-                            fill="#3C50E0"
-                          />
-                          <path
-                            fillRule="evenodd"
-                            clipRule="evenodd"
-                            d="M7.99967 1.33337C8.36786 1.33337 8.66634 1.63185 8.66634 2.00004V10C8.66634 10.3682 8.36786 10.6667 7.99967 10.6667C7.63148 10.6667 7.33301 10.3682 7.33301 10V2.00004C7.33301 1.63185 7.63148 1.33337 7.99967 1.33337Z"
-                            fill="#3C50E0"
-                          />
-                        </svg>
-                      </span>
-                      <p>
-                        <span className="text-primary">Click to upload</span> or
-                        drag and drop
-                      </p>
-                      <p className="mt-1.5">SVG, PNG, JPG or GIF</p>
-                      <p>(max, 800 X 800px)</p>
+                      {!previewImage &&
+                        <>
+                          <span className="flex h-10 w-10 items-center justify-center rounded-full border border-stroke bg-white dark:border-strokedark dark:bg-boxdark">
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 16 16"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                clipRule="evenodd"
+                                d="M1.99967 9.33337C2.36786 9.33337 2.66634 9.63185 2.66634 10V12.6667C2.66634 12.8435 2.73658 13.0131 2.8616 13.1381C2.98663 13.2631 3.1562 13.3334 3.33301 13.3334H12.6663C12.8431 13.3334 13.0127 13.2631 13.1377 13.1381C13.2628 13.0131 13.333 12.8435 13.333 12.6667V10C13.333 9.63185 13.6315 9.33337 13.9997 9.33337C14.3679 9.33337 14.6663 9.63185 14.6663 10V12.6667C14.6663 13.1971 14.4556 13.7058 14.0806 14.0809C13.7055 14.456 13.1968 14.6667 12.6663 14.6667H3.33301C2.80257 14.6667 2.29387 14.456 1.91879 14.0809C1.54372 13.7058 1.33301 13.1971 1.33301 12.6667V10C1.33301 9.63185 1.63148 9.33337 1.99967 9.33337Z"
+                                fill="#3C50E0"
+                              />
+                              <path
+                                fillRule="evenodd"
+                                clipRule="evenodd"
+                                d="M7.5286 1.52864C7.78894 1.26829 8.21106 1.26829 8.4714 1.52864L11.8047 4.86197C12.0651 5.12232 12.0651 5.54443 11.8047 5.80478C11.5444 6.06513 11.1223 6.06513 10.8619 5.80478L8 2.94285L5.13807 5.80478C4.87772 6.06513 4.45561 6.06513 4.19526 5.80478C3.93491 5.54443 3.93491 5.12232 4.19526 4.86197L7.5286 1.52864Z"
+                                fill="#3C50E0"
+                              />
+                              <path
+                                fillRule="evenodd"
+                                clipRule="evenodd"
+                                d="M7.99967 1.33337C8.36786 1.33337 8.66634 1.63185 8.66634 2.00004V10C8.66634 10.3682 8.36786 10.6667 7.99967 10.6667C7.63148 10.6667 7.33301 10.3682 7.33301 10V2.00004C7.33301 1.63185 7.63148 1.33337 7.99967 1.33337Z"
+                                fill="#3C50E0"
+                              />
+                            </svg>
+                          </span>
+
+                          <p>
+                            <span className="text-primary">Click to upload</span> or
+                            drag and drop
+                          </p>
+                          <p className="mt-1.5">SVG, PNG, JPG or GIF</p>
+                          <p>(max, 800 X 800px)</p>
+                        </>
+                      }
                     </div>
+
+                    {/* Display the preview image */}
+                    {previewImage && (
+                      <div>
+                        <img src={previewImage} alt="Preview" style={{ maxWidth: '100%', maxHeight: '200p100x' }} />
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex justify-end gap-4.5">
@@ -377,7 +537,6 @@ export default function AppProfile() {
                     </button>
                     <button
                       className="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-95"
-                      type="submit"
                       onClick={uploadLogo}
                     >
                       Save
@@ -387,8 +546,90 @@ export default function AppProfile() {
               </div>
             </div>
           </div>
+          <div className="col-span-5 xl:col-span-3">
+            <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+              <div className="border-b border-stroke py-4 px-7 dark:border-strokedark">
+                <h3 className="font-medium text-black dark:text-white">
+                  Your Location
+                </h3>
+              </div>
+              {preschool?.Address &&
+                <div className="p-7">
+                  <div className="mb-5.5">
+                    <label
+                      className="mb-3 block text-sm font-medium text-black dark:text-white">
+                      Area
+                    </label>
+                    <input
+                      className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                      type="text"
+                      value={address.area}
+                      onChange={(e) => setAddress(prevState => ({ ...prevState, area: e.target.value }))}
+                    />
+                  </div>
+
+                  <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
+                    <div className="w-full sm:w-1/2">
+                      <label
+                        className="mb-3 block text-sm font-medium text-black dark:text-white">
+                        Road
+                      </label>
+                      <input
+                        className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                        type="text"
+                        value={address.road}
+                        onChange={(e) => setAddress(prevState => ({ ...prevState, road: Number(e.target.value) }))}
+
+                      />
+                    </div>
+                    <div className="w-full sm:w-1/2">
+                      <label
+                        className="mb-3 block text-sm font-medium text-black dark:text-white">
+                        Building
+                      </label>
+                      <input
+                        className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                        type="text"
+                        value={address.building}
+                        onChange={(e) => setAddress(prevState => ({ ...prevState, building: Number(e.target.value) }))}
+                      />
+                    </div>
+                  </div>
+                  <Map initialLatitude={selectedLatitude}
+                    initialLongitude={selectedLongitude}
+                    onLocationChange={handleLocationChange}></Map>
+                  <div className="flex justify-end gap-4.5">
+                    <button
+                      className="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-95"
+                      type="submit"
+                      onClick={handleUpdateLocation}
+                    >
+                      Update
+                    </button>
+                  </div>
+                </div>
+              }
+
+            </div>
+          </div>
+          <div className="col-span-5 xl:col-span-3">
+            <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+              <div className="border-b border-stroke py-4 px-7 dark:border-strokedark">
+                <h3 className="font-medium text-black dark:text-white">
+                  Your Gallery
+                </h3>
+              </div>
+              {preschool &&
+                <>
+                  {/* <Gallery existingImages={media} onDelete={} onUpload={}></Gallery> */}
+                </>
+              }
+            </div>
+          </div>
         </div>
+
       </div>
+
     </>
   );
 };

@@ -5,6 +5,7 @@ const Preschool = require('../models/preschool')(sequelize, DataTypes);
 const User = require('../models/user')(sequelize, DataTypes);
 const Address = require('../models/address')(sequelize, DataTypes);
 const Student = require('../models/student')(sequelize, DataTypes);
+const FilesManager = require('./FilesManager');
 
 Preschool.hasMany(User, { foreignKey: 'preschool_id' });
 Address.belongsTo(Preschool, { foreignKey: 'preschool_id' });
@@ -41,12 +42,18 @@ const PreschoolController = {
   async getPreschoolById(req, res) {
     const preschool_id = req.params.id;
     try {
-      const preschools = await Preschool.findByPk(preschool_id,{
+      const preschool = await Preschool.findByPk(preschool_id,{
         include: Address
       });
-      res.json(preschools);
+      if (preschool){
+        preschool.logo = await FilesManager.generateSignedUrl(preschool.logo);
+        return res.status(200).json(preschool);
+      }
+      else {
+        return res.status(404).json({message: "Preschool Not Found."});
+      }
     } catch (error) {
-      res.status(500).json({ message: 'Internal server error while retrieving preschools.' });
+      return res.status(500).json({ message: error.message });
     }
   },
 
@@ -79,6 +86,8 @@ const PreschoolController = {
       res.status(400).json({ message: 'Failed to create a new preschool. Please check your request data.', error: error.message });
     }
   },
+
+
   //this doesnt work correctly, it needs to be created after approving reuqest
   // async createPreschool(req, res) {
   //   const preschoolData = req.body;
@@ -112,7 +121,14 @@ const PreschoolController = {
     const preschoolId = req.params.id;
     const updatedPreschoolData = req.body;
     try {
+
       const preschool = await Preschool.findByPk(preschoolId);
+
+      //handle upload file for logo 
+      if (req.files['logoFile']){
+        const logo_url = await FilesManager.upload(req.files['logoFile'][0]);
+        updatedPreschoolData.logo = logo_url;
+    }
 
       if (preschool) {
         preschool.set(updatedPreschoolData);
@@ -123,6 +139,7 @@ const PreschoolController = {
         res.status(404).json({ message: 'Preschool not found or no changes made' });
       }
     } catch (error) {
+      console.log(error)
       res.status(500).json({ message: 'Internal server error while updating the preschool.' });
     }
   },
@@ -139,6 +156,27 @@ const PreschoolController = {
       }
     } catch (error) {
       res.status(500).json({ message: 'Internal server error while deleting the preschool.' });
+    }
+  },
+
+
+  async updatePreschoolAddress(req, res) {
+    const addressId = req.params.id;
+    const updatedAddress = req.body;
+    try {
+      const address = await Address.findByPk(addressId);
+
+      if (address) {
+        address.set(updatedAddress);
+        await address.save();
+
+        res.json({ message: 'Address updated successfully', address: updatedAddress });
+      } else {
+        res.status(404).json({ message: 'Address not found or no changes made' });
+      }
+    } catch (error) {
+      console.log(error.message)
+      res.status(500).json({ message: 'Internal server error while updating the preschool.' });
     }
   },
 };

@@ -15,6 +15,7 @@
     "@heroicons/react": "^2.0.18",
     "@mui/icons-material": "^5.14.18",
     "@mui/material": "^5.14.18",
+    "@react-google-maps/api": "^2.19.2",
     "axios": "^1.6.0",
     "encoding": "^0.1.13",
     "firebase": "^10.6.0",
