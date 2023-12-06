@@ -49,12 +49,16 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       // allowNull: false,
     },
-    representitive_name :{
+    representitive_name: {
       type: DataTypes.STRING,
     },
     description: {
       type: DataTypes.STRING,
       // allowNull: false,
+    },
+    CR: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
   },
     {
