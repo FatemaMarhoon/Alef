@@ -5,6 +5,7 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import { Address, Preschool, Media } from '@/types/preschool';
 import { getPreschoolById, updatePreschool, updatePreschoolAddress } from '@/services/preschoolService';
+import { getMedia, uploadMedia, deleteMultipleMedia } from '@/services/mediaService';
 import { currentPreschool } from '@/services/authService';
 import Map from '@/components/map';
 import Gallery from '@/components/gallery';
@@ -28,6 +29,7 @@ export default function AppProfile() {
   const [address, setAddress] = useState<Address>({});
   const [existingMedia, setExistingMedia] = useState<Media[]>([]);
   const [uploadedMedia, setUploadedMedia] = useState<File[]>([]);
+  const [deletedMedia, setDeletedMedia] = useState<number[]>([]);
   const [uploadedLogo, setUploadedLogo] = useState<File>();
   const [selectedLatitude, setSelectedLatitude] = useState<number>(preschool?.Address?.latitude ? preschool?.Address.latitude : 26.143472094940822);
   const [selectedLongitude, setSelectedLongitude] = useState<number>(preschool?.Address?.longitude ? preschool?.Address.longitude : 50.612205678091314);
@@ -40,31 +42,37 @@ export default function AppProfile() {
     setSelectedLongitude(longitude);
   }, []);
 
-  useEffect(() => {
-    async function fetchPreschool() {
-      try {
-        await currentPreschool().then(async (preschool_id) => {
-          const preschool = await getPreschoolById(String(preschool_id));
-          setPreschool(preschool);
-          if (preschool.Address) {
-            setAddress(preschool.Address)
-          }
-        })
-      } catch (error: any) {
-        console.log(error.message)
-      }
+  async function fetchPreschool() {
+    try {
+      await currentPreschool().then(async (preschool_id) => {
+        const preschool = await getPreschoolById(String(preschool_id));
+        setPreschool(preschool);
+        if (preschool.Address) {
+          setAddress(preschool.Address)
+        }
+        if (preschool.Preschool_Media) {
+          setExistingMedia(preschool.Preschool_Media)
+        }
+      })
+    } catch (error: any) {
+      console.log(error.message)
     }
-    fetchPreschool();
+  }
 
+  useEffect(() => {
+    fetchPreschool();
   }, []);
 
   async function handleSubmitForm() {
     try {
       console.log("Function called")
+      //clear logo (as it has the url not the real value so we don't want o override here)
+      preschool.logo = "";
       if (preschool.id) {
         const response = await updatePreschool(String(preschool.id), preschool)
         // const response2 = await updatePreschoolAddress(address);
         if (response.status == 200) {
+          setError(""); //clear any existing error
           setSuccessMessage(response.data.message);
           router.refresh();
         }
@@ -99,6 +107,7 @@ export default function AppProfile() {
         preschool.logoFile = uploadedLogo;
         const response = await updatePreschool(String(preschool?.id), preschool)
         if (response.status == 200 || response.status == 201) {
+          setError(""); //clear any existing error
           setSuccessMessage(response.data.message);
           router.refresh();
         }
@@ -122,6 +131,7 @@ export default function AppProfile() {
       address.longitude = selectedLongitude;
       const response = await updatePreschoolAddress(address);
       if (response.status == 200 || response.status == 201) {
+        setError(""); //clear any existing error
         setSuccessMessage(response.data.message);
         router.refresh(); // Redirect to the applications page after submission
         window.scrollTo(0, 0);
@@ -139,6 +149,62 @@ export default function AppProfile() {
         setError(error.message);
       }
     }
+  }
+
+  const handleDeleteExisting = (id: number) => {
+    console.log(id, " is being added to deleted array")
+    setDeletedMedia([...deletedMedia, id]);
+    //remove from existing view 
+    const updatedExistingMedia = [...existingMedia];
+    const index = existingMedia.findIndex((media) => media.id === id);
+    updatedExistingMedia.splice(index, 1)[0];
+    setExistingMedia(updatedExistingMedia);
+  };
+
+  const handleUpload = (files: FileList | null) => {
+    if (files) {
+      const newFiles = Array.from(files);
+      setUploadedMedia((prevFiles) => [...prevFiles, ...newFiles]);
+    }
+  };
+
+  const handleUpdatingMedia = async () => {
+    console.log("Handling Started")
+    console.log("Uploaded: ", uploadedMedia)
+    console.log("DEleted: ", deletedMedia)
+    try {
+      //delete media 
+      if (deletedMedia.length > 0) {
+        const response = await deleteMultipleMedia(deletedMedia)
+        if (response.status == 200 || response.status == 201) {
+          setError(""); //clear any existing error
+          setSuccessMessage(response.data.message);
+        }
+        else if (response.status == 400 || response.status == 404 || response.status == 500) {
+          setError(response.data.message);
+        }
+      }
+
+      //upload new media 
+      if (uploadedMedia.length > 0) {
+        const response = await uploadMedia(uploadedMedia);
+        if (response.status == 200 || response.status == 201) {
+          setSuccessMessage(response.data.message);
+        }
+        else if (response.status == 400 || response.status == 404 || response.status == 500) {
+          setError(response.data.message);
+        }
+      }
+    } catch (error: any) {
+      setError(error.message)
+    }
+  };
+
+  const resetMedia = () => {
+    setUploadedMedia([]);
+    setDeletedMedia([]);
+    if (preschool.Preschool_Media)
+      setExistingMedia(preschool.Preschool_Media);
   }
 
   return (
@@ -269,47 +335,6 @@ export default function AppProfile() {
                   />
                 </div>
 
-                {/* <div className="mb-5.5">
-                  <label
-                    className="mb-3 block text-sm font-medium text-black dark:text-white">
-                    Address - Area
-                  </label>
-                  <input
-                    className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                    type="text"
-                    value={address.area}
-                    onChange={(e) => setAddress(prevState => ({ ...prevState, area: e.target.value }))}
-                  />
-                </div>
-
-                <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
-                  <div className="w-full sm:w-1/2">
-                    <label
-                      className="mb-3 block text-sm font-medium text-black dark:text-white">
-                      Road
-                    </label>
-                    <input
-                      className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                      type="text"
-                      value={address.road}
-                      onChange={(e) => setAddress(prevState => ({ ...prevState, road: Number(e.target.value) }))}
-
-                    />
-                  </div>
-                  <div className="w-full sm:w-1/2">
-                    <label
-                      className="mb-3 block text-sm font-medium text-black dark:text-white">
-                      Building
-                    </label>
-                    <input
-                      className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                      type="text"
-                      value={address.building}
-                      onChange={(e) => setAddress(prevState => ({ ...prevState, building: Number(e.target.value) }))}
-                    />
-                  </div>
-                </div> */}
-
                 <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
                   <div className="w-full sm:w-1/2">
                     <label
@@ -320,7 +345,7 @@ export default function AppProfile() {
                       className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
                       type="text"
                       value={preschool.minimum_age}
-                      onChange={(e) => setAddress(prevState => ({ ...prevState, minimum_age: Number(e.target.value) }))}
+                      onChange={(e) => setPreschool(prevState => ({ ...prevState, minimum_age: Number(e.target.value) }))}
 
                     />
                   </div>
@@ -333,7 +358,7 @@ export default function AppProfile() {
                       className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
                       type="text"
                       value={preschool.maximum_age}
-                      onChange={(e) => setAddress(prevState => ({ ...prevState, maximum_age: Number(e.target.value) }))}
+                      onChange={(e) => setPreschool(prevState => ({ ...prevState, maximum_age: Number(e.target.value) }))}
                     />
                   </div>
                 </div>
@@ -347,7 +372,7 @@ export default function AppProfile() {
                       className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
                       type="text"
                       value={preschool.registration_fees}
-                      onChange={(e) => setAddress(prevState => ({ ...prevState, registration_fees: Number(e.target.value) }))}
+                      onChange={(e) => setPreschool(prevState => ({ ...prevState, registration_fees: Number(e.target.value) }))}
 
                     />
                   </div>
@@ -360,7 +385,7 @@ export default function AppProfile() {
                       className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
                       type="text"
                       value={preschool.monthly_fees}
-                      onChange={(e) => setAddress(prevState => ({ ...prevState, monthly_fees: Number(e.target.value) }))}
+                      onChange={(e) => setPreschool(prevState => ({ ...prevState, monthly_fees: Number(e.target.value) }))}
                     />
                   </div>
                 </div>
@@ -409,21 +434,9 @@ export default function AppProfile() {
                     ></textarea>
                   </div>
                 </div>
-                {/* <div className="mb-5.5">
-                <label
-                    className="mb-3 block text-sm font-medium text-black dark:text-white">
-                    Gallery
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="absolute inset-0 z-50 m-0 h-full w-full cursor-pointer p-0 opacity-0 outline-none"
-                    // onChange={(e) => handleGalleryUploadChange(e, setGalleryImages)}
-                    multiple // This allows users to select multiple files
-                  />
-                </div> */}
                 <div className="flex justify-end gap-4.5">
                   <button
+                  onClick={() => fetchPreschool}
                     className="flex justify-center rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
                   >
                     Cancel
@@ -477,7 +490,7 @@ export default function AppProfile() {
                       accept="image/*"
                       className="absolute inset-0 z-50 m-0 h-full w-full cursor-pointer p-0 opacity-0 outline-none"
                       onChange={(e) => handleUploadLogoChange(e, setUploadedLogo)}
-                    />
+                    /> 
                     <div className="flex flex-col items-center justify-center space-y-3">
                       {!previewImage &&
                         <>
@@ -619,11 +632,32 @@ export default function AppProfile() {
                   Your Gallery
                 </h3>
               </div>
-              {preschool &&
-                <>
-                  {/* <Gallery existingImages={media} onDelete={} onUpload={}></Gallery> */}
-                </>
-              }
+              <div className="p-7">
+                {existingMedia &&
+                  <>
+                    <Gallery
+                      existingImages={existingMedia}
+                      selectedMedia={uploadedMedia}
+                      onDeleteExisting={handleDeleteExisting}
+                      onUpload={handleUpload}
+                    ></Gallery>
+                  </>
+                }
+                <div className="flex justify-end gap-4.5">
+                  <button
+                    onClick={resetMedia}
+                    className="flex justify-center rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-95"
+                    onClick={handleUpdatingMedia}
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

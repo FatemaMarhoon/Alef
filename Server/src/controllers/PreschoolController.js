@@ -5,8 +5,10 @@ const Preschool = require('../models/preschool')(sequelize, DataTypes);
 const User = require('../models/user')(sequelize, DataTypes);
 const Address = require('../models/address')(sequelize, DataTypes);
 const Student = require('../models/student')(sequelize, DataTypes);
+const Media = require('../models/preschool_media')(sequelize, DataTypes);
 const FilesManager = require('./FilesManager');
 
+Preschool.hasMany(Media, { foreignKey: 'preschool_id' });
 Preschool.hasMany(User, { foreignKey: 'preschool_id' });
 Address.belongsTo(Preschool, { foreignKey: 'preschool_id' });
 Preschool.hasOne(Address, { foreignKey: 'preschool_id' });
@@ -44,10 +46,22 @@ const PreschoolController = {
     const preschool_id = req.params.id;
     try {
       const preschool = await Preschool.findByPk(preschool_id, {
-        include: Address
+        include: [{ model: Address, as: "Address" }, { model: Media, as: "Preschool_Media" }]
       });
       if (preschool) {
         preschool.logo = await FilesManager.generateSignedUrl(preschool.logo);
+        if (preschool.Preschool_Media) {
+          // Replace file field with file URL in each media object
+          const mediaWithUrls = await Promise.all(preschool.Preschool_Media.map(async (mediaObj) => {
+            const fileURL = await FilesManager.generateSignedUrl(mediaObj.file);
+            return { ...mediaObj.toJSON(), file: fileURL };
+          }));
+
+          const updatedList = { ...preschool.toJSON() };
+          updatedList.Preschool_Media = mediaWithUrls;
+          return res.status(200).json(updatedList);
+
+        }
         return res.status(200).json(preschool);
       }
       else {
