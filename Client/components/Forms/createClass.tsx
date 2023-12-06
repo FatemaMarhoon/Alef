@@ -12,6 +12,7 @@ import { getGrades, getGradeCapacityById } from '@/services/gradeCapacityService
 import { GradeCapacity } from '@/types/gradeCapacity';
 import { format } from 'url';
 import Link from 'next/link';
+import Loader from "@/components/common/Loader"; // Import the Loader component
 
 
 const ClassForm: React.FC = ({ }) => {
@@ -34,10 +35,17 @@ const ClassForm: React.FC = ({ }) => {
     const [grade, setGrade] = useState('');
     const [selectedGradeId, setSelectedGradeId] = useState('');
     const [selectedSupervisor, setSelectedSupervisor] = useState('');
+    // Introduce a loading state
+    const [loading, setLoading] = useState(true);
+
+
+
     // Fetch grades when the component mounts
     useEffect(() => {
         async function fetchGradesList() {
             try {
+                setLoading(true);
+
                 const response = await getGrades();
                 console.log('Grade List Response:', response);
 
@@ -46,10 +54,12 @@ const ClassForm: React.FC = ({ }) => {
 
                 setGradesList(response || []);
                 // Set loading to false after fetching data (if needed)
+                setLoading(false);
             } catch (error) {
                 console.error("Error fetching staff list:", error);
                 setStaffList([]);
                 // Set loading to false in case of an error (if needed)
+                setLoading(false);
             }
         }
 
@@ -84,9 +94,12 @@ const ClassForm: React.FC = ({ }) => {
             const numericGradeCapacity = typeof gradeCapacity === 'number' ? gradeCapacity : null;
 
             setSelectedGradeCapacity(numericGradeCapacity);
+            setLoading(false);
 
 
         } catch (error) {
+            setLoading(false);
+
             console.error("Error fetching grade capacity:", error);
         }
     };
@@ -169,7 +182,7 @@ const ClassForm: React.FC = ({ }) => {
 
     };
 
-    const calculateDefaultClassCapacity = (remainingCapacity: number | null, numClasses: number): number => {
+    const calculateDefaultClassCapacity = (remainingCapacity: number | null, numClasses: number): number[] => {
         if (remainingCapacity !== null && !isNaN(remainingCapacity) && !isNaN(numClasses) && numClasses > 0) {
             // Divide the selected grade capacity by the number of classes
             const baseCapacity = Math.floor(remainingCapacity / numClasses);
@@ -178,16 +191,15 @@ const ClassForm: React.FC = ({ }) => {
             const remainder = remainingCapacity % numClasses;
 
             // Distribute the remainder to the first few classes
-            const distributedCapacity = Array.from({ length: numClasses }, (_, index) =>
+            const distributedCapacity: number[] = Array.from({ length: numClasses }, (_, index) =>
                 baseCapacity + (index < remainder ? 1 : 0)
             );
 
-            // Return the capacity for the specific class index
+            // Return the array of capacities for each class
             return distributedCapacity;
         }
-        return 0;
+        return Array(numClasses).fill(0);
     };
-
 
 
     // Fetch staff members when the component mounts
@@ -308,6 +320,14 @@ const ClassForm: React.FC = ({ }) => {
         return selectedGrade ? selectedGrade.grade : "";
     };
 
+    if (loading) {
+        // You can add loading or error handling here
+        {
+            return (
+                <Loader />
+            )
+        }
+    }
     return (
         <div className=" items-center justify-center min-h-screen">
             <div className="flex flex-col gap-9">

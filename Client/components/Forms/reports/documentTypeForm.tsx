@@ -41,6 +41,8 @@ const DocumentTypeForm: React.FC<DocumentTypeFormProps> = ({ onSubmit }) => {
                         <option value="">Select Document Type</option>
                         <option value="general">General Report</option>
                         <option value="trip">Trip Report</option>
+                        <option value="invoice">Invoice Report</option>
+
                         {/* Add more options for other document types if needed */}
                     </select>
                 </div>
