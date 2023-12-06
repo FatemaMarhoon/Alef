@@ -23,7 +23,7 @@ export async function getPreschools(): Promise<Preschool[]> {
     }
 }
 
-export async function createPreschool(preschool_name: string, request_id: number, plan_id: number): Promise<Preschool> {
+export async function createPreschool(preschool_name: string, request_id: number, plan_id: number): Promise<any> {
     try {
         const token = localStorage.getItem('token');
         const config: AxiosRequestConfig = {
@@ -33,7 +33,7 @@ export async function createPreschool(preschool_name: string, request_id: number
         };
 
         const response = await axios.post<Preschool>(BASE_URL, { preschool_name: preschool_name, request_id: request_id, plan_id: plan_id }, config);
-        return response.data;
+        return response;
     } catch (error) {
         console.error("Error updating status:", error);
         // Type assertion for error variable
