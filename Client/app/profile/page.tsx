@@ -5,6 +5,7 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import { Address, Preschool, Media } from '@/types/preschool';
 import { getPreschoolById, updatePreschool, updatePreschoolAddress } from '@/services/preschoolService';
+import { getMedia, uploadMedia, deleteMultipleMedia } from '@/services/mediaService';
 import { currentPreschool } from '@/services/authService';
 import Map from '@/components/map';
 import Gallery from '@/components/gallery';
@@ -28,6 +29,7 @@ export default function AppProfile() {
   const [address, setAddress] = useState<Address>({});
   const [existingMedia, setExistingMedia] = useState<Media[]>([]);
   const [uploadedMedia, setUploadedMedia] = useState<File[]>([]);
+  const [deletedMedia, setDeletedMedia] = useState<number[]>([]);
   const [uploadedLogo, setUploadedLogo] = useState<File>();
   const [selectedLatitude, setSelectedLatitude] = useState<number>(preschool?.Address?.latitude ? preschool?.Address.latitude : 26.143472094940822);
   const [selectedLongitude, setSelectedLongitude] = useState<number>(preschool?.Address?.longitude ? preschool?.Address.longitude : 50.612205678091314);
@@ -49,13 +51,16 @@ export default function AppProfile() {
           if (preschool.Address) {
             setAddress(preschool.Address)
           }
+          if (preschool.Preschool_Media) {
+            setExistingMedia(preschool.Preschool_Media)
+          }
         })
       } catch (error: any) {
         console.log(error.message)
       }
     }
-    fetchPreschool();
 
+    fetchPreschool();
   }, []);
 
   async function handleSubmitForm() {
@@ -140,6 +145,55 @@ export default function AppProfile() {
       }
     }
   }
+
+  const handleDeleteExisting = (id: number) => {
+    console.log(id, " is being added to deleted array")
+    setDeletedMedia([...deletedMedia, id]);
+    //remove from existing view 
+    const updatedExistingMedia = [...existingMedia];
+    const index = existingMedia.findIndex((media) => media.id === id);
+    updatedExistingMedia.splice(index, 1)[0];
+    setExistingMedia(updatedExistingMedia);
+  };
+
+  const handleUpload = (files: FileList | null) => {
+    if (files) {
+      const newFiles = Array.from(files);
+      setUploadedMedia((prevFiles) => [...prevFiles, ...newFiles]);
+    }
+  };
+
+  const handleUpdatingMedia = async () => {
+    console.log("Handling Started")
+    console.log("Uploaded: ", uploadedMedia)
+    console.log("DEleted: ", deletedMedia)
+    try {
+      //delete media 
+      if (deletedMedia.length > 0) {
+        const response = await deleteMultipleMedia(deletedMedia)
+        if (response.status == 200 || response.status == 201) {
+          setSuccessMessage(response.data.message);
+        }
+        else if (response.status == 400 || response.status == 404 || response.status == 500) {
+          setError(response.data.message);
+        }
+      }
+
+      //upload new media 
+      if (uploadedMedia.length > 0) {
+        const response = await uploadMedia(uploadedMedia);
+        if (response.status == 200 || response.status == 201) {
+          setSuccessMessage(response.data.message);
+        }
+        else if (response.status == 400 || response.status == 404 || response.status == 500) {
+          setError(response.data.message);
+        }
+      }
+    } catch (error: any) {
+      setError(error.message)
+    }
+  };
+
 
   return (
     <>
@@ -269,47 +323,6 @@ export default function AppProfile() {
                   />
                 </div>
 
-                {/* <div className="mb-5.5">
-                  <label
-                    className="mb-3 block text-sm font-medium text-black dark:text-white">
-                    Address - Area
-                  </label>
-                  <input
-                    className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                    type="text"
-                    value={address.area}
-                    onChange={(e) => setAddress(prevState => ({ ...prevState, area: e.target.value }))}
-                  />
-                </div>
-
-                <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
-                  <div className="w-full sm:w-1/2">
-                    <label
-                      className="mb-3 block text-sm font-medium text-black dark:text-white">
-                      Road
-                    </label>
-                    <input
-                      className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                      type="text"
-                      value={address.road}
-                      onChange={(e) => setAddress(prevState => ({ ...prevState, road: Number(e.target.value) }))}
-
-                    />
-                  </div>
-                  <div className="w-full sm:w-1/2">
-                    <label
-                      className="mb-3 block text-sm font-medium text-black dark:text-white">
-                      Building
-                    </label>
-                    <input
-                      className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                      type="text"
-                      value={address.building}
-                      onChange={(e) => setAddress(prevState => ({ ...prevState, building: Number(e.target.value) }))}
-                    />
-                  </div>
-                </div> */}
-
                 <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
                   <div className="w-full sm:w-1/2">
                     <label
@@ -409,19 +422,6 @@ export default function AppProfile() {
                     ></textarea>
                   </div>
                 </div>
-                {/* <div className="mb-5.5">
-                <label
-                    className="mb-3 block text-sm font-medium text-black dark:text-white">
-                    Gallery
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="absolute inset-0 z-50 m-0 h-full w-full cursor-pointer p-0 opacity-0 outline-none"
-                    // onChange={(e) => handleGalleryUploadChange(e, setGalleryImages)}
-                    multiple // This allows users to select multiple files
-                  />
-                </div> */}
                 <div className="flex justify-end gap-4.5">
                   <button
                     className="flex justify-center rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
@@ -619,11 +619,30 @@ export default function AppProfile() {
                   Your Gallery
                 </h3>
               </div>
-              {preschool &&
-                <>
-                  {/* <Gallery existingImages={media} onDelete={} onUpload={}></Gallery> */}
-                </>
-              }
+              <div className="p-7">
+                {existingMedia &&
+                  <>
+                    <Gallery
+                      existingImages={existingMedia}
+                      onDeleteExisting={handleDeleteExisting}
+                      onUpload={handleUpload}
+                    ></Gallery>
+                  </>
+                }
+                <div className="flex justify-end gap-4.5">
+                  <button
+                    className="flex justify-center rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-95"
+                    onClick={handleUpdatingMedia}
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

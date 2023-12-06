@@ -5,8 +5,10 @@ const Preschool = require('../models/preschool')(sequelize, DataTypes);
 const User = require('../models/user')(sequelize, DataTypes);
 const Address = require('../models/address')(sequelize, DataTypes);
 const Student = require('../models/student')(sequelize, DataTypes);
+const Media = require('../models/preschool_media')(sequelize, DataTypes);
 const FilesManager = require('./FilesManager');
 
+Preschool.hasMany(Media, { foreignKey: 'preschool_id' });
 Preschool.hasMany(User, { foreignKey: 'preschool_id' });
 Address.belongsTo(Preschool, { foreignKey: 'preschool_id' });
 Preschool.hasOne(Address, { foreignKey: 'preschool_id' });
@@ -14,7 +16,7 @@ User.belongsTo(Preschool, { foreignKey: 'preschool_id' });
 Preschool.hasMany(Student, { foreignKey: 'preschool_id' });
 
 const PreschoolController = {
-  
+
   async getAllPreschools(req, res) {
     const searchExpression = req.query.preschool_name;
     console.log(searchExpression)
@@ -25,7 +27,8 @@ const PreschoolController = {
             preschool_name: {
               [Op.like]: `%${searchExpression}%`
             }
-        }});
+          }
+        });
         return res.json(preschools);
       }
       else {
@@ -35,22 +38,34 @@ const PreschoolController = {
         return res.json(preschools);
       }
     } catch (error) {
-      res.status(500).json({ message:error.message });
+      res.status(500).json({ message: error.message });
     }
   },
 
   async getPreschoolById(req, res) {
     const preschool_id = req.params.id;
     try {
-      const preschool = await Preschool.findByPk(preschool_id,{
-        include: Address
+      const preschool = await Preschool.findByPk(preschool_id, {
+        include: [{ model: Address, as: "Address" }, { model: Media, as: "Preschool_Media" }]
       });
-      if (preschool){
+      if (preschool) {
         preschool.logo = await FilesManager.generateSignedUrl(preschool.logo);
+        if (preschool.Preschool_Media) {
+          // Replace file field with file URL in each media object
+          const mediaWithUrls = await Promise.all(preschool.Preschool_Media.map(async (mediaObj) => {
+            const fileURL = await FilesManager.generateSignedUrl(mediaObj.file);
+            return { ...mediaObj.toJSON(), file: fileURL };
+          }));
+
+          const updatedList = { ...preschool.toJSON() };
+          updatedList.Preschool_Media = mediaWithUrls;
+          return res.status(200).json(updatedList);
+
+        }
         return res.status(200).json(preschool);
       }
       else {
-        return res.status(404).json({message: "Preschool Not Found."});
+        return res.status(404).json({ message: "Preschool Not Found." });
       }
     } catch (error) {
       return res.status(500).json({ message: error.message });
@@ -63,9 +78,9 @@ const PreschoolController = {
       const preschools = await Preschool.findOne({
         where: {
           name: {
-              [Op.eq]: searchExpression
+            [Op.eq]: searchExpression
           }
-      },
+        },
         include: Address
       });
       res.json(preschools);
@@ -125,10 +140,10 @@ const PreschoolController = {
       const preschool = await Preschool.findByPk(preschoolId);
 
       //handle upload file for logo 
-      if (req.files['logoFile']){
+      if (req.files['logoFile']) {
         const logo_url = await FilesManager.upload(req.files['logoFile'][0]);
         updatedPreschoolData.logo = logo_url;
-    }
+      }
 
       if (preschool) {
         preschool.set(updatedPreschoolData);

@@ -16,6 +16,7 @@ export interface Preschool {
     representitive_name?: string;
     description?:string;
     Address?: Address;
+    Preschool_Media?: Media[];
 }
 
 export interface Address {
@@ -31,5 +32,4 @@ export interface Address {
 export interface Media {
     id?: number;
     file?:string;
-    type?:string
 }

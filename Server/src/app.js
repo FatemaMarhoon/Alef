@@ -30,6 +30,7 @@ const stationaryRoutes = require('./routes/stationaryRoutes');
 const stationaryRequestRoutes = require('./routes/stationaryRequestRoutes');
 const applicationEvaluationRoutes = require('./routes/applicationEvaluationRoutes');
 const gradesRoutes = require('./routes/gradesRoutes');
+const mediaRoutes = require('./routes/mediaRoutes');
 
 
 //middelware
@@ -60,6 +61,7 @@ app.use('/stationary', stationaryRoutes);
 app.use('/stationaryRequest', stationaryRequestRoutes);
 app.use('/evaluations', applicationEvaluationRoutes);
 app.use('/grades', gradesRoutes);
+app.use('/media', mediaRoutes);
 
 
 //schedule the cron job for reminders
