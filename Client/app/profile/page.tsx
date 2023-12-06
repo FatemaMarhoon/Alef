@@ -66,10 +66,13 @@ export default function AppProfile() {
   async function handleSubmitForm() {
     try {
       console.log("Function called")
+      //clear logo (as it has the url not the real value so we don't want o override here)
+      preschool.logo = "";
       if (preschool.id) {
         const response = await updatePreschool(String(preschool.id), preschool)
         // const response2 = await updatePreschoolAddress(address);
         if (response.status == 200) {
+          setError(""); //clear any existing error
           setSuccessMessage(response.data.message);
           router.refresh();
         }
@@ -104,6 +107,7 @@ export default function AppProfile() {
         preschool.logoFile = uploadedLogo;
         const response = await updatePreschool(String(preschool?.id), preschool)
         if (response.status == 200 || response.status == 201) {
+          setError(""); //clear any existing error
           setSuccessMessage(response.data.message);
           router.refresh();
         }
@@ -127,6 +131,7 @@ export default function AppProfile() {
       address.longitude = selectedLongitude;
       const response = await updatePreschoolAddress(address);
       if (response.status == 200 || response.status == 201) {
+        setError(""); //clear any existing error
         setSuccessMessage(response.data.message);
         router.refresh(); // Redirect to the applications page after submission
         window.scrollTo(0, 0);
@@ -172,6 +177,7 @@ export default function AppProfile() {
       if (deletedMedia.length > 0) {
         const response = await deleteMultipleMedia(deletedMedia)
         if (response.status == 200 || response.status == 201) {
+          setError(""); //clear any existing error
           setSuccessMessage(response.data.message);
         }
         else if (response.status == 400 || response.status == 404 || response.status == 500) {
