@@ -237,6 +237,7 @@ export async function updateStudent(
             enrollment_date: studentAttributes.enrollment_date
                 ? new Date(studentAttributes.enrollment_date)
                 : null,
+            class_id: studentAttributes.class_id
             // Add other properties as needed
         };
 

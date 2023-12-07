@@ -21,7 +21,7 @@ const validateStudentData = (studentData) => {
 
     for (const field of requiredFields) {
         if (!studentData[field]) {
-            return { isValid: false, message: `${field} is required` };
+            return { isValid: false, message: `${field.replace('_', ' ')} is required` };
         }
     }
     // Validate DOB
