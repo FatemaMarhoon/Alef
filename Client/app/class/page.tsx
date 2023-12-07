@@ -1,7 +1,7 @@
 // Import necessary modules and components
 'use client';
 import React, { useState, useEffect } from 'react';
-import { getClasses } from '../../services/classService'; // Import the class service
+import { getClasses, deleteClass } from '../../services/classService'; // Import the class service
 import { Class } from '../../types/class';
 import Link from 'next/link';
 import { getStaff } from '@/services/staffService'; // Add the actual service function
@@ -28,31 +28,31 @@ export default function ClassTable() {
     const { successMessage, clearSuccessMessage } = useSuccessMessageContext();
     const [loading, setLoading] = useState(true);
 
+    const fetchClasses = async () => {
+        try {
+            const classesData = await getClasses();
+            setClasses(classesData);
+
+            // Fetch staff information based on staff_id
+            const staffInfo = await getStaff();
+            setStaff(staffInfo);
+            console.log('staffInfo:', staffInfo);
+            // setStaffName(staffInfo ? staffInfo.name : 'Unknown');
+            // Set loading to false once data is fetched
+            setLoading(false);
+        } catch (error) {
+            console.error('Error fetching classes:', error);
+            // Set loading to false once data is fetched
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
         // Fetch class data when the component mounts
-        async function fetchClasses() {
-            try {
-                const classesData = await getClasses();
-                setClasses(classesData);
-
-                // Fetch staff information based on staff_id
-                const staffInfo = await getStaff();
-                setStaff(staffInfo);
-                console.log('staffInfo:', staffInfo);
-                // setStaffName(staffInfo ? staffInfo.name : 'Unknown');
-                // Set loading to false once data is fetched
-                setLoading(false);
-            } catch (error) {
-                console.error('Error fetching classes:', error);
-                // Set loading to false once data is fetched
-                setLoading(false);
-            }
-        }
-
         fetchClasses();
         console.log("Message on Classes load: ", successMessage);
-
     }, []);
+
 
     const getStaffName = (staffId: number): string => {
         if (!Array.isArray(staff)) {
@@ -83,12 +83,26 @@ export default function ClassTable() {
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentClasses = filteredClasses.slice(indexOfFirstItem, indexOfLastItem);
 
+    const handleDeleteClass = (id: number) => async () => {
+        const confirmDelete = window.confirm('Are you sure you want to delete this class?');
+        if (confirmDelete) {
+            try {
+                const response = await deleteClass(id.toString());
+                // Add any additional logic or state updates as needed after the deletion
+                fetchClasses();
+
+            } catch (error) {
+                console.error('Error deleting class:', error);
+            }
+        }
+    };
     return (
         <>
+            {successMessage && <SuccessAlert message={successMessage} />}
+
             {loading && <Loader />}
             {!loading && (
                 <>
-                    {successMessage && <SuccessAlert message={successMessage} />}
                     <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark-bg-boxdark sm-px-7.5 xl-pb-1">
 
                         <h4 className="mb-6 text-xl font-semibold text-black dark-text-white">
@@ -219,14 +233,15 @@ export default function ClassTable() {
                                                         </Link>
                                                     </button>
                                                     <button className="hover:text-primary">
-                                                        <Link href={`/class/edit/${classItem.preschool_id}`}>
+                                                        <Link href={`/class/edit/${classItem.id}`}>
                                                             Edit
                                                         </Link>
                                                     </button>
-                                                    <button className="hover:text-primary">
-                                                        <Link href={`/class/delete/${classItem.preschool_id}`}>
-                                                            Delete
-                                                        </Link>
+                                                    <button
+                                                        className="hover:text-primary"
+                                                        onClick={handleDeleteClass(classItem.id)}
+                                                    >
+                                                        Delete
                                                     </button>
                                                 </div>
                                             </td>

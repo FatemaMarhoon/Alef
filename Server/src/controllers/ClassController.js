@@ -125,13 +125,27 @@ const ClassController = {
     async updateClass(req, res) {
         const classId = req.params.id; // Use the correct parameter name
         const updatedClassData = req.body;
+        const user_id = await UsersController.getCurrentUser(req, res);
+
         try {
+
+
+
+
             const classObj = await Class.findByPk(classId); // Change variable name
 
             if (classObj) {
+                const originalValues = JSON.stringify(classObj.toJSON()); // Store the original values before the update
+
                 classObj.set(updatedClassData);
                 await classObj.save();
-
+                const newValues = JSON.stringify(classObj.toJSON()); // Store the updated values after the update
+                await LogsController.createLog({
+                    type: 'Class Update',
+                    original_values: originalValues,
+                    current_values: newValues,
+                    user_id: user_id
+                });
                 res.json({ message: 'Class updated successfully', class: classObj }); // Update variable name in the response
             } else {
                 res.status(404).json({ message: 'Class not found or no changes made' });
@@ -140,21 +154,54 @@ const ClassController = {
             res.status(500).json({ message: error.message });
         }
     },
-
     async deleteClass(req, res) {
         const classId = req.params.id; // Use the correct parameter name
-        try {
-            const success = await Class.destroy({ where: { id: classId } });
+        const user_id = await UsersController.getCurrentUser(req, res);
+        let deletedClassData; // Declare the variable outside the block
 
-            if (success) {
-                res.json({ message: 'Class deleted successfully' });
+        try {
+            const classToDelete = await Class.findByPk(classId);
+
+            if (classToDelete) {
+                deletedClassData = JSON.stringify(classToDelete.toJSON()); // Store class data before deletion
+
+                const success = await Class.destroy({ where: { id: classId } });
+
+                if (success) {
+                    // Create a log entry for the class deletion
+                    await LogsController.createLog({
+                        type: 'Class Deletion',
+                        original_values: deletedClassData,
+                        current_values: 'Class deleted',
+                        user_id: user_id
+                    });
+
+                    res.json({ message: 'Class deleted successfully' });
+                } else {
+                    res.status(404).json({ message: 'Class not found' });
+                }
             } else {
                 res.status(404).json({ message: 'Class not found' });
             }
         } catch (error) {
+            if (deletedClassData) {
+                // Create a log entry for the error if deletedClassData is defined
+                await LogsController.createLog({
+                    type: 'Error',
+                    original_values: deletedClassData,
+                    current_values: JSON.stringify({ error: error.message }),
+                    user_id: user_id
+                });
+            } else {
+                // Handle the error if deletedClassData is not defined
+                console.error('Error deleting class:', error);
+            }
+
             res.status(500).json({ message: error.message });
         }
     },
+
+
 
     async getClassById(req, res) {
         const classId = req.params.id; // Use the correct parameter name

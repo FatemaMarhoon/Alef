@@ -35,7 +35,7 @@ export async function getClassById(classId: string): Promise<Class> {
                 Authorization: `Bearer ${token}`, // Include the token in the Authorization header
             },
         };
-        const response = await axios.get<Class>(`${BASE_URL}/${classId}`);
+        const response = await axios.get<Class>(`${BASE_URL}/${classId}`, config);
         return response.data;
     } catch (error) {
         console.error("Error:", error);
@@ -191,7 +191,7 @@ export async function updateClass(classId: string, updatedClass: Class): Promise
 }
 
 // Function to delete a class by ID
-export async function deleteClass(classId: string): Promise<void> {
+export async function deleteClass(classId: string): Promise<any> {
     try {
         var token; var preschool;
         await currentToken().then((returnedTOken) => { token = returnedTOken; })
@@ -202,7 +202,8 @@ export async function deleteClass(classId: string): Promise<void> {
                 Authorization: `Bearer ${token}`, // Include the token in the Authorization header
             },
         };
-        await axios.delete(`${BASE_URL}/${classId}`, config);
+        const response = await axios.delete(`${BASE_URL}/${classId}`, config);
+        return response;
     } catch (error) {
         throw error;
     }
@@ -222,7 +223,7 @@ export async function getSumOfClassCapacitiesByGrade(grade: string): Promise<num
             },
         };
 
-        const response = await axios.get<number>(`${BASE_URL}/preschool/${preschool}/sum/${grade}`);
+        const response = await axios.get<number>(`${BASE_URL}/preschool/${preschool}/sum/${grade}`, config);
         return response.data;
     } catch (error) {
         console.error("Error getting sum of class capacities:", error);
