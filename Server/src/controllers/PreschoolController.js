@@ -49,10 +49,12 @@ const PreschoolController = {
         include: [{ model: Address, as: "Address" }, { model: Media, as: "Preschool_Media" }]
       });
       if (preschool) {
-        preschool.logo = await FilesManager.generateSignedUrl(preschool.logo);
+        if (preschool.logo)
+          preschool.logo = await FilesManager.generateSignedUrl(preschool.logo);
         if (preschool.Preschool_Media) {
           // Replace file field with file URL in each media object
-          const mediaWithUrls = await Promise.all(preschool.Preschool_Media.map(async (mediaObj) => {
+          console.log(preschool.Preschool_Media)
+          const mediaWithUrls = await Promise.all(preschool.Prescسقhool_Media.map(async (mediaObj) => {
             const fileURL = await FilesManager.generateSignedUrl(mediaObj.file);
             return { ...mediaObj.toJSON(), file: fileURL };
           }));
@@ -60,7 +62,6 @@ const PreschoolController = {
           const updatedList = { ...preschool.toJSON() };
           updatedList.Preschool_Media = mediaWithUrls;
           return res.status(200).json(updatedList);
-
         }
         return res.status(200).json(preschool);
       }
@@ -68,6 +69,7 @@ const PreschoolController = {
         return res.status(404).json({ message: "Preschool Not Found." });
       }
     } catch (error) {
+      console.log(error)
       return res.status(500).json({ message: error.message });
     }
   },
