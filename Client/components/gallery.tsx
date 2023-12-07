@@ -41,7 +41,6 @@ const Gallery: React.FC<GalleryProps> = ({ existingImages,selectedMedia, onDelet
 
     return (
         <div>
-            <h2>All Images:</h2>
             <ImageList sx={{ width: '100%', height: '100%' }} cols={3}>
                 {existingImages.map((media, index) => (
                     <ImageListItem

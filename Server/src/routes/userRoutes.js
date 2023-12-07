@@ -13,7 +13,7 @@ router.get('/', checkToken, UsersController.getAllUsers);
 router.get('/:id', checkToken, UsersController.getUserById);
 
 // Create a new user
-router.post('/', UsersController.createUser);
+router.post('/',checkAdmin, UsersController.createUser);
 
 // parent register 
 router.post('/register', UsersController.createUser);
