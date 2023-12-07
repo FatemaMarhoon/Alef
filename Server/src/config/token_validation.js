@@ -11,11 +11,11 @@ const token_validation = {
                 next();
             }
             else {
-                res.json({ message: "Access Denied! Invalid Token." });
+                res.status(401).json({ message: "Access Denied! Invalid Token." });
             }
         }
         else {
-            res.json({ message: "Access Denied! Unauthorized User." })
+            res.status(401).json({ message: "Access Denied! Unauthorized User." })
         }
     },
 
@@ -32,12 +32,12 @@ const token_validation = {
                         next();
                     }
                     else {
-                        res.json({ message: "Access Denied! User Role Unauthorized." });
+                        res.status(403).json({ message: "Access Denied! User Role Unauthorized." });
                     }
                 });
         }
         else {
-            res.json({ message: "Access Denied! Unauthorized User." })
+            res.status(401).json({ message: "Access Denied! Unauthenticated User." })
         }
     },
 
@@ -54,12 +54,12 @@ const token_validation = {
                         next();
                     }
                     else {
-                        res.json({ message: "Access Denied! User Role Unauthorized." });
+                        res.status(403).json({ message: "Access Denied! User Role Unauthorized." });
                     }
                 });
         }
         else {
-            res.json({ message: "Access Denied! Unauthorized User." })
+            res.status(401).json({ message: "Access Denied! Unauthenticated User." })
         }
     },
 
@@ -76,12 +76,12 @@ const token_validation = {
                         next();
                     }
                     else {
-                        res.json({ message: "Access Denied! User Role Unauthorized." });
+                        res.status(403).json({ message: "Access Denied! User Role Unauthorized." });
                     }
                 });
         }
         else {
-            res.json({ message: "Access Denied! Unauthorized User." })
+            res.status(401).json({ message: "Access Denied! Unauthenticated User." })
         }
     },
 
@@ -98,12 +98,12 @@ const token_validation = {
                         next();
                     }
                     else {
-                        res.json({ message: "Access Denied! User Role Unauthorized." });
+                        res.status(403).json({ message: "Access Denied! User Role Unauthorized." });
                     }
                 });
         }
         else {
-            res.json({ message: "Access Denied! Unauthorized User." })
+            res.status(401).json({ message: "Access Denied! Unauthenticated User." })
         }
     },
     
@@ -120,12 +120,12 @@ const token_validation = {
                         next();
                     }
                     else {
-                        res.json({ message: "Access Denied! User Role Unauthorized." });
+                        res.status(403).json({ message: "Access Denied! User Role Unauthorized." });
                     }
                 });
         }
         else {
-            res.json({ message: "Access Denied! Unauthorized User." })
+            res.status(401).json({ message: "Access Denied! Unauthenticated User." })
         }
     },
 
