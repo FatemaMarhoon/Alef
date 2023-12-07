@@ -10,6 +10,9 @@ Staff.belongsTo(Class, { foreignKey: 'id' });
 Preschool.hasMany(Class, { foreignKey: 'preschool_id' });
 Class.belongsTo(Staff, { foreignKey: 'supervisor' });
 
+
+const LogsController = require('./LogController');
+const UsersController = require('./UsersController');
 // const checkSupervisorAvailability = async (req, res) => {
 //     const { supervisor } = req.body;
 
@@ -59,10 +62,29 @@ const ClassController = {
 
     async createClass(req, res) {
         const classData = req.body;
+        const user_id = await UsersController.getCurrentUser(req, res);
+
         try {
+
+            // Log validation error
+            await LogsController.createLog({
+                type: 'Class Creation',
+                original_values: JSON.stringify(classData),
+                current_values: JSON.stringify(classData),
+                user_id: user_id
+                //user_id: 28
+            });
             const newClass = await Class.create(classData);
             res.json({ message: 'Class created successfully', newClass });
         } catch (error) {
+            // Log validation error
+            await LogsController.createLog({
+                type: 'Error',
+                original_values: JSON.stringify(classData),
+                current_values: JSON.stringify({ error: error.message }),
+                user_id: user_id
+                //user_id: 28
+            });
             res.status(500).json({ message: error.message });
         }
     },

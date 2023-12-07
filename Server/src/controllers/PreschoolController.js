@@ -94,6 +94,14 @@ const PreschoolController = {
   async createPreschool(req, res) {
     try {
       const preschoolData = req.body;
+      // Calculate subscription_expiry_date as 1 year from createdAt
+      const createdAt = new Date();
+      const subscriptionExpiryDate = new Date(createdAt);
+      subscriptionExpiryDate.setFullYear(subscriptionExpiryDate.getFullYear() + 1);
+
+      // Add subscription_expiry_date to preschoolData
+      preschoolData.subscription_expiry_date = subscriptionExpiryDate;
+
       const newPreschool = await Preschool.create(preschoolData);
       res.status(201).json({
         message: 'Preschool created successfully',

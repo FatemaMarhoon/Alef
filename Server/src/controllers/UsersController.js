@@ -12,6 +12,31 @@ User.belongsTo(Preschool, { foreignKey: 'preschool_id' });
 
 const UsersController = {
 
+
+  getCurrentUser: async (req, res) => {
+    let user_id = null;
+
+    const token = req.get("authorization");
+    if (token) {
+      const tokenParts = token.split(' ');
+
+      if (tokenParts.length === 2) {
+        const tokenValue = tokenParts[1];
+
+        try {
+          const claims = await admin.auth().verifyIdToken(tokenValue);
+          user_id = claims['dbId'];
+        } catch (error) {
+          console.error('Error verifying token:', error);
+          res.status(401).json({ message: 'Invalid token' });
+          return;
+        }
+      }
+    }
+
+    return user_id;
+  },
+
   async getAllUsers(req, res) {
     const preschool = req.query.preschool;
     try {

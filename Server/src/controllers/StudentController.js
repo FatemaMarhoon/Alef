@@ -7,6 +7,10 @@ const User = require('../models/user')(sequelize, DataTypes);
 const Class = require('../models/class')(sequelize, DataTypes);
 const FilesManager = require('./FilesManager');
 
+const LogsController = require('./LogController');
+const UsersController = require('./UsersController');
+
+
 Student.belongsTo(User, { foreignKey: 'user_id' });
 Student.belongsTo(Preschool, { foreignKey: 'preschool_id' });
 Preschool.hasMany(Student, { foreignKey: 'preschool_id' });
@@ -42,27 +46,12 @@ const validateStudentData = (studentData) => {
 
     return { isValid: true };
 };
+
+
+
+
 const StudentController = {
-    // async getAllStudents(req, res) {
-    //     try {
-    //         const { preschoolId, grade } = req.params;
 
-    //         const whereClause = { preschool_id: preschoolId };
-
-    //         if (grade) {
-    //             whereClause.grade = grade;
-    //         }
-
-    //         const students = await Student.findAll({
-    //             where: whereClause,
-    //             include: Preschool,
-    //         });
-
-    //         res.json(students);
-    //     } catch (error) {
-    //         res.status(500).json({ message: error.message });
-    //     }
-    // },
 
     async getAllStudents(req, res) {
         try {
@@ -114,7 +103,17 @@ const StudentController = {
         console.log('Req Body:', req.body);
         console.log('Req Files:', req.files);
         const validation = validateStudentData(studentData);
+        const user_id = await UsersController.getCurrentUser(req, res);
+
         if (!validation.isValid) {
+            // Log validation error
+            await LogsController.createLog({
+                type: 'Error',
+                original_values: JSON.stringify(studentData),
+                current_values: JSON.stringify({ error: validation.message }),
+                user_id: user_id
+                //user_id: 28
+            });
             return res.status(400).json({ message: validation.message });
         }
 
@@ -137,10 +136,29 @@ const StudentController = {
             console.log("passport:", studentData.passport);
 
 
+
+            //create log
+            await LogsController.createLog({
+                type: 'Student Creation',
+                original_values: JSON.stringify(studentData),
+                current_values: JSON.stringify(studentData),
+                user_id: user_id
+                //  user_id: 28
+            });
+
+
             const student = await Student.create(studentData);
             res.json({ message: 'Student created successfully', student });
         } catch (error) {
+            // Create a log entry for the error
+            await LogsController.createLog({
+                type: 'Error',
+                original_values: JSON.stringify(studentData),
+                current_values: JSON.stringify({ error: error.message }),
+                user_id: user_id
+            });
             res.status(500).json({ message: error.message });
+
         }
     },
 
@@ -152,36 +170,89 @@ const StudentController = {
         // if (!validation.isValid) {
         //     return res.status(400).json({ message: validation.message });
         // }
+        const user_id = await UsersController.getCurrentUser(req, res);
 
         try {
             const student = await Student.findByPk(student_id);
 
             if (student) {
+                const originalValues = JSON.stringify(student.toJSON()); // Store the original values before the update
+
                 student.set(updatedStudentData);
                 await student.save();
+
+                const newValues = JSON.stringify(student.toJSON()); // Store the updated values after the update
+
+                // Create a log entry for the student update
+                await LogsController.createLog({
+                    type: 'Student Update',
+                    original_values: originalValues,
+                    current_values: newValues,
+                    user_id: user_id
+                });
 
                 res.json({ message: 'Student updated successfully', student });
             } else {
                 res.status(404).json({ message: 'Student not found or no changes made' });
             }
         } catch (error) {
+            // Create a log entry for the error
+            await LogsController.createLog({
+                type: 'Error',
+                original_values: JSON.stringify(updatedStudentData),
+                current_values: JSON.stringify({ error: error.message }),
+                user_id: user_id
+            });
             res.status(500).json({ message: error.message });
         }
     },
 
     async deleteStudent(req, res) {
         const { student_id } = req.params;
+        let deletedStudentData; // Declare the variable outside the block
+
         try {
-            const success = await Student.destroy({ where: { id: student_id } });
-            if (success) {
-                res.json({ message: 'Student deleted successfully' });
+            const student = await Student.findByPk(student_id);
+
+            if (student) {
+                deletedStudentData = JSON.stringify(student.toJSON()); // Store the student data before deletion
+
+                const success = await Student.destroy({ where: { id: student_id } });
+
+                if (success) {
+                    // Create a log entry for the student deletion
+                    await LogsController.createLog({
+                        type: 'Student Deletion',
+                        original_values: deletedStudentData,
+                        current_values: 'Student deleted',
+                        user_id: user_id
+                    });
+
+                    res.json({ message: 'Student deleted successfully' });
+                } else {
+                    res.status(404).json({ message: 'Student not found' });
+                }
             } else {
                 res.status(404).json({ message: 'Student not found' });
             }
         } catch (error) {
+            if (deletedStudentData) {
+                // Create a log entry for the error if deletedStudentData is defined
+                await LogsController.createLog({
+                    type: 'Error',
+                    original_values: deletedStudentData,
+                    current_values: JSON.stringify({ error: error.message }),
+                    user_id: user_id
+                });
+            } else {
+                // Handle the error if deletedStudentData is not defined
+                console.error('Error deleting student:', error);
+            }
+
             res.status(500).json({ message: error.message });
         }
     },
+
 
     async getStudentsByPreschool(req, res) {
         const { preschool_id } = req.params;
@@ -193,15 +264,6 @@ const StudentController = {
         }
     },
 
-    // async getStudentsByClass(req, res) {
-    //     const { class_name } = req.params;
-    //     try {
-    //         const students = await Student.findAll({ where: { class_name } });
-    //         res.json(students);
-    //     } catch (error) {
-    //         res.status(500).json({ message: error.message });
-    //     }
-    // },
 
     async getStudentsByClassId(req, res) {
         try {
@@ -220,7 +282,7 @@ const StudentController = {
         }
     },
 
-    async getAllStudentsByUserId(req,res) {
+    async getAllStudentsByUserId(req, res) {
         const user_id = req.query.user_id;
         try {
             if (user_id) {
