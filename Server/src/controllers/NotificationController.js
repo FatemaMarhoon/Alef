@@ -4,6 +4,7 @@ const User = require('../models/user')(sequelize, DataTypes);
 const Notification = require('../models/notification')(sequelize, DataTypes);
 const admin = require('../config/firebase.config')
 const messaging = admin.messaging();
+const io = require('socket.io')(); // Import socket.io and create an instance
 
 Notification.belongsTo(User, { foreignKey: 'user_id' });
 
@@ -23,6 +24,21 @@ const NotificationController = {
         try {
             const notificationData = req.body;
             const newNotification = await Notification.create(notificationData);
+            io.emit('notification', notificationData, (acknowledgment) => {
+                console.log(acknowledgment)
+                // if (acknowledgment === 'success') {
+                //     console.log('Notification sent successfully to web clients.');
+                //     if (callback && typeof callback === 'function') {
+                //         callback(null); // Pass null to indicate success
+                //     }
+                // } else {
+                //     console.error('Failed to send notification to web clients.');
+                //     if (callback && typeof callback === 'function') {
+                //         callback('Failed to send notification.');
+                //     }
+                // }
+            });
+
             res.status(201).json({
                 message: 'Notification created successfully',
                 notification: newNotification,
@@ -30,6 +46,10 @@ const NotificationController = {
         } catch (error) {
             res.status(400).json({ message: 'Failed to create a new notification. Please check your request data.', message: error.message });
         }
+    },
+
+    async generateWebNotification(user_id, title, body) {
+        io.emit('notification', body);
     },
 
     async updateNotification(req, res) {
@@ -75,31 +95,31 @@ const NotificationController = {
         })
 
         console.log("Inside push notification")
-        if (registrationToken){
-        const message = {
-            token: registrationToken,
-            notification: {
-                title: title,
-                body: body,
-            } 
-        };
-
-        // Send a message to the device corresponding to the provided
-        // registration token.
-        messaging.send(message)
-            .then(async (response) => {
-                // Response is a message ID string.
-                console.log('Successfully sent message:', response);
-                const response2 = await Notification.create({ notification_title: title, notification_content: body, user_id:userId});
-                if (response2){
-                    console.log("DB inserted")
+        if (registrationToken) {
+            const message = {
+                token: registrationToken,
+                notification: {
+                    title: title,
+                    body: body,
                 }
-                return "success";
-            })
-            .catch((error) => {
-                console.log('Error sending message:', error);
-                return error.message;
-            });
+            };
+
+            // Send a message to the device corresponding to the provided
+            // registration token.
+            messaging.send(message)
+                .then(async (response) => {
+                    // Response is a message ID string.
+                    console.log('Successfully sent message:', response);
+                    const response2 = await Notification.create({ notification_title: title, notification_content: body, user_id: userId });
+                    if (response2) {
+                        console.log("DB inserted")
+                    }
+                    return "success";
+                })
+                .catch((error) => {
+                    console.log('Error sending message:', error);
+                    return error.message;
+                });
         }
         else {
             console.log("exitting")
@@ -117,11 +137,11 @@ const NotificationController = {
             await admin.auth().getUserByEmail(email).then((userRecord) => {
                 const regToken = userRecord.customClaims['regToken'];
                 const userId = userRecord.customClaims['dbId'];
-                if (regToken){
+                if (regToken) {
                     userIds.push(userId);
                     tokens.push(regToken);
                 }
-                
+
             });
         }
         console.log("Tokens: ", tokens)
@@ -135,7 +155,7 @@ const NotificationController = {
 
         messaging.sendEachForMulticast(message)
             .then(async (response) => {
-                    console.log(response.successCount + ' messages were sent successfully');
+                console.log(response.successCount + ' messages were sent successfully');
 
                 if (response.failureCount > 0) {
                     const failedTokens = [];
@@ -147,12 +167,12 @@ const NotificationController = {
                     console.log('List of tokens that caused failures: ' + failedTokens);
                 }
                 //generate notification records for successfully pushed notifications
-                let notifications = []; 
+                let notifications = [];
                 for (const userId in userIds) {
-                    const notification = { notification_title: title, notification_content: body, user_id:userId};
+                    const notification = { notification_title: title, notification_content: body, user_id: userId };
                     notifications.push(notification);
                 }
-                   await Notification.bulkCreate(notifications);
+                await Notification.bulkCreate(notifications);
 
             })
             .catch((error) => {
@@ -160,9 +180,9 @@ const NotificationController = {
             });
     },
 
-    async subscribeToTopic(email,topic){
+    async subscribeToTopic(email, topic) {
         try {
-            let registrationToken; 
+            let registrationToken;
             await admin.auth().getUserByEmail(email).then((userRecord) => {
                 registrationToken = userRecord.customClaims['regToken'];
             })
@@ -171,67 +191,33 @@ const NotificationController = {
                 console.log("Subscribed to Preschool: ", response)
             })
 
-        } catch (error){
+        } catch (error) {
             console.log(error.message);
         }
     },
-
-    // async pushMultipleNotification(registrationTokens, title, body) {
-
-    //     const message = {
-    //         tokens: registrationTokens,
-    //         notification: {
-    //             title: title,
-    //             body: body,
-    //         }
-    //     };
-
-    //     messaging.sendEachForMulticast(message)
-    //         .then(async (response) => {
-    //             console.log(response.successCount + ' messages were sent successfully');
-
-    //             if (response.failureCount > 0) {
-    //                 const failedTokens = [];
-    //                 response.responses.forEach((resp, idx) => {
-    //                     if (!resp.success) {
-    //                         failedTokens.push(registrationTokens[idx]);
-    //                     }
-    //                 });
-    //                 console.log('List of tokens that caused failures: ' + failedTokens);
-    //             }
-    //             //generate notification records for successfully pushed notifications
-    //             //   await Notification.bulkCreate()
-    //         })
-    //         .catch((error) => {
-    //             console.log('Error sending message:', error);
-    //         });
-    // },
-
-
-
     async pushTopicNotification(topic, title, body) {
         try {
-                console.log("Started Pushing to topic")
+            console.log("Started Pushing to topic")
 
-        const message = {
-            topic: topic,
-            notification: {
-                title: title,
-                body: body,
-            }
-        };
-        console.log("Message Payload: ",message)
-        // Send a message to all client devices subscribed to the specific topic
-        messaging.send(message)
-            .then(async (response) => {
-                // Response is a message ID string.
-                console.log('Successfully sent message:', response);
-            })
-            .catch((error) => {
-                console.log('Error sending message:', error);
-            });
+            const message = {
+                topic: topic,
+                notification: {
+                    title: title,
+                    body: body,
+                }
+            };
+            console.log("Message Payload: ", message)
+            // Send a message to all client devices subscribed to the specific topic
+            messaging.send(message)
+                .then(async (response) => {
+                    // Response is a message ID string.
+                    console.log('Successfully sent message:', response);
+                })
+                .catch((error) => {
+                    console.log('Error sending message:', error);
+                });
         }
-        catch (error){
+        catch (error) {
             console.log(error);
         }
     },

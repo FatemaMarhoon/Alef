@@ -1,8 +1,12 @@
-//create app 
 const express = require('express');
-const cors = require('cors')
+const http = require('http');
+const socketIo = require('socket.io');
 const app = express();
+const server = http.createServer(app);
+const io = socketIo(server);
+
 const PORT = process.env.PORT || 3000;
+const cors = require('cors')
 const cron = require('node-cron');
 const cronJob = require('./cron-job');
 
@@ -68,6 +72,16 @@ cron.schedule('0,30 * * * *', cronJob.appointmentsReminder); //daily when the mi
 cron.schedule('0 12 * * *', cronJob.eventsReminder); //daily at 12pm
 cron.schedule('* 8 26 * *', cronJob.monthlyPaymentGenerator); //on the 26th of each month at 8 am
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+// WebSocket connection
+io.on('connection', (socket) => {
+  console.log('A user connected');
+
+  // Handle disconnection
+  socket.on('disconnect', () => {
+    console.log('User disconnected');
+  });
+});
+
+server.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
