@@ -49,7 +49,8 @@ const PreschoolController = {
         include: [{ model: Address, as: "Address" }, { model: Media, as: "Preschool_Media" }]
       });
       if (preschool) {
-        preschool.logo = await FilesManager.generateSignedUrl(preschool.logo);
+        if (preschool.logo)
+          preschool.logo = await FilesManager.generateSignedUrl(preschool.logo);
         if (preschool.Preschool_Media) {
           // Replace file field with file URL in each media object
           const mediaWithUrls = await Promise.all(preschool.Preschool_Media.map(async (mediaObj) => {

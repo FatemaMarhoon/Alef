@@ -1,26 +1,58 @@
 import { Address, Preschool } from '@/types/preschool'; // Import the Preschool type
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { currentToken } from './authService';
+import { currentPreschool, currentToken, currentUser, currentUserId, currentUserRole } from './authService';
 const BASE_URL = 'http://localhost:3000/preschools'; // Backend URL for preschools
+
+// export async function getPreschools(): Promise<Preschool[]> {
+//     try {
+//         var token;
+//         await currentToken().then((returnedTOken) => { token = returnedTOken; })
+
+//         // Set up the request config with headers
+//         const config: AxiosRequestConfig = {
+//             headers: {
+//                 Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+//             },
+//         };
+
+//         const response = await axios.get<Preschool[]>(BASE_URL, config);
+//         return response.data;
+//     } catch (error) {
+//         throw error;
+//     }
+// }
+
+
 
 export async function getPreschools(): Promise<Preschool[]> {
     try {
-        var token;
-        await currentToken().then((returnedTOken) => { token = returnedTOken; })
+        var userid;
+        const role = await currentUserRole();
 
-        // Set up the request config with headers
-        const config: AxiosRequestConfig = {
-            headers: {
-                Authorization: `Bearer ${token}`, // Include the token in the Authorization header
-            },
-        };
 
-        const response = await axios.get<Preschool[]>(BASE_URL, config);
-        return response.data;
+        // Check if the user is an admin
+        if (role === 'Super Admin') {
+            // User is an admin, proceed with the request
+            var token;
+            await currentToken().then((returnedTOken) => { token = returnedTOken; })
+            const config: AxiosRequestConfig = {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            };
+
+            const response = await axios.get<Preschool[]>(BASE_URL, config);
+            return response.data;
+        } else {
+            // User is not an admin, handle accordingly (e.g., show an error message)
+            throw new Error('Access Denied. User is not an admin.');
+        }
     } catch (error) {
-        throw error;
+        console.error('Error fetching preschools:', error);
+        throw new Error('Failed to fetch preschools. Please try again later.');
     }
 }
+
 
 export async function createPreschool(preschool_name: string, request_id: number, plan_id: number, email: string, CR: string, representitive_name: string, phone: string): Promise<any> {
     try {

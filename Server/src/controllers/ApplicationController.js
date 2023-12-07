@@ -18,6 +18,9 @@ Application.hasOne(Evaluation, { foreignKey: 'application_id' });
 Preschool.hasMany(Application, { foreignKey: 'preschool_id' });
 
 
+const LogsController = require('./LogController');
+const UsersController = require('./UsersController');
+
 const ApplicationController = {
     async getAllApplications(req, res) {
         const preschool = req.query.preschool; //list applications in web 
@@ -64,6 +67,8 @@ const ApplicationController = {
     async createApplication(req, res) {
         const { email, preschool_id, guardian_type, status, student_name, guardian_name, student_CPR, phone, student_DOB, medical_history, created_by, gender, personal_picture, grade, certificate_of_birth, passport } = req.body;
         const application = { email, preschool_id, guardian_type, status, student_name, guardian_name, student_CPR, phone, student_DOB, medical_history, created_by, gender, grade, certificate_of_birth, passport, personal_picture };
+        const user_id = await UsersController.getCurrentUser(req, res);
+
         try {
             if (!email) {
                 return res.status(400).json({ message: "Email is required." });
@@ -83,7 +88,7 @@ const ApplicationController = {
             if (!student_CPR) {
                 return res.status(400).json({ message: "Student CPR is required." });
             }
-            if (student_CPR.length != 9){
+            if (student_CPR.length != 9) {
                 return res.status(400).json({ message: "Student CPR is must be 9 digits." });
             }
             if (!phone) {
@@ -101,13 +106,13 @@ const ApplicationController = {
             if (!grade) {
                 return res.status(400).json({ message: "Grade is required." });
             }
-            if (!req.files['personal_picture'][0]){
+            if (!req.files['personal_picture'][0]) {
                 return res.status(400).json({ message: "Personal Picture is required." });
             }
-            if (!req.files['certificate_of_birth'][0]){
+            if (!req.files['certificate_of_birth'][0]) {
                 return res.status(400).json({ message: "Certificate of Birth is required." });
             }
-            if (!req.files['passport'][0]){
+            if (!req.files['passport'][0]) {
                 return res.status(400).json({ message: "Passport is required." });
             }
 
@@ -128,6 +133,18 @@ const ApplicationController = {
             const capacity = await GradesController.checkGradeCapacity(preschool_id, grade);
             capacity ? application.status = "Pending" : application.status = "Waitlist";
 
+
+            //create new log
+            //create log
+            await LogsController.createLog({
+                type: 'Application Creation',
+                original_values: JSON.stringify(application),
+                current_values: JSON.stringify(application),
+                user_id: user_id
+                //  user_id: 28
+            });
+
+
             //create application
             const newApplication = await Application.create(application);
             res.status(201).json({
@@ -135,6 +152,13 @@ const ApplicationController = {
                 application: newApplication,
             });
         } catch (error) {
+            // Create a log entry for the error
+            await LogsController.createLog({
+                type: 'Error',
+                original_values: JSON.stringify(application),
+                current_values: JSON.stringify({ error: error.message }),
+                user_id: user_id
+            });
             console.log(error.message)
             return res.status(500).json({ message: error.message });
         }
@@ -168,6 +192,8 @@ const ApplicationController = {
         const { id } = req.params;
         const { email, preschool_id, guardian_type, status, student_name, guardian_name, student_CPR, phone, student_DOB, medical_history, created_by, gender, personal_picture, grade, certificate_of_birth, passport } = req.body;
         console.log(status);
+        const user_id = await UsersController.getCurrentUser(req, res);
+
         try {
             // Fetch the existing application
             const applicationObject = await Application.findByPk(id);
@@ -188,21 +214,30 @@ const ApplicationController = {
                 if (grade) applicationObject.grade = grade;
 
                 //check for updating files 
-                if (req.files['personal_picture']){
+                if (req.files['personal_picture']) {
                     const picture_url = await FilesManager.upload(req.files['personal_picture'][0]);
                     applicationObject.personal_picture = picture_url;
                 }
-                if(req.files['certificate_of_birth']){
+                if (req.files['certificate_of_birth']) {
                     const certificate_of_birth_url = await FilesManager.upload(req.files['certificate_of_birth'][0]);
                     applicationObject.certificate_of_birth = certificate_of_birth_url;
                 }
-                if (req.files['passport']){
+                if (req.files['passport']) {
                     const passport_url = await FilesManager.upload(req.files['passport'][0]);
                     applicationObject.passport = passport_url;
                 }
+                const originalValues = JSON.stringify(applicationObject.toJSON()); // Store the original values before the update
 
                 // Save the updated applicationObject
                 await applicationObject.save();
+
+                const newValues = JSON.stringify(applicationObject.toJSON()); // Store the updated values after the update
+                await LogsController.createLog({
+                    type: 'Application Update',
+                    original_values: originalValues,
+                    current_values: newValues,
+                    user_id: user_id
+                });
 
                 //if status updated, notify parent
                 if (status) {
@@ -217,7 +252,7 @@ const ApplicationController = {
                             regToken = userRecord.customClaims['regToken'];
                             if (regToken) {
                                 console.log("Token found, trying to push")
-                                if (status == "Accepted"){
+                                if (status == "Accepted") {
                                     //send notification
                                     await NotificationController.pushSingleNotification(parentUser.email, "Congratulations!", "Your application has been accepted. Please pay any pending fees.");
 
@@ -259,11 +294,11 @@ const ApplicationController = {
                     const preschool = await Preschool.findByPk(applicationObject.preschool_id);
                     const payment = await Payment.create({
                         status: "Pending",
-                        type:"Registration Fees",
+                        type: "Registration Fees",
                         fees: preschool.registration_fees,
                         due_date: new Date(),
-                        notes:"Registration Fees",
-                        student_id:student.id
+                        notes: "Registration Fees",
+                        student_id: student.id
                     });
                     return res.status(201).json({ message: 'Application Accepted and Student Registered Successfully.', student });
                 }

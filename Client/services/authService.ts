@@ -103,8 +103,19 @@ export async function currentUserId(): Promise<unknown | undefined> {
     const customClaims = idTokenResult.claims;
     console.log(customClaims.dbId)
     return customClaims.dbId;
-  });  
+  });
   return id;
+}
+
+export async function currentUserRole(): Promise<unknown | undefined> {
+  const user = await currentUser();
+  console.log(user)
+  const role = await user?.getIdTokenResult(true).then((idTokenResult) => {
+    const customClaims = idTokenResult.claims;
+    console.log(customClaims.role)
+    return customClaims.role;
+  });
+  return role;
 }
 
 
