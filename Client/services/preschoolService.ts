@@ -1,11 +1,12 @@
 import { Address, Preschool } from '@/types/preschool'; // Import the Preschool type
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
-
+import { currentToken } from './authService';
 const BASE_URL = 'http://localhost:3000/preschools'; // Backend URL for preschools
 
 export async function getPreschools(): Promise<Preschool[]> {
     try {
-        const token = localStorage.getItem('token'); // Get the JWT token from localStorage
+        var token;
+        await currentToken().then((returnedTOken) => { token = returnedTOken; })
 
         // Set up the request config with headers
         const config: AxiosRequestConfig = {
@@ -23,10 +24,13 @@ export async function getPreschools(): Promise<Preschool[]> {
 
 export async function createPreschool(preschool_name: string, request_id: number, plan_id: number, email: string, CR: string, representitive_name: string, phone: string): Promise<any> {
     try {
-        const token = localStorage.getItem('token');
+        var token;
+        await currentToken().then((returnedTOken) => { token = returnedTOken; })
+
+        // Set up the request config with headers
         const config: AxiosRequestConfig = {
             headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${token}`, // Include the token in the Authorization header
             },
         };
 
@@ -58,7 +62,9 @@ export async function createPreschool(preschool_name: string, request_id: number
 
 export async function updatePreschool(preschoolId: string, updatedPreschool: Preschool) {
     try {
-        const token = localStorage.getItem('token');
+        var token;
+        await currentToken().then((returnedTOken) => { token = returnedTOken; })
+
         const config: AxiosRequestConfig = {
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -78,13 +84,15 @@ export async function updatePreschool(preschoolId: string, updatedPreschool: Pre
 
 export async function deletePreschool(preschoolId: string): Promise<void> {
     try {
-        const token = localStorage.getItem('token');
+        var token;
+        await currentToken().then((returnedTOken) => { token = returnedTOken; })
+
+        // Set up the request config with headers
         const config: AxiosRequestConfig = {
             headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${token}`, // Include the token in the Authorization header
             },
         };
-
         const url = `${BASE_URL}/${preschoolId}`;
         await axios.delete(url, config);
     } catch (error) {
@@ -111,13 +119,15 @@ export async function getPreschoolById(preschoolId: string): Promise<Preschool> 
 
 export async function updatePreschoolAddress(address: Address) {
     try {
-        const token = localStorage.getItem('token');
+        var token;
+        await currentToken().then((returnedTOken) => { token = returnedTOken; })
+
+        // Set up the request config with headers
         const config: AxiosRequestConfig = {
             headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${token}`, // Include the token in the Authorization header
             },
         };
-
         const url = `${BASE_URL}/address/${address.id}`;
         const response = await axios.put(url, address, config);
         return response;

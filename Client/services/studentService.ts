@@ -229,14 +229,14 @@ export async function updateStudent(
         // Construct the data payload with only the attributes to be updated
         const studentData: Partial<Student> = {
             student_name: studentAttributes.student_name,
-            DOB: studentAttributes.DOB ? new Date(studentAttributes.DOB) : null,
+            DOB: studentAttributes.DOB ? new Date(studentAttributes.DOB) : undefined,
             CPR: studentAttributes.CPR,
             contact_number1: studentAttributes.contact_number1,
             contact_number2: studentAttributes.contact_number2,
             guardian_name: studentAttributes.guardian_name,
             enrollment_date: studentAttributes.enrollment_date
                 ? new Date(studentAttributes.enrollment_date)
-                : null,
+                : undefined,
             class_id: studentAttributes.class_id
             // Add other properties as needed
         };
@@ -287,7 +287,7 @@ export async function getStudentsByClassId(classId: string): Promise<Student[]> 
                 Authorization: `Bearer ${token}`, // Include the token in the Authorization header
             },
         };
-        const response = await axios.get<Student[]>(`${BASE_URL}/${preschool}/${classId}`);
+        const response = await axios.get<Student[]>(`${BASE_URL}/${preschool}/${classId}`, config);
         return response.data;
     } catch (error) {
         console.error("Error updating student:", error);

@@ -1,6 +1,7 @@
 // services/userService.ts
 import { Request } from '@/types/request'
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { currentToken } from './authService';
 
 const BASE_URL = 'http://localhost:3000/requests'; // Replace with your backend URL
 
@@ -9,7 +10,20 @@ export async function createRequest(preschool_name: string,
     CR: string,
     phone: string,
     email: string, plan_id: number): Promise<Request> {
+
+
     try {
+
+        var token; 
+        await currentToken().then((returnedTOken) => { token = returnedTOken; })
+
+        // Set up the request config with headers
+        const config: AxiosRequestConfig = {
+            headers: {
+                Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+            },
+        };
+
         const response = await axios.post<Request>(`${BASE_URL}`, {
             preschool_name: preschool_name,
             representitive_name: representitive_name,
@@ -17,7 +31,7 @@ export async function createRequest(preschool_name: string,
             phone: phone,
             email: email,
             plan_id: plan_id
-        });
+        }, config);
         return response.data;
     } catch (error) {
         throw error;
@@ -25,7 +39,9 @@ export async function createRequest(preschool_name: string,
 }
 export async function getRequests(): Promise<Request[]> {
     try {
-        const token = localStorage.getItem('token'); // Get the JWT token from localStorage
+
+        var token; var preschool;
+        await currentToken().then((returnedTOken) => { token = returnedTOken; })
 
         // Set up the request config with headers
         const config: AxiosRequestConfig = {
@@ -42,7 +58,18 @@ export async function getRequests(): Promise<Request[]> {
 }
 export async function getRequestById(requestId: string): Promise<Request> {
     try {
-        const response = await axios.get<Request>(`${BASE_URL}/${requestId}`);
+
+        var token; var preschool;
+        await currentToken().then((returnedTOken) => { token = returnedTOken; })
+
+        // Set up the request config with headers
+        const config: AxiosRequestConfig = {
+            headers: {
+                Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+            },
+        };
+
+        const response = await axios.get<Request>(`${BASE_URL}/${requestId}`, config);
         return response.data;
     } catch (error) {
         throw error;
@@ -51,7 +78,8 @@ export async function getRequestById(requestId: string): Promise<Request> {
 
 export async function updateRequestStatus(requestId: string, newStatus: string): Promise<any> {
     try {
-        const token = localStorage.getItem('token'); // Get the JWT token from localStorage
+        var token; var preschool;
+        await currentToken().then((returnedTOken) => { token = returnedTOken; })
 
         // Set up the request config with headers
         const config: AxiosRequestConfig = {
@@ -92,7 +120,8 @@ export async function updateRequestStatus(requestId: string, newStatus: string):
 
 export async function deleteRequest(requestId: string): Promise<void> {
     try {
-        const token = localStorage.getItem('token'); // Get the JWT token from localStorage
+        var token; var preschool;
+        await currentToken().then((returnedTOken) => { token = returnedTOken; })
 
         // Set up the request config with headers
         const config: AxiosRequestConfig = {

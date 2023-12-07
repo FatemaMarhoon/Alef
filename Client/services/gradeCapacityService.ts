@@ -19,7 +19,7 @@ export async function getGrades(): Promise<GradeCapacity[]> {
             },
         };
 
-        const response = await axios.get<GradeCapacity[]>(`${BASE_URL}?preschool=${preschool}`);
+        const response = await axios.get<GradeCapacity[]>(`${BASE_URL}?preschool=${preschool}`, config);
 
         return response.data;
     } catch (error) {
