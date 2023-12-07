@@ -19,7 +19,7 @@ export async function getStaff(): Promise<Staff[]> {
                 Authorization: `Bearer ${token}`, // Include the token in the Authorization header
             },
         };
-        const response = await axios.get<Staff[]>(`${BASE_URL}/preschool/${preschool}`);
+        const response = await axios.get<Staff[]>(`${BASE_URL}/preschool/${preschool}`, config);
         return response.data;
     } catch (error) {
         console.error("Error getting staffs:", error);
@@ -57,7 +57,7 @@ export async function getNotAssignedStaff(): Promise<Staff[]> {
             },
         };
 
-        const response = await axios.get<Staff[]>(`${BASE_URL}/preschoolC/${preschool}`);
+        const response = await axios.get<Staff[]>(`${BASE_URL}/preschoolC/${preschool}`, config);
         return response.data;
     } catch (error) {
         console.error("Error getting not assigned staffs:", error);
