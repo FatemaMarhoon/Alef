@@ -436,7 +436,7 @@ export default function AppProfile() {
                 </div>
                 <div className="flex justify-end gap-4.5">
                   <button
-                  onClick={() => fetchPreschool}
+                    onClick={() => fetchPreschool}
                     className="flex justify-center rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
                   >
                     Cancel
@@ -490,7 +490,7 @@ export default function AppProfile() {
                       accept="image/*"
                       className="absolute inset-0 z-50 m-0 h-full w-full cursor-pointer p-0 opacity-0 outline-none"
                       onChange={(e) => handleUploadLogoChange(e, setUploadedLogo)}
-                    /> 
+                    />
                     <div className="flex flex-col items-center justify-center space-y-3">
                       {!previewImage &&
                         <>

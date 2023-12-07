@@ -6,13 +6,18 @@ import TableThree from '@/components/Tables/TableThree';
 import Pagination from '@mui/material/Pagination';
 import TextField from '@mui/material/TextField';
 import Loader from "@/components/common/Loader"; // Import the Loader component
+import Access from "@/components/Pages/403"; // Import the Loader component
 
+import Link from 'next/link';
+import { currentUserRole } from '@/services/authService';
+import router from 'next/navigation';
 export default function PreschoolTable() {
     const [preschools, setPreschools] = useState<Preschool[]>([]);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [itemsPerPage] = useState<number>(10);
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
+    const [role, SetRole] = useState('');
 
     useEffect(() => {
         async function fetchPreschools() {
@@ -43,10 +48,27 @@ export default function PreschoolTable() {
 
     const currentPreschools = filterdPreschools.slice(indexOfFirstItem, indexOfLastItem);
 
+
+    const checkAuthorization = async () => {
+        try {
+            const user = await currentUserRole();
+            SetRole(user);
+            return user; // Return the user role
+        } catch (error) {
+            console.error('Error checking authorization:', error);
+        }
+    };
+
+    useEffect(() => {
+        // Call the function to check authorization when the component mounts or when user changes
+        checkAuthorization();
+    }, []); // The empty dependency array means this useEffect runs once when the component mounts
+
     return (
         <>
             {loading && <Loader />}
-            {!loading && (
+            {!loading && role !== 'Super Admin' && <Access />}
+            {!loading && role === 'Super Admin' && (
 
                 <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark-bg-boxdark sm-px-7.5 xl-pb-1">
                     <h4 className="mb-6 text-xl font-semibold text-black dark-text-white">
@@ -99,6 +121,9 @@ export default function PreschoolTable() {
                                     <th className="py-4 px-4 font-medium text-black dark-text-white">
                                         Request ID
                                     </th>
+                                    <th className="py-4 px-4 font-medium text-black dark-text-white">
+                                        Actions
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -150,6 +175,11 @@ export default function PreschoolTable() {
                                                 {preschool.request_id || 'N/A'}
                                             </p>
                                         </td>
+                                        <td>   <button className="hover:text-primary">
+                                            <Link href={`/profile/${preschool.id}`}>
+                                                Edit
+                                            </Link>
+                                        </button></td>
                                     </tr>
                                 ))}
                             </tbody>
