@@ -3,11 +3,11 @@ const db = require('../config/seq'); // Use the appropriate Sequelize connection
 
 module.exports = (sequelize, DataTypes) => {
   const Notification = sequelize.define('Notification', {
-    notification_title: {
+    title: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    notification_content: {
+    content: {
       type: DataTypes.STRING,
       allowNull: false,
     },

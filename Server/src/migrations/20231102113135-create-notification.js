@@ -12,10 +12,10 @@ module.exports = {
       email: {
         type: Sequelize.STRING
       },
-      notification_title: {
+      title: {
         type: Sequelize.STRING
       },
-      notification_content: {
+      content: {
         type: Sequelize.STRING
       },
       createdAt: {

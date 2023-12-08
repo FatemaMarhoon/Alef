@@ -14,13 +14,14 @@ Notification.belongsTo(User, { foreignKey: 'user_id' });
 
 const NotificationController = {
     async getAllNotifications(req, res) {
+        const user_id = req.query.user_id;
         try {
             const notifications = await Notification.findAll({
-                include: User
+                where: { user_id: user_id }
             });
-            res.json(notifications);
+            return res.status(200).json(notifications);
         } catch (error) {
-            res.status(500).json({ message: 'Internal server error while retrieving notifications.' });
+            return res.status(500).json({ message: 'Internal server error while retrieving notifications.' });
         }
     },
 
@@ -28,10 +29,10 @@ const NotificationController = {
         try {
             const notificationData = req.body;
             const newNotification = await Notification.create(notificationData);
-            
-            await pushWebNotification(notificationData.user_id,notificationData.notification_title, notificationData.notification_content)
 
-            res.status(201).json({
+            await pushWebNotification(notificationData.user_id, notificationData.title, notificationData.content)
+
+            return res.status(201).json({
                 message: 'Notification created successfully',
                 notification: newNotification,
             });
@@ -40,23 +41,19 @@ const NotificationController = {
         }
     },
 
-
-    async updateNotification(req, res) {
-        const notificationId = req.params.id;
-        const updatedNotificationData = req.body;
+    async markAllRead(req, res) {
+        const user_id = req.params.id;
         try {
-            const notification = await Notification.findByPk(notificationId);
+            const result = await Notification.update({ is_read: true }, {
+                where: {user_id:user_id},
+            });
 
-            if (notification) {
-                notification.set(updatedNotificationData);
-                await notification.save();
-
-                res.json({ message: 'Notification updated successfully', notification: notification });
-            } else {
-                res.status(404).json({ message: 'Notification not found or no changes made' });
-            }
+            return res.status(200).json({
+                message: 'All notifications set to read successfully',
+                notification: result[0], //number of affected rows
+            });
         } catch (error) {
-            res.status(500).json({ message: 'Internal server error while updating the notification.', message: error.message });
+            return res.status(400).json({ message: 'Failed to update notfications', message: error.message });
         }
     },
 
@@ -99,7 +96,7 @@ const NotificationController = {
                 .then(async (response) => {
                     // Response is a message ID string.
                     console.log('Successfully sent message:', response);
-                    const response2 = await Notification.create({ notification_title: title, notification_content: body, user_id: userId });
+                    const response2 = await Notification.create({ title: title, content: body, user_id: userId });
                     if (response2) {
                         console.log("DB inserted")
                     }
@@ -158,7 +155,7 @@ const NotificationController = {
                 //generate notification records for successfully pushed notifications
                 let notifications = [];
                 for (const userId in userIds) {
-                    const notification = { notification_title: title, notification_content: body, user_id: userId };
+                    const notification = { title: title, content: body, user_id: userId };
                     notifications.push(notification);
                 }
                 await Notification.bulkCreate(notifications);
@@ -247,7 +244,7 @@ const NotificationController = {
         }
     },
 
-    
+
 };
 
 async function pushWebNotification(user_id, title, body) {
@@ -256,7 +253,7 @@ async function pushWebNotification(user_id, title, body) {
         //check if targeted user is connected 
         if (targetSocketId) {
             // Emit the notification only to the target user's socket
-            io.to(targetSocketId).emit('notification', { title: title, body: body});
+            io.to(targetSocketId).emit('notification', { title: title, body: body });
         } else {
             //if not connected, sent via email 
             console.log(`User ${user_id} is not currently connected`);
