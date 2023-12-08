@@ -5,17 +5,23 @@ const Notification = require('../models/notification')(sequelize, DataTypes);
 const admin = require('../config/firebase.config')
 const messaging = admin.messaging();
 
+const socketSetup = require('../config/socket-setup');
+const EmailsManager = require('./EmailsManager');
+const io = socketSetup.getIo(); // Import the io instance
+const userSocketMap = socketSetup.userSocketMap;
+
 Notification.belongsTo(User, { foreignKey: 'user_id' });
 
 const NotificationController = {
     async getAllNotifications(req, res) {
+        const user_id = req.query.user_id;
         try {
             const notifications = await Notification.findAll({
-                include: User
+                where: { user_id: user_id }
             });
-            res.json(notifications);
+            return res.status(200).json(notifications);
         } catch (error) {
-            res.status(500).json({ message: 'Internal server error while retrieving notifications.' });
+            return res.status(500).json({ message: 'Internal server error while retrieving notifications.' });
         }
     },
 
@@ -23,7 +29,10 @@ const NotificationController = {
         try {
             const notificationData = req.body;
             const newNotification = await Notification.create(notificationData);
-            res.status(201).json({
+
+            await pushWebNotification(notificationData.user_id, notificationData.title, notificationData.content)
+
+            return res.status(201).json({
                 message: 'Notification created successfully',
                 notification: newNotification,
             });
@@ -32,22 +41,19 @@ const NotificationController = {
         }
     },
 
-    async updateNotification(req, res) {
-        const notificationId = req.params.id;
-        const updatedNotificationData = req.body;
+    async markAllRead(req, res) {
+        const user_id = req.params.id;
         try {
-            const notification = await Notification.findByPk(notificationId);
+            const result = await Notification.update({ is_read: true }, {
+                where: {user_id:user_id},
+            });
 
-            if (notification) {
-                notification.set(updatedNotificationData);
-                await notification.save();
-
-                res.json({ message: 'Notification updated successfully', notification: notification });
-            } else {
-                res.status(404).json({ message: 'Notification not found or no changes made' });
-            }
+            return res.status(200).json({
+                message: 'All notifications set to read successfully',
+                notification: result[0], //number of affected rows
+            });
         } catch (error) {
-            res.status(500).json({ message: 'Internal server error while updating the notification.', message: error.message });
+            return res.status(400).json({ message: 'Failed to update notfications', message: error.message });
         }
     },
 
@@ -75,31 +81,31 @@ const NotificationController = {
         })
 
         console.log("Inside push notification")
-        if (registrationToken){
-        const message = {
-            token: registrationToken,
-            notification: {
-                title: title,
-                body: body,
-            } 
-        };
-
-        // Send a message to the device corresponding to the provided
-        // registration token.
-        messaging.send(message)
-            .then(async (response) => {
-                // Response is a message ID string.
-                console.log('Successfully sent message:', response);
-                const response2 = await Notification.create({ notification_title: title, notification_content: body, user_id:userId});
-                if (response2){
-                    console.log("DB inserted")
+        if (registrationToken) {
+            const message = {
+                token: registrationToken,
+                notification: {
+                    title: title,
+                    body: body,
                 }
-                return "success";
-            })
-            .catch((error) => {
-                console.log('Error sending message:', error);
-                return error.message;
-            });
+            };
+
+            // Send a message to the device corresponding to the provided
+            // registration token.
+            messaging.send(message)
+                .then(async (response) => {
+                    // Response is a message ID string.
+                    console.log('Successfully sent message:', response);
+                    const response2 = await Notification.create({ title: title, content: body, user_id: userId });
+                    if (response2) {
+                        console.log("DB inserted")
+                    }
+                    return "success";
+                })
+                .catch((error) => {
+                    console.log('Error sending message:', error);
+                    return error.message;
+                });
         }
         else {
             console.log("exitting")
@@ -117,11 +123,11 @@ const NotificationController = {
             await admin.auth().getUserByEmail(email).then((userRecord) => {
                 const regToken = userRecord.customClaims['regToken'];
                 const userId = userRecord.customClaims['dbId'];
-                if (regToken){
+                if (regToken) {
                     userIds.push(userId);
                     tokens.push(regToken);
                 }
-                
+
             });
         }
         console.log("Tokens: ", tokens)
@@ -135,7 +141,7 @@ const NotificationController = {
 
         messaging.sendEachForMulticast(message)
             .then(async (response) => {
-                    console.log(response.successCount + ' messages were sent successfully');
+                console.log(response.successCount + ' messages were sent successfully');
 
                 if (response.failureCount > 0) {
                     const failedTokens = [];
@@ -147,12 +153,12 @@ const NotificationController = {
                     console.log('List of tokens that caused failures: ' + failedTokens);
                 }
                 //generate notification records for successfully pushed notifications
-                let notifications = []; 
+                let notifications = [];
                 for (const userId in userIds) {
-                    const notification = { notification_title: title, notification_content: body, user_id:userId};
+                    const notification = { title: title, content: body, user_id: userId };
                     notifications.push(notification);
                 }
-                   await Notification.bulkCreate(notifications);
+                await Notification.bulkCreate(notifications);
 
             })
             .catch((error) => {
@@ -160,9 +166,9 @@ const NotificationController = {
             });
     },
 
-    async subscribeToTopic(email,topic){
+    async subscribeToTopic(email, topic) {
         try {
-            let registrationToken; 
+            let registrationToken;
             await admin.auth().getUserByEmail(email).then((userRecord) => {
                 registrationToken = userRecord.customClaims['regToken'];
             })
@@ -171,67 +177,33 @@ const NotificationController = {
                 console.log("Subscribed to Preschool: ", response)
             })
 
-        } catch (error){
+        } catch (error) {
             console.log(error.message);
         }
     },
-
-    // async pushMultipleNotification(registrationTokens, title, body) {
-
-    //     const message = {
-    //         tokens: registrationTokens,
-    //         notification: {
-    //             title: title,
-    //             body: body,
-    //         }
-    //     };
-
-    //     messaging.sendEachForMulticast(message)
-    //         .then(async (response) => {
-    //             console.log(response.successCount + ' messages were sent successfully');
-
-    //             if (response.failureCount > 0) {
-    //                 const failedTokens = [];
-    //                 response.responses.forEach((resp, idx) => {
-    //                     if (!resp.success) {
-    //                         failedTokens.push(registrationTokens[idx]);
-    //                     }
-    //                 });
-    //                 console.log('List of tokens that caused failures: ' + failedTokens);
-    //             }
-    //             //generate notification records for successfully pushed notifications
-    //             //   await Notification.bulkCreate()
-    //         })
-    //         .catch((error) => {
-    //             console.log('Error sending message:', error);
-    //         });
-    // },
-
-
-
     async pushTopicNotification(topic, title, body) {
         try {
-                console.log("Started Pushing to topic")
+            console.log("Started Pushing to topic")
 
-        const message = {
-            topic: topic,
-            notification: {
-                title: title,
-                body: body,
-            }
-        };
-        console.log("Message Payload: ",message)
-        // Send a message to all client devices subscribed to the specific topic
-        messaging.send(message)
-            .then(async (response) => {
-                // Response is a message ID string.
-                console.log('Successfully sent message:', response);
-            })
-            .catch((error) => {
-                console.log('Error sending message:', error);
-            });
+            const message = {
+                topic: topic,
+                notification: {
+                    title: title,
+                    body: body,
+                }
+            };
+            console.log("Message Payload: ", message)
+            // Send a message to all client devices subscribed to the specific topic
+            messaging.send(message)
+                .then(async (response) => {
+                    // Response is a message ID string.
+                    console.log('Successfully sent message:', response);
+                })
+                .catch((error) => {
+                    console.log('Error sending message:', error);
+                });
         }
-        catch (error){
+        catch (error) {
             console.log(error);
         }
     },
@@ -270,7 +242,28 @@ const NotificationController = {
         catch (error) {
             return res.status(500).json({ message: error.message });
         }
-    }
+    },
+
+
 };
+
+async function pushWebNotification(user_id, title, body) {
+    try {
+        const targetSocketId = userSocketMap[user_id];
+        //check if targeted user is connected 
+        if (targetSocketId) {
+            // Emit the notification only to the target user's socket
+            io.to(targetSocketId).emit('notification', { title: title, body: body });
+        } else {
+            //if not connected, sent via email 
+            console.log(`User ${user_id} is not currently connected`);
+            const user = await User.findByPk(user_id);
+            EmailsManager.sendNotificationEmail(user.email, user.name, title, body);
+        }
+    } catch (error) {
+        throw error;
+    }
+
+}
 
 module.exports = NotificationController;

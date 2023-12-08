@@ -24,7 +24,9 @@
     "react": "^18",
     "react-apexcharts": "^1.4.1",
     "react-dom": "^18",
-    "react-hook-form": "^7.48.2"
+    "react-hook-form": "^7.48.2",
+    "react-hot-toast": "^2.4.1",
+    "socket.io-client": "^4.7.2"
   },
   "devDependencies": {
     "@react-jvectormap/core": "^1.0.4",
