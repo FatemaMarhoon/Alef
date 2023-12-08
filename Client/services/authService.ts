@@ -1,5 +1,6 @@
 import { FirebaseApp, FirebaseError, initializeApp } from 'firebase/app';
 import { getAuth, signOut, signInWithEmailAndPassword, GoogleAuthProvider, sendPasswordResetEmail, signInWithPopup, onAuthStateChanged, User, UserCredential } from "firebase/auth";
+import { getPreschoolById } from './preschoolService';
 
 export function FirebaseSetup(): FirebaseApp {
   const firebaseConfig = {
@@ -119,3 +120,14 @@ export async function currentUserRole(): Promise<unknown | undefined> {
 }
 
 
+export async function getPlan(): Promise<unknown | undefined> {
+
+  const preschoolId = await currentPreschool();
+  console.log(preschoolId);
+  const preschool = await getPreschoolById(preschoolId);
+  console.log(preschool);
+  const planId = preschool.plan_id;
+  console.log(planId);
+  return planId;
+
+}

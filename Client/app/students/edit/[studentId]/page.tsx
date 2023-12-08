@@ -12,12 +12,16 @@ import { getGrades } from '@/services/gradeCapacityService';
 import { GradeCapacity } from '@/types/gradeCapacity';
 import { StaticValue } from "@/types/staticValue";
 import { getGender } from "@/services/staticValuesService";
+import Link from "next/link";
+import Loader from "@/components/common/Loader"; // Import the Loader component
+
 export default function EditForm({ params }: { params: { studentId: number } }) {
     const router = useRouter();
     const currentUser = UserStorage.getCurrentUser();
     const { setSuccessMessage } = useSuccessMessageContext();
     const [error, setError] = useState("");
     // const [newGender, setNewGender] = useState("");
+    const [loading, setLoading] = useState(true); // Added loading state
 
     const [student, setStudent] = useState<Student>({});
     const [gradesList, setGradesList] = useState<GradeCapacity[]>([]);
@@ -32,8 +36,12 @@ export default function EditForm({ params }: { params: { studentId: number } }) 
             try {
                 const existingStudent = await getStudentById(params.studentId.toString());
                 setStudent(existingStudent);
+                setLoading(false); // Set loading to false once data is fetched
+
             } catch (error) {
                 console.error("Error fetching student data:", error);
+                setLoading(false); // Set loading to false once data is fetched
+
             }
         };
 
@@ -140,6 +148,8 @@ export default function EditForm({ params }: { params: { studentId: number } }) 
 
     return (
         <>
+            {loading && <Loader />} {/* Show loading indicator */}
+
             <Breadcrumb pageName="Edit Student" />
             {error && <ErrorAlert message={error}></ErrorAlert>}
 
@@ -361,9 +371,14 @@ export default function EditForm({ params }: { params: { studentId: number } }) 
                                         className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary   dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
                                     />
                                 </div>
-                                <button type="submit" className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray">
+                                <button type="submit" className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray mb-4">
                                     Update
                                 </button>
+                                <Link
+                                    href="/students"
+                                    className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray"              >
+                                    Back To List
+                                </Link>
                             </div>
                         </form>
                     </div>
