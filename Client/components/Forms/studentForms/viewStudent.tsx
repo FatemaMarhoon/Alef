@@ -6,12 +6,14 @@ import { getStudentById } from '@/services/studentService';
 import { Student } from '@/types/student';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Loader from "@/components/common/Loader"; // Import the Loader component
 
 // Functional component for viewing student details
 export default function ViewStudent({ studentId }: { studentId: string }) {
     const router = useRouter();
 
     const [student, setStudent] = useState<Student | null>(null);
+    const [loading, setLoading] = useState(true); // Added loading state
 
     useEffect(() => {
         // Fetch student data when the component mounts
@@ -19,8 +21,12 @@ export default function ViewStudent({ studentId }: { studentId: string }) {
             try {
                 const existingStudent = await getStudentById(studentId);
                 setStudent(existingStudent);
+                setLoading(false); // Set loading to false once data is fetched
+
             } catch (error) {
                 console.error("Error fetching student data:", error);
+                setLoading(false); // Set loading to false once data is fetched
+
             }
         };
 
@@ -33,6 +39,8 @@ export default function ViewStudent({ studentId }: { studentId: string }) {
 
     return (
         <>
+            {loading && <Loader />} {/* Show loading indicator */}
+
             <Breadcrumb pageName="View Student" />
 
             <div className="items-center justify-center min-h-screen">

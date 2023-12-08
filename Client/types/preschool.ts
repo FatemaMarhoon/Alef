@@ -1,6 +1,6 @@
 export interface Preschool {
     // preschool_name: string;
-    id?:number;
+    id?: number;
     preschool_name: string | undefined;
     plan_id: number | undefined;
     request_id: number | undefined;
@@ -12,11 +12,12 @@ export interface Preschool {
     phone?: string;
     email?: string;
     logo?: string;
-    logoFile?:File;
+    logoFile?: File;
     representitive_name?: string;
-    description?:string;
+    description?: string;
     Address?: Address;
     Preschool_Media?: Media[];
+    subscription_expiry_date: Date;
 }
 
 export interface Address {
@@ -31,5 +32,5 @@ export interface Address {
 
 export interface Media {
     id?: number;
-    file?:string;
+    file?: string;
 }

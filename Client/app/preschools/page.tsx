@@ -43,7 +43,7 @@ export default function PreschoolTable() {
     }
     // Filter the preschools based on the search term
     const filterdPreschools = preschools.filter((preschool) =>
-        preschool.preschool_name.toLowerCase().includes(searchTerm.toLowerCase())
+        preschool.preschool_name?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const currentPreschools = filterdPreschools.slice(indexOfFirstItem, indexOfLastItem);

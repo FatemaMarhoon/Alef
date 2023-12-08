@@ -5,12 +5,15 @@ import { getStudentById, deleteStudent } from "@/services/studentService";
 import { useRouter } from 'next/navigation'; // Import from 'next/router' instead of 'next/navigation'
 import { Student } from "@/types/student";
 import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
+import Link from "next/link";
+import Loader from "@/components/common/Loader"; // Import the Loader component
 
 export default function DeleteStudentPage({ params }: { params: { studentId: number } }) {
     const router = useRouter();
     const [student, setStudent] = useState<Student | null>(null);
     const { setSuccessMessage } = useSuccessMessageContext();
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
+    const [loading, setLoading] = useState(true); // Added loading state
 
     useEffect(() => {
         console.log("Student ID:", params.studentId);
@@ -20,9 +23,13 @@ export default function DeleteStudentPage({ params }: { params: { studentId: num
                 if (params.studentId) {
                     const studentData = await getStudentById(params.studentId.toString());
                     setStudent(studentData);
+                    setLoading(false); // Set loading to false once data is fetched
+
                 }
             } catch (error) {
                 console.error("Error fetching student:", error);
+                setLoading(false); // Set loading to false once data is fetched
+
             }
         }
 
@@ -58,6 +65,8 @@ export default function DeleteStudentPage({ params }: { params: { studentId: num
 
     return (
         <>
+            {loading && <Loader />} {/* Show loading indicator */}
+
             <Breadcrumb pageName="Delete Student" />
 
             <div className="items-center justify-center min-h-screen">
@@ -99,7 +108,7 @@ export default function DeleteStudentPage({ params }: { params: { studentId: num
                                 <p>Loading student information...</p>
                             )}
 
-                            <div className="mt-6">
+                            <div className="mt-6 flex gap-4">
                                 <button
                                     type="button"
                                     onClick={handleDelete}
@@ -107,7 +116,14 @@ export default function DeleteStudentPage({ params }: { params: { studentId: num
                                 >
                                     Delete Student
                                 </button>
+                                <Link
+                                    href="/students"
+                                    className="flex justify-center items-center rounded bg-primary p-3 font-medium text-gray"
+                                >
+                                    Back To List
+                                </Link>
                             </div>
+
                         </div>
                     </div>
                 </div>
