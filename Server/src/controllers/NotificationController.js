@@ -4,7 +4,11 @@ const User = require('../models/user')(sequelize, DataTypes);
 const Notification = require('../models/notification')(sequelize, DataTypes);
 const admin = require('../config/firebase.config')
 const messaging = admin.messaging();
-const io = require('socket.io')(); // Import socket.io and create an instance
+
+const socketSetup = require('../config/socket-setup');
+const EmailsManager = require('./EmailsManager');
+const io = socketSetup.getIo(); // Import the io instance
+const userSocketMap = socketSetup.userSocketMap;
 
 Notification.belongsTo(User, { foreignKey: 'user_id' });
 
@@ -24,20 +28,8 @@ const NotificationController = {
         try {
             const notificationData = req.body;
             const newNotification = await Notification.create(notificationData);
-            io.emit('notification', notificationData, (acknowledgment) => {
-                console.log(acknowledgment)
-                // if (acknowledgment === 'success') {
-                //     console.log('Notification sent successfully to web clients.');
-                //     if (callback && typeof callback === 'function') {
-                //         callback(null); // Pass null to indicate success
-                //     }
-                // } else {
-                //     console.error('Failed to send notification to web clients.');
-                //     if (callback && typeof callback === 'function') {
-                //         callback('Failed to send notification.');
-                //     }
-                // }
-            });
+            
+            await pushWebNotification(notificationData.user_id,notificationData.notification_title, notificationData.notification_content)
 
             res.status(201).json({
                 message: 'Notification created successfully',
@@ -48,9 +40,6 @@ const NotificationController = {
         }
     },
 
-    async generateWebNotification(user_id, title, body) {
-        io.emit('notification', body);
-    },
 
     async updateNotification(req, res) {
         const notificationId = req.params.id;
@@ -256,7 +245,28 @@ const NotificationController = {
         catch (error) {
             return res.status(500).json({ message: error.message });
         }
-    }
+    },
+
+    
 };
+
+async function pushWebNotification(user_id, title, body) {
+    try {
+        const targetSocketId = userSocketMap[user_id];
+        //check if targeted user is connected 
+        if (targetSocketId) {
+            // Emit the notification only to the target user's socket
+            io.to(targetSocketId).emit('notification', { title: title, body: body});
+        } else {
+            //if not connected, sent via email 
+            console.log(`User ${user_id} is not currently connected`);
+            const user = await User.findByPk(user_id);
+            EmailsManager.sendNotificationEmail(user.email, user.name, title, body);
+        }
+    } catch (error) {
+        throw error;
+    }
+
+}
 
 module.exports = NotificationController;

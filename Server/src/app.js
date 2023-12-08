@@ -1,12 +1,20 @@
 const express = require('express');
 const http = require('http');
-const socketIo = require('socket.io');
+const socketSetup = require('./config/socket-setup');
+const cors = require('cors'); // Import cors module
+
 const app = express();
+
+// Invoke the cors middleware
+app.use(cors());
+
 const server = http.createServer(app);
-const io = socketIo(server);
+
+const io = socketSetup.initializeSocket(server);
+
 
 const PORT = process.env.PORT || 3000;
-const cors = require('cors')
+
 const cron = require('node-cron');
 const cronJob = require('./cron-job');
 
@@ -38,7 +46,6 @@ const mediaRoutes = require('./routes/mediaRoutes');
 
 //middelware
 app.use(express.json());
-app.use(cors());
 
 
 //routes
@@ -65,22 +72,12 @@ app.use('/stationaryRequest', stationaryRequestRoutes);
 app.use('/evaluations', applicationEvaluationRoutes);
 app.use('/grades', gradesRoutes);
 app.use('/media', mediaRoutes);
-
+ 
 
 //schedule the cron job for reminders
 cron.schedule('0,30 * * * *', cronJob.appointmentsReminder); //daily when the minutes are 0 and 30 (every half an hour)
 cron.schedule('0 12 * * *', cronJob.eventsReminder); //daily at 12pm
 cron.schedule('* 8 26 * *', cronJob.monthlyPaymentGenerator); //on the 26th of each month at 8 am
-
-// WebSocket connection
-io.on('connection', (socket) => {
-  console.log('A user connected');
-
-  // Handle disconnection
-  socket.on('disconnect', () => {
-    console.log('User disconnected');
-  });
-});
 
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
