@@ -10,6 +10,8 @@ import ErrorAlert from "@/components/ErrorAlert";
 import { StaticValue } from "@/types/staticValue";
 import { getRequestStatuses } from "@/services/staticValuesService";
 import Loader from "@/components/common/Loader";
+import { currentUserRole } from '@/services/authService';
+import Access from "@/components/Pages/403"; // Import the Loader component
 
 // interface RequestReviewPageProps {
 //     requestId: string;
@@ -22,6 +24,8 @@ export default function RequestReviewPage({ params }: { params: { requestId: num
     const router = useRouter();
     const { setSuccessMessage } = useSuccessMessageContext();
     const [requestStatuses, setRequestStatuses] = useState<StaticValue[]>([]);
+    const [role, SetRole] = useState('');
+    const [loading, setLoading] = useState(true);
 
     // const parsedRequestId = parseInt(params.requestId.toString());
 
@@ -33,10 +37,12 @@ export default function RequestReviewPage({ params }: { params: { requestId: num
                 const requestData = await getRequestById(params.requestId.toString());
                 setRequest(requestData);
                 setNewStatus(requestData.status); // Set the initial selected value here
-
+                setLoading(false)
                 // setNewStatus(requestData.status); // Set the initial selected value here
 
             } catch (error) {
+                setLoading(false)
+
                 console.error('Error fetching request:', error);
             }
         }
@@ -50,7 +56,11 @@ export default function RequestReviewPage({ params }: { params: { requestId: num
                 const types = await getRequestStatuses();
                 setRequestStatuses(types);
                 console.log(types);
+                setLoading(false)
+
             } catch (error) {
+                setLoading(false)
+
                 console.error("Error fetching staff Roles:", error);
             }
         }
@@ -126,103 +136,122 @@ export default function RequestReviewPage({ params }: { params: { requestId: num
 
 
 
-    if (!request) {
-        // You can add loading or error handling here
-        {
-            return (
-                <Loader />
-            )
+    // if (!request) {
+    //     // You can add loading or error handling here
+    //     {
+    //         return (
+    //             <Loader />
+    //         )
+    //     }
+    // }
+
+    const checkAuthorization = async () => {
+        try {
+            const user = await currentUserRole();
+            SetRole(user);
+            return user; // Return the user role
+        } catch (error) {
+            console.error('Error checking authorization:', error);
         }
-    }
+    };
+
+    useEffect(() => {
+        // Call the function to check authorization when the component mounts or when user changes
+        checkAuthorization();
+    }, []); // The empty dependency array means this useEffect runs once when the component mounts
 
 
     return (
         <>
-            <div className="flex flex-col gap-9">
-                <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-                    <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
-                        <h3 className="font-medium text-black dark:text-white">Review Request</h3>
-                    </div>
-                    <div className="p-6.5">
-                        <div className="mb-4.5">
-                            <label className="mb-2.5 block text-black dark:text-white">Request ID:</label>
-                            <input
-                                type="text"
-                                value={request.id}
-                                disabled
-                                className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary`}
-                            />
+            {loading && <Loader />}
+            {!loading && role !== 'Super Admin' && <Access />}
+            {!loading && role === 'Super Admin' && (
+                <div className="flex flex-col gap-9">
+                    <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+                        <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
+                            <h3 className="font-medium text-black dark:text-white">Review Request</h3>
                         </div>
-                        <div className="mb-4.5">
-                            <label className="mb-2.5 block text-black dark:text-white">Preschool Name:</label>
-                            <input
-                                type="text"
-                                value={request.preschool_name}
-                                disabled
-                                className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary`}
-                            />
-                        </div>
-                        <div className="mb-4.5">
-                            <label className="mb-2.5 block text-black dark:text-white">Representative Name:</label>
-                            <input
-                                type="text"
-                                value={request.representitive_name}
-                                disabled
-                                className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary`}
-                            />
-                        </div>
-                        <div className="mb-4.5">
-                            <label className="mb-2.5 block text-black dark:text-white">CR:</label>
-                            <input
-                                type="text"
-                                value={request.CR}
-                                disabled
-                                className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary`}
-                            />
-                        </div>
-                        <div className="mb-4.5">
-                            <label className="mb-2.5 block text-black dark:text-white">Phone:</label>
-                            <input
-                                type="text"
-                                value={request.phone}
-                                disabled
-                                className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary`}
-                            />
-                        </div>
-                        <div className="mb-4.5">
-                            <label className="mb-2.5 block text-black dark:text-white">Email:</label>
-                            <input
-                                type="text"
-                                value={request.email}
-                                disabled
-                                className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary`}
-                            />
-                        </div>
-                        {/* Repeat similar structure for other request details */}
-                        <div className="mb-4.5">
-                            <label className="mb-2.5 block text-black dark:text-white">Status:</label>
-                            <select
-                                value={newStatus}
-                                onChange={(e) => setNewStatus(e.target.value)}
-                                className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary`}
+                        <div className="p-6.5">
+                            <div className="mb-4.5">
+                                <label className="mb-2.5 block text-black dark:text-white">Request ID:</label>
+                                <input
+                                    type="text"
+                                    value={request.id}
+                                    disabled
+                                    className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary`}
+                                />
+                            </div>
+                            <div className="mb-4.5">
+                                <label className="mb-2.5 block text-black dark:text-white">Preschool Name:</label>
+                                <input
+                                    type="text"
+                                    value={request.preschool_name}
+                                    disabled
+                                    className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary`}
+                                />
+                            </div>
+                            <div className="mb-4.5">
+                                <label className="mb-2.5 block text-black dark:text-white">Representative Name:</label>
+                                <input
+                                    type="text"
+                                    value={request.representitive_name}
+                                    disabled
+                                    className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary`}
+                                />
+                            </div>
+                            <div className="mb-4.5">
+                                <label className="mb-2.5 block text-black dark:text-white">CR:</label>
+                                <input
+                                    type="text"
+                                    value={request.CR}
+                                    disabled
+                                    className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary`}
+                                />
+                            </div>
+                            <div className="mb-4.5">
+                                <label className="mb-2.5 block text-black dark:text-white">Phone:</label>
+                                <input
+                                    type="text"
+                                    value={request.phone}
+                                    disabled
+                                    className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary`}
+                                />
+                            </div>
+                            <div className="mb-4.5">
+                                <label className="mb-2.5 block text-black dark:text-white">Email:</label>
+                                <input
+                                    type="text"
+                                    value={request.email}
+                                    disabled
+                                    className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary`}
+                                />
+                            </div>
+                            {/* Repeat similar structure for other request details */}
+                            <div className="mb-4.5">
+                                <label className="mb-2.5 block text-black dark:text-white">Status:</label>
+                                <select
+                                    value={newStatus}
+                                    onChange={(e) => setNewStatus(e.target.value)}
+                                    className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary`}
+                                >
+                                    <option value="">Select status....</option>
+                                    {requestStatuses.map((status, index) => (
+                                        <option key={index} value={status.ValueName}>
+                                            {status.ValueName}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <button
+                                onClick={handleStatusChange}
+                                className="flex w-full justify-center rounded bg-primary p-3 font-medium text-white"
                             >
-                                <option value="">Select status....</option>
-                                {requestStatuses.map((status, index) => (
-                                    <option key={index} value={status.ValueName}>
-                                        {status.ValueName}
-                                    </option>
-                                ))}
-                            </select>
+                                Update Status
+                            </button>
                         </div>
-                        <button
-                            onClick={handleStatusChange}
-                            className="flex w-full justify-center rounded bg-primary p-3 font-medium text-white"
-                        >
-                            Update Status
-                        </button>
                     </div>
                 </div>
-            </div>
+            )}
         </>
     );
 };

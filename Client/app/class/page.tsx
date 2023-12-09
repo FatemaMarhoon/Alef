@@ -250,6 +250,11 @@ export default function ClassTable() {
                                 </tbody>
                             </table>
                         </div>
+                        {filteredClasses.length === 0 && (
+                            <div className="text-center text-gray-700 dark:text-gray-300 mt-4">
+                                No Classes found.
+                            </div>
+                        )}
                         <div className="flex justify-end mt-4">
                             <Pagination
                                 count={Math.ceil(filteredClasses.length / itemsPerPage)}

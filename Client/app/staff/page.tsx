@@ -16,7 +16,7 @@ export default function StaffTable() {
     const [staff, setStaff] = useState<Staff[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 5; // Set the number of items to display per page
+    const itemsPerPage = 10; // Set the number of items to display per page
     const { successMessage, clearSuccessMessage } = useSuccessMessageContext();
 
     useEffect(() => {
@@ -43,6 +43,8 @@ export default function StaffTable() {
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentStaff = filteredStaff.slice(indexOfFirstItem, indexOfLastItem);
+
+
 
 
     return (
@@ -223,6 +225,11 @@ export default function StaffTable() {
                         </tbody>
                     </table>
                 </div>
+                {filteredStaff.length === 0 && (
+                    <div className="text-center text-gray-700 dark:text-gray-300 mt-4">
+                        No Staff found.
+                    </div>
+                )}
                 <div className="flex justify-end mt-4">
                     <Pagination
                         count={Math.ceil(filteredStaff.length / itemsPerPage)}

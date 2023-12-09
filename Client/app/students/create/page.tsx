@@ -153,7 +153,7 @@ export default function CreateForm() {
     <>
       <Breadcrumb pageName="Create Student" />
       {/* {error && <ErrorAlert message={error}></ErrorAlert>} */}
-      {error && <ErrorAlert ref={errorRef} message={error}></ErrorAlert>}
+      {error && <ErrorAlert message={error}></ErrorAlert>}
 
       <div className=" items-center justify-center min-h-screen">
         <div className="flex flex-col gap-9">

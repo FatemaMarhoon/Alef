@@ -1,5 +1,5 @@
 export interface Staff {
-    id: number;
+    id?: number;
     preschool_id: number;
     staff_role_name: string;
     name: string;
