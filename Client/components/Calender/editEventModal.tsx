@@ -68,6 +68,12 @@ const EditEventModal: React.FC<EditEventModalProps> = ({ isOpen, onClose, onSucc
 
     const handleEditEvent = async () => {
         try {
+            console.log(formData);
+            //if sets to public, make sure to clear classes 
+            if (formData.public_event == true) {
+                console.log("SETTING CLASSES TO EMPTY")
+                setClassIds([]);
+            }
             const response = await editEvent(
                 event.id,
                 formData.event_name,
@@ -97,7 +103,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({ isOpen, onClose, onSucc
             type: string;
             checked?: boolean;
         };
-        
+
         if (name === 'event_date') {
             // Handle date input separately
             setFormData((prevFormData) => ({

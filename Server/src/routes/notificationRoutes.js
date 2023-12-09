@@ -6,9 +6,9 @@ const router = express.Router();
 // Get all users
 router.get('/', NotificationController.getAllNotifications);
 // Create a new notification
-// router.post('/', NotificationController.createNotification);
+router.post('/', NotificationController.createNotification);
 
-// Update a notification by ID
+// Update all notifications by user ID
 router.put('/:id', NotificationController.markAllRead);
 
 // Delete a notification by ID

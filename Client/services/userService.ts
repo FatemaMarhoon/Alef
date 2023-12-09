@@ -43,7 +43,7 @@ export async function login(email: string, password: string): Promise<any> {
   }
 }
 
-export async function gerUser({ userId, email }: { userId?: number, email?: string }) {
+export async function gerUser({ userId, email }: { userId?: number, email?: string }) : Promise<{
   try {
 
     var token;

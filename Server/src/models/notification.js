@@ -11,6 +11,9 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    is_read: {
+      type: DataTypes.BOOLEAN,
+    }
   });
 
   return Notification;

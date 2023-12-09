@@ -77,6 +77,8 @@ const DetailsModal: React.FC<DetailsModalProps> = ({
                         </time>
                         <p className="mt-1">{event.notes}</p>
                       </div>
+                      <button onClick={() => handleEdit(undefined,event)}>Edit</button>
+                      <button onClick={() => onDelete(undefined,event)}>Delete</button>
                       {/* </div> */}
                     </div>
                   ))}
@@ -105,6 +107,8 @@ const DetailsModal: React.FC<DetailsModalProps> = ({
                         </time>
                         <p className="mt-1"> For Applicant: {appointment.Application?.student_name}</p>
                       </div>
+                      <button onClick={() => handleEdit(appointment,undefined)}>Edit</button>
+                      <button onClick={() => onDelete(appointment,undefined)}>Delete</button>
                     </div>
                   ))}
                 </div>
@@ -115,39 +119,6 @@ const DetailsModal: React.FC<DetailsModalProps> = ({
         }
       </DialogContent>
     </Dialog>
-    // <Dialog open={isOpen} onClose={onClose} className="modal">
-    //   <DialogContent className="modal-body">
-    //     {error && <ErrorAlert message={error} />}
-    //     <div className="px-4 sm:px-0">
-    //       <h3 className="text-base font-semibold leading-7 text-gray-900">{selectedDate}</h3>
-    //     </div>
-    //     <Timeline sx={{
-    //       [`& .${timelineItemClasses.root}:before`]: {
-    //         flex: 0,
-    //         padding: 0,
-    //       },
-    //     }}>
-    //       {/* Events Section */}
-    //       {dayItems.eventsForDay.map((event) => (
-    //         <TimelineItem key={event.id}>
-    //           <TimelineSeparator>
-    //             <TimelineDot variant='outlined' color='secondary'/>
-    //             <TimelineConnector />
-    //           </TimelineSeparator>
-    //           <TimelineContent>
-    //             <div className="text-sm font-medium leading-6 text-gray-900">
-    //               {event.event_name}
-    //             </div>
-    //             <div className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-    //               {event.notes}
-    //             </div>
-    //           </TimelineContent>
-    //         </TimelineItem>
-    //       ))}
-    //     </Timeline>
-    //   </DialogContent>
-    //   {/* ... */}
-    // </Dialog>
   );
 };
 

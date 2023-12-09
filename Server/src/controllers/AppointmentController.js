@@ -141,7 +141,7 @@ const AppointmentController = {
             });
 
             //verify that returned slots are all in future
-            const passedDate = new Date(date); // Replace this with your actual passed date
+            const passedDate = new Date(date).toLocaleDateString; // Replace this with your actual passed date
             let currentDate = new Date();
             currentDate.setHours(0, 0, 0, 0); // Set the time to midnight for accurate date comparison
             currentDate = currentDate.toLocaleDateString();
@@ -149,10 +149,12 @@ const AppointmentController = {
             const currentTime = new Date().toLocaleTimeString();
             console.log("current time:", currentTime)
 
-            if (passedDate.toLocaleDateString() < currentDate) {
+            if (passedDate < currentDate) {
+                console.log("PASSED:", passedDate)
+                console.log("CURRENT:", currentDate)
                 return res.status(400).json({ message: 'Please select a date in the future.' });
             }
-            else if (passedDate.toLocaleDateString() == currentDate) {
+            else if (passedDate == currentDate) {
                 availableSlots = availableSlots.filter((slot) => {
                     const formattedSlot = slot + ':00';
                     return formattedSlot > currentTime;
