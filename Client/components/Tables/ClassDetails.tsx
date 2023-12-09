@@ -20,6 +20,7 @@ const ClassDetails: React.FC<ClassDetailsProps> = (props) => {
     const [unassignedStudents, setUnassignedStudents] = useState<Student[]>([]);
     const [selectedStudentId, setSelectedStudentId] = useState<number | null>(null);
     const [grade, setGrade] = useState("");
+    const [studentsCount, setStudentsCount] = useState(0);
 
     const fetchData = async () => {
         try {
@@ -30,7 +31,10 @@ const ClassDetails: React.FC<ClassDetailsProps> = (props) => {
             // Fetch class details
             const classDetailsData = await getClassById(classId as string);
             setClassDetails(classDetailsData);
-
+            // Count the number of students
+            const numberOfStudents = studentsData.length;
+            console.log(`Number of students in the class: ${numberOfStudents}`);
+            setStudentsCount(numberOfStudents);
             // setGrade(classDetailsData?.class.grade)
         } catch (error) {
             console.error('Error fetching class details:', error);
@@ -149,7 +153,9 @@ const ClassDetails: React.FC<ClassDetailsProps> = (props) => {
                     <h1 className="mb-4.5">Class Name: {classDetails.class.class_name}</h1>
                     <h1 className="mb-4.5">Supervisor: {classDetails.class.supervisor}</h1>
                     <h1 className="mb-4.5">Grade: {classDetails.class.grade}</h1>
-                    <h1 className="mb-4.5">Capacity: {classDetails.class.capacity}</h1>
+                    <h1 className="mb-4.5">Class Capacity: {classDetails.class.capacity}</h1>
+                    <h1 className="mb-4.5">Current Capacity: {studentsCount}</h1>
+
                     <h1 className="mb-4.5">Classroom: {classDetails.class.classroom}</h1>
 
                     {/* Add more details as needed */}
@@ -278,7 +284,13 @@ const ClassDetails: React.FC<ClassDetailsProps> = (props) => {
                         ))}
                     </tbody>
                 </table>
+
             </div>
+            <Link
+                href="/class"
+                className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray"              >
+                Back To List
+            </Link>
         </div>
 
     );

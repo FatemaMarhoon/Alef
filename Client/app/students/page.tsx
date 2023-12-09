@@ -16,6 +16,10 @@ import SuccessAlert from '@/components/SuccessAlert';
 import Loader from "@/components/common/Loader"; // Import the Loader component
 import Access from "@/components/Pages/403"; // Import the 403 component
 import { getPlan } from '@/services/authService';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import Grid from '@mui/material/Grid';
+import Typography from '@mui/material/Typography';
 
 export default function StudentTable() {
     const [students, setStudents] = useState<Student[]>([]);
@@ -27,12 +31,18 @@ export default function StudentTable() {
     const [loading, setLoading] = useState(true); // Added loading state
     const [plan, setPlan] = useState(0);
     const [authorizationCheckComplete, setAuthorizationCheckComplete] = useState(false);
+    const [showUnassigned, setShowUnassigned] = useState(false); // New state for the filter
 
     useEffect(() => {
         async function fetchStudents() {
             try {
                 const studentsData = await getStudents();
-                setStudents(studentsData);
+                // Filter unassigned students if showUnassigned is true
+                const filteredStudents = showUnassigned
+                    ? studentsData.filter(student => student.class_id === null)
+                    : studentsData;
+
+                setStudents(filteredStudents);
                 setLoading(false); // Set loading to false once data is fetched
 
             } catch (error) {
@@ -44,7 +54,7 @@ export default function StudentTable() {
 
         fetchStudents();
         console.log("Message on Students load: ", successMessage);
-    }, [successMessage]);
+    }, [successMessage, showUnassigned]);
 
     const paginate = (event: React.ChangeEvent<unknown>, pageNumber: number) => {
         setCurrentPage(pageNumber);
@@ -98,33 +108,53 @@ export default function StudentTable() {
                             Add new student
                         </Link>
                     </div>
-                    <div className="flex justify-between space-x-4" >
-                        <TextField
-                            label="Search by student name"
-                            variant="outlined"
-                            size="small"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            style={{ width: '80%', justifyContent: 'flex-end' }}
-                        />
-                        {/* <label className="text-black dark-text-white">Filter by Gender:</label> */}
-                        <FormControl variant="outlined" size="small" style={{ minWidth: '150px' }}>
-                            <InputLabel id="gender-filter-label">Gender</InputLabel>
-                            <Select
-                                labelId="gender-filter-label"
-                                id="gender-filter"
-                                value={genderFilter}
-                                onChange={(e) => setGenderFilter(e.target.value as string)}
-                                label="Gender"
+                    <Grid container spacing={2} alignItems="center">
+                        <Grid item xs={6}>
+                            <TextField
+                                label="Search by student name"
+                                variant="outlined"
+                                size="small"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={3}>
+                            <FormControl variant="outlined" size="small" fullWidth>
+                                <InputLabel id="gender-filter-label">Gender</InputLabel>
+                                <Select
+                                    labelId="gender-filter-label"
+                                    id="gender-filter"
+                                    value={genderFilter}
+                                    onChange={(e) => setGenderFilter(e.target.value as string)}
+                                    label="Gender"
+                                >
+                                    {['All', 'Male', 'Female'].map((gender, index) => (
+                                        <MenuItem key={index} value={gender.toLowerCase()}>
+                                            {gender}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={3}>
+                            {/* Toggle button group for unassigned students */}
+                            <ToggleButtonGroup
+                                value={showUnassigned}
+                                exclusive
+                                onChange={() => setShowUnassigned(!showUnassigned)}
+                                aria-label="text alignment"
+                                fullWidth
                             >
-                                {['All', 'Male', 'Female'].map((gender, index) => (
-                                    <MenuItem key={index} value={gender.toLowerCase()}>
-                                        {gender}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </div>
+                                <ToggleButton value={false} aria-label="left aligned" style={{ height: '36px' }}>
+                                    <Typography variant="caption">All Students</Typography>
+                                </ToggleButton>
+                                <ToggleButton value={true} aria-label="centered" style={{ height: '36px' }}>
+                                    <Typography variant="caption">Unassigned </Typography>
+                                </ToggleButton>
+                            </ToggleButtonGroup>
+                        </Grid>
+                    </Grid>
                     <div className="mb-4"></div> {/* Add space between the search/filter div and the table */}
                     <div className="max-w-full overflow-x-auto">
                         <table className="w-full table-auto">
@@ -307,6 +337,11 @@ export default function StudentTable() {
                             </tbody>
                         </table>
                     </div>
+                    {filteredStudents.length === 0 && (
+                        <div className="text-center text-gray-700 dark:text-gray-300 mt-4">
+                            No Students found.
+                        </div>
+                    )}
                     <div className="flex justify-end mt-4">
                         <Pagination
                             count={Math.ceil(filteredStudents.length / studentsPerPage)}

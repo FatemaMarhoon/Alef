@@ -40,9 +40,19 @@ export async function loginWithEmail(email: string, password: string): Promise<U
   const auth = getAuth(FirebaseSetup());
   await signInWithEmailAndPassword(auth, email, password)
     .then(async (userCredential) => {
-      // Signed in 
-      console.log("logged in")
-      return userCredential;
+      // Check the user's preschool subscription expiry date
+      const isSubscriptionValid = await checkExpiry();
+      const role = await currentUserRole();
+      if (role != 'Super Admin') {
+        if (isSubscriptionValid) {
+          console.log("User logged in");
+          return userCredential;
+        } else {
+          // Subscription is expired, sign out the user and prevent login
+          await signOut(auth);
+          throw new Error("Preschool subscription has expired. Please renew your subscription.");
+        }
+      }
     })
     .catch((error) => {
       const firebaseError = error as FirebaseError;
@@ -128,6 +138,36 @@ export async function getPlan(): Promise<unknown | undefined> {
   console.log(preschool);
   const planId = preschool.plan_id;
   console.log(planId);
+
+
   return planId;
 
+}
+
+export async function checkExpiry(): Promise<boolean> {
+  try {
+    const role = await currentUserRole();
+    // if (role != 'Super Admin') {
+    const preschoolId = await currentPreschool();
+    console.log("Preschool ID:", preschoolId);
+
+    const preschool = await getPreschoolById(preschoolId);
+    console.log("Preschool Data:", preschool);
+
+    const expiryDate = new Date(preschool.subscription_expiry_date);
+    console.log("Expiry Date:", expiryDate);
+
+    const currentDate = new Date();
+    console.log("Current Date:", currentDate);
+
+    // Compare the expiry date with the current date
+    const isSubscriptionValid = expiryDate > currentDate;
+    console.log("Is Subscription Valid:", isSubscriptionValid);
+
+    return isSubscriptionValid;
+    // }
+  } catch (error) {
+    console.error("Error checking subscription validity:", error);
+    return false; // Default to invalid subscription if there's an error
+  }
 }

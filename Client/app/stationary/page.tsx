@@ -185,6 +185,11 @@ export default function StationaryTable() {
                         </tbody>
                     </table>
                 </div>
+                {currentItems.length === 0 && (
+                    <div className="text-center text-gray-700 dark:text-gray-300 mt-4">
+                        No Stationaries found.
+                    </div>
+                )}
                 <div className="flex justify-end mt-4">
                     <Pagination
                         count={Math.ceil(currentItems.length / itemsPerPage)}

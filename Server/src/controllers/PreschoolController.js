@@ -54,7 +54,7 @@ const PreschoolController = {
         if (preschool.Preschool_Media) {
           // Replace file field with file URL in each media object
           console.log(preschool.Preschool_Media)
-          const mediaWithUrls = await Promise.all(preschool.Prescسقhool_Media.map(async (mediaObj) => {
+          const mediaWithUrls = await Promise.all(preschool.Preschool_Media.map(async (mediaObj) => {
             const fileURL = await FilesManager.generateSignedUrl(mediaObj.file);
             return { ...mediaObj.toJSON(), file: fileURL };
           }));

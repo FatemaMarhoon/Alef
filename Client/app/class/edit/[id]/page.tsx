@@ -26,6 +26,7 @@ export default function EditForm({ params }: { params: { id: number } }) {
     const [gradesList, setGradesList] = useState<GradeCapacity[]>([]);
     const [staffList, setStaffList] = useState<Staff[]>([]);
     const { setSuccessMessage } = useSuccessMessageContext();
+    const [studentsCount, setStudentsCount] = useState(0);
 
     const fetchData = async () => {
         try {
@@ -36,6 +37,10 @@ export default function EditForm({ params }: { params: { id: number } }) {
             // Fetch class details
             const classDetailsData = await getClassById(classId.toString());
             setClassDetails(classDetailsData);
+            // Count the number of students
+            const numberOfStudents = studentsData.length;
+            console.log(`Number of students in the class: ${numberOfStudents}`);
+            setStudentsCount(numberOfStudents);
 
             const staff = await getStaffById(classDetailsData?.class.supervisor);
             const staffName = staff.name
@@ -123,6 +128,13 @@ export default function EditForm({ params }: { params: { id: number } }) {
             const confirmAdd = window.confirm('Are you sure you want to add this student to the class?');
             if (!confirmAdd) {
                 return; // Do nothing if the user cancels
+            }
+            // Check if adding the student will exceed the class capacity
+            const updatedCapacity = studentsCount + 1; // Calculate the updated capacity
+            if (updatedCapacity > classDetails.class.capacity) {
+                // Display an alert or message indicating that the class is at full capacity
+                alert('Class is at full capacity. Cannot add more students.');
+                return;
             }
 
             // Set class_id to class id
@@ -222,7 +234,13 @@ export default function EditForm({ params }: { params: { id: number } }) {
 
     return (
         <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark-bg-boxdark sm-px-7.5 xl-pb-1">
+            <Link
+                href="/class"
+                className="  justify-center rounded bg-primary p-3 font-medium text-gray mb-4"              >
+                Back To List
+            </Link>
             <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
+
                 <h3 className="font-medium text-black dark:text-white">
                     Class Details
                 </h3>
@@ -335,7 +353,11 @@ export default function EditForm({ params }: { params: { id: number } }) {
                     </div>
                     <div className="mb-2">
                         <label htmlFor="capacity" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                            Capacity:
+                            Current  Capacity:
+                        </label>
+                        <h3 className="mb-4.5"><strong>{studentsCount}</strong></h3>
+                        <label htmlFor="capacity" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Class Capacity:
                         </label>
                         <input
                             type="text"
