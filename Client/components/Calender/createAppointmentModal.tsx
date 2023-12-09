@@ -40,13 +40,14 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({ isOpen,
     async function fetchData() {
       try {
         const applicationList = await getApplications();
-
         setApplicationsList(applicationList.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     }
     fetchData();
+    //re set date to today to automatically fetch time slots
+    setNewAppointment({ ...newAppointment, date: new Date() });
   }, []);
 
   useEffect(() => {
@@ -96,6 +97,10 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({ isOpen,
 
       // If creation is successful, trigger the onSuccess callback
       onSuccess();
+      //clear appointment after creation
+      setNewAppointment({ ...newAppointment, time: "" });
+      setNewAppointment({ ...newAppointment, application_id: 0 });
+
       onClose();
     } catch (error: any) {
       const axiosError = error as AxiosError;

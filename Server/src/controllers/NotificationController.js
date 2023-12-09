@@ -30,7 +30,7 @@ const NotificationController = {
             const notificationData = req.body;
             const newNotification = await Notification.create(notificationData);
 
-            await pushWebNotification(notificationData.user_id, notificationData.title, notificationData.content)
+            await NotificationController.pushWebNotification(notificationData.user_id, notificationData.title, notificationData.content)
 
             return res.status(201).json({
                 message: 'Notification created successfully',
@@ -44,7 +44,7 @@ const NotificationController = {
     async markAllRead(req, res) {
         const user_id = req.params.id;
         try {
-            const result = await Notification.update({ is_read: true }, {
+            const result = await Notification.update({ is_read: "1" }, {
                 where: {user_id:user_id},
             });
 
@@ -114,6 +114,7 @@ const NotificationController = {
     },
 
     async pushMultipleNotification(emails, title, body) {
+        try {
         //get users objects for both id and tokens 
         console.log("Pushing multiple started...")
         console.log(tokens)
@@ -164,6 +165,10 @@ const NotificationController = {
             .catch((error) => {
                 console.log('Error sending message:', error);
             });
+        }
+         catch (error){
+            console.log(error);
+         }
     },
 
     async subscribeToTopic(email, topic) {
@@ -244,26 +249,29 @@ const NotificationController = {
         }
     },
 
+    async pushWebNotification(user_id, title, body) {
+        try {
+
+            const targetSocketId = userSocketMap[user_id];
+            //check if targeted user is connected 
+            if (targetSocketId) {
+                // Emit the notification only to the target user's socket
+                io.to(targetSocketId).emit('notification', { title: title, body: body });
+                console.log("Notification sent")
+            } else {
+                //if not connected, sent via email 
+                console.log(`User ${user_id} is not currently connected`);
+                const user = await User.findByPk(user_id);
+                EmailsManager.sendNotificationEmail(user.email, user.name, title, body);
+            }
+            //  await Notification.create({ title: title, content: body, user_id: user_id });
+        } catch (error) {
+            throw error;
+        }
+    
+    }
 
 };
 
-async function pushWebNotification(user_id, title, body) {
-    try {
-        const targetSocketId = userSocketMap[user_id];
-        //check if targeted user is connected 
-        if (targetSocketId) {
-            // Emit the notification only to the target user's socket
-            io.to(targetSocketId).emit('notification', { title: title, body: body });
-        } else {
-            //if not connected, sent via email 
-            console.log(`User ${user_id} is not currently connected`);
-            const user = await User.findByPk(user_id);
-            EmailsManager.sendNotificationEmail(user.email, user.name, title, body);
-        }
-    } catch (error) {
-        throw error;
-    }
-
-}
 
 module.exports = NotificationController;

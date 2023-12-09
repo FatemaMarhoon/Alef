@@ -75,7 +75,7 @@ app.use('/media', mediaRoutes);
  
 
 //schedule the cron job for reminders
-cron.schedule('0,30 * * * *', cronJob.appointmentsReminder); //daily when the minutes are 0 and 30 (every half an hour)
+cron.schedule('9,30 * * * *', cronJob.appointmentsReminder); //daily when the minutes are 0 and 30 (every half an hour)
 cron.schedule('0 12 * * *', cronJob.eventsReminder); //daily at 12pm
 cron.schedule('* 8 26 * *', cronJob.monthlyPaymentGenerator); //on the 26th of each month at 8 am
 

@@ -60,7 +60,9 @@ const DropdownNotification = () => {
     // Check if there are any unread notifications
     const hasUnreadNotification = notifications?.some((notification) => !notification.is_read);
     setNotifying(!!hasUnreadNotification); // Set notifying to true if there are unread notifications
-  }, []);
+    console.log("Unread: ", hasUnreadNotification)
+    console.log("Notifying set to:",notifying)
+  }, [notifications]);
 
   function formatDate(date: Date): string {
     const options: Intl.DateTimeFormatOptions = {

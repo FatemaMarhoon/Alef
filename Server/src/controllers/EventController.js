@@ -18,7 +18,7 @@ Student.belongsTo(User, { foreignKey: 'user_id' });
 Class.belongsTo(Staff, { foreignKey: 'supervisor' })
 Staff.hasMany(Class, { foreignKey: 'supervisor' })
 // User.belongsTo(Staff,{ foreignKey: 'user_id' })
-Staff.belongsTo(User,{ foreignKey: 'user_id' })
+Staff.belongsTo(User, { foreignKey: 'user_id' })
 // EventClass.belongsTo(Class, { foreignKey: 'class_id' });
 
 // Define the many-to-many relationships
@@ -35,6 +35,8 @@ Class.belongsToMany(Event, {
 });
 
 const EventController = {
+
+
     //by class id or by preschool id
     async getAllEvents(req, res) {
         let events;
@@ -59,7 +61,7 @@ const EventController = {
             else if (preschool_id) {
                 events = await Event.findAll(({
                     where: { preschool_id: preschool_id },
-                    include:[{ model:Class, as: "Classes"}]
+                    include: [{ model: Class, as: "Classes" }]
                 }));
 
                 if (!events) {
@@ -129,7 +131,7 @@ const EventController = {
                 await EventClass.bulkCreate(eventClassBulkData);
             }
             const title = 'New Event Added !';
-            const body = `Don't miss out on the upcoming event: ${event_name} on ${event_date}. Check it out now!`;
+            const body = `Don't miss out on: ${event_name} scheduled on ${event_date}. Check it out now!`;
             if (notify_parents == true) {
                 //notify all teachers (let them subscribe to topics)
                 if (public_event == true) {
@@ -137,8 +139,8 @@ const EventController = {
                 }
                 else {
                     //notify parents of students in those classes 
-                    const tokens = await getParentsTokens(classes);
-                    await NotificationController.pushMultipleNotification(tokens, title, body)
+                    const emails = await getParentsEmails(classes);
+                    await NotificationController.pushMultipleNotification(emails, title, body)
                 }
             }
 
@@ -149,8 +151,8 @@ const EventController = {
                 }
                 //notify classes supervisors only
                 else {
-                    const tokens = await getSupervisorsTokens(classes);
-                    await NotificationController.pushMultipleNotification(tokens, title, body)
+                    const emails = await getSupervisorsEmails(classes);
+                    await NotificationController.pushMultipleNotification(emails, title, body)
                 }
             }
 
@@ -181,7 +183,7 @@ const EventController = {
 
     async updateEvent(req, res) {
         const { id } = req.params;
-        const {
+        var {
             event_name,
             event_date,
             notes,
@@ -217,6 +219,13 @@ const EventController = {
                         });
                     }
                     await EventClass.bulkCreate(eventClassBulkData);
+                }
+
+                if (public_event == true) {
+                    //make sure to remove any previous records if any 
+                    await EventClass.destroy({
+                        where: { event_id: event.id },
+                    });
                 }
                 // Save the updated event
                 await event.save();
@@ -273,11 +282,11 @@ const EventController = {
         }
     },
 
-    
+
 
 };
 
-async function getParentsTokens(classes) {
+async function getParentsEmails(classes) {
     try {
         let studentEmails = [];
 
@@ -293,15 +302,6 @@ async function getParentsTokens(classes) {
             studentEmails = students.map(student => student.User.email);
         }
 
-        // for (const email of studentEmails) {
-        //     try {
-        //         const regToken = (await auth.getUserByEmail(email)).customClaims['regToken'];
-        //         registrationTokens.push({ email, regToken });
-        //     } catch (error) {
-        //         // Handle errors, such as the user not having a registration token
-        //         console.error(`Error for email ${email}: ${error.message}`);
-        //     }
-        // }
         return studentEmails;
 
     }
@@ -310,19 +310,18 @@ async function getParentsTokens(classes) {
     }
 }
 
-async function getSupervisorsTokens(classes) {
+async function getSupervisorsEmails(classes) {
     try {
         let supervisorsEmails = [];
-        let registrationTokens = [];
         if (classes && classes.length > 0) {
             // Find all students in the specified classes
-             const classList = await Class.findAll({
+            const classList = await Class.findAll({
                 where: { id: { [Op.in]: classes } },
                 include: [
                     {
                         model: Staff, as: 'Staff',
                         distinct: true,
-                        include:[{model:User, as: 'User'}]
+                        include: [{ model: User, as: 'User' }]
                     }
                 ],
             });
@@ -330,22 +329,16 @@ async function getSupervisorsTokens(classes) {
             const supervisorsEmailsSet = new Set(classList.map(classObject => classObject.Staff.User.email));
             supervisorsEmails = Array.from(supervisorsEmailsSet);
         }
-
-        for (const email of supervisorsEmails) {
-            try {
-                const regToken = (await auth.getUserByEmail(email)).customClaims['regToken'];
-                registrationTokens.push(regToken);
-            } catch (error) {
-                // Handle errors, such as the user not having a registration token
-                console.error(`Error for email ${email}: ${error.message}`);
-            }
-        }
-        return res.json(registrationTokens);
+        return supervisorsEmails;
 
     }
     catch (error) {
-        return res.json({message:error.message})
+        throw error;
     }
 }
 
-module.exports = EventController;
+module.exports = {
+   EventController,
+    getParentsEmails,
+    getSupervisorsEmails,
+};

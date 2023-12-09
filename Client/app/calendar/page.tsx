@@ -1,14 +1,12 @@
 'use client'
-import { SetStateAction, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Breadcrumb from "../../components/Breadcrumbs/Breadcrumb";
 import { MyEvent } from '@/types/event';
 import { createEvent, deleteEvent, getEventById, getEvents } from '@/services/eventsService';
-import { useRouter } from 'next/navigation';
 import { useSuccessMessageContext } from '../../components/SuccessMessageContext';
 import CreateEventModal from '../../components/Calender/CreateEventModal'
 import SuccessAlert from '@/components/SuccessAlert';
 import { AxiosError } from 'axios';
-import Link from 'next/link';
 import EditEventModal from '../../components/Calender/editEventModal';
 
 import ErrorAlert from '@/components/ErrorAlert';
@@ -408,6 +406,7 @@ const Calendar = () => {
         onCreate={handleCreateEvent}
         onSuccess={() => {
           // Re-fetch updated events after successful creation
+          setSuccessMessage("Event Added Successfully.");
           fetchEvents();
         }}
       />
@@ -418,7 +417,8 @@ const Calendar = () => {
           isOpen={isEditEventModalOpen}
           onClose={closeEventEditModal}
           onSuccess={() => {
-            // Fetch updated events after successful creation
+            // Fetch updated events after successful update
+            setSuccessMessage("Event Updated Successfully.");
             fetchEvents();
           }}
           event={selectedEvent} // Pass the selectedEvent to be edited
@@ -432,7 +432,8 @@ const Calendar = () => {
         onCreate={handleCreateAppointment}
         onSuccess={() => {
           // Fetch updated events after successful creation
-          fetchEvents();
+          setSuccessMessage("Appointment Added Successfully.");
+          fetchAppointments();
         }}
       />
 
@@ -442,7 +443,8 @@ const Calendar = () => {
           isOpen={isEditAppointmentModalOpen}
           onClose={closeAppointmentEditModal}
           onSuccess={() => {
-            // Fetch updated events after successful creation
+            // Fetch updated events after successful update
+            setSuccessMessage("Appointment Updated Successfully.");
             fetchAppointments();
           }}
           appointment={selectedAppointment} // Pass the selectedEvent to be edited
