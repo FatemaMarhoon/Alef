@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { getUsers, updateUser, deleteUser } from '@/services/userService';
 import { User } from '@/types/user';
 import Link from 'next/link';
+import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
 import SuccessAlert from '@/components/SuccessAlert';
 import Pagination from '@mui/material/Pagination';
 import TextField from '@mui/material/TextField';
@@ -16,7 +17,8 @@ export default function UsersTable() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
-  const [tempMessage, setTempMessage] = useState('');
+  const [error, setError] = useState("");
+  const { successMessage, setSuccessMessage } = useSuccessMessageContext();
   const [searchValue, setSearchValue] = useState('');
   const [filterValue, setFilterValue] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -66,9 +68,31 @@ export default function UsersTable() {
     setCurrentPage(1); // Reset to the first page when changing filter
   };
 
+  const handleDelete = async (id: number) => {
+    try {
+      if (confirm("Are you sure you want to delete user permanently? ")) {
+        const response = await deleteUser(id);
+        if (response.status == 200 || response.status == 201) {
+          setSuccessMessage(response.data.message);
+          router.refresh();
+        }
+        else if (response.status == 400 || response.status == 404 || response.status == 500) {
+          setError(response.data.message);
+        }
+      }
+    } catch (error: any) {
+      if (error.response) {
+        setError(error.response.data.message);
+      }
+      else if (error.message) {
+        setError(error.message);
+      }
+    }
+  }
+
   return (
     <>
-      {tempMessage && <SuccessAlert message={tempMessage}></SuccessAlert>}
+      {successMessage && <SuccessAlert message={successMessage}></SuccessAlert>}
       <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
         <div className="flex justify-between items-center mb-6">
           <h4 className="text-xl font-semibold text-black dark:text-white">Users</h4>
@@ -150,10 +174,16 @@ export default function UsersTable() {
                         >
                           {user.status === 'Enabled' ? 'Disable' : 'Enable'}
                         </button>
-                        <button 
-                        // onClick={() => handleDelete(user.id)} 
-                        className="text-danger hover:underline">
+                        <button
+                          onClick={() => handleDelete(user.id)}
+                          className=" py-4 px-4 text-danger hover:underline">
                           Delete
+                        </button>
+                        <button
+                          className=" py-4 px-4 text-primary hover:underline">
+                          <Link href={`/users/edit/${user.id}`}>
+                            Edit
+                          </Link>
                         </button>
                       </td>
                     </tr>
