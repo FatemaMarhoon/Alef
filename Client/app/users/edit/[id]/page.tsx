@@ -1,31 +1,26 @@
-// Import necessary dependencies
+'use client'
 import { useState, useEffect } from "react";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import { getUser, updateUser } from "@/services/userService";
-import { useRouter } from "next/router";
-import ErrorAlert from "../ErrorAlert";
-import { currentPreschool } from "@/services/authService";
-import { useSuccessMessageContext } from "../SuccessMessageContext";
+import { updateUser, getUser } from "@/services/userService";
+import { useRouter } from "next/navigation";
+import ErrorAlert from "@/components/ErrorAlert";
+import { User } from "@/types/user"
+import { useSuccessMessageContext } from "@/components/SuccessMessageContext";
 
-export default function EditForm({ userId }) {
+export default function EditForm({ params }: { params: { id: number } }) {
   const router = useRouter();
   const { setSuccessMessage } = useSuccessMessageContext();
-  const [email, setEmail] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [role, setRole] = useState("");
+  const [user, setUser] = useState({ id: 0, name: "", email: "", status: "", role_name: "" });
   const [error, setError] = useState("");
 
   // Fetch user details on component mount
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
-        const response = await getUser(userId);
-        const userData = response.data; // Assuming the API returns user data
-
+        const response = await getUser(params.id);
+        const userData = response?.data; // Assuming the API returns user data
         // Set state with user data
-        setEmail(userData.email);
-        setFullName(userData.fullName);
-        setRole(userData.role);
+        setUser(userData);
       } catch (error) {
         console.error("Error fetching user details:", error);
         // Handle error as needed
@@ -33,20 +28,20 @@ export default function EditForm({ userId }) {
     };
 
     fetchUserDetails();
-  }, [userId]);
+  }, [params.id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await currentPreschool().then(async (preschoolId) => {
-        const response = await editUser(userId, email, fullName, role, Number(preschoolId));
-        if (response.status === 200) {
+      if (user) {
+        const response = await updateUser(user);
+        if (response.status === 200 || response.status == 201) {
           setSuccessMessage(response.data.message);
           router.push('/users');
         } else if (response.status === 400 || response.status === 404 || response.status === 500) {
           setError(response.data.message);
         }
-      });
+      }
     } catch (error: any) {
       if (error.response) {
         setError(error.response.data.message);
@@ -78,10 +73,9 @@ export default function EditForm({ userId }) {
                   </label>
                   <input
                     type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter user's email address"
-                    className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                    value={user?.email}
+                    readOnly
+                    className="w-full rounded border-[1.5px] border-stroke bg-gray py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                   />
                 </div>
                 <div className="mb-4.5">
@@ -90,8 +84,8 @@ export default function EditForm({ userId }) {
                   </label>
                   <input
                     type="text"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
+                    value={user.name}
+                    onChange={(e) => setUser({ ...user, name: e.target.value })}
                     placeholder="Enter user's full name"
                     className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                   />
@@ -103,8 +97,8 @@ export default function EditForm({ userId }) {
                   </label>
                   <div className="relative z-20 bg-transparent dark:bg-form-input">
                     <select
-                      value={role} // Bind the selected value to the state
-                      onChange={(e) => setRole(e.target.value)}
+                      value={user.role_name}
+                      onChange={(e) => setUser({ ...user, role_name: e.target.value })}
                       className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary">
                       <option value="">Select user's role</option>
                       <option value="Admin">Admin</option>
@@ -134,7 +128,7 @@ export default function EditForm({ userId }) {
                 </div>
 
                 <button type="submit" className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray">
-                  Update
+                  Save Changes
                 </button>
               </div>
             </form>

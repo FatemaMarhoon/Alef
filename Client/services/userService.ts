@@ -43,7 +43,7 @@ export async function login(email: string, password: string): Promise<any> {
   }
 }
 
-export async function gerUser({ userId, email }: { userId?: number, email?: string }) : Promise<{
+export async function getUser(id:number) {
   try {
 
     var token;
@@ -53,14 +53,8 @@ export async function gerUser({ userId, email }: { userId?: number, email?: stri
         Authorization: `Bearer ${token}`, // Include the token in the Authorization header
       },
     };
-
-    if (userId) {
-      const response = await axios.get(`${BASE_URL}/${userId}`, config);
+      const response = await axios.get(`${BASE_URL}/${id}`, config);
       return response;
-    }
-    else if (email) {
-
-    }
   } catch (error) {
 
   }
@@ -109,7 +103,7 @@ export async function updateUser(userData: { id: number, name?: string, role_nam
       role_name: userData.role_name,
       status: userData.status
     }, config);
-    return response.data;
+    return response;
   } catch (error) {
     throw error;
   }
