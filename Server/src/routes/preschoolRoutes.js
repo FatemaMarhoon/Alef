@@ -12,7 +12,7 @@ const multerMiddleware = multer({
 ]);
 
 // Get all users
-router.get('/', checkSuperAdmin, PreschoolController.getAllPreschools);
+router.get('/', PreschoolController.getAllPreschools);
 
 // Create a new preschool
 router.post('/', PreschoolController.createPreschool);
