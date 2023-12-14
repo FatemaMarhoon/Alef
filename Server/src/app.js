@@ -17,6 +17,7 @@ const PORT = process.env.PORT || 3000;
 
 const cron = require('node-cron');
 const cronJob = require('./cron-job');
+const backup = require('./backup');
 
 //imports
 const userRoutes = require('./routes/userRoutes');
@@ -72,12 +73,19 @@ app.use('/stationaryRequest', stationaryRequestRoutes);
 app.use('/evaluations', applicationEvaluationRoutes);
 app.use('/grades', gradesRoutes);
 app.use('/media', mediaRoutes);
- 
+
 
 //schedule the cron job for reminders
 cron.schedule('0,30 * * * *', cronJob.appointmentsReminder); //daily when the minutes are 0 and 30 (every half an hour)
 cron.schedule('0 12 * * *', cronJob.eventsReminder); //daily at 12pm
 cron.schedule('* 8 26 * *', cronJob.monthlyPaymentGenerator); //on the 26th of each month at 8 am
+
+
+// Schedule the backup to run every day at midnight
+cron.schedule('0 0 * * *', () => {
+  console.log('Running the backup job...');
+  backup.performBackup();
+});
 
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
