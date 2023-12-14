@@ -1,5 +1,5 @@
 const { DataTypes, Model } = require('sequelize');
-const db = require('../config/seq'); // Use the appropriate Sequelize connection
+const db = require('../config/seq');
 
 module.exports = (sequelize, DataTypes) => {
   const Staff = sequelize.define('Staff', {
@@ -18,7 +18,6 @@ module.exports = (sequelize, DataTypes) => {
     user_id: {
       type: DataTypes.INTEGER,
       // allowNull: false,
-
     },
     staff_role_name: {
       type: DataTypes.STRING,

@@ -27,9 +27,18 @@ const validateStudentData = (studentData) => {
     // Validate DOB
     const currentYear = new Date().getFullYear();
     const dobYear = new Date(studentData.DOB).getFullYear();
+    const dobMonth = new Date(studentData.DOB).getMonth();
+    const dobDay = new Date(studentData.DOB).getDay();
 
-    // if (dobYear > currentYear) {
-    //     return { isValid: false, message: 'DOB must be before the current year' };
+    var currentDate = new Date();
+    var currentMonth = currentDate.getMonth() + 1; // Months are zero-indexed, so we add 1
+    var currentDay = currentDate.getDate();
+
+    // // Check if the date is in the future
+    // if (dobYear > currentYear ||
+    //     (dobYear === currentYear && dobMonth > currentMonth) ||
+    //     (dobYear === currentYear && dobMonth === currentMonth && dobDay > currentDay)) {
+    //     return { isValid: false, message: 'DOB must not be before in the future' };
     // }
     if (dobYear < 2018 || dobYear > 2023) {
         return { isValid: false, message: 'DOB must be between 2018 and 2023' };
