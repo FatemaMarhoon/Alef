@@ -140,7 +140,7 @@ const ApplicationController = {
                 type: 'Application Creation',
                 original_values: JSON.stringify(application),
                 current_values: JSON.stringify(application),
-                user_id: user_id
+                user_id: created_by
                 //  user_id: 28
             });
 
