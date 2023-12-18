@@ -20,12 +20,18 @@ const LogsController = {
         }
     },
 
-    async createLog(logData, res) {
+    async createLog(logData) {
         try {
+            
+            if (!logData.user_id) {
+                throw new Error("user_id is required for creating a log entry.");
+            }
             const newLog = await Log.create(logData);
             //   res.json({ message: 'Log created successfully', newLog });
         } catch (error) {
-            res.status(500).json({ message: error.message });
+   
+             throw error;
+            // res.status(500).json({ message: error.message });
         }
     },
 

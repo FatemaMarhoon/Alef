@@ -24,6 +24,7 @@ const PreschoolController = {
     const age = req.query.age;
     const latitude = req.query.latitude;
     const longitude = req.query.longitude;
+    const recommended = req.query.recommended;
 
     try {
 
@@ -33,6 +34,14 @@ const PreschoolController = {
         whereCondition.push({
           preschool_name: {
             [Op.like]: `%${searchExpression}%`,
+          },
+        });
+      }
+      if (recommended) {
+        whereCondition.push({
+          subscription_expiry_date: {
+            [Op.not]: null,
+            [Op.gte]: new Date(),
           },
         });
       }
