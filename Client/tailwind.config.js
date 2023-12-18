@@ -30,6 +30,9 @@ module.exports = {
       graydark: "#333A48",
       "gray-2": "#F7F9FC",
       "gray-3": "#FAFAFA",
+      "gray-900":"#212121",
+      "gray-600":"#75757",
+      "grey-200":"#EEEEE",
       "alef-purple":"#9EA1D4",
       "alef-yellow":"#F1F7B5",
       whiten: "#f8f8f8", //body bg

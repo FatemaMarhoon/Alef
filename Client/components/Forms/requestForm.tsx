@@ -4,10 +4,11 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { createRequest } from '@/services/requestService';
 import { useRouter } from 'next/navigation'
 import { User } from '@/types/user';
+import { useSuccessMessageContext } from "../SuccessMessageContext";
 
 export default function RequestForm({ planId }: { planId: number }) {
   const router = useRouter();
-
+  const { successMessage, setSuccessMessage } = useSuccessMessageContext();
   const [preschool_name, setPreschoolName] = useState("");
   const [representitive_name, setRepName] = useState("");
   const [CR, setCR] = useState("");
@@ -21,6 +22,7 @@ export default function RequestForm({ planId }: { planId: number }) {
       const response = await createRequest(preschool_name,representitive_name,CR,phone,email,planId);
       if (response) {
         console.log("request created successfully")
+        setSuccessMessage("Request Submitted Successfully.")
         router.push('/plans');
       }
     } catch (error) {

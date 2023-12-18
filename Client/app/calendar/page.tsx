@@ -20,7 +20,7 @@ import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 const Calendar = () => {
   const { successMessage, setSuccessMessage } = useSuccessMessageContext();
   const [error, setError] = useState();
-  const [appliedFilter,setAppliedFilter] = useState("");
+  const [appliedFilter, setAppliedFilter] = useState("");
   //calendar 
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const monthOptions: Intl.DateTimeFormatOptions = { month: 'long' };
@@ -57,7 +57,8 @@ const Calendar = () => {
         );
       });
 
-      const appointmentsForDay = appointments.filter((appointment: Appointment) => {
+
+      const temp = appointments.filter((appointment: Appointment) => {
         const appointmentDate = new Date(appointment.date);
         return (
           appointmentDate.getFullYear() === currentMonth.getFullYear() &&
@@ -65,6 +66,10 @@ const Calendar = () => {
           appointmentDate.getDate() === day
         );
       });
+
+      const appointmentsForDay = temp.sort((a, b) =>
+        Number(a.time.substring(0, 2)) - Number(b.time.substring(0, 2))
+      );
 
       const hasMoreItems = eventsForDay.length + appointmentsForDay.length > 1;
 
@@ -144,8 +149,6 @@ const Calendar = () => {
     fetchAppointments();
 
   }, []);
-
-
 
 
   /* EVENTS */
@@ -253,7 +256,6 @@ const Calendar = () => {
     //create logic 
     try {
       console.log("creating appointment")
-      // Call the createEvent function from your service
       const response = await createAppointment(
         newAppointment.date,
         newAppointment.time,
@@ -261,7 +263,7 @@ const Calendar = () => {
       );
       if (response.status == 200 || response.status == 201) {
         setSuccessMessage(response.data.message);
-        fetchEvents();
+        fetchAppointments();
       }
       else if (response.status == 500 || response.status == 400 || response.status == 404) {
         throw Error(response.data.message)
@@ -278,12 +280,12 @@ const Calendar = () => {
   };
 
   useEffect(() => {
-    
-    if (appliedFilter == "Events"){
+
+    if (appliedFilter == "Events") {
       fetchEvents();
       setAppointments([]);
     }
-    else if (appliedFilter == "Appointments"){
+    else if (appliedFilter == "Appointments") {
       fetchAppointments();
       setEvents([]);
     }
@@ -291,7 +293,8 @@ const Calendar = () => {
       fetchEvents();
       fetchAppointments();
     }
-  },[appliedFilter])
+  }, [appliedFilter])
+
   //delete
   async function handleDeleteAppointment(id: number) {
     try {
@@ -343,10 +346,10 @@ const Calendar = () => {
               <MenuItem value="">All</MenuItem>
               <MenuItem value="Events">
                 Events
-                </MenuItem>
-                <MenuItem value="Appointments">
+              </MenuItem>
+              <MenuItem value="Appointments">
                 Appointments
-                </MenuItem>
+              </MenuItem>
             </Select>
           </FormControl>
           {isDropdownOpen && (

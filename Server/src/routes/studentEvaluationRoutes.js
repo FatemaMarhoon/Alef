@@ -6,6 +6,8 @@ const router = express.Router();
 // Get all student evaluations
 router.get('/', StudentEvaluationController.getAllStudentEvaluations);
 
+router.get('/:id', StudentEvaluationController.getEvaluationById);
+
 // Create a new student evaluation
 router.post('/', StudentEvaluationController.createStudentEvaluation);
 

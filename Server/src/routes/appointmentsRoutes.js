@@ -12,8 +12,6 @@ router.post('/', AppointmentController.createAppointment);
 //Available Slots 
 router.get('/availableSlots', AppointmentController.availableSlots);
 
-router.get('/fetchUpcoming', AppointmentController.fetchUpcoming);
-
 // Get an appointment by ID
 router.get('/:id', AppointmentController.getAppointmentById);
 

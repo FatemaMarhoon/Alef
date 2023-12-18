@@ -11,6 +11,7 @@ import Header from "@/components/Header";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 import { FirebaseSetup } from "@/services/authService";
 import { Toaster } from "react-hot-toast";
+import Head from "next/head";
 export default function RootLayout({
   children,
 }: {
@@ -26,6 +27,9 @@ export default function RootLayout({
   return (
     <SuccessMessageProvider>
       <html lang="en">
+        <head>
+        <link rel="icon" type="image/x-icon" href="/favicon.ico"/>
+        </head>
         <body suppressHydrationWarning={true}>
           <div className="dark:bg-boxdark-2 dark:text-bodydark">
             {loading ? (
