@@ -4,7 +4,7 @@ const sequelize = require('../config/seq');
 const Application = require('../models/preschool_application')(sequelize, DataTypes);
 const Preschool = require('../models/preschool')(sequelize, DataTypes);
 const User = require('../models/user')(sequelize, DataTypes);
-const Student = require('../models/student')(sequelize, DataTypes);
+const Student = require('../models/Student')(sequelize, DataTypes);
 const Evaluation = require('../models/application_evaluation')(sequelize, DataTypes);
 const GradesController = require('../controllers/GradeCapacityController')
 const FilesManager = require('./FilesManager');
@@ -20,27 +20,15 @@ Preschool.hasMany(Application, { foreignKey: 'preschool_id' });
 
 const LogsController = require('./LogController');
 const UsersController = require('./UsersController');
+const grade_capacity = require('../models/grade_capacity');
 
 const ApplicationController = {
     async getAllApplications(req, res) {
         const preschool = req.query.preschool; //list applications in web 
-        const status = req.query.status; //filter applications in web 
         const user_id = req.query.user_id; //to get parent's application (Mobile App)
         try {
             //for web 
             if (preschool) {
-                //filter by status 
-                if (status) {
-                    const applications = await Application.findAll({
-                        include: [
-                            { model: User },
-                            { model: Preschool },
-                            { model: Evaluation },
-                        ],
-                        where: { preschool_id: preschool, status: status }
-                    });
-                    return res.json(applications);
-                }
                 //normal listing 
                 const applications = await Application.findAll({
                     include: [
@@ -51,7 +39,7 @@ const ApplicationController = {
                 });
                 return res.json(applications);
             }
-            //for zainab 
+            //for mobile 
             else if (user_id) {
                 const applications = await Application.findAll({
                     include: Preschool,
@@ -147,7 +135,7 @@ const ApplicationController = {
 
             //create application
             const newApplication = await Application.create(application);
-            res.status(201).json({
+            return res.status(201).json({
                 message: 'Application created successfully',
                 application: newApplication,
             });
@@ -242,7 +230,6 @@ const ApplicationController = {
                 //if status updated, notify parent
                 if (status) {
                     // Lookup the user associated with the application.
-                    console.log("Status updated");
                     const parentUser = await User.findByPk(applicationObject.created_by);
                     if (parentUser.role_name == "Parent") {
                         let regToken;
@@ -269,38 +256,42 @@ const ApplicationController = {
                             }
                         });
                     }
-                }
-                //once application has been accepted, create a student and payment record
-                if (status == "Accepted") {
-                    const creator = await User.findByPk(applicationObject.created_by);
-                    const student = await Student.create({
-                        preschool_id: applicationObject.preschool_id,
-                        student_name: applicationObject.student_name,
-                        grade: applicationObject.grade,
-                        DOB: applicationObject.student_DOB,
-                        CPR: applicationObject.student_CPR,
-                        contact_number1: applicationObject.phone,
-                        contact_number2: applicationObject.phone,
-                        guardian_name: applicationObject.guardian_name,
-                        enrollment_date: new Date(),
-                        medical_history: applicationObject.medical_history,
-                        gender: applicationObject.gender,
-                        personal_picture: applicationObject.personal_picture,
-                        certificate_of_birth: applicationObject.certificate_of_birth,
-                        passport: applicationObject.passport,
-                        user_id: creator.role_name == "Parent" ? applicationObject.created_by : null //link parent account to the student
-                    })
+                    //if status set to rejected, check the waiting list 
+                    if (status == "Rejected") {
+                        await GradesController.trackWaitlist(applicationObject.preschool_id, applicationObject.grade);
+                    }
+                    //once application has been accepted, create a student and payment record
+                    else if (status == "Accepted") {
+                        const creator = await User.findByPk(applicationObject.created_by);
+                        const student = await Student.create({
+                            preschool_id: applicationObject.preschool_id,
+                            student_name: applicationObject.student_name,
+                            grade: applicationObject.grade,
+                            DOB: applicationObject.student_DOB,
+                            CPR: applicationObject.student_CPR,
+                            contact_number1: applicationObject.phone,
+                            contact_number2: applicationObject.phone,
+                            guardian_name: applicationObject.guardian_name,
+                            enrollment_date: new Date(),
+                            medical_history: applicationObject.medical_history,
+                            gender: applicationObject.gender,
+                            personal_picture: applicationObject.personal_picture,
+                            certificate_of_birth: applicationObject.certificate_of_birth,
+                            passport: applicationObject.passport,
+                            user_id: creator.role_name == "Parent" ? applicationObject.created_by : null //link parent account to the student
+                        })
 
-                    const preschool = await Preschool.findByPk(applicationObject.preschool_id);
-                    const payment = await Payment.create({
-                        status: "Pending",
-                        type: "Registration Fees",
-                        fees: preschool.registration_fees,
-                        due_date: new Date(),
-                        notes: "Registration Fees",
-                        student_id: student.id
-                    });
-                    return res.status(201).json({ message: 'Application Accepted and Student Registered Successfully.', student });
+                        const preschool = await Preschool.findByPk(applicationObject.preschool_id);
+                        const payment = await Payment.create({
+                            status: "Pending",
+                            type: "Registration Fees",
+                            fees: preschool.registration_fees,
+                            due_date: new Date(),
+                            notes: "Registration Fees",
+                            student_id: student.id
+                        });
+                        return res.status(201).json({ message: 'Application Accepted and Student Registered Successfully.', student });
+                    }
                 }
 
                 return res.status(200).json({ message: 'Application updated successfully.' });
