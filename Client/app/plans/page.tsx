@@ -3,8 +3,12 @@ import React, { useEffect, useState } from "react";
 import { Plan } from "../../types/plan"
 import { getPlans } from "../../services/planService"
 import Link from "next/link";
+import { useSuccessMessageContext } from "@/components/SuccessMessageContext";
+import SuccessAlert from "@/components/SuccessAlert";
+import Package from "@/components/Packages/package";
 const SubscriptionPlansPage = () => {
     const [plans, setPlans] = useState<Plan[]>([]);
+    const { successMessage, setSuccessMessage } = useSuccessMessageContext();
 
     useEffect(() => {
         async function fetchPlans() {
@@ -20,6 +24,9 @@ const SubscriptionPlansPage = () => {
     }, []);
 
     return (
+        <>
+        <Package></Package>
+        {/* {successMessage && <SuccessAlert message={successMessage}></SuccessAlert>}
         <div className="flex justify-center items-center h-screen">
             <div className="grid grid-cols-3 gap-4">
                 {plans.map((plan, index) => (
@@ -39,16 +46,12 @@ const SubscriptionPlansPage = () => {
                             Subscribe
                         </Link>
 
-                        {/* <button
-                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                            onClick={() => handleRegisterClick(plan.id)}
-                        >
-                            Register in this plan
-                        </button> */}
+                    
                     </div>
                 ))}
             </div>
-        </div>
+        </div> */}
+        </>
     );
 };
 

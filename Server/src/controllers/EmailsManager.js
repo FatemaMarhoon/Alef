@@ -1,10 +1,9 @@
 
 const sgMail = require('@sendgrid/mail');
+sgMail.setApiKey("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");
 
 const EmailsManager = {
   async sendCustomPasswordResetEmail(userEmail, displayName, link) {
-
-    sgMail.setApiKey("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");
 
     const msg = {
       to: userEmail,
@@ -34,8 +33,6 @@ const EmailsManager = {
 
 
   async sendNotificationEmail(userEmail, name, title, body) {
-
-    sgMail.setApiKey("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");
 
     const msg = {
       to: userEmail,

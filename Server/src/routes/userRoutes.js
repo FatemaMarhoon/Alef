@@ -8,6 +8,7 @@ router.get('/', checkToken, UsersController.getAllUsers);
 
 // // Get user by email
 // router.get('/:email', checkToken, UsersController.getUserByEmail);
+router.get('/updateAll',  UsersController.updateAll);
 
 // Get user by id
 router.get('/:id', checkToken, UsersController.getUserById);

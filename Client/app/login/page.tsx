@@ -32,7 +32,7 @@ const SignIn: React.FC = () => {
     }
   }
 
-  async function handleForgetPassword() {
+  async function handleForgotPassword() {
     try {
       await forgetPassword(email).then(() => {
         setError("");
@@ -287,11 +287,11 @@ const SignIn: React.FC = () => {
                 </div>
 
                 <div className="text-center text-primary mb-2">
-                  <button onClick={handleForgetPassword}>Forget Password</button>
+                  <button onClick={handleForgotPassword}>Forgot Password</button>
                 </div>
 
                 <div className="text-center ">
-                  New to Alef? <Link className="text-primary" href={"/plans"}>Register Now</Link>
+                  New to Alef? <Link className="text-primary" href={"/plans"}>Subscribe Now</Link>
                 </div>
               </form>
 

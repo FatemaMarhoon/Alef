@@ -120,10 +120,9 @@ export async function currentUserId(): Promise<unknown | undefined> {
 
 export async function currentUserRole(): Promise<unknown | undefined> {
   const user = await currentUser();
-  console.log(user)
   const role = await user?.getIdTokenResult(true).then((idTokenResult) => {
     const customClaims = idTokenResult.claims;
-    console.log(customClaims.role)
+    console.log(customClaims)
     return customClaims.role;
   });
   return role;
