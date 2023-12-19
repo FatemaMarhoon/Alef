@@ -9,6 +9,9 @@ router.post('/', StaffController.createStaff);
 // Get all staff members
 router.get('/preschool/:preschoolId', StaffController.getAllStaff);
 
+// Get a staff member by user id 
+router.get('/user/:id', StaffController.getStaffByUserId);
+
 // Get a staff member by ID
 router.get('/:staff_id', StaffController.getStaffById);
 
@@ -17,7 +20,6 @@ router.put('/:staff_id', StaffController.updateStaff);
 
 // Delete a staff member
 router.delete('/:staff_id', StaffController.deleteStaff);
-
 
 // Get all staff members uniquely
 router.get('/preschoolC/:preschoolId', StaffController.getAllStaffC);
