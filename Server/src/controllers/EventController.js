@@ -130,10 +130,21 @@ const EventController = {
                 }
                 await EventClass.bulkCreate(eventClassBulkData);
             }
+
+            //format date for display in body 
+            const options = {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+            };
+
+            const formattedDate = new Intl.DateTimeFormat('en-GB', options).format(event_date);
+
             const title = 'New Event Added !';
-            const body = `Don't miss out on: ${event_name} scheduled on ${event_date}. Check it out now!`;
+            const body = `Don't miss out on: ${event_name} scheduled on ${formattedDate}. Check it out now!`;
             if (notify_parents == true) {
-                //notify all teachers (let them subscribe to topics)
+                //notify all parents (previously subscribed to the topic)
                 if (public_event == true) {
                     NotificationController.pushTopicNotification(preschool_id + '_Parent', title, body)
                 }
@@ -145,14 +156,25 @@ const EventController = {
             }
 
             if (notify_staff == true) {
-                //notify all teachers (let them subscribe to topics)
+                //notify all teachers (previously subscribed to the topic) & web users 
                 if (public_event == true) {
-                    await NotificationController.pushTopicNotification(preschool_id + '_Staff')
+                    await NotificationController.pushTopicNotification(preschool_id + '_Teacher', title, body)
+                    const WebUsers = await User.findAll({
+                        where: {
+                            preschool_id: preschool_id,
+                            role_name: {
+                                [Op.in]: ['Admin', 'Staff'],
+                            },
+                        },
+                    });
+                    for (const user of WebUsers) {
+                        await NotificationController.pushWebNotification(user.id, title, body);
+                    }
                 }
                 //notify classes supervisors only
                 else {
                     const emails = await getSupervisorsEmails(classes);
-                    await NotificationController.pushMultipleNotification(emails, title, body)
+                    // await NotificationController.pushMultipleNotification(emails, title, body)
                 }
             }
 
@@ -232,31 +254,31 @@ const EventController = {
 
 
                 //notifications
-                const title = 'Event Updates !';
+                const title = 'Event Updates!';
                 const body = `There are some updated regarding ${event_name}. Check it out now!`;
-                // if (notify_parents == true) {
-                //     //notify all teachers (let them subscribe to topics)
-                //     if (public_event == true) {
-                //         NotificationController.pushTopicNotification(preschool_id + '_Parent', title, body)
-                //     }
-                //     else {
-                //         //notify parents of students in those classes 
-                //         const tokens = getParentsTokens(classes);
-                //         NotificationController.pushMultipleNotification(tokens, title, body)
-                //     }
-                // }
+                if (event.notify_parents == true) {
+                    //notify all teachers (let them subscribe to topics)
+                    if (event.public_event == true) {
+                        NotificationController.pushTopicNotification(preschool_id + '_Parent', title, body)
+                    }
+                    else {
+                        //notify parents of students in those classes 
+                        const tokens = getParentsEmails(classes);
+                        NotificationController.pushMultipleNotification(tokens, title, body)
+                    }
+                }
 
-                // if (notify_staff == true) {
-                //     //notify all teachers (let them subscribe to topics)
-                //     if (public_event == true) {
-                //         NotificationController.pushTopicNotification(preschool_id + '_Staff')
-                //     }
-                //     //notify classes supervisors only
-                //     else {
-                //         const tokens = getSupervisorsTokens(classes);
-                //         NotificationController.pushMultipleNotification(tokens, title, body)
-                //     }
-                // }
+                if (event.notify_staff == true) {
+                    //notify all teachers (let them subscribe to topics)
+                    if (event.public_event == true) {
+                        NotificationController.pushTopicNotification(preschool_id + '_Staff')
+                    }
+                    //notify classes supervisors only
+                    else {
+                        const tokens = getSupervisorsTokens(classes);
+                        NotificationController.pushMultipleNotification(tokens, title, body)
+                    }
+                }
                 return res.status(200).json({ message: 'Event updated successfully.' });
             }
             else {
@@ -338,7 +360,7 @@ async function getSupervisorsEmails(classes) {
 }
 
 module.exports = {
-   EventController,
+    EventController,
     getParentsEmails,
     getSupervisorsEmails,
 };

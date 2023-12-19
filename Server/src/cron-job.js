@@ -133,7 +133,7 @@ const cronJob = {
                     //notify all parents and teachers of that preschool (all already subscribed to topic > they're using mobile app)
                     await NotificationController.pushTopicNotification(event.preschool_id + '_Parent', title, body)
                     console.log("done from parents")
-                    await NotificationController.pushTopicNotification(event.preschool_id + '_Staff', title, body)
+                    await NotificationController.pushTopicNotification(event.preschool_id + '_Teacher', title, body)
                     console.log("done from teachers")
 
                     //notify web users (all staffs and admins)

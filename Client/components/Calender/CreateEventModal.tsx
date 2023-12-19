@@ -22,51 +22,65 @@ interface CreateEventModalProps {
     onClose: () => void;
     onCreate: (newEvent: any) => Promise<void>; // Now onCreate returns a Promise
     onSuccess: () => void; // Callback for success in the parent component
-  }
-  
-  const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, onCreate, onSuccess }) => {
+}
+
+const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, onCreate, onSuccess }) => {
     const [classesList, setClassesList] = useState<Class[]>([]);
     const [newEvent, setNewEvent] = useState({
-      event_name: '',
-      event_date: new Date(),
-      notes: '',
-      notify_parents: false,
-      notify_staff: false,
-      public_event: true,
-      classes: [],
+        event_name: '',
+        event_date: new Date(),
+        notes: '',
+        notify_parents: false,
+        notify_staff: false,
+        public_event: true,
+        classes: [],
     });
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         async function fetchClasses() {
-          try {
-            const classList = await getClasses();
-            setClassesList(classList);
-          } catch (error) {
-            console.error('Error fetching classes:', error);
-          }
+            try {
+                const classList = await getClasses();
+                setClassesList(classList);
+            } catch (error) {
+                console.error('Error fetching classes:', error);
+            }
         }
+
         fetchClasses();
-      }, []);
-    
-      const handleCreateEvent = async () => {
+    }, []);
+
+    function clearFields() {
+        setNewEvent({
+            event_name: '',
+            event_date: new Date(),
+            notes: '',
+            notify_parents: false,
+            notify_staff: false,
+            public_event: true,
+            classes: [],
+        });
+    };
+
+    const handleCreateEvent = async () => {
         try {
-          // Reset create event error on each creation attempt
-          setError(null);
-    
-          // Call the onCreate function provided by the parent
-          await onCreate(newEvent);
-    
-          // If creation is successful, trigger the onSuccess callback
-          onSuccess();
-          onClose();
-        } catch (error:any) {
+            // Reset create event error on each creation attempt
+            setError(null);
+
+            // Call the onCreate function provided by the parent
+            await onCreate(newEvent);
+
+            // If creation is successful, trigger the onSuccess callback
+            clearFields();
+            onSuccess();
+            onClose();
+        } catch (error: any) {
             const axiosError = error as AxiosError;
             console.error('Error creating event:', error.response.data.message);
-          // If there's an error, set the error in the CreateEventModal
-          setError(error.response.data.message);
+            // If there's an error, set the error in the CreateEventModal
+            setError(error.response.data.message);
         }
-      };
+    };
 
     return (
         <Dialog open={isOpen} onClose={onClose}>
