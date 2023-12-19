@@ -7,14 +7,14 @@ import { currentPreschool } from '@/services/authService';
 import Loader from '@/components/common/Loader';
 
 const ProfilePage = () => {
-  const [preschoolId, setPreschoolId] = useState(null);
+  const [preschoolId, setPreschoolId] = useState("");
   const router = useRouter();
 
   useEffect(() => {
     const fetchPreschoolId = async () => {
       try {
         const id = await currentPreschool();
-        setPreschoolId(id);
+        setPreschoolId(String(id));
       } catch (error) {
         console.error('Error fetching preschool ID:', error);
       }

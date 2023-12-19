@@ -1,23 +1,31 @@
 'use client'
-import { Metadata } from "next";
-import Login from '@/app/login/page'
 import Dashboard from "./dashboard/page";
 import { useRouter } from 'next/navigation'
-
-// export const metadata: Metadata = {
-//   title: "TailAdmin | Next.js E-commerce Dashboard Template",
-//   description: "This is Home Blog page for TailAdmin Next.js",
-//   // other metadata
-// };
+import { currentUser } from "@/services/authService";
+import { useEffect, useState } from "react";
 
 export default function Home() {
-  let loggedin = localStorage.getItem("currentUser")
+  const [loggedIn, setLoggedIn] = useState<boolean>(false);
   const router = useRouter();
-  if (loggedin) {
-    return (<> <Dashboard></Dashboard> </>)
-  }
-  else {
-    router.push('/login')
-  }
+  useEffect(() => {
+    async function checkLogin() {
+      if (await currentUser()) {
+        setLoggedIn(true);
+      }
+      else {
+        router.push('/plans')
+      }
+    }
 
+    checkLogin();
+  }, []);
+
+  return (
+    <>{loggedIn &&
+      <Dashboard>
+      </Dashboard>
+    }
+    </>
+
+  );
 }

@@ -34,6 +34,7 @@ const DetailsModal: React.FC<DetailsModalProps> = ({
     const formattedDate = new Intl.DateTimeFormat('en-GB', options).format(date);
     return formattedDate;
   }
+
   useEffect(() => {
     const firstItem = dayItems.eventsForDay.at(0) || dayItems.appointmentsForDay.at(0);
     if (firstItem && 'date' in firstItem) {
@@ -47,6 +48,7 @@ const DetailsModal: React.FC<DetailsModalProps> = ({
 
     console.log("Appointments: ", dayItems.appointmentsForDay)
   });
+  
   return (
     <Dialog open={isOpen} onClose={onClose} className="modal ">
       <DialogContent className="modal-body dark:bg-boxdark dark:text-white">

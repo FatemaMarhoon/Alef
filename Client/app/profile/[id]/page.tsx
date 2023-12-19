@@ -4,7 +4,7 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import Profile from '@/components/Pages/profile'; // Assuming ClassDetails is the correct component
 
-const profile = ({ params }: { params: { id: number } }) => {
+const profile = ({ params }: { params: { id: string } }) => {
 
     return (
         <div>

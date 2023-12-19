@@ -45,7 +45,7 @@ const DropdownUser = () => {
 
     async function handleLogout() {
       await logout();
-      router.push('/login')
+      router.push('/plans')
     }
 
     // close if the esc key is pressed
@@ -107,7 +107,7 @@ const DropdownUser = () => {
           className={`absolute right-0 mt-4 flex w-62.5 flex-col rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark ${dropdownOpen === true ? "block" : "hidden"
             }`}
         >
-          <ul className="flex flex-col gap-5 border-b border-stroke px-6 py-7.5 dark:border-strokedark">
+          {/* <ul className="flex flex-col gap-5 border-b border-stroke px-6 py-7.5 dark:border-strokedark">
             <li>
               <Link
                 href="/profile"
@@ -179,7 +179,7 @@ const DropdownUser = () => {
                 Account Settings
               </Link>
             </li>
-          </ul>
+          </ul> */}
 
 
           <button

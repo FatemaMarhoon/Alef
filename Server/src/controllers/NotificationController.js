@@ -40,7 +40,7 @@ const NotificationController = {
             res.status(400).json({ message: 'Failed to create a new notification. Please check your request data.', message: error.message });
         }
     },
- 
+
     async markAllRead(req, res) {
         const user_id = req.params.id;
         try {
@@ -173,13 +173,17 @@ const NotificationController = {
     },
 
     async subscribeToTopic(email, topic) {
+        const tempemail = "not@crying.com";
+        const tempTopic = "1_Parent"
         try {
             let registrationToken;
-            await admin.auth().getUserByEmail(email).then((userRecord) => {
+
+            await admin.auth().getUserByEmail(tempemail).then((userRecord) => {
                 registrationToken = userRecord.customClaims['regToken'];
+                console.log(userRecord.customClaims)
             })
 
-            messaging.subscribeToTopic(registrationToken, topic).then((response) => {
+            messaging.subscribeToTopic(registrationToken, tempTopic).then((response) => {
                 console.log("Subscribed to Preschool: ", response)
             })
 
@@ -187,6 +191,7 @@ const NotificationController = {
             console.log(error.message);
         }
     },
+
     async pushTopicNotification(topic, title, body) {
         try {
             console.log("Started Pushing to topic")
@@ -261,13 +266,13 @@ const NotificationController = {
             //check if targeted user is connected 
             if (targetSocketId) {
                 // Emit the notification only to the target user's socket
-                io.to(targetSocketId).emit('notification', { title: title, body: body });
+                await io.to(targetSocketId).emit('notification', { title: title, body: body });
                 console.log("Notification sent");
             } else {
                 //if not connected, sent via email 
                 console.log(`User ${user_id} is not currently connected`);
                 const user = await User.findByPk(user_id);
-                EmailsManager.sendNotificationEmail(user.email, user.name, title, body);
+                await EmailsManager.sendNotificationEmail(user.email, user.name, title, body);
             }
             await Notification.create({ title: title, content: body, user_id: user_id });
             return 'success';

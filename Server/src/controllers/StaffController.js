@@ -61,6 +61,22 @@ const StaffController = {
         }
     },
 
+    async getStaffByUserId(req, res) {
+        const { id } = req.params;
+        try {
+            const staffMember = await Staff.findOne({
+                where: {user_id:id}
+            });
+            if (staffMember) {
+                return res.status(200).json(staffMember);
+            } else {
+                return res.status(404).json({ message: 'Staff member not found.' });
+            }
+        } catch (error) {
+            return res.status(500).json({ message: error.message });
+        }
+    },
+
     async createStaff(req, res) {
         const staffData = req.body;
         // Perform validations
@@ -210,7 +226,7 @@ const StaffController = {
         }
     }
 
-
+    
 };
 
 module.exports = StaffController;
