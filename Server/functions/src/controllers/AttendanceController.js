@@ -2,8 +2,8 @@ const express = require('express');
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../config/seq');
 
-const Student = require('../models/Student')(sequelize, DataTypes);
-const Attendance = require('../models/Attendance')(sequelize, DataTypes);
+const Student = require('../models/student')(sequelize, DataTypes);
+const Attendance = require('../models/attendance')(sequelize, DataTypes);
 
 Attendance.belongsTo(Student, { foreignKey: 'student_id' });
 Student.hasMany(Attendance, { foreignKey: 'student_id' });

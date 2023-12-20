@@ -1,7 +1,7 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../config/seq');
 
-const Staff = require('../models/Staff')(sequelize, DataTypes);
+const Staff = require('../models/staff')(sequelize, DataTypes);
 const Preschool = require('../models/preschool')(sequelize, DataTypes);
 
 Staff.belongsTo(Preschool, { foreignKey: 'preschool_id' });

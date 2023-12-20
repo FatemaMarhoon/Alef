@@ -3,7 +3,7 @@ const sequelize = require('../config/seq');
 
 const Preschool = require('../models/preschool')(sequelize, DataTypes);
 const Class = require('../models/class')(sequelize, DataTypes);
-const Staff = require('../models/Staff')(sequelize, DataTypes);
+const Staff = require('../models/staff')(sequelize, DataTypes);
 
 Class.belongsTo(Preschool, { foreignKey: 'preschool_id' });
 Staff.belongsTo(Class, { foreignKey: 'id' });

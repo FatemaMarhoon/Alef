@@ -12,7 +12,7 @@ const Payment = require('./models/payment')(sequelize, DataTypes);
 const Event = require('./models/event')(sequelize, DataTypes);
 const Class = require('./models/class')(sequelize, DataTypes);
 const EventClass = require('./models/event_class')(sequelize, DataTypes);
-const Staff = require('./models/Staff')(sequelize, DataTypes);
+const Staff = require('./models/staff')(sequelize, DataTypes);
 
 const NotificationController = require('./controllers/NotificationController');
 const EventController = require('./controllers/EventController');

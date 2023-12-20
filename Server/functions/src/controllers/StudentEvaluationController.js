@@ -1,6 +1,6 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../config/seq');
-const Student = require('../models/Student')(sequelize, DataTypes);
+const Student = require('../models/student')(sequelize, DataTypes);
 const StudentEvaluation = require('../models/student_evaluation')(sequelize, DataTypes);
 
 StudentEvaluation.belongsTo(Student, { foreignKey: 'student_id' });

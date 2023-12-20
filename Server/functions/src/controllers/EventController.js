@@ -8,7 +8,7 @@ const EventClass = require('../models/event_class')(sequelize, DataTypes);
 const Class = require('../models/class')(sequelize, DataTypes);
 const User = require('../models/user')(sequelize, DataTypes);
 const Student = require('../models/student')(sequelize, DataTypes);
-const Staff = require('../models/Staff')(sequelize, DataTypes);
+const Staff = require('../models/staff')(sequelize, DataTypes);
 const NotificationController = require('./NotificationController');
 // Event.hasMany(EventClass, { foreignKey: 'event_id' });
 // EventClass.belongsTo(Event, { foreignKey: 'event_id' });
