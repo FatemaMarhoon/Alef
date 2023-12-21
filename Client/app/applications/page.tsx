@@ -77,8 +77,8 @@ export default function ApplicationsTable() {
     return (
         <>
             {successMessage && <SuccessAlert message={successMessage} />}
-            <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark-bg-boxdark sm-px-7.5 xl-pb-1">
-                <h4 className="mb-6 text-xl font-semibold text-black dark-text-white">
+            <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark dark:text-white sm-px-7.5 xl-pb-1">
+                <h4 className="mb-6 text-xl font-semibold text-black dark:text-white">
                     Applications
                 </h4>
                 <div className="flex justify-end mb-4">
@@ -120,27 +120,27 @@ export default function ApplicationsTable() {
                 <div className="max-w-full overflow-x-auto">
                 <table className="w-full table-auto">
                         <thead>
-                            <tr className="bg-gray-2 text-left dark-bg-meta-4">
-                                <th className="min-w-220px py-4 px-4 text-center font-medium text-black dark-text-white xl-pl-11">
+                            <tr className="bg-gray-2 text-left dark:bg-meta-4">
+                                <th className="min-w-220px py-4 px-4 text-center font-medium text-black dark:text-white xl-pl-11">
                                      ID
                                 </th>
-                                <th className="min-w-150px py-4 px-4 text-center font-medium text-black dark-text-white">
+                                <th className="min-w-150px py-4 px-4 text-center font-medium text-black dark:text-white">
                                     Applicant Name
                                 </th>
-                                <th className="py-4 px-4 font-medium text-center text-black dark-text-white">
+                                <th className="py-4 px-4 font-medium text-center text-black dark:text-white">
                                     Date of Birth
                                 </th>
-                                <th className="py-4 px-4 font-medium text-center text-black dark-text-white">
+                                <th className="py-4 px-4 font-medium text-center text-black dark:text-white">
                                     CPR
                                 </th>
-                                <th className="py-4 px-4 font-medium text-center text-black dark-text-white">
+                                <th className="py-4 px-4 font-medium text-center text-black dark:text-white">
                                     
                                      Status
                                 </th>
-                                <th className="py-4 px-4 font-medium text-center text-black dark-text-white">
+                                <th className="py-4 px-4 font-medium text-center text-black dark:text-white">
                                     Submitted By
                                 </th>
-                                <th className="py-4 px-4 font-medium text-center text-black dark-text-white">
+                                <th className="py-4 px-4 font-medium text-center text-black dark:text-white">
                                     Actions
                                 </th>
                             </tr>
@@ -148,42 +148,42 @@ export default function ApplicationsTable() {
                         <tbody>
                         {Array.isArray(currentApplications) && currentApplications.map((application, key) => (<tr key={key}>
                                     <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark text-center">
-                                        <h5 className="font-medium text-black dark-text-white">
+                                        <h5 className="font-medium text-black dark:text-white">
                                             {application.id}
                                         </h5>
                                     </td>
                                     <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark text-center">
-                                        <p className="text-black dark-text-white">
+                                        <p className="text-black dark:text-white">
                                             {application.student_name}
                                         </p>
                                     </td>
                                     <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark text-center">
-                                        <p className="text-black dark-text-white">
+                                        <p className="text-black dark:text-white">
                                             {new Date(application.student_DOB).toLocaleDateString()}
                                         </p>
                                     </td>
                                     <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark text-center">
-                                        <p className="text-black dark-text-white">
+                                        <p className="text-black dark:text-white">
                                             {application.student_CPR}
                                         </p>
                                     </td>
                                     <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark text-center">
                                         <p
-                                            className={`inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium 
+                                            className={`inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium dark:bg-opacity-25
                                             ${application.status === "Accepted"
-                                                    ? "text-success bg-success"
+                                                    ? "text-success bg-success dark:bg-success"
                                                     : application.status === "Rejected" || application.status === "Cancelled"
                                                         ? "text-danger bg-danger"
                                                         : application.status === "Waitlist"
                                                             ? "text-warning bg-warning"
-                                                            : "text-black bg-bodydark"
+                                                            : "text-black bg-bodydark dark:text-white dark:text-opacity-70"
                                                 }`}
                                         >
                                             {application.status}
                                         </p>
                                     </td>
                                     <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark text-center">
-                                        <p className="text-black dark-text-white">
+                                        <p className="text-black dark:text-white">
                                             {application.User?.name}
                                         </p>
                                     </td>

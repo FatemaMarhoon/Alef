@@ -10,11 +10,13 @@ import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
+import Loader from "@/components/common/Loader"; // Import the Loader component
 import Select from '@mui/material/Select';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function UsersTable() {
   const searchParams = useSearchParams();
+  const [loading, setLoading] = useState(true); // Added loading state
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [error, setError] = useState("");
@@ -23,16 +25,19 @@ export default function UsersTable() {
   const [filterValue, setFilterValue] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+  async function fetchUsers() {
+    try {
+      const usersData = await getUsers();
+      setUsers(usersData);
+      setLoading(false); // Set loading to false once data is fetched
 
-  useEffect(() => {
-    async function fetchUsers() {
-      try {
-        const usersData = await getUsers();
-        setUsers(usersData);
-      } catch (error) {
-        console.error('Error fetching users:', error);
-      }
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      setLoading(false); // Set loading to false in case of an error
     }
+  }
+  useEffect(() => {
+  
     fetchUsers();
   }, []);
 
@@ -51,10 +56,23 @@ export default function UsersTable() {
   };
 
   const statusChange = async (id: number, status: string) => {
-    const newStatus = status === 'Disabled' ? 'Enabled' : 'Disabled';
-    const response = await updateUser({ id: id, status: newStatus });
-    if (response) {
-      router.refresh();
+    try {
+      const newStatus = status === 'Disabled' ? 'Enabled' : 'Disabled';
+      const response = await updateUser({ id: id, status: newStatus });
+      if (response.status == 200 || response.status == 201) {
+        setSuccessMessage(`User ${newStatus} Successfully.`)
+        fetchUsers();
+      }
+      else if (response.status == 400 || response.status == 404 || response.status == 500) {
+        setError(response.data.message);
+      }
+    } catch (error: any) {
+      if (error.response) {
+        setError(error.response.data.message);
+      }
+      else if (error.message) {
+        setError(error.message);
+      }
     }
   };
 
@@ -74,7 +92,7 @@ export default function UsersTable() {
         const response = await deleteUser(id);
         if (response.status == 200 || response.status == 201) {
           setSuccessMessage(response.data.message);
-          router.refresh();
+          router.push('/users');
         }
         else if (response.status == 400 || response.status == 404 || response.status == 500) {
           setError(response.data.message);
@@ -93,7 +111,8 @@ export default function UsersTable() {
   return (
     <>
       {successMessage && <SuccessAlert message={successMessage}></SuccessAlert>}
-      <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
+      {loading && <Loader />}
+      <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark dark:text-white sm:px-7.5 xl:pb-1">
         <div className="flex justify-between items-center mb-6">
           <h4 className="text-xl font-semibold text-black dark:text-white">Users</h4>
           <Link
@@ -103,9 +122,9 @@ export default function UsersTable() {
             Create User
           </Link>
         </div>
-        <div className="flex flex-col">
+        <div className="flex flex-col dark:text-white dark:bg-boxdark">
           {/* Search & Filter */}
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex justify-between items-center mb-4 dark:text-white dark:bg-boxdark">
             <TextField
               label="Search by Name"
               variant="outlined"
@@ -113,22 +132,23 @@ export default function UsersTable() {
               fullWidth
               value={searchValue}
               onChange={handleSearchChange}
-              className="mb-4"
+              className="mb-4 dark:text-white dark:bg-boxdark"
             />
             <FormControl variant="outlined" size="small" fullWidth>
-              <InputLabel id="filter-label">Filter</InputLabel>
+              <InputLabel id="filter-label" className='dark:text-white'>Filter</InputLabel>
               <Select
                 labelId="filter-label"
                 id="filter"
                 value={filterValue}
                 onChange={handleFilterChange}
                 label="Filter"
+                className='dark:text-white dark:bg-boxdark'
               >
-                <MenuItem value="">All</MenuItem>
-                <MenuItem value="Admin">Admin</MenuItem>
-                <MenuItem value="Staff">Staff</MenuItem>
-                <MenuItem value="Teacher">Teacher</MenuItem>
-                <MenuItem value="Parent">Parent</MenuItem>
+                <MenuItem value="" className={`dark:text-white dark:bg-boxdark dark:hover:text-black ${filterValue == '' ? 'dark:text-black' : ''}`}>All</MenuItem>
+                <MenuItem value="Admin" className={`dark:text-white dark:bg-boxdark dark:hover:text-black ${filterValue == 'Admin' ? 'dark:text-black' : ''}`}>Admin</MenuItem>
+                <MenuItem value="Staff" className={`dark:text-white dark:bg-boxdark dark:hover:text-black ${filterValue == 'Staff' ? 'dark:text-black' : ''}`}>Staff</MenuItem>
+                <MenuItem value="Teacher" className={`dark:text-white dark:bg-boxdark dark:hover:text-black ${filterValue == 'Teacher' ? 'dark:text-black' : ''}`}>Teacher</MenuItem>
+                <MenuItem value="Parent" className={`dark:text-white dark:bg-boxdark dark:hover:text-black ${filterValue == 'Parent' ? 'dark:text-black' : ''}`}>Parent</MenuItem>
               </Select>
             </FormControl>
           </div>
@@ -137,20 +157,20 @@ export default function UsersTable() {
           <div className="max-w-full overflow-x-auto">
             <table className="w-full table-auto">
               <thead>
-                <tr className="bg-gray-2 text-left dark-bg-meta-4">
-                  <th className="min-w-150px py-4 px-4 font-medium text-black dark-text-white">
+                <tr className="bg-gray-2 text-left dark:bg-meta-4">
+                  <th className="min-w-150px py-4 px-4 font-medium text-black dark:text-white">
                     Name
                   </th>
-                  <th className="min-w-220px py-4 px-4 font-medium text-black dark-text-white xl-pl-11">
+                  <th className="min-w-220px py-4 px-4 font-medium text-black dark:text-white xl-pl-11">
                     Email
                   </th>
-                  <th className="min-w-220px py-4 px-4 font-medium text-black dark-text-white xl-pl-11">
+                  <th className="min-w-220px py-4 px-4 font-medium text-black dark:text-white xl-pl-11">
                     Role
                   </th>
-                  <th className="min-w-150px py-4 px-4 font-medium text-black dark-text-white">
+                  <th className="min-w-150px py-4 px-4 font-medium text-black dark:text-white">
                     Status
                   </th>
-                  <th className="py-4 px-4 font-medium text-black dark-text-white">
+                  <th className="py-4 px-4 font-medium text-black dark:text-white">
                     Actions
                   </th>
                 </tr>
@@ -159,15 +179,15 @@ export default function UsersTable() {
                 {Array.isArray(currentUsers) &&
                   currentUsers.map((user, key) => (
                     <tr key={key}>
-                      <td className="py-4 px-4 text-black dark-text-white">{user.name}</td>
-                      <td className="py-4 px-4 text-black dark-text-white">{user.email}</td>
-                      <td className="py-4 px-4 text-black dark-text-white">{user.role_name}</td>
-                      <td className="py-4 px-4 text-black dark-text-white">
+                      <td className="py-4 px-4 text-black dark:text-white">{user.name}</td>
+                      <td className="py-4 px-4 text-black dark:text-white">{user.email}</td>
+                      <td className="py-4 px-4 text-black dark:text-white">{user.role_name}</td>
+                      <td className="py-4 px-4 text-black dark:text-white">
                         <span className={user.status === 'Enabled' ? 'text-meta-3' : 'text-danger'}>
                           {user.status}
                         </span>
                       </td>
-                      <td className="py-4 px-4 text-black dark-text-white">
+                      <td className="py-4 px-4 text-black dark:text-white">
                         <button
                           onClick={() => statusChange(user.id, user.status)}
                           className="mr-2 text-primary hover:underline"

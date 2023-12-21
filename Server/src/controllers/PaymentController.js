@@ -11,6 +11,7 @@ Student.belongsTo(Preschool, { foreignKey: 'preschool_id' });
 Student.belongsTo(User, { foreignKey: 'user_id' });
 Student.belongsTo(Preschool, { foreignKey: 'preschool_id' });
 Preschool.hasMany(Student, { foreignKey: 'preschool_id' });
+
 const PaymentController = {
     async getAllPayments(req, res) {
         const { preschool_id } = req.query;
@@ -43,7 +44,7 @@ const PaymentController = {
     async getPaymentById(req, res) {
         const paymentId = req.params.id;
         try {
-            const payment = await Payment.findOne({ where: {id:paymentId}, include: {model:Student, as: "Student"}});
+            const payment = await Payment.findOne({ where: { id: paymentId }, include: { model: Student, as: "Student" } });
 
             if (payment) {
                 return res.status(200).json(payment);
@@ -113,25 +114,25 @@ const PaymentController = {
         }
     },
 
-    async remindParent(req, res){
-        const {id} = req.params;
+    async remindParent(req, res) {
+        const { id } = req.params;
         console.log(id);
         try {
             console.log("starting notify function")
-            const payment = await Payment.findOne({ where: {id:id}, include: { model: Student, as: "Student" } });
-            if (payment){
+            const payment = await Payment.findOne({ where: { id: id }, include: { model: Student, as: "Student" } });
+            if (payment) {
                 console.log("Payment record found")
                 const student = await Student.findOne({ where: payment.student_id, include: { model: User, as: "User" } });
                 //if student has an associated parent account
-                if (student.User){
+                if (student.User) {
                     console.log("user has been found")
-                   const response = await NotificationController.pushSingleNotification(student.User.email,"Payment Reminder", "You have pending payments, please reiew and act accordingly.")
-                   if (response){
-                    return res.status(200).json({ message: 'Reminder sent successfully.' });
-                   }
-                   else {
-                    return res.status(404).json({ message: 'Couldnt deliver the notification because user has not allow recieving .' });
-                   }
+                    const response = await NotificationController.pushSingleNotification(student.User.email, "Payment Reminder", "You have pending payments, please reiew and act accordingly.")
+                    if (response) {
+                        return res.status(200).json({ message: 'Reminder sent successfully.' });
+                    }
+                    else {
+                        return res.status(404).json({ message: 'Couldnt deliver the notification because user has not allow recieving.' });
+                    }
                 }
                 else {
                     return res.status(404).json({ message: 'Parent Account not found' });
@@ -142,7 +143,7 @@ const PaymentController = {
             }
 
         }
-        catch (error){
+        catch (error) {
             return res.status(500).json(error.message);
         }
     }

@@ -12,6 +12,7 @@ import { useSuccessMessageContext } from '../../../components/SuccessMessageCont
 import ErrorAlert from "@/components/ErrorAlert";
 import { createUser } from '@/services/userService';
 import { getStaffRoles } from "@/services/staticValuesService";
+import Link from 'next/link';
 
 export default function CreateStaffPage() {
     const router = useRouter();
@@ -112,7 +113,7 @@ export default function CreateStaffPage() {
             }
             // Create the user with information about the preschool
             await createUser(
-                staffData.email,
+                staffData.email!,
                 staffData.name,
                 staffData.staff_role_name,
                 staffData.preschool_id
@@ -251,9 +252,14 @@ export default function CreateStaffPage() {
                                     />
                                 </div>
 
-                                <button type="submit" className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray">
+                                <button type="submit" className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray mb-4">
                                     Create
                                 </button>
+                                <Link
+                                    href="/staff"
+                                    className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray"              >
+                                    Back To List
+                                </Link>
                             </div>
                         </form>
                     </div>

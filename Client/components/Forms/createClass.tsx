@@ -475,11 +475,18 @@ const ClassForm: React.FC = ({ }) => {
 
                             </div>
                         ))}
-                        <button type="submit" className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray">
+                        <button type="submit" className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray mb-4">
                             Create
                         </button>
+                        <Link
+                            href="/class"
+                            className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray"              >
+                            Back To List
+                        </Link>
                     </form>
+
                 </div>
+
             </div >
         </div >
     );

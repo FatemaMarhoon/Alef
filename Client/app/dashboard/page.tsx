@@ -1,36 +1,24 @@
-'use client'
-import { useEffect, useState } from 'react';
-import { User } from "firebase/auth";
-import { currentUser } from "@/services/authService";
+"use client";
+import React from "react";
+import ChartThree from "@/components/Charts/ChartThree";
+import dynamic from "next/dynamic";
+import ProgressBar from "@/components/Charts/ProgressBar";
+import Upcoming from "@/components/Charts/Upcoming";
 
-export default function Dashboard() {
+const MapOne = dynamic(() => import("@/components/Maps/MapOne"), {
+  ssr: false,
+});
 
-  const [username, setUsername] = useState("");
-
-useEffect(() => {
-  const loadCurrentUser = async () => {
-    try {
-      const user = await currentUser();
-      if (user) {
-        setUsername(user?.email ? user.email : "")
-        console.log("ACCESSSEEEEDDD");
-      } else {
-        console.log("CANTTT");
-      }
-    } catch (error) {
-      console.error('Error fetching current user:', error);
-    }
-  };
-
-  loadCurrentUser();
-}, []);
-
-    return (
-    <main>
-      <h2>Welcome to Dashboard {username}</h2>
-
-
-      {/* Rest of your component */}
-    </main>
+const ECommerce: React.FC = () => {
+  return (
+    <>
+      <div className="mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5">
+        <Upcoming />
+        <ChartThree />
+        <ProgressBar />
+      </div>
+    </>
   );
-}
+};
+
+export default ECommerce;

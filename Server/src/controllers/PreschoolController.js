@@ -1,4 +1,5 @@
-const { Op, DataTypes } = require('sequelize');
+const { Op, DataTypes, fn, col } = require('sequelize');
+const { literal } = require('sequelize');
 const sequelize = require('../config/seq');
 
 const Preschool = require('../models/preschool')(sequelize, DataTypes);
@@ -19,28 +20,82 @@ const PreschoolController = {
 
   async getAllPreschools(req, res) {
     const searchExpression = req.query.preschool_name;
-    console.log(searchExpression)
+    const location = req.query.location;
+    const age = req.query.age;
+    const latitude = req.query.latitude;
+    const longitude = req.query.longitude;
+
     try {
+
+      let whereCondition = [];
+
       if (searchExpression) {
-        const preschools = await Preschool.findAll({
-          where: {
-            preschool_name: {
-              [Op.like]: `%${searchExpression}%`
-            }
-          }
+        whereCondition.push({
+          preschool_name: {
+            [Op.like]: `%${searchExpression}%`,
+          },
         });
-        return res.json(preschools);
+      }
+
+      if (location) {
+        whereCondition.push({
+          '$Address.area$': {
+            [Op.like]: `%${location}%`,
+          },
+        });
+      }
+
+      if (age) {
+        whereCondition.push({
+          minimum_age: {
+            [Op.lte]: age,
+          },
+        });
+        whereCondition.push({
+          maximum_age: {
+            [Op.gte]: age,
+          },
+        });
+      }
+      if (latitude && longitude) {
+        const distance = 10; // within 10 kilometers
+
+        const [results, metadata] = await sequelize.query(
+          `CALL GetPreschoolsByLocation(:latitude, :longitude, :distance)`,
+          {
+            replacements: { latitude, longitude, distance },
+            type: sequelize.QueryTypes.SELECT,
+          }
+        );
+
+        const transformedResults = Object.values(results);
+
+        return res.json(transformedResults);
       }
       else {
         const preschools = await Preschool.findAll({
-          include: Address
+          where: {
+            [Op.and]: whereCondition, 
+          },
+          include: [{ model: Address, as: 'Address' }],
         });
-        return res.json(preschools);
+
+        const preschoolsWithLogos = await Promise.all(
+          preschools.map(async (preschool) => {
+            if (preschool.logo) {
+              preschool.logo = await FilesManager.generateSignedUrl(preschool.logo);
+            }
+            return preschool;
+          })
+        );
+
+        return res.json(preschoolsWithLogos);
       }
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
   },
+
 
   async getPreschoolById(req, res) {
     const preschool_id = req.params.id;
@@ -49,9 +104,11 @@ const PreschoolController = {
         include: [{ model: Address, as: "Address" }, { model: Media, as: "Preschool_Media" }]
       });
       if (preschool) {
-        preschool.logo = await FilesManager.generateSignedUrl(preschool.logo);
+        if (preschool.logo)
+          preschool.logo = await FilesManager.generateSignedUrl(preschool.logo);
         if (preschool.Preschool_Media) {
           // Replace file field with file URL in each media object
+          console.log(preschool.Preschool_Media)
           const mediaWithUrls = await Promise.all(preschool.Preschool_Media.map(async (mediaObj) => {
             const fileURL = await FilesManager.generateSignedUrl(mediaObj.file);
             return { ...mediaObj.toJSON(), file: fileURL };
@@ -60,7 +117,6 @@ const PreschoolController = {
           const updatedList = { ...preschool.toJSON() };
           updatedList.Preschool_Media = mediaWithUrls;
           return res.status(200).json(updatedList);
-
         }
         return res.status(200).json(preschool);
       }
@@ -68,6 +124,7 @@ const PreschoolController = {
         return res.status(404).json({ message: "Preschool Not Found." });
       }
     } catch (error) {
+      console.log(error)
       return res.status(500).json({ message: error.message });
     }
   },

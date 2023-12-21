@@ -1,11 +1,13 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../config/seq');
+const NotificationController = require('./NotificationController');
 
 const Grade = require('../models/grade_capacity')(sequelize, DataTypes);
 const Preschool = require('../models/preschool')(sequelize, DataTypes);
 const Application = require('../models/preschool_application')(sequelize, DataTypes);
+const User = require('../models/user')(sequelize, DataTypes);
 
-
+Application.belongsTo(User, { foreignKey: 'created_by' });
 Preschool.hasMany(Grade, { foreignKey: 'preschool_id' });
 Grade.belongsTo(Preschool, { foreignKey: 'preschool_id' });
 
@@ -61,6 +63,28 @@ const GradesController = {
         }
     },
 
+    async trackWaitlist(preschool, grade) {
+        const available = await GradesController.checkGradeCapacity(preschool,grade);
+        //if it has space, pick the oldest waitlisted application, change status and notify parent
+        if (available) {
+            const waitlisted = await Application.findOne({
+                where: {
+                    status: 'Waitlist',
+                },
+                order: [['createdAt', 'ASC']],
+                include: User
+            });
+            if (waitlisted) {
+                waitlisted.status = "Pending"
+                waitlisted.save();
+
+                //notify parent 
+                if (waitlisted.User.role_name == "Parent"){
+                    await NotificationController.pushSingleNotification(waitlisted.User.email, "Update: The Wait Is Over!", "Your child's application is now under review. Please book an appointment for the evaluation to proceed.");
+                }
+            }
+        }
+    },
 
     /* ------- Private Functions --------- */
 
@@ -74,7 +98,7 @@ const GradesController = {
 
                 //find how many applications currently submitted for this grade
                 const current = await Application.findAll({
-                    where: { grade: grade }
+                    where: { preschool_id: preschool, grade: grade }
                 });
                 //return true or false 
                 if (gradeCapacity.capacity >= current.length) {

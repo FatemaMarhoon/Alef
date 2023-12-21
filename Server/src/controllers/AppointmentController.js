@@ -6,11 +6,11 @@ const Appointment = require('../models/appointment')(sequelize, DataTypes);
 Appointment.belongsTo(Application, { foreignKey: 'application_id' });
 const AppointmentController = {
     async getAllAppointments(req, res) {
-        const {preschool} = req.query;
+        const { preschool } = req.query;
         try {
             if (preschool) {
                 const appointments = await Appointment.findAll({
-                    where : {preschool_id:preschool},
+                    where: { preschool_id: preschool },
                     include: Application
                 });
                 return res.status(200).json(appointments);
@@ -18,9 +18,9 @@ const AppointmentController = {
             else {
                 return res.status(404).json({ message: 'Preschool id must be passed in the query.' });
             }
-            
+
         } catch (error) {
-            return res.status(500).json({ message: error.message});
+            return res.status(500).json({ message: error.message });
         }
     },
 
@@ -109,13 +109,24 @@ const AppointmentController = {
 
     async availableSlots(req, res) {
         const { preschool, date } = req.query;
-        console.log("Date in slots: ", date)
         try {
             if (!preschool) {
                 return res.status(400).json({ message: 'Please pass preschool as query parameters.' });
             }
             if (!date) {
                 return res.status(400).json({ message: 'Please pass date as query parameters.' });
+            }
+
+            //dates formatting
+            const passedDate = new Date(date).toLocaleDateString(); // format passed date 
+            let currentDate = new Date(); 
+            currentDate.setHours(0, 0, 0, 0); // Set the time to midnight for accurate date comparison
+            currentDate = currentDate.toLocaleDateString(); //format current date 
+            const currentTime = new Date().toLocaleTimeString(); //get current timing 
+           
+            //if date passed, return error message 
+            if (passedDate < currentDate) {
+                return res.status(400).json({ message: 'Please select a date in the future.' });
             }
 
             // Get booked appointments for the specified date
@@ -136,61 +147,29 @@ const AppointmentController = {
             //filter for available slots
             let availableSlots = allSlots.filter((slot) => {
                 const formattedSlot = slot + ':00';
-                console.log(formattedSlot)
                 return !bookedSlots.includes(formattedSlot);
             });
 
-            //verify that returned slots are all in future
-            const passedDate = new Date(date).toLocaleDateString; // Replace this with your actual passed date
-            let currentDate = new Date();
-            currentDate.setHours(0, 0, 0, 0); // Set the time to midnight for accurate date comparison
-            currentDate = currentDate.toLocaleDateString();
-            console.log("current date:", currentDate)
-            const currentTime = new Date().toLocaleTimeString();
-            console.log("current time:", currentTime)
-
-            if (passedDate < currentDate) {
-                console.log("PASSED:", passedDate)
-                console.log("CURRENT:", currentDate)
-                return res.status(400).json({ message: 'Please select a date in the future.' });
-            }
-            else if (passedDate == currentDate) {
+            //if it's today, return availble slots after that time
+            if (passedDate == currentDate) {
                 availableSlots = availableSlots.filter((slot) => {
                     const formattedSlot = slot + ':00';
                     return formattedSlot > currentTime;
                 });
             }
 
-            return res.status(200).json({ availableSlots });
+            if (availableSlots.length > 0) {
+                return res.status(200).json({ availableSlots });
+            }
+            else {
+                return res.status(400).json({ message: 'Fully Booked! Please choose another day.' });
+            }
         } catch (error) {
             console.log(error);
             return res.status(500).json({ message: error.message });
         }
     },
 
-    async fetchUpcoming() {
-        // retrieve any appointment that should occur after 30 min 
-        let currentDate = new Date();
-        currentDate.setHours(0, 0, 0, 0); // Set the time to midnight for accurate date comparison
-        let currentTime = new Date();
-        currentTime.setMinutes(currentTime.getMinutes() + 30); // Add 30 minutes to the current time
-        currentTime.setSeconds(0); //set seconds to 0
-        currentTime = currentTime.toLocaleString('en-GB', { hour12: false, hour: 'numeric', minute: 'numeric', second: 'numeric' });
-        const upcomingAppointments = await Appointment.findAll({
-            where: {
-                date: {
-                    [Op.eq]: currentDate.toLocaleDateString(),
-                },
-                time: {
-                    [Op.eq]: currentTime,
-                },
-            },
-        });
-        console.log("upcoming appointments: ", upcomingAppointments)
-        console.log('Appointment check complete at:', new Date());
-
-        //logic for pushing reminders for associated users 
-    }
 };
 
 function generateSlots() {

@@ -1,13 +1,15 @@
 const express = require('express');
 const PreschoolController = require('../controllers/PreschoolController');
+const { checkAdmin, checkSuperAdmin, checkToken } = require('../config/token_validation');
+
 const router = express.Router();
 const multer = require('multer');
 
 const multerMiddleware = multer({
-    storage: multer.memoryStorage(),
-  }).fields([
-    { name: 'logoFile', maxCount: 1 },
-  ]);
+  storage: multer.memoryStorage(),
+}).fields([
+  { name: 'logoFile', maxCount: 1 },
+]);
 
 // Get all users
 router.get('/', PreschoolController.getAllPreschools);
@@ -22,7 +24,7 @@ router.get('/:id', PreschoolController.getPreschoolById);
 router.put('/address/:id', PreschoolController.updatePreschoolAddress);
 
 // Update a preschool by ID
-router.put('/:id',multerMiddleware, PreschoolController.updatePreschool);
+router.put('/:id', multerMiddleware, PreschoolController.updatePreschool);
 
 // Delete a preschool by ID
 router.delete('/:id', PreschoolController.deletePreschool);

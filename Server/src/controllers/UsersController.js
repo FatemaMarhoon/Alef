@@ -115,15 +115,19 @@ const UsersController = {
         password = generatePassword();
         console.log(password)
       }
+      else if (['Super Admin'].includes(role_name)) {
+        //generate random password
+        password = generatePassword();
+      }
 
       // Create Firebase user with validated data
       await createFirebaseUser(email, password, name, role_name, preschool_id).then(async () => {
         // Create local user record with validated data
         const createdUser = await User.create({ email, preschool_id, role_name, name });
 
-        //store db userid into firebase user
+        //store db id into firebase user
         const uid = (await auth.getUserByEmail(email)).uid;
-        await auth.createCustomToken(uid, { 'user_id': createdUser.id });
+        await auth.createCustomToken(uid, { 'dbId': createdUser.id });
 
         // Send successful response with created user data
         return res.status(201).json({ message: 'User created successfully', createdUser });
@@ -215,6 +219,14 @@ const UsersController = {
     } catch (error) {
       console.error('Error updating user records:', error);
       res.status(500).json({ error: 'Internal Server Error' });
+    }
+  },
+
+  async superAdminSeeding(req, res) {
+    try {
+      await createFirebaseUser('', '', '', '')
+    } catch (error) {
+
     }
   }
 };

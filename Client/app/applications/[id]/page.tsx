@@ -9,6 +9,7 @@ import { Evaluation } from '@/types/evaluation';
 import { ApplicationPOST } from '@/types/applicationPOST';
 import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
 import ErrorAlert from '@/components/ErrorAlert';
+import { PaperClipIcon } from '@heroicons/react/20/solid';
 
 // Functional component for viewing application details
 export default function Page({ params }: { params: { id: number } }) {
@@ -179,8 +180,54 @@ export default function Page({ params }: { params: { id: number } }) {
                             </label>
                             <div>{application.gender}</div>
                         </div>
-
                         <div className="mb-4.5">
+                            <dt className="text-sm font-medium leading-6 text-gray-900">Attachments</dt>
+                            <dd className="mt-2 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                                <ul role="list" className="divide-y divide-gray-100 rounded-md border border-gray-200">
+                                    <li className="flex items-center justify-between py-4 pl-4 pr-5 text-sm leading-6">
+                                        <div className="flex w-0 flex-1 items-center">
+                                            <PaperClipIcon className="h-5 w-5 flex-shrink-0 text-gray-600" aria-hidden="true" />
+                                            <div className="ml-4 flex min-w-0 flex-1 gap-2">
+                                                <span className="truncate font-medium">Personal Picture</span>
+                                                {/* <span className="flex-shrink-0 text-gray-400">2.4mb</span> */}
+                                            </div>
+                                        </div>
+                                        <div className="ml-4 flex-shrink-0">
+                                            <a href={application.personal_picture} className="font-medium text-primary">
+                                                View
+                                            </a>
+                                        </div>
+                                    </li>
+                                    <li className="flex items-center justify-between py-4 pl-4 pr-5 text-sm leading-6">
+                                        <div className="flex w-0 flex-1 items-center">
+                                            <PaperClipIcon className="h-5 w-5 flex-shrink-0 text-gray-400" aria-hidden="true" />
+                                            <div className="ml-4 flex min-w-0 flex-1 gap-2">
+                                                <span className="truncate font-medium">Certificate Of Birth</span>
+                                            </div>
+                                        </div>
+                                        <div className="ml-4 flex-shrink-0">
+                                            <a href={application.certificate_of_birth} className="font-medium text-primary">
+                                                View
+                                            </a>
+                                        </div>
+                                    </li>
+                                    <li className="flex items-center justify-between py-4 pl-4 pr-5 text-sm leading-6">
+                                        <div className="flex w-0 flex-1 items-center">
+                                            <PaperClipIcon className="h-5 w-5 flex-shrink-0 text-gray-400" aria-hidden="true" />
+                                            <div className="ml-4 flex min-w-0 flex-1 gap-2">
+                                                <span className="truncate font-medium">Passport</span>
+                                            </div>
+                                        </div>
+                                        <div className="ml-4 flex-shrink-0">
+                                            <a href={application.passport} className="font-medium text-primary">
+                                                View
+                                            </a>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </dd>
+                        </div>
+                        {/* <div className="mb-4.5">
                             <label className="mb-2.5 block text-black dark:text-white">
                                 Personal Picture
                             </label>
@@ -199,7 +246,7 @@ export default function Page({ params }: { params: { id: number } }) {
                                 Passport
                             </label>
                             <img src={application.passport} alt="Passport" className="w-32 h-32" />
-                        </div>
+                        </div> */}
 
                         {/* Action Buttons */}
                         <div>

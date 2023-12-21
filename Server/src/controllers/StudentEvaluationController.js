@@ -9,13 +9,35 @@ Student.hasMany(StudentEvaluation, { foreignKey: 'student_id' });
 const StudentEvaluationController = {
     // Get all student evaluations
     async getAllStudentEvaluations(req, res) {
+        const { student_id } = req.query;
         try {
-            const studentEvaluations = await StudentEvaluation.findAll({
-                include: Student,
-            });
-            res.json(studentEvaluations);
+            if (student_id) {
+                const studentEvaluations = await StudentEvaluation.findAll({
+                    where: { student_id: student_id }
+                });
+                if (studentEvaluations.length) {
+                    return res.status(200).json(studentEvaluations);
+                }
+                else {
+                    return res.status(404).json({ message: 'No Evaluations Found.' });
+                }
+            }
+            else {
+                return res.status(400).json({ message: 'Please specify a student_id as query parameter.' });
+            }
         } catch (error) {
-            res.status(500).json({ message: error.message });
+            return res.status(500).json({ message: error.message });
+        }
+    },
+
+    async getEvaluationById(req, res) {
+        const { id } = req.params;
+        try {
+            const studentEvaluations = await StudentEvaluation.findByPk(id);
+            return res.status(200).json(studentEvaluations);
+
+        } catch (error) {
+            return res.status(500).json({ message: error.message });
         }
     },
 
@@ -24,9 +46,9 @@ const StudentEvaluationController = {
         const studentEvaluationData = req.body;
         try {
             const newStudentEvaluation = await StudentEvaluation.create(studentEvaluationData);
-            res.json({ message: 'Student evaluation created successfully', newStudentEvaluation });
+            return res.status(201).json({ message: 'Student evaluation created successfully', newStudentEvaluation });
         } catch (error) {
-            res.status(500).json({ message: error.message });
+            return res.status(500).json({ message: error.message });
         }
     },
 
@@ -41,7 +63,7 @@ const StudentEvaluationController = {
                 studentEvaluation.set(updatedStudentEvaluationData);
                 await studentEvaluation.save();
 
-                res.json({ message: 'Student evaluation updated successfully', studentEvaluation });
+                return res.status(200).json({ message: 'Student evaluation updated successfully', studentEvaluation });
             } else {
                 res.status(404).json({ message: 'Student evaluation not found or no changes made' });
             }

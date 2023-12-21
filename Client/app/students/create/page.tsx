@@ -1,6 +1,6 @@
 // Import necessary modules and components
 'use client';
-import { useState, ChangeEvent, useEffect } from 'react';
+import { useState, ChangeEvent, useEffect, useRef } from 'react';
 import Breadcrumb from '@/components/Breadcrumbs/Breadcrumb';
 import { createStudent } from '@/services/studentService';
 import { useRouter } from 'next/navigation';
@@ -12,6 +12,7 @@ import { GradeCapacity } from '@/types/gradeCapacity';
 import ErrorAlert from "@/components/ErrorAlert";
 import { StaticValue } from "@/types/staticValue";
 import { getGender } from "@/services/staticValuesService";
+import Link from 'next/link';
 
 export default function CreateForm() {
   //declare variables
@@ -45,6 +46,9 @@ export default function CreateForm() {
         const types = await getGender();
         setGenderTypes(types);
         console.log(types);
+
+
+
       } catch (error) {
         console.error("Error fetching guardian types:", error);
       }
@@ -92,6 +96,8 @@ export default function CreateForm() {
         setSuccessMessage(successMsg);
       } else if (response.status == 400 || response.status == 404 || response.status == 500) {
         setError(response.data.message);
+        // Focus on the error component
+        focusOnError();
       }
       router.push('/students');
 
@@ -100,9 +106,13 @@ export default function CreateForm() {
     } catch (error: any) {
       if (error.response) {
         setError(error.response.data.message);
+        // Focus on the error component
+        focusOnError();
       }
       else if (error.message) {
         setError(error.message);
+        // Focus on the error component
+        focusOnError();
       }
     }
   };
@@ -119,6 +129,8 @@ export default function CreateForm() {
         // Set loading to false after fetching data (if needed)
       } catch (error) {
         console.error("Error fetching staff list:", error);
+        // Focus on the error component
+        focusOnError();
         setGradesList([]);
         // Set loading to false in case of an error (if needed)
       }
@@ -126,9 +138,21 @@ export default function CreateForm() {
 
     fetchGradesList();
   }, []); // Empty
+
+
+  // Ref for the error component
+  const errorRef = useRef<HTMLDivElement>(null);
+
+  // Function to focus on the error component
+  const focusOnError = () => {
+    if (errorRef.current) {
+      errorRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
   return (
     <>
       <Breadcrumb pageName="Create Student" />
+      {/* {error && <ErrorAlert message={error}></ErrorAlert>} */}
       {error && <ErrorAlert message={error}></ErrorAlert>}
 
       <div className=" items-center justify-center min-h-screen">
@@ -139,6 +163,7 @@ export default function CreateForm() {
                 Create Student
               </h3>
             </div>
+
             <form onSubmit={handleSubmit} encType="multipart/form-data">
               <div className="p-6.5">
                 <div className="mb-4.5">
@@ -307,7 +332,7 @@ export default function CreateForm() {
                     className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.medicalHistory ? 'border-error' : ''
                       }`}
                   />
-                  {errors.guardianName && (
+                  {errors.medicalHistory && (
                     <p className="text-error text-sm mt-1">{errors.medicalHistory}</p>
                   )}
                 </div>
@@ -352,11 +377,20 @@ export default function CreateForm() {
                 </div>
 
 
-                <button type="submit" className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray">
+                <button type="submit" className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray mb-4">
                   Create
                 </button>
+
+                <Link
+                  href="/students"
+                  className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray"              >
+                  Back To List
+                </Link>
+
               </div>
+
             </form>
+
           </div>
         </div>
       </div>

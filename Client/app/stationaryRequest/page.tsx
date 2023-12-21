@@ -71,14 +71,14 @@ export default function StationaryRequestTable() {
                 <h4 className="mb-6 text-xl font-semibold text-black dark-text-white">
                     Stationary Requests
                 </h4>
-                <div className="flex justify-end mb-4">
+                {/* <div className="flex justify-end mb-4">
 
                     <Link href="/stationaryRequest/create"
                         className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
                         Add new stationary
 
                     </Link>
-                </div>
+                </div> */}
                 <div className="flex justify-between mb-4">
                     <TextField
                         label="Search by Stationary Name"
@@ -256,6 +256,11 @@ export default function StationaryRequestTable() {
                         </tbody>
                     </table>
                 </div>
+                {filteredRequests.length === 0 && (
+                    <div className="text-center text-gray-700 dark:text-gray-300 mt-4">
+                        No Requests found.
+                    </div>
+                )}
                 <div className="flex justify-end mt-4">
                     <Pagination
                         count={Math.ceil(filteredRequests.length / itemsPerPage)}

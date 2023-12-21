@@ -61,6 +61,22 @@ const StaffController = {
         }
     },
 
+    async getStaffByUserId(req, res) {
+        const { id } = req.params;
+        try {
+            const staffMember = await Staff.findOne({
+                where: {user_id:id}
+            });
+            if (staffMember) {
+                return res.status(200).json(staffMember);
+            } else {
+                return res.status(404).json({ message: 'Staff member not found.' });
+            }
+        } catch (error) {
+            return res.status(500).json({ message: error.message });
+        }
+    },
+
     async createStaff(req, res) {
         const staffData = req.body;
         // Perform validations
@@ -80,7 +96,6 @@ const StaffController = {
         }
 
         try {
-
             //create log
             await LogsController.createLog({
                 type: 'Staff Creation',
@@ -109,7 +124,6 @@ const StaffController = {
         // Perform validations
         const validation = validateStaffData(updatedStaffData);
         const user_id = await UsersController.getCurrentUser(req, res);
-
         if (!validation.isValid) {
             //create log
             await LogsController.createLog({
@@ -117,22 +131,16 @@ const StaffController = {
                 original_values: JSON.stringify(updatedStaffData),
                 current_values: JSON.stringify(validation.message),
                 user_id: user_id
-                //  user_id: 28
             });
             return res.status(400).json({ message: validation.message });
         }
-
         try {
             const staff = await Staff.findByPk(staff_id);
-
             if (staff) {
                 const originalValues = JSON.stringify(staff.toJSON()); // Store the original values before the update
-
                 staff.set(updatedStaffData);
                 await staff.save();
-
                 const newValues = JSON.stringify(staff.toJSON()); // Store the updated values after the update
-
                 // Create a log entry for the student update
                 await LogsController.createLog({
                     type: 'Staff Update',
@@ -140,7 +148,6 @@ const StaffController = {
                     current_values: newValues,
                     user_id: user_id
                 });
-
                 res.json({ message: 'Staff member updated successfully', staff });
             } else {
                 res.status(404).json({ message: 'Staff member not found or no changes made' });
@@ -152,7 +159,6 @@ const StaffController = {
                 original_values: JSON.stringify(updatedStaffData),
                 current_values: JSON.stringify(error.message),
                 user_id: user_id
-                //  user_id: 28
             });
             res.status(500).json({ message: error.message });
         }
@@ -193,7 +199,6 @@ const StaffController = {
                 original_values: JSON.stringify(deletedStaffData),
                 current_values: JSON.stringify(error.message),
                 user_id: user_id
-                //  user_id: 28
             });
             res.status(500).json({ message: error.message });
         }
@@ -221,7 +226,7 @@ const StaffController = {
         }
     }
 
-
+    
 };
 
 module.exports = StaffController;

@@ -9,6 +9,7 @@ import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
 import ErrorAlert from "@/components/ErrorAlert";
 import { StaticValue } from "@/types/staticValue";
 import { getStaffRoles } from "@/services/staticValuesService";
+import Link from 'next/link';
 
 export default function EditStaffForm({ params }: { params: { staffId: number } }) {
     const router = useRouter();
@@ -208,9 +209,14 @@ export default function EditStaffForm({ params }: { params: { staffId: number } 
                                 {/* Add other input fields for CPR, phone, hire_date, and email */}
                                 {/* Similar to CreateStaffForm, add fields for other staff attributes */}
 
-                                <button type="submit" className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray">
+                                <button type="submit" className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray mb-4">
                                     Update
                                 </button>
+                                <Link
+                                    href="/class"
+                                    className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray"              >
+                                    Back To List
+                                </Link>
                             </div>
                         </form>
                     </div>
