@@ -1,5 +1,7 @@
-const express = require('express');
 const { Sequelize, DataTypes } = require('sequelize');
+const { PythonShell } = require('python-shell');
+const { exec } = require('child_process');
+
 const sequelize = require('../config/seq');
 
 const Student = require('../models/student')(sequelize, DataTypes);
@@ -10,14 +12,15 @@ Student.hasMany(Attendance, { foreignKey: 'student_id' });
 
 const AttendanceController = {
     async getAllAttendances(req, res) {
-        try {
-            const attendances = await Attendance.findAll({
-                include: Student,
-            });
-            res.json(attendances);
-        } catch (error) {
-            res.status(500).json({ message: error.message });
-        }
+        res.status(200).json("UPDATED")
+        // try {
+        //     const attendances = await Attendance.findAll({
+        //         include: Student,
+        //     });
+        //     res.json(attendances);
+        // } catch (error) {
+        //     res.status(500).json({ message: error.message });
+        // }
     },
 
     async createAttendance(req, res) {
@@ -63,6 +66,39 @@ const AttendanceController = {
             res.status(500).json({ message: error.message });
         }
     },
+
+    async detectFace(req, res) {
+        try {
+            const result = await runPythonScript('app.py');
+            res.send(result);
+        } catch (error) {
+            console.error('Error executing test script:', error);
+            res.status(500).send('Internal Server Error');
+        }
+    },
 };
 
+async function runPythonScript(pythonScriptPath) {
+    const result = installPythonDependencies()
+        .then(async (dependencyResult) => {
+            console.log(dependencyResult);
+            const options = {
+                scriptPath: './src/pythonScript/',
+                args: [/* any arguments you want to pass to your Python script */],
+            };
+
+            const result = await PythonShell.run(pythonScriptPath, options);
+            console.log(result);
+            return result;
+        });
+    return result;
+}
+
+async function installPythonDependencies() {
+        const command = 'pip install -r ./src/pythonScript/requirements.txt'; 
+
+        const result = exec(command);
+        console.log(result);
+        return result;
+}
 module.exports = AttendanceController;
