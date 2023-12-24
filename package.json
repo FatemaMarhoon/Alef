@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "fs": "^0.0.1-security",
+    "pdfkit": "^0.14.0",
+    "pdfkit-table": "^0.1.99",
+    "pdfmake": "^0.2.8"
+  }
+}
