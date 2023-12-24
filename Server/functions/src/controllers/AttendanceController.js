@@ -63,6 +63,40 @@ const AttendanceController = {
             res.status(500).json({ message: error.message });
         }
     },
+
+    async detectFace(req, res) {
+        try {
+            const result = await runPythonScript('app.py');
+            res.send(result);
+        } catch (error) {
+            console.error('Error executing test script:', error);
+            res.status(500).send('Internal Server Error');
+        }
+    },
 };
+
+async function runPythonScript(pythonScriptPath) {
+    const result = installPythonDependencies()
+        .then(async (dependencyResult) => {
+            console.log(dependencyResult);
+            const options = {
+                scriptPath: './src/pythonScript/',
+                args: [/* any arguments you want to pass to your Python script */],
+            };
+
+            const result = await PythonShell.run(pythonScriptPath, options);
+            console.log(result);
+            return result;
+        });
+    return result;
+}
+
+async function installPythonDependencies() {
+        const command = 'pip install -r ./src/pythonScript/requirements.txt'; 
+
+        const result = exec(command);
+        console.log(result);
+        return result;
+}
 
 module.exports = AttendanceController;

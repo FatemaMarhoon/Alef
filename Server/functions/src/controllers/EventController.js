@@ -36,7 +36,6 @@ Class.belongsToMany(Event, {
 
 const EventController = {
 
-
     //by class id or by preschool id
     async getAllEvents(req, res) {
         let events;
@@ -109,6 +108,19 @@ const EventController = {
                 return res.status(400).json({ message: "Classes are Required When It's not a Public Event" });
             }
 
+            //dates formatting
+            let selectedDate = new Date(event_date); // format passed date 
+            selectedDate.setHours(0, 0, 0, 0); //set time value of the date to 00:00:00
+            selectedDate = selectedDate.toLocaleDateString();
+            let currentDate = new Date();
+            currentDate.setHours(0, 0, 0, 0); // Set the time to midnight for accurate date comparison
+            currentDate = currentDate.toLocaleDateString(); //format current date 
+
+            //if date in the past, return error message 
+            if (selectedDate <= currentDate) {
+                return res.status(400).json({ message: 'Please select a date in the future.' });
+            }
+
             const newEvent = await Event.create({
                 event_name,
                 event_date,
@@ -139,12 +151,12 @@ const EventController = {
                 year: 'numeric',
             };
 
-           
-            if (notify_parents == true) {
-                const formattedDate = new Intl.DateTimeFormat('en-GB', options).format(event_date);
+            const formattedDate = new Intl.DateTimeFormat('en-GB', options).format(new Date(event_date));
 
-                const title = 'New Event Added !';
-                const body = `Don't miss out on: ${event_name} scheduled on ${formattedDate}. Check it out now!`;
+            const title = 'New Event Added !';
+            const body = `Don't miss out on: ${event_name} scheduled on ${formattedDate}. Check it out now!`;
+
+            if (notify_parents == true) {
                 //notify all parents (previously subscribed to the topic)
                 if (public_event == true) {
                     NotificationController.pushTopicNotification(preschool_id + '_Parent', title, body)
@@ -157,10 +169,6 @@ const EventController = {
             }
 
             if (notify_staff == true) {
-                const formattedDate = new Intl.DateTimeFormat('en-GB', options).format(event_date);
-
-                const title = 'New Event Added !';
-                const body = `Don't miss out on: ${event_name} scheduled on ${formattedDate}. Check it out now!`;
                 //notify all teachers (previously subscribed to the topic) & web users 
                 if (public_event == true) {
                     await NotificationController.pushTopicNotification(preschool_id + '_Teacher', title, body)
