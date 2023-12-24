@@ -5,7 +5,7 @@ import { currentPreschool, currentToken, currentUserId } from './authService';
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { useRouter } from 'next/navigation';
 
-const BASE_URL = 'https://us-central1-alef-229ac.cloudfunctions.net/app/applications'; // Replace with your backend URL
+const BASE_URL = 'http://127.0.0.1:5001/alef-229ac/us-central1/app/applications'; // Replace with your backend URL
 
 export async function getApplications(): Promise<any> {
   try {
@@ -141,29 +141,6 @@ export async function updateApplication(id:number, updatedApplication:Applicatio
   }
 }
 
-
-// export async function updateStatus(id: number,
-//   status: string
-// ): Promise<Application[]> {
-//   try {
-
-//     const token = localStorage.getItem('token'); // Get the JWT token from localStorage
-//     // Set up the request config with headers
-//     const config: AxiosRequestConfig = {
-//       headers: {
-//         Authorization: `Bearer ${token}`, // Include the token in the Authorization header
-//       },
-//     };
-
-//     const response = await axios.put(`${BASE_URL}/${id}`, {
-//       status: status
-//     }, config);
-//     return response.data;
-//   } catch (error) {
-//     console.log(error)
-//     throw error;
-//   }
-// }
 
 export async function deleteApplication(id: number) {
 

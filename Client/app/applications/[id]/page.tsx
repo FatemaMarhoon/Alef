@@ -297,6 +297,17 @@ export default function Page({ params }: { params: { id: number } }) {
                                 </div>
                             )}
 
+                            {(application.status == "Pending" || application.status == "Waitlist") && (
+                                <div>
+                                    <button
+                                        onClick={() => quickAction("Cancelled")}
+                                        className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            )}
+
                         </div>
                     </div>
                 </div>

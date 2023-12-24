@@ -121,15 +121,12 @@ const ApplicationController = {
             const capacity = await GradesController.checkGradeCapacity(preschool_id, grade);
             capacity ? application.status = "Pending" : application.status = "Waitlist";
 
-
             //create new log
-            //create log
             await LogsController.createLog({
                 type: 'Application Creation',
                 original_values: JSON.stringify(application),
                 current_values: JSON.stringify(application),
                 user_id: user_id
-                //  user_id: 28
             });
 
 
@@ -179,13 +176,19 @@ const ApplicationController = {
     async updateApplication(req, res) {
         const { id } = req.params;
         const { email, preschool_id, guardian_type, status, student_name, guardian_name, student_CPR, phone, student_DOB, medical_history, created_by, gender, personal_picture, grade, certificate_of_birth, passport } = req.body;
-        console.log(status);
         const user_id = await UsersController.getCurrentUser(req, res);
-
         try {
+
+            console.log("Updating")
             // Fetch the existing application
             const applicationObject = await Application.findByPk(id);
             if (applicationObject) {
+                // if student with same CPR existed anywhere else, it means student have been already enrolled > prevent accepting 
+                const exist = await Student.findOne({ where: { CPR: applicationObject.student_CPR } });
+                if (exist && status == "Accepted") {
+                    return res.status(500).json({ message: "Child already enrolled in another preschool." })
+                }
+
                 // Check and update each property individually
                 if (email) applicationObject.email = email;
                 if (preschool_id) applicationObject.preschool_id = preschool_id;
@@ -257,7 +260,7 @@ const ApplicationController = {
                         });
                     }
                     //if status set to rejected, check the waiting list 
-                    if (status == "Rejected") {
+                    if (status == "Rejected" || status == "Cancelled") {
                         await GradesController.trackWaitlist(applicationObject.preschool_id, applicationObject.grade);
                     }
                     //once application has been accepted, create a student and payment record

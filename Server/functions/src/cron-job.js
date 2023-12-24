@@ -76,33 +76,6 @@ const cronJob = {
 
             }
 
-
-            //     //logic for pushing reminders for users (parents only)
-            //     let usersEmails = [];
-            //     const usersEmailsSet = new Set(
-            //         upcomingAppointments
-            //             //   .filter(appointment => appointment.Application.User.role_name === "Parent")
-            //             .map(appointment => appointment.Application.User.email)
-            //     );
-
-            //     usersEmails = Array.from(usersEmailsSet);
-            //     console.log(usersEmailsSet);
-
-            //     let registrationTokens = [];
-            //     for (const email of usersEmails) {
-            //         try {
-            //             const regToken = (await auth.getUserByEmail(email)).customClaims['regToken'];
-            //             registrationTokens.push(regToken);
-            //         } catch (error) {
-            //             // Handle errors, such as the user not having a registration token
-            //             console.error(`Error for email ${email}: ${error.message}`);
-            //         }
-            //     }
-            //     console.log("Tokens: ", registrationTokens)
-
-            //     for (const email in usersEmails){
-            //         await NotificationController.pushSingleNotification()
-            //     }
         }
         catch (error) {
             console.log(error.message)
