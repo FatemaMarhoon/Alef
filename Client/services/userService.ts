@@ -3,7 +3,7 @@ import { User } from '@/types/user'
 import { currentPreschool, currentToken } from './authService';
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 
-const BASE_URL = 'http://localhost:3000/users'; // Replace with your backend URL
+const BASE_URL = 'https://us-central1-alef-229ac.cloudfunctions.net/app/users'; // Replace with your backend URL
 
 export async function getUsers(): Promise<User[]> {
   //retrieve data from current user

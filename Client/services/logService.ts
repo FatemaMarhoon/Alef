@@ -3,7 +3,7 @@ import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { currentToken } from './authService';
 import { Log } from '@/types/log';
 
-const BASE_URL = 'http://localhost:3000/log'; // Replace with your backend URL
+const BASE_URL = 'https://us-central1-alef-229ac.cloudfunctions.net/app/log'; // Replace with your backend URL
 
 export async function getLogs(): Promise<Log[]> {
     try {

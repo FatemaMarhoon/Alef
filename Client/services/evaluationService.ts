@@ -4,7 +4,7 @@ import { currentPreschool, currentToken } from './authService';
 
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 
-const BASE_URL = 'http://localhost:3000/evaluations'; // Replace with your backend URL
+const BASE_URL = 'https://us-central1-alef-229ac.cloudfunctions.net/app/evaluations'; // Replace with your backend URL
 
 export async function createEvaluation(
     application_id: number,

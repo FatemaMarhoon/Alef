@@ -2,7 +2,7 @@ import { StationaryRequest } from '@/types/stationaryRequest'; // Import the Sta
 import axios, { AxiosRequestConfig, AxiosError } from 'axios';
 import { currentPreschool, currentToken } from './authService';
 
-const BASE_URL = 'http://localhost:3000/stationaryRequest'; // Backend URL for stationary requests
+const BASE_URL = 'https://us-central1-alef-229ac.cloudfunctions.net/app/stationaryRequest'; // Backend URL for stationary requests
 
 export async function getStationaryRequests(): Promise<StationaryRequest[]> {
     try {

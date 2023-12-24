@@ -5,7 +5,7 @@ import { UserStorage } from "@/types/user";
 import { currentPreschool, currentToken } from './authService';
 import { responsiveProperty } from '@mui/material/styles/cssUtils';
 
-const BASE_URL = 'http://localhost:3000/staff';
+const BASE_URL = 'https://us-central1-alef-229ac.cloudfunctions.net/app/staff';
 // Backend URL for staff
 
 export async function getStaff(): Promise<Staff[]> {

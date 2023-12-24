@@ -3,7 +3,7 @@ import { currentPreschool, currentToken } from './authService';
 import axios, { AxiosRequestConfig } from 'axios';
 import { resolve } from 'path';
 
-const BASE_URL = 'http://localhost:3000/Stationary'; // backend URL
+const BASE_URL = 'https://us-central1-alef-229ac.cloudfunctions.net/app/Stationary'; // backend URL
 
 export async function getStationary(): Promise<Stationary[]> {
     try {

@@ -2,7 +2,7 @@ import { currentPreschool, currentToken, currentUserId } from './authService';
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Appointment } from '@/types/appointment'
 
-const BASE_URL = 'http://localhost:3000/appointments'; // Replace with your backend URL
+const BASE_URL = 'https://us-central1-alef-229ac.cloudfunctions.net/app/appointments'; // Replace with your backend URL
 
 export async function getAvailabbleSlots(date: string): Promise<any> {
     try {
