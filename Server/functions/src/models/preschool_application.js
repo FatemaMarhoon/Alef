@@ -26,14 +26,32 @@ module.exports = (sequelize, DataTypes) => {
     student_CPR: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      validate: {
+        isInt: {
+          msg: 'CPR must be an integer',
+        },
+        len: {
+          args: [9, 9],
+          msg: 'CPR must be 9 digits in length',
+        },
+      },
     },
     guardian_name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
     phone: {
-      type: DataTypes.STRING,
+      type: DataTypes.INTEGER,
       allowNull: false,
+      validate: {
+        isInt: {
+          msg: 'Phone must be an integer',
+        },
+        len: {
+          args: [8, 8],
+          msg: 'Phone must be 8 digits in length',
+        },
+      },
     },
     gender: {
       type: DataTypes.STRING,
@@ -49,7 +67,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     medical_history: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     personal_picture: {
       type: DataTypes.STRING,

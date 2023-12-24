@@ -15,12 +15,12 @@ socketSetup.initializeSocket(server);
 
 const cron = require("node-cron");
 const cronJob = require("./src/cron-job");
-const backup = require('./src/backup');
+const backup = require("./src/backup");
 
-// imports
+// import routes
 const userRoutes = require("./src/routes/userRoutes");
 const applicationRoutes = require("./src/routes/applicationRoutes");
-// const attachementRoutes = require("./src/routes/attachementRoutes");
+const attachementRoutes = require("./src/routes/attachementRoutes");
 const classRoutes = require("./src/routes/classRoutes");
 const studentEvaluationRoutes = require("./src/routes/studentEvaluationRoutes");
 const AttendanceRoutes = require("./src/routes/attendanceRoutes");
@@ -36,19 +36,20 @@ const paymentRoutes = require("./src/routes/paymentRoutes");
 const staticValuesRoutes = require("./src/routes/staticValuesRoutes");
 const studentRoutes = require("./src/routes/studentRoutes");
 const staffRoutes = require("./src/routes/staffRoutes");
- const stationaryRoutes = require("./src/routes/stationaryRoutes");
-  const stationaryRequestRoutes = require("./src/routes/stationaryRequestRoutes");
+const stationaryRoutes = require("./src/routes/stationaryRoutes");
+const stationaryRequestRoutes = require("./src/routes/stationaryRequestRoutes");
 const applicationEvaluationRoutes = require("./src/routes/applicationEvaluationRoutes");
 const gradesRoutes = require("./src/routes/gradesRoutes");
 const mediaRoutes = require("./src/routes/mediaRoutes");
+const mailRoutes = require("./src/routes/mailRoutes");
 
 // middelware
 app.use(express.json());
 
-// routes
+// define top-level routes 
 app.use("/users", userRoutes);
 app.use("/applications", applicationRoutes);
-// app.use("/attachement", attachementRoutes);
+app.use("/attachement", attachementRoutes);
 app.use("/class", classRoutes);
 app.use("/studentEvaluation", studentEvaluationRoutes);
 app.use("/attendance", AttendanceRoutes);
@@ -69,6 +70,7 @@ app.use("/stationaryRequest", stationaryRequestRoutes);
 app.use("/evaluations", applicationEvaluationRoutes);
 app.use("/grades", gradesRoutes);
 app.use("/media", mediaRoutes);
+app.use("/mail", mailRoutes);
 
 //  schedule the cron job for reminders
 cron.schedule("0,30 * * * *", cronJob.appointmentsReminder); // daily when the minutes are 0 and 30 (every half an hour)

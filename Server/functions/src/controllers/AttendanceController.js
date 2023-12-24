@@ -1,6 +1,8 @@
 const express = require('express');
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../config/seq');
+const { PythonShell } = require('python-shell');
+const { exec } = require('child_process');
 
 const Student = require('../models/student')(sequelize, DataTypes);
 const Attendance = require('../models/attendance')(sequelize, DataTypes);

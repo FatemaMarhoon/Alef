@@ -7,7 +7,7 @@ const router = express.Router();
 router.get('/', AttendanceController.getAllAttendances);
 
 // Face Detection 
-router.get('/faceDetection', AttendanceController.detectFace )
+router.get('/faceDetection', AttendanceController.detectFace);
 
 // Create a new attendance record
 router.post('/', AttendanceController.createAttendance);
