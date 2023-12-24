@@ -68,37 +68,50 @@ const AttendanceController = {
 
     async detectFace(req, res) {
         try {
-            const result = await runPythonScript('app.py');
-            res.send(result);
+            const inputImage = req.body.image;
+            console.log("is this being called?");
+            const result = await runPythonScript('app.py', inputImage);
+        res.send(result);
         } catch (error) {
+            console.log("this is ebing called tara");
             console.error('Error executing test script:', error);
             res.status(500).send('Internal Server Error');
         }
     },
 };
 
-async function runPythonScript(pythonScriptPath) {
-    const result = installPythonDependencies()
-        .then(async (dependencyResult) => {
-            console.log(dependencyResult);
-            const options = {
-                scriptPath: './src/pythonScript/',
-                args: [/* any arguments you want to pass to your Python script */],
-            };
+async function runPythonScript(pythonScriptPath, inputImage) {
+    try {
+        // Ensure Python dependencies are installed
+        await installPythonDependencies();
 
-            const result = await PythonShell.run(pythonScriptPath, options);
-            console.log(result);
-            return result;
-        });
-    return result;
-}
+        const options = {
+            scriptPath: './src/pythonScript/',
+            args: [inputImage], // Pass input image as an argument
+        };
 
-async function installPythonDependencies() {
-        const command = 'pip install -r ./src/pythonScript/requirements.txt'; 
-
-        const result = exec(command);
+        // Run the Python script
+        const result = await PythonShell.run(pythonScriptPath, options);
         console.log(result);
         return result;
+    } catch (error) {
+        console.error('Error running Python script:', error);
+        throw error;
+    }
 }
+
+
+
+  async function installPythonDependencies() {
+    try {
+      // Install Python dependencies using pip
+      const command = 'pip install -r ./src/pythonScript/requirements.txt';
+      const { stdout, stderr } = await exec(command);
+      console.log('Dependencies installed:', stdout);
+    } catch (error) {
+      console.error('Error installing Python dependencies:', error.stderr || error.message);
+      throw error;
+    }
+  }
 
 module.exports = AttendanceController;

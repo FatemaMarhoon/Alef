@@ -1,27 +1,36 @@
 import os
-from flask import Flask, request, jsonify, make_response, send_file
 from PIL import Image, ImageDraw
 import face_recognition
 from io import BytesIO
+import sys
+import json
 
+# Dictionary to store information about known faces
 known_faces = {}
+
+# Directory where images of known faces are stored
 IMAGE_DIRECTORY = "images/"
 
 def load_known_faces():
+    # Iterate through subdirectories in IMAGE_DIRECTORY
     for person_name in os.listdir(IMAGE_DIRECTORY):
         person_dir = os.path.join(IMAGE_DIRECTORY, person_name)
-        
+
+        # Check if the item in IMAGE_DIRECTORY is a directory
         if os.path.isdir(person_dir):
             known_faces[person_name] = {'encodings': []}
 
+            # Iterate through image files in the subdirectory
             for file_name in os.listdir(person_dir):
                 if file_name.endswith((".jpg", ".jpeg", ".png")):
                     image_path = os.path.join(person_dir, file_name)
                     print(f"Processing image: {image_path}")
 
+                    # Load the image and generate face encodings
                     known_image = face_recognition.load_image_file(image_path)
                     face_encoding = face_recognition.face_encodings(known_image)
 
+                    # Check if a face was detected in the image
                     if face_encoding:
                         known_faces[person_name]['encodings'].append(face_encoding[0])
                         print(f"Face encoding generated: {face_encoding[0]}")
@@ -30,6 +39,7 @@ def load_known_faces():
 
             print(f"Loaded known faces for {person_name}: {known_faces[person_name]}")
 
+# Function to recognize faces in an input image
 def recognize_faces(input_image):
     image = face_recognition.load_image_file(input_image)
     face_locations = face_recognition.face_locations(image)
@@ -44,8 +54,8 @@ def recognize_faces(input_image):
         for known_name, known_data in known_faces.items():
             for known_encoding in known_data['encodings']:
                 match = face_recognition.compare_faces([known_encoding], face_encoding, tolerance=0.6)
-                print(f"Name: {known_name}, Match: {match[0]}")
 
+                # Check if there is a match with a known face
                 if match[0]:
                     name = known_name
                     break
@@ -53,33 +63,21 @@ def recognize_faces(input_image):
             if name != "Unknown":
                 break
 
+        # Annotate the image with rectangles and names
         draw.rectangle(((left, top), (right, bottom)), outline=(0, 255, 0), width=3)
         draw.text((left, top - 20), name, fill=(0, 255, 0), font=None)
 
-    img_byte_array = BytesIO()
-    pil_image.save(img_byte_array, format='JPEG')
-    img_byte_array = img_byte_array.getvalue()
+    # Save the processed image
+    output_path = "output.jpg"
+    pil_image.save(output_path, format='JPEG')
+    print(f"Processed image saved: {output_path}")
 
-    return img_byte_array
-
+# Load known faces on startup
 load_known_faces()
 
-app = Flask(_name_)
-
-@app.route('/detect_faces', methods=['POST'])
-def detect_faces():
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file part'})
-
-    file = request.files['file']
-
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'})
+if __name__ == "__main__":
+    # Read the input image path from the command line arguments
+    input_image_path = json.loads(sys.argv[1])
     
-    img_byte_array = recognize_faces(file)
-    response = make_response(send_file(BytesIO(img_byte_array), mimetype='image/jpeg'))
-    response.headers['Content-Disposition'] = 'inline; filename=result.jpg'    
-    return response
-
-if _name_ == '_main_':
-    app.run(debug=True)
+    # Recognize faces in the input image
+    recognize_faces(input_image_path)
