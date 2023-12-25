@@ -7,9 +7,11 @@ import { Application } from "@/types/application";
 import ReactApexChart from 'react-apexcharts';
 import { getGrades } from "@/services/gradeCapacityService";
 import { GradeCapacity } from "@/types/gradeCapacity";
+import { getStudents } from "@/services/studentService";
 
 export default function ProgressBar() {
 
+    const [loading, setLoading] = useState(true);
     const [gradesCurrentCapacity, setGradesCurrentCapacity] = useState<{ grade: string, current: number }[]>([]);
 
     useEffect(() => {
@@ -20,18 +22,21 @@ export default function ProgressBar() {
 
                 // Calculate remaining capacity and update the series state
                 let gradesCurrent: { grade: string, current: number }[] = [];
-                const response = await getApplications();
-                const applications: Application[] = response.data;
+                const applicationsData = await getApplications();
+                const applications: Application[] = applicationsData.data;
                 for (const grade of grades) {
-                    const currentApplications = applications.filter((application) => application.grade == grade.grade);
+                    const currentStudents = await getStudents(grade.grade);
+                    const currentApplications = applications.filter((application) => application.grade == grade.grade && application.status != "Cancelled" && application.status != "Rejected");
+                    const totalCurrent = currentApplications.length + currentStudents.length;
                     //calculate percantage 
-                    const percantage = (currentApplications.length / Number(grade.capacity)) * 100;
+                    const percantage = (totalCurrent / Number(grade.capacity)) * 100;
                     gradesCurrent.push({ grade: grade.grade, current: Number(percantage.toFixed(1)) });
                 }
                 setGradesCurrentCapacity(gradesCurrent);
+                setLoading(false);
 
             } catch (error: any) {
-                 
+
             }
         }
 
@@ -46,9 +51,13 @@ export default function ProgressBar() {
                         Grades Capacity
                     </h5>
                 </div>
-                <div></div>
-            </div>
+                <div>
 
+                </div>
+            </div>
+            {loading &&
+                <div className="h-4 w-4 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"></div>
+            }
             <div className="mb-2">
                 {/* Display bars for each grade */}
                 {gradesCurrentCapacity.map(({ grade, current }, index) => (

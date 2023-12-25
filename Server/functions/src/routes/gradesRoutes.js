@@ -8,4 +8,6 @@ router.get('/', GradesController.getAllGradesCapacities);
 // Get grade capacity by preschool ID and grade ID
 router.get('/:preschoolId/:gradeId', GradesController.getGradeCapacityById);
 
+router.put('/', GradesController.updateGradeCapacities);
+
 module.exports = router;

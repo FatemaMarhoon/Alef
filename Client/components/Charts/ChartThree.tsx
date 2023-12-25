@@ -14,8 +14,8 @@ const options: ApexOptions = {
   chart: {
     type: "donut",
   },
-  colors: ['#9EA1D4', "#7db0b0", "#FD8A8A", "#F1F7B5"],
-  labels: ["Pending", "Accepted", "Rejected", "Waitlist"],
+  colors: ['#9EA1D4', "#7db0b0", "#FD8A8A", "#F1F7B5", "#AEB7C0"],
+  labels: ["Pending", "Accepted", "Rejected", "Waitlist", "Cancelled"],
   legend: {
     show: true,
     position: "bottom",
@@ -55,26 +55,27 @@ const options: ApexOptions = {
 
 export default function ChartThree() {
   const [state, setState] = useState<ChartThreeState>({
-    series: [20, 30, 20, 30],
+    series: [],
   });
+  const [loading, setLoading] = useState(true);
 
 
   useEffect(() => {
     async function fetchApplications() {
       try {
-        console.log("CHART COMPONENT")
         const response = await getApplications();
-        const applications : Application[] = response.data;
+        const applications: Application[] = response.data;
         const pendings = applications.filter((application) => application.status == "Pending");
         const accepted = applications.filter((application) => application.status == "Accepted");
         const waitlist = applications.filter((application) => application.status == "Waitlist");
         const rejected = applications.filter((application) => application.status == "Rejected");
+        const cancelled = applications.filter((application) => application.status == "Cancelled");
 
         // Update the series state with the lengths of each status
-        console.log(pendings.length, " ", accepted.length)
         setState({
-          series: [pendings.length, accepted.length, waitlist.length, rejected.length],
+          series: [pendings.length, accepted.length, rejected.length, waitlist.length, cancelled.length],
         });
+        setLoading(false);
       } catch (error: any) {
         console.log(error.message)
       }
@@ -92,13 +93,13 @@ export default function ChartThree() {
             Applications
           </h5>
         </div>
-        <div>
-
-        </div>
       </div>
 
       <div className="mb-2">
         <div id="chartThree" className="mx-auto flex justify-center">
+          {loading &&
+            <div className="h-4 w-4 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"></div>
+          }
           <ReactApexChart
             options={options}
             series={state.series}
