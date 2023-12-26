@@ -2,14 +2,17 @@ import os
 from PIL import Image, ImageDraw
 import face_recognition
 from io import BytesIO
-import sys
 import json
+import base64
+
+# Get the absolute path to the script's directory
+script_directory = os.path.dirname(os.path.abspath(__file__))
+
+# Use the absolute path to the 'images/' directory
+IMAGE_DIRECTORY = os.path.join(script_directory, "images/")
 
 # Dictionary to store information about known faces
 known_faces = {}
-
-# Directory where images of known faces are stored
-IMAGE_DIRECTORY = "images/"
 
 def load_known_faces():
     # Iterate through subdirectories in IMAGE_DIRECTORY
@@ -24,7 +27,7 @@ def load_known_faces():
             for file_name in os.listdir(person_dir):
                 if file_name.endswith((".jpg", ".jpeg", ".png")):
                     image_path = os.path.join(person_dir, file_name)
-                    print(f"Processing image: {image_path}")
+                    #print(f"Processing image: {image_path}")
 
                     # Load the image and generate face encodings
                     known_image = face_recognition.load_image_file(image_path)
@@ -33,15 +36,23 @@ def load_known_faces():
                     # Check if a face was detected in the image
                     if face_encoding:
                         known_faces[person_name]['encodings'].append(face_encoding[0])
-                        print(f"Face encoding generated: {face_encoding[0]}")
+                        #print(f"Face encoding generated: {face_encoding[0]}")
                     else:
                         print("No face detected in the image.")
 
-            print(f"Loaded known faces for {person_name}: {known_faces[person_name]}")
+            #print(f"Loaded known faces for {person_name}: {known_faces[person_name]}")
 
+print("before accessing reco")
 # Function to recognize faces in an input image
 def recognize_faces(input_image):
-    image = face_recognition.load_image_file(input_image)
+    print("after accessing reco")
+   # Decode base64-encoded image
+    input_image_bytes = base64.b64decode(input_image)
+    print(f"Decoded image size: {len(input_image_bytes)} bytes")
+
+    # Load the image and perform face recognition
+    image = face_recognition.load_image_file(BytesIO(input_image_bytes))
+
     face_locations = face_recognition.face_locations(image)
     face_encodings = face_recognition.face_encodings(image, face_locations)
 
@@ -58,6 +69,7 @@ def recognize_faces(input_image):
                 # Check if there is a match with a known face
                 if match[0]:
                     name = known_name
+                    print(f"Match found! Name: {name}")
                     break
 
             if name != "Unknown":
@@ -67,17 +79,24 @@ def recognize_faces(input_image):
         draw.rectangle(((left, top), (right, bottom)), outline=(0, 255, 0), width=3)
         draw.text((left, top - 20), name, fill=(0, 255, 0), font=None)
 
+
     # Save the processed image
     output_path = "output.jpg"
     pil_image.save(output_path, format='JPEG')
     print(f"Processed image saved: {output_path}")
 
+
 # Load known faces on startup
 load_known_faces()
+print("before recognizing faces")
 
-if __name__ == "__main__":
-    # Read the input image path from the command line arguments
-    input_image_path = json.loads(sys.argv[1])
-    
-    # Recognize faces in the input image
-    recognize_faces(input_image_path)
+input_image_path = "/Users/iFatema/Desktop/Deployed/Alef/Server/functions/emo.jpg"  # Replace with your actual file path
+
+# Read the image file and convert it to base64
+with open(input_image_path, "rb") as image_file:
+    input_image_base64 = base64.b64encode(image_file.read()).decode("utf-8")
+
+    print(f"input image {input_image_base64}")
+
+recognize_faces(input_image_base64)
+print("after recognizing faces")

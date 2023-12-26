@@ -68,16 +68,46 @@ const AttendanceController = {
 
     async detectFace(req, res) {
         try {
-            const inputImage = req.body.image;
-            console.log("is this being called?");
-            const result = await runPythonScript('app.py', inputImage);
-        res.send(result);
+            console.log("detectFace function triggered");
+            // Log the entire req object
+            console.log("Full request object:", req);
+
+            // Check if the file is present in the request
+            if (!req.file) {
+                console.log("No file uploaded");
+                return res.status(400).json({ message: "No file uploaded" });
+            }
+
+            const file = req.file;
+            console.dir("Uploaded file:", req.file);
+
+            // Log the uploaded file information
+            res.json({ message: "File uploaded successfully", filename: req.file });
+            // Get the Buffer from the uploaded file
+            // const buffer = req.file.buffer;
+            // console.log('Buffer:', buffer);
+
+            // Convert the Buffer to base64
+            // const inputImageBase64 = file.toString('base64');
+            // console.log("is this being called?");
+
+            // Simulate a successful result without running the Python script
+            const result = {
+                success: true,
+                data: 'Simulated result for testing purposes'
+            };
+
+            // Send the simulated successful result
+            res.status(200).send(result.data);
         } catch (error) {
-            console.log("this is ebing called tara");
-            console.error('Error executing test script:', error);
+            console.log("this is being called tara");
+            console.error('Error in detectFace function:', error);
             res.status(500).send('Internal Server Error');
         }
     },
+
+
+
 };
 
 async function runPythonScript(pythonScriptPath, inputImage) {
@@ -102,16 +132,16 @@ async function runPythonScript(pythonScriptPath, inputImage) {
 
 
 
-  async function installPythonDependencies() {
+async function installPythonDependencies() {
     try {
-      // Install Python dependencies using pip
-      const command = 'pip install -r ./src/pythonScript/requirements.txt';
-      const { stdout, stderr } = await exec(command);
-      console.log('Dependencies installed:', stdout);
+        // Install Python dependencies using pip
+        const command = 'pip install -r ./src/pythonScript/requirements.txt';
+        const { stdout, stderr } = await exec(command);
+        console.log('Dependencies installed:', stdout);
     } catch (error) {
-      console.error('Error installing Python dependencies:', error.stderr || error.message);
-      throw error;
+        console.error('Error installing Python dependencies:', error.stderr || error.message);
+        throw error;
     }
-  }
+}
 
 module.exports = AttendanceController;
