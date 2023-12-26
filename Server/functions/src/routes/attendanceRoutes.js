@@ -5,6 +5,8 @@ const router = express.Router();
 
 // Get all attendance records
 router.get('/', AttendanceController.getAllAttendances);
+// Get all attendance records by class id 
+router.get('/class/:classId', AttendanceController.getAttendancesByClassId);
 
 // Face Detection 
 router.get('/faceDetection', AttendanceController.detectFace);

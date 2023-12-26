@@ -21,6 +21,21 @@ const AttendanceController = {
             res.status(500).json({ message: error.message });
         }
     },
+    async getAttendancesByClassId(req, res) {
+        try {
+            const { classId } = req.params;
+
+            const attendances = await Attendance.findAll({
+                include: {
+                    model: Student,
+                    where: { class_id: classId }, // Additional condition to filter students based on class_id
+                },
+            });
+            res.json(attendances);
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    },
 
     async createAttendance(req, res) {
         const attendanceData = req.body;
@@ -94,11 +109,11 @@ async function runPythonScript(pythonScriptPath) {
 }
 
 async function installPythonDependencies() {
-        const command = 'pip install -r ./src/pythonScript/requirements.txt'; 
+    const command = 'pip install -r ./src/pythonScript/requirements.txt';
 
-        const result = exec(command);
-        console.log(result);
-        return result;
+    const result = exec(command);
+    console.log(result);
+    return result;
 }
 
 module.exports = AttendanceController;
