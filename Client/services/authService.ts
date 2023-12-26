@@ -44,6 +44,11 @@ export async function loginWithEmail(email: string, password: string): Promise<U
       const isSubscriptionValid = await checkExpiry();
       const role = await currentUserRole();
       if (role != 'Super Admin') {
+        //check the role first, teachers and parents should only login to mobile apps
+        if (role == "Teacher" || role == "Parent") {
+          await signOut(auth);
+          throw new Error("You're unauthorized to login to the portal.");
+        }
         if (isSubscriptionValid) {
           console.log("User logged in");
           return userCredential;

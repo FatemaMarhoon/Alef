@@ -4,7 +4,7 @@ const currentUser = UserStorage.getCurrentUser();
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { currentToken, currentPreschool } from './authService';
 
-const BASE_URL = 'http://127.0.0.1:5001/alef-229ac/us-central1/app/grades';
+const BASE_URL = 'https://us-central1-alef-229ac.cloudfunctions.net/app/grades';
 
 export async function getGrades(): Promise<GradeCapacity[]> {
     try {

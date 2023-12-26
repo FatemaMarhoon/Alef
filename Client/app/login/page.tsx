@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { login } from "@/services/userService";
 import AlefLogo from '../../public/images/logo/Alef - bordered logo.png';
 import { useRouter } from "next/navigation";
 import { loginWithGoogle, loginWithEmail, forgetPassword } from "@/services/authService";
@@ -22,18 +21,39 @@ const SignIn: React.FC = () => {
 
   async function handleEmailLogin() {
     try {
-      await loginWithEmail(email, password).then(() => {
-        router.push("/users");
-      })
+      if (!email) {
+        setError("Enter your email.")
+      }
+      else if (!password) {
+        setError("Enter your password.")
+      }
+      else {
+        const result = await loginWithEmail(email, password);
+        if (!error) {
+          router.push("/");
+        }
+
+      }
     } catch (error: any) {
       clearSuccessMessage();
-      setError(error.message)
+      if (error.message == "Firebase: Error (auth/invalid-email).") {
+        setError("Invalid Email.")
+      }
+      else if (error.message == "Firebase: Error (auth/invalid-login-credentials).") {
+        setError("Invalid Login Credentials.")
+      }
+      else {
+        setError(error.message);
+      }
 
     }
   }
 
   async function handleForgotPassword() {
     try {
+      if (!email) {
+        setError("Please enter your email in the field first.")
+      }
       await forgetPassword(email).then(() => {
         setError("");
         setSuccessMessage("Reset password email was sent sucessfully.")
@@ -69,7 +89,7 @@ const SignIn: React.FC = () => {
               </Link>
 
               <p className="2xl:px-20">
-                  Where Success Starts From The First Letter!
+                Where Success Starts From The First Letter!
               </p>
 
               <span className="mt-15 inline-block">

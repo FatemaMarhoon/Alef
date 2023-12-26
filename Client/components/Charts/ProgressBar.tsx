@@ -36,7 +36,7 @@ export default function ProgressBar() {
                 setLoading(false);
 
             } catch (error: any) {
-
+                console.log(error)
             }
         }
 

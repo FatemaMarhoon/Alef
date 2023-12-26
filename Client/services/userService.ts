@@ -26,23 +26,6 @@ export async function getUsers(): Promise<User[]> {
   }
 }
 
-export async function login(email: string, password: string): Promise<any> {
-  try {
-    const response = await axios.post(`${BASE_URL}/login`, {
-      email,
-      password,
-    });
-    //if logged in store info in local storage 
-    if (response.data.user) {
-      localStorage.setItem('token', response.data.jsontoken);
-      localStorage.setItem('currentUser', JSON.stringify(response.data.user));
-    }
-    return response.data.message;
-  } catch (error) {
-    throw error;
-  }
-}
-
 export async function getUser(id:number) {
   try {
 

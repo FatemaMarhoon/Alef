@@ -174,6 +174,7 @@ const ApplicationController = {
     },
 
     async updateApplication(req, res) {
+        console.log("HIIIII")
         const { id } = req.params;
         const { email, preschool_id, guardian_type, status, student_name, guardian_name, student_CPR, phone, student_DOB, medical_history, created_by, gender, personal_picture, grade, certificate_of_birth, passport } = req.body;
         const user_id = await UsersController.getCurrentUser(req, res);
@@ -205,17 +206,20 @@ const ApplicationController = {
                 if (grade) applicationObject.grade = grade;
 
                 //check for updating files 
-                if (req.files['personal_picture']) {
-                    const picture_url = await FilesManager.upload(req.files['personal_picture'][0]);
-                    applicationObject.personal_picture = picture_url;
-                }
-                if (req.files['certificate_of_birth']) {
-                    const certificate_of_birth_url = await FilesManager.upload(req.files['certificate_of_birth'][0]);
-                    applicationObject.certificate_of_birth = certificate_of_birth_url;
-                }
-                if (req.files['passport']) {
-                    const passport_url = await FilesManager.upload(req.files['passport'][0]);
-                    applicationObject.passport = passport_url;
+                if (req.files) {
+                    if (req.files['personal_picture']) {
+                        console.log("INSIDE")
+                        const picture_url = await FilesManager.upload(req.files['personal_picture'][0]);
+                        applicationObject.personal_picture = picture_url;
+                    }
+                    if (req.files['certificate_of_birth']) {
+                        const certificate_of_birth_url = await FilesManager.upload(req.files['certificate_of_birth'][0]);
+                        applicationObject.certificate_of_birth = certificate_of_birth_url;
+                    }
+                    if (req.files['passport']) {
+                        const passport_url = await FilesManager.upload(req.files['passport'][0]);
+                        applicationObject.passport = passport_url;
+                    }
                 }
                 const originalValues = JSON.stringify(applicationObject.toJSON()); // Store the original values before the update
 
