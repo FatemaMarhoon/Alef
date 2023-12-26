@@ -315,5 +315,3 @@ export default function Page({ params }: { params: { id: number } }) {
         </>
     );
 }
-
-// module.exports = viewApplication;

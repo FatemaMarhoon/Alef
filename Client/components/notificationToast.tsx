@@ -18,7 +18,9 @@ const NotificationToast = () => {
   useEffect(() => {
     //only connect to web socket if we have a logged-in user 
     if (userID) {
-      const socket = io('https://us-central1-alef-229ac.cloudfunctions.net/app');
+      const socket = io('https://us-central1-alef-229ac.cloudfunctions.net/app', {
+        path: '/socket.io',
+      });
 
       socket.on('connect', () => {
         // Pass the user ID to the server once the connection is established

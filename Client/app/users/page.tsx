@@ -124,7 +124,7 @@ export default function UsersTable() {
         </div>
         <div className="flex flex-col dark:text-white dark:bg-boxdark">
           {/* Search & Filter */}
-          <div className="flex justify-between items-center mb-4 dark:text-white dark:bg-boxdark">
+          {/* <div className="flex justify-between items-center mb-4 dark:text-white dark:bg-boxdark">
             <TextField
               label="Search by Name"
               variant="outlined"
@@ -133,9 +133,22 @@ export default function UsersTable() {
               value={searchValue}
               onChange={handleSearchChange}
               className="mb-4 dark:text-white dark:bg-boxdark"
-            />
-            <FormControl variant="outlined" size="small" fullWidth>
-              <InputLabel id="filter-label" className='dark:text-white'>Filter</InputLabel>
+            /> */}
+            <div className="flex justify-between mb-4">
+                            <TextField
+                                label="Search by Name"
+                                variant="outlined"
+                                size="small"
+
+                                value={searchValue}
+                                onChange={(e) => {
+                                  handleSearchChange(e)
+                                  setCurrentPage(1);
+                                }}
+                                style={{ width: '60%' }}
+                            />
+            <FormControl variant="outlined" size="small" style={{ minWidth: 150 }}>
+              <InputLabel id="filter-label" className='dark:text-white'>Role</InputLabel>
               <Select
                 labelId="filter-label"
                 id="filter"

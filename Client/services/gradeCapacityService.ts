@@ -49,8 +49,8 @@ export async function getGrades(): Promise<GradeCapacity[]> {
 
 export async function getGradeCapacityById(gradeId: string): Promise<GradeCapacity> {
     try {
-        const token = localStorage.getItem('token'); // Get the JWT token from localStorage
-
+        var token;
+        await currentToken().then((returnedTOken) => { token = returnedTOken; })
         // Set up the request config with headers
         const config: AxiosRequestConfig = {
             headers: {
@@ -59,6 +59,29 @@ export async function getGradeCapacityById(gradeId: string): Promise<GradeCapaci
         };
 
         const response = await axios.get<GradeCapacity>(`${BASE_URL}/${currentUser?.preschool_id}/${gradeId}`, config);
+
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export async function updateGradesCapacity(gradesList:{grade:string, capacity:string}[], preschool_id:number){
+    try {
+        var token;
+        await currentToken().then((returnedTOken) => { token = returnedTOken; })
+
+        // Set up the request config with headers
+        const config: AxiosRequestConfig = {
+            headers: {
+                Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+            },
+        };
+
+        const response = await axios.put(`${BASE_URL}/`, {
+            gradesList,
+            preschool_id
+        }, config);
 
         return response.data;
     } catch (error) {

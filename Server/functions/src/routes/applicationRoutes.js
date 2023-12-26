@@ -11,10 +11,6 @@ const multerMiddleware = multer({
     { name: 'passport', maxCount: 1 },
   ]);
 
-// const multerMiddleware = multer({
-//     storage: multer.memoryStorage(),
-// }).single('personal_picture');
-
 // Get all applications
 router.get('/', ApplicationController.getAllApplications);
 

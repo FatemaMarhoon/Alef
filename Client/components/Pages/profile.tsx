@@ -12,6 +12,11 @@ import Gallery from '@/components/gallery';
 import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
 import ErrorAlert from '@/components/ErrorAlert';
 import SuccessAlert from '@/components/SuccessAlert';
+import { getGrades, updateGradesCapacity } from '@/services/gradeCapacityService';
+import { IconButton } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { Add } from '@mui/icons-material';
+
 interface ProfileProps {
     id: string;
 }
@@ -27,7 +32,8 @@ const AppProfile: React.FC<ProfileProps> = (props) => {
         maximum_age: undefined,
         monthly_fees: undefined,
         cirriculum: undefined,
-        registration_fees: undefined
+        registration_fees: undefined,
+        subscription_expiry_date: new Date()
 
     });
     const [address, setAddress] = useState<Address>({});
@@ -40,28 +46,12 @@ const AppProfile: React.FC<ProfileProps> = (props) => {
     const { successMessage, setSuccessMessage } = useSuccessMessageContext();
     const [error, setError] = useState("");
     const [previewImage, setPreviewImage] = useState<string>();
+    const [grades, setGrades] = useState([{ grade: "", capacity: "" }]);
 
     const handleLocationChange = useCallback((latitude: number, longitude: number) => {
         setSelectedLatitude(latitude);
         setSelectedLongitude(longitude);
     }, []);
-
-    // async function fetchPreschool() {
-    //   try {
-    //     await currentPreschool().then(async (preschool_id) => {
-    //       const preschool = await getPreschoolById(String(preschool_id));
-    //       setPreschool(preschool);
-    //       if (preschool.Address) {
-    //         setAddress(preschool.Address)
-    //       }
-    //       if (preschool.Preschool_Media) {
-    //         setExistingMedia(preschool.Preschool_Media)
-    //       }
-    //     })
-    //   } catch (error: any) {
-    //     console.log(error.message)
-    //   }
-    // }
 
     async function fetchPreschool() {
         try {
@@ -91,8 +81,19 @@ const AppProfile: React.FC<ProfileProps> = (props) => {
         }
     }
 
+    async function fetchGrades() {
+        try {
+            const gradesList = await getGrades();
+            setGrades(gradesList);
+            console.log(gradesList)
+        } catch (error: any) {
+            setError(error.message);
+        }
+    }
+
     useEffect(() => {
         fetchPreschool();
+        fetchGrades();
     }, []);
 
     async function handleSubmitForm() {
@@ -131,7 +132,6 @@ const AppProfile: React.FC<ProfileProps> = (props) => {
             setPreviewImage(imageURL);
         }
     }
-
 
     async function uploadLogo() {
         try {
@@ -239,6 +239,42 @@ const AppProfile: React.FC<ProfileProps> = (props) => {
             setExistingMedia(preschool.Preschool_Media);
     }
 
+
+    const handleAddGrade = () => {
+        setGrades((prevGrades) => [...prevGrades, { grade: '', capacity: '' }]);
+    };
+
+    const handleRemoveGrade = (index: number) => {
+        setGrades((prevGrades) => {
+            const newGrades = [...prevGrades];
+            newGrades.splice(index, 1);
+            return newGrades;
+        });
+    };
+
+    const handleChangeGrade = (index: number, field: 'grade' | 'capacity', value: string) => {
+        setGrades((prevGrades) => {
+            const newGrades = [...prevGrades];
+            newGrades[index][field] = value;
+            return newGrades;
+        });
+    };
+
+    const handleSaveGrades = async () => {
+        try {
+            if (preschool.id){
+                const response = await updateGradesCapacity(grades, preschool.id);
+                if (response.status == 200 || response.status == 201) {
+                    setSuccessMessage(response.data.message);
+                }
+                else if (response.status == 400 || response.status == 404 || response.status == 500) {
+                    setError(response.data.message);
+                }
+            }
+        } catch (error: any) {
+            setError(error.message);
+        }
+    };
     return (
         <>
             <div className="mx-auto max-w-290">
@@ -247,11 +283,13 @@ const AppProfile: React.FC<ProfileProps> = (props) => {
                 {successMessage && <SuccessAlert message={successMessage} />}
 
                 <div className="grid grid-cols-5 gap-8">
+
+                    {/*---------PUBLIC PROFILE SECTION-------- */}
                     <div className="col-span-5 xl:col-span-3">
                         <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
                             <div className="border-b border-stroke py-4 px-7 dark:border-strokedark">
                                 <h3 className="font-medium text-black dark:text-white">
-                                    Profile Details
+                                    Public Profile Details
                                 </h3>
                             </div>
                             <div className="p-7">
@@ -483,6 +521,8 @@ const AppProfile: React.FC<ProfileProps> = (props) => {
                             </div>
                         </div>
                     </div>
+
+                    {/*---------LOGO SECTION-------- */}
                     <div className="col-span-5 xl:col-span-2">
                         <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
                             <div className="border-b border-stroke py-4 px-7 dark:border-strokedark">
@@ -502,14 +542,7 @@ const AppProfile: React.FC<ProfileProps> = (props) => {
                                             <span className="mb-1.5 text-black dark:text-white">
                                                 Edit your logo
                                             </span>
-                                            <span className="flex gap-2.5">
-                                                <button className="text-sm hover:text-primary">
-                                                    Delete
-                                                </button>
-                                                <button className="text-sm hover:text-primary">
-                                                    Update
-                                                </button>
-                                            </span>
+
                                         </div>
                                     </div>
 
@@ -591,6 +624,8 @@ const AppProfile: React.FC<ProfileProps> = (props) => {
                             </div>
                         </div>
                     </div>
+
+                    {/*---------LOCATION SECTION-------- */}
                     <div className="col-span-5 xl:col-span-3">
                         <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
                             <div className="border-b border-stroke py-4 px-7 dark:border-strokedark">
@@ -657,6 +692,91 @@ const AppProfile: React.FC<ProfileProps> = (props) => {
 
                         </div>
                     </div>
+
+                    {/*---------CAPACITY SECTION-------- */}
+                    <div className="col-span-5 xl:col-span-2">
+                        <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+                            <div className="border-b border-stroke py-4 px-7 dark:border-strokedark">
+                                <h3 className="font-medium text-black dark:text-white">Grades & Capacity (Private)</h3>
+                                <div
+                                    className='float-right'
+                                >
+                                    <IconButton onClick={handleAddGrade}>
+                                        <Add htmlColor='#9EA1D4' />
+                                    </IconButton>
+                                </div>
+                            </div>
+
+                            <div className="p-7">
+                                {grades.map((grade, index) => (
+                                    <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
+                                        <div className="w-full sm:w-1/2">
+                                            {/* <label
+                                                className="mb-3 block text-sm font-medium text-black dark:text-white">
+                                                Grade
+                                            </label> */}
+                                            <input
+                                                className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                                                type="text"
+                                                placeholder="Grade"
+                                                value={grade.grade}
+                                                onChange={(e) => handleChangeGrade(index, 'grade', e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="w-full sm:w-1/2">
+
+                                            <input
+                                                className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                                                type="text"
+                                                placeholder="Capacity"
+                                                value={grade.capacity}
+                                                onChange={(e) => handleChangeGrade(index, 'capacity', e.target.value)}
+
+                                            />
+                                        </div>
+                                        {index > 0 && (
+                                            <>
+                                                <div>
+                                                    <IconButton onClick={() => handleRemoveGrade(index)}>
+                                                        <DeleteIcon color='error' />
+                                                    </IconButton>
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                ))}
+                                <div className="flex justify-end gap-4.5">
+                                    <div
+                                        onClick={handleAddGrade}
+                                        className="flex justify-center rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
+                                    >
+                                        Cancel
+                                    </div>
+
+                                    {/* <button
+                                        onClick={handleAddGrade}
+                                        className="flex justify-center rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
+                                    >
+                                        Add Class
+                                    </button> */}
+                                    <div
+                                        className="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-95"
+                                        onClick={handleSaveGrades}
+                                    >
+                                        Save Changes
+                                    </div>
+                                </div>
+                                {/* <button type="button" onClick={handleAddGrade} className="bg-primary text-white p-2 rounded">
+                                    Add Another Class
+                                </button>
+                                <button type="button" onClick={handleSaveGrades} className="bg-primary text-white p-2 rounded mt-4">
+                                    Save Changes
+                                </button> */}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/*---------GALLARY SECTION-------- */}
                     <div className="col-span-5 xl:col-span-3">
                         <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
                             <div className="border-b border-stroke py-4 px-7 dark:border-strokedark">
