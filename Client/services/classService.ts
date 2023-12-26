@@ -2,7 +2,7 @@
 import { Class } from '@/types/class'
 import axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 
-const BASE_URL = 'https://us-central1-alef-229ac.cloudfunctions.net/app/class'
+const BASE_URL = 'https://server-bckggkpqeq-uc.a.run.app/class'
 import { currentPreschool, currentToken } from './authService';
 
 export async function getClasses(): Promise<Class[]> {

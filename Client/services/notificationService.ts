@@ -2,7 +2,7 @@ import { Notification } from '@/types/notification'
 import { currentToken, currentUserId } from './authService';
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 
-const BASE_URL = 'https://us-central1-alef-229ac.cloudfunctions.net/app/notifications'; // Replace with your backend URL
+const BASE_URL = 'https://server-bckggkpqeq-uc.a.run.app/notifications'; // Replace with your backend URL
 
 export async function getNotifications(): Promise<Notification[]> {
   //retrieve data from current user
