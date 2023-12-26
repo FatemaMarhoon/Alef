@@ -10,20 +10,35 @@ const multerMiddleware = multer({
 
     storage: multer.memoryStorage(),
 
-    dest: '/Users/iFatema/Desktop/Deployed/Alef/Server/functions/src/pythonScript/images',
+    dest: '/Users/nawraalhaji/backendO/Alef/Server/functions/src/pythonScript/images',
 }).single('file');
 
 // Multer Configuration
-const storage = multer.memoryStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/');
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + '-' + file.originalname);
-    },
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, './uploads');
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.filename + '-' + Date.now());
+  }
 });
 
-const upload = multer({ storage });
+const upload = multer({ storage,
+    limits: {
+      fileSize: 9000000 // 9MB
+    },
+    fileFilter: (req, file, cb) => {
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+  
+      if (!allowedTypes.includes(file.mimetype)) {
+        const error = new Error('Invalid file type');
+        error.code = 'INVALID_FILE_TYPE';
+        return cb(error, false);
+      }
+  
+      cb(null, true);
+    }
+  });
 
 
 // File Upload Endpoint
