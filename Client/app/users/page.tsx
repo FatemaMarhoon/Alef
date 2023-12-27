@@ -37,7 +37,7 @@ export default function UsersTable() {
     }
   }
   useEffect(() => {
-  
+
     fetchUsers();
   }, []);
 
@@ -113,8 +113,8 @@ export default function UsersTable() {
       {successMessage && <SuccessAlert message={successMessage}></SuccessAlert>}
       {loading && <Loader />}
       <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark dark:text-white sm:px-7.5 xl:pb-1">
-        <div className="flex justify-between items-center mb-6">
-          <h4 className="text-xl font-semibold text-black dark:text-white">Users</h4>
+        <h4 className="text-xl font-semibold text-black dark:text-white">Users</h4>
+        <div className="flex justify-end mb-4">
           <Link
             href="users/create"
             className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
@@ -122,21 +122,20 @@ export default function UsersTable() {
           </Link>
         </div>
         <div className="flex flex-col dark:text-white dark:bg-boxdark">
-         
-            <div className="flex justify-between mb-4">
-                            <TextField
-                                label="Search by Name"
-                                variant="outlined"
-                                size="small"
+          <div className="flex justify-between mb-4">
+            <TextField
+              label="Search by Name"
+              variant="outlined"
+              size="small"
 
-                                value={searchValue}
-                                onChange={(e) => {
-                                  handleSearchChange(e)
-                                  setCurrentPage(1);
-                                }}
-                                style={{ width: '60%' }}
-                            />
-            <FormControl variant="outlined" size="small" style={{ minWidth: 150 }}>
+              value={searchValue}
+              onChange={(e) => {
+                handleSearchChange(e)
+                setCurrentPage(1);
+              }}
+              style={{ width: '69%' }}
+            />
+            <FormControl variant="outlined" size="small" style={{ width: '29%' }}>
               <InputLabel id="filter-label" className='dark:text-white'>Role</InputLabel>
               <Select
                 labelId="filter-label"
@@ -172,7 +171,7 @@ export default function UsersTable() {
                   <th className="min-w-150px py-4 px-4 font-medium text-black dark:text-white">
                     Status
                   </th>
-                  <th className="py-4 px-4 font-medium text-black dark:text-white">
+                  <th className="py-4 px-4 font-medium text-center text-black dark:text-white">
                     Actions
                   </th>
                 </tr>
@@ -189,7 +188,7 @@ export default function UsersTable() {
                           {user.status}
                         </span>
                       </td>
-                      <td className="py-4 px-4 text-black dark:text-white">
+                      <td className="py-4 px-4 text-black text-center dark:text-white">
                         <button
                           onClick={() => statusChange(user.id, user.status)}
                           className="mr-2 text-primary hover:underline"

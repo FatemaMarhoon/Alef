@@ -9,6 +9,7 @@ import SuccessAlert from '@/components/SuccessAlert';
 import TextField from '@mui/material/TextField';
 import Pagination from '@mui/material/Pagination';
 import Button from '@mui/material/Button';
+import Image from "next/image";
 import DeleteIcon from '@mui/icons-material/Delete';
 import { FormControl, InputLabel, Select, MenuItem, IconButton } from '@mui/material';
 import { StaticValue } from '@/types/staticValue';
@@ -94,14 +95,14 @@ export default function ApplicationsTable() {
                         label="Search by Student Name"
                         variant="outlined"
                         size="small"
-                        style={{ width: '60%' }}
+                        style={{ width: '69%' }}
                         value={searchTerm}
                         onChange={(e) => {
                             setSearchTerm(e.target.value);
                             setCurrentPage(1);
                         }}
                     />
-                    <FormControl variant="outlined" size="small" style={{ minWidth: 150 }}>
+                    <FormControl variant="outlined" size="small" style={{ width: '29%' }}>
                         <InputLabel>Status</InputLabel>
                         <Select
                             value={selectedStatus}
@@ -254,11 +255,23 @@ export default function ApplicationsTable() {
                                         </IconButton>
                                         {/* </button> */}
                                         {/* <button className="hover:text-primary"> */}
-                                        <IconButton>
+                                        {/* <IconButton> */}
+                                        <Link href={`/applications/edit/${application.id}`}>
+                                            {/* <PencilIcon color='error' /> */}
+                                        </Link>
+                                        {/* </IconButton> */}
+                                        <button className='hover:text-primary'>
                                             <Link href={`/applications/edit/${application.id}`}>
-                                                <PencilIcon color='error' />
+                                                <Image
+                                                    className="fill-current hover:text-primary"
+                                                    width="18"
+                                                    height="18"
+                                                    src="edit.svg"
+                                                    alt="edit"
+                                                />
                                             </Link>
-                                        </IconButton>
+
+                                        </button>
 
                                         {/* </button> */}
                                     </div>
