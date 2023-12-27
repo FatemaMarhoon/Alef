@@ -4,6 +4,7 @@ const sequelize = require('../config/seq');
 const { PythonShell } = require('python-shell');
 const { exec } = require('child_process');
 
+
 const Student = require('../models/student')(sequelize, DataTypes);
 const Attendance = require('../models/attendance')(sequelize, DataTypes);
 
@@ -83,22 +84,61 @@ const AttendanceController = {
 
     async detectFace(req, res) {
         try {
-            const result = await runPythonScript('app.py');
-            res.send(result);
-        } catch (error) {
+            if (!req.file) {
+              console.error('No file uploaded.');
+              return res.status(400).send('No file uploaded.');
+            }
+
+            // Convert the buffer to a base64 string
+            const imageBuffer = req.file.buffer;
+            const base64String = imageBuffer.toString('base64');
+
+            //console.log('Base64 string:', base64String);
+
+            // Pass the base64 string to the script
+            const result = await runPythonScript('app.py', base64String);
+
+            console.log("Uploaded file:", req.file.originalname);
+            console.log('Python script result:', result);
+
+           // Extract student_id from the Python script result
+           const studentIdRegex = /Student ID: (\d+)/;
+           const match = result.find(line => studentIdRegex.test(line));
+           const studentId = match ? parseInt(studentIdRegex.exec(match)[1]) : null;
+
+           if (studentId) {
+               // Call the endpoint to create the attendance record
+               const attendanceData = {
+                attendance_status: 'Present', // Set the appropriate attendance status
+                date: new Date(), // Set the current date or the date you want to associate with the attendance
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                student_id: studentId, // Extracted from the Python script result
+            };
+            
+
+               const newAttendance = await Attendance.create(attendanceData);
+               console.log('Attendance created successfully:', newAttendance);
+
+               res.json({ message: 'Attendance created successfully', newAttendance });
+           } else {
+               console.error('Student ID not found in the Python script result.');
+               res.status(500).send('Internal Server Error');
+           }
+       } catch (error) {
             console.error('Error executing test script:', error);
             res.status(500).send('Internal Server Error');
         }
     },
 };
 
-async function runPythonScript(pythonScriptPath) {
+async function runPythonScript(pythonScriptPath, inputImage){
     const result = installPythonDependencies()
         .then(async (dependencyResult) => {
             console.log(dependencyResult);
             const options = {
                 scriptPath: './src/pythonScript/',
-                args: [/* any arguments you want to pass to your Python script */],
+                args: [inputImage], // Pass input image as an argument
             };
 
             const result = await PythonShell.run(pythonScriptPath, options);
