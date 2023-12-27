@@ -30,6 +30,30 @@ const RequestsController = {
         const { preschool_name, representitive_name, CR, phone, email, plan_id, status } = req.body;
         const RequestData = { preschool_name, representitive_name, CR, phone, email, plan_id, status }
         try {
+            if (!preschool_name){
+                return res.status(400).json({ message: "Preschool Name is Required." });
+            }
+
+            if (!representitive_name){
+                return res.status(400).json({ message: "Representitive Name is Required." });
+            }
+
+            if (!CR){
+                return res.status(400).json({ message: "CR is Required." });
+            }
+
+            if (!phone){
+                return res.status(400).json({ message: "Contact Number is Required." });
+            }
+
+            if (!email){
+                return res.status(400).json({ message: "Email is Required." });
+            }
+            
+            if (!plan_id) {
+                return res.status(400).json({ message: "Plan Id is Required." });
+            }
+
             //create log
             await LogsController.createLog({
                 type: 'Request Creation',
@@ -48,7 +72,7 @@ const RequestsController = {
                 plan_id,
                 status: "Pending"
             });
-            return res.json({ message: 'Request created successfully', request: newRequest });
+            return res.status(201).json({ message: 'Request created successfully', request: newRequest });
         } catch (error) {
             // Create a log entry for the error
             await LogsController.createLog({
@@ -92,7 +116,7 @@ const RequestsController = {
                 request.plan_id = plan_id;
                 request.status = status;
                 await request.save();
-                res.json({ message: 'Request updated successfully', request });
+                res.status(200).json({ message: 'Request updated successfully', request });
             } else {
                 res.status(404).json({ message: 'Request not found' });
             }
@@ -107,7 +131,7 @@ const RequestsController = {
             const request = await Request.findByPk(requestId);
             if (request) {
                 await request.destroy();
-                res.json({ message: 'Request deleted successfully' });
+                res.status(200).json({ message: 'Request deleted successfully' });
             } else {
                 res.status(404).json({ message: 'Request not found' });
             }

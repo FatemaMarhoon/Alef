@@ -3,9 +3,6 @@ const ApplicationEvaluationController = require('../controllers/ApplicationEvalu
 
 const router = express.Router();
 
-// Get all evaluations
-router.get('/', ApplicationEvaluationController.getAllEvaluations);
-
 // Get a single evaluation by ID
 router.get('/:id', ApplicationEvaluationController.getEvaluationById);
 

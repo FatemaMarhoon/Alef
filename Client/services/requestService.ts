@@ -9,14 +9,10 @@ export async function createRequest(preschool_name: string,
     representitive_name: string,
     CR: string,
     phone: string,
-    email: string, plan_id: number): Promise<Request> {
-
-
+    email: string, plan_id: number) {
     try {
-
         var token; 
         await currentToken().then((returnedTOken) => { token = returnedTOken; })
-
         // Set up the request config with headers
         const config: AxiosRequestConfig = {
             headers: {
@@ -24,7 +20,7 @@ export async function createRequest(preschool_name: string,
             },
         };
 
-        const response = await axios.post<Request>(`${BASE_URL}`, {
+        const response = await axios.post(`${BASE_URL}`, {
             preschool_name: preschool_name,
             representitive_name: representitive_name,
             CR: CR,
@@ -32,7 +28,7 @@ export async function createRequest(preschool_name: string,
             email: email,
             plan_id: plan_id
         }, config);
-        return response.data;
+        return response;
     } catch (error) {
         throw error;
     }

@@ -15,7 +15,6 @@ function classNames(...classes: string[]) {
 
 export default function RequestForm({ planId }: { planId: number }) {
   const router = useRouter();
-  const { successMessage, setSuccessMessage } = useSuccessMessageContext();
   const [preschool_name, setPreschoolName] = useState("");
   const [representitive_name, setRepName] = useState("");
   const [CR, setCR] = useState("");
@@ -29,11 +28,17 @@ export default function RequestForm({ planId }: { planId: number }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await createRequest(preschool_name, representitive_name, CR, phone, email, planId);
-      if (response) {
-        console.log("request created successfully")
-        setSuccessMessage("Request Submitted Successfully.")
-        router.push('/plans');
+      if (agreed == true) {
+        const response = await createRequest(preschool_name, representitive_name, CR, phone, email, planId);
+        if (response.status == 200 || response.status == 201) {
+          router.push('/plans');
+        }
+        else if (response.status == 404 || response.status == 400 || response.status == 500) {
+          setError(response.data.message);
+        }
+      }
+      else {
+        setError("You must agree to the privacy policy.")
       }
     } catch (error: any) {
       // Handle error
@@ -69,7 +74,7 @@ export default function RequestForm({ planId }: { planId: number }) {
         <form
           action="#"
           onSubmit={handleSubmit}
-          className="mx-auto mt-16 max-w-xl sm:mt-20"
+          className="mx-auto mt-5 max-w-xl sm:mt-10"
         >
           {error && <div className="sm:col-span-2">
             <ErrorAlert message={error}></ErrorAlert>
@@ -91,7 +96,7 @@ export default function RequestForm({ planId }: { planId: number }) {
                   value={preschool_name}
                   onChange={(e) => setPreschoolName(e.target.value)}
                   placeholder="Enter full legal name for your preschool."
-                  className="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-alef-purple placeholder:text-gray-400 focus:ring-2 focus:ring-primary sm:text-sm sm:leading-6"
+                  className="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-alef-purple placeholder:text-gray-400 sm:text-sm sm:leading-6"
                 />
               </div>
             </div>
@@ -110,7 +115,7 @@ export default function RequestForm({ planId }: { planId: number }) {
                   value={CR}
                   onChange={(e) => setCR(e.target.value)}
                   placeholder="Enter your preschool's CR number."
-                  className="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-alef-purple placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
+                  className="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-alef-purple placeholder:text-gray-400 sm:text-sm sm:leading-6"
                 />
               </div>
             </div>
@@ -129,7 +134,7 @@ export default function RequestForm({ planId }: { planId: number }) {
                   value={representitive_name}
                   onChange={(e) => setRepName(e.target.value)}
                   placeholder="Enter legal representative full name."
-                  className="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-alef-purple placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
+                  className="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-alef-purple placeholder:text-gray-400 sm:text-sm sm:leading-6"
                 />
               </div>
             </div>
@@ -148,30 +153,30 @@ export default function RequestForm({ planId }: { planId: number }) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter official email address."
-                  className="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-alef-purple placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
+                  className="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-alef-purple placeholder:text-gray-400 sm:text-sm sm:leading-6"
                 />
               </div>
             </div>
             <div className="sm:col-span-2">
               <label
-                htmlFor="phone-number"
+                htmlFor="phone"
                 className="block text-sm font-semibold leading-6 text-gray-900"
               >
                 Contact Number <span className="text-meta-1">*</span>
               </label>
               <div className="mt-2.5">
-
                 <input
-                  type="tel"
-                  name="phone-number"
-                  id="phone-number"
+                  type="text"
+                  name="phone"
+                  id="phone"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="Enter official contact number"
-                  className="block w-full rounded-md border-0 px-3.5 py-2 pl-20 text-gray-900 shadow-sm ring-1 ring-inset ring-alef-purple placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
+                  className="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-alef-purple placeholder:text-gray-400 sm:text-sm sm:leading-6"
                 />
               </div>
             </div>
+
             <div className="sm:col-span-2">
               <Switch.Group as="div" className="flex gap-x-4 items-center">
                 <div className="flex h-6 items-center">
@@ -199,6 +204,7 @@ export default function RequestForm({ planId }: { planId: number }) {
                     privacy&nbsp;policy
                   </a>
                   .
+                  <span className="text-meta-1"> *</span>
                 </Switch.Label>
               </Switch.Group>
             </div>

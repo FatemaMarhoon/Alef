@@ -17,7 +17,7 @@ interface FormData {
     notify_parents: boolean;
     notify_staff: boolean;
     public_event: boolean;
-    Classes: number[] | undefined;
+    Classes: number[] | undefined; 
 }
 
 interface EditEventModalProps {
