@@ -7,6 +7,7 @@ import { User } from '@/types/user';
 import { useSuccessMessageContext } from "../SuccessMessageContext";
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { Switch } from '@headlessui/react';
+import ErrorAlert from "../ErrorAlert";
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
@@ -21,6 +22,7 @@ export default function RequestForm({ planId }: { planId: number }) {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [agreed, setAgreed] = useState(false);
+  const [error, setError] = useState("");
 
 
 
@@ -33,8 +35,9 @@ export default function RequestForm({ planId }: { planId: number }) {
         setSuccessMessage("Request Submitted Successfully.")
         router.push('/plans');
       }
-    } catch (error) {
+    } catch (error: any) {
       // Handle error
+      setError(error.message);
       console.error("Error creating request:", error);
     }
   };
@@ -62,11 +65,16 @@ export default function RequestForm({ planId }: { planId: number }) {
             Submit your preschool details to subscribe and we'll review your request.
           </p>
         </div>
+
         <form
           action="#"
           onSubmit={handleSubmit}
           className="mx-auto mt-16 max-w-xl sm:mt-20"
         >
+          {error && <div className="sm:col-span-2">
+            <ErrorAlert message={error}></ErrorAlert>
+          </div>
+          }
           <div className="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
             <div>
               <label
@@ -83,7 +91,7 @@ export default function RequestForm({ planId }: { planId: number }) {
                   value={preschool_name}
                   onChange={(e) => setPreschoolName(e.target.value)}
                   placeholder="Enter full legal name for your preschool."
-                  className="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
+                  className="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-alef-purple placeholder:text-gray-400 focus:ring-2 focus:ring-primary sm:text-sm sm:leading-6"
                 />
               </div>
             </div>
@@ -102,7 +110,7 @@ export default function RequestForm({ planId }: { planId: number }) {
                   value={CR}
                   onChange={(e) => setCR(e.target.value)}
                   placeholder="Enter your preschool's CR number."
-                  className="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
+                  className="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-alef-purple placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
                 />
               </div>
             </div>
@@ -121,7 +129,7 @@ export default function RequestForm({ planId }: { planId: number }) {
                   value={representitive_name}
                   onChange={(e) => setRepName(e.target.value)}
                   placeholder="Enter legal representative full name."
-                  className="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
+                  className="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-alef-purple placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
                 />
               </div>
             </div>
@@ -140,7 +148,7 @@ export default function RequestForm({ planId }: { planId: number }) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter official email address."
-                  className="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
+                  className="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-alef-purple placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
                 />
               </div>
             </div>
@@ -160,7 +168,7 @@ export default function RequestForm({ planId }: { planId: number }) {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="Enter official contact number"
-                  className="block w-full rounded-md border-0 px-3.5 py-2 pl-20 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
+                  className="block w-full rounded-md border-0 px-3.5 py-2 pl-20 text-gray-900 shadow-sm ring-1 ring-inset ring-alef-purple placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
                 />
               </div>
             </div>
@@ -171,7 +179,7 @@ export default function RequestForm({ planId }: { planId: number }) {
                     checked={agreed}
                     onChange={setAgreed}
                     className={classNames(
-                      agreed ? 'bg-alef-purple' : 'bg-gray-200',
+                      agreed ? 'bg-primary' : 'bg-gray-200',
                       'flex w-8 flex-none cursor-pointer rounded-full p-px ring-1 ring-inset ring-gray-900/5 transition-colors duration-200 ease-in-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
                     )}
                   >
@@ -198,7 +206,7 @@ export default function RequestForm({ planId }: { planId: number }) {
           <div className="mt-10">
             <button
               type="submit"
-              className="block w-full rounded-md bg-alef-purple px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              className="block w-full rounded-md bg-primary px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
               Request
             </button>
