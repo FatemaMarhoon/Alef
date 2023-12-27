@@ -76,20 +76,21 @@ const Calendar = () => {
       currentWeek.push(
         <td key={i} className={dayClasses} onClick={() => openDetailsModal(eventsForDay, appointmentsForDay)}>
           {isCurrentMonth && (
-            <>
+            <div className="relative h-full flex flex-col">
               <span className="font-medium">{day}</span>
               {hasMoreItems && (
-                // Display the "+1", "+2", etc., indicator
-                <span className="ml-1 absolute right-3 text-sm font-bold text-primary invisible md:visible">{`+${eventsForDay.length + appointmentsForDay.length - 1}`}</span>
+                <span className="ml-1 absolute right-3 text-sm font-bold text-primary invisible md:visible">
+                  {`+${eventsForDay.length + appointmentsForDay.length - 1}`}
+                </span>
               )}
-
-              <div className={`group h-16 w-full flex-grow cursor-pointer py-1 md:h-30 ${hasMoreItems ? 'group-hover:text-primary' : ''}`}>
+      
+              <div className={`group flex-grow cursor-pointer py-1 ${hasMoreItems ? 'group-hover:text-primary' : ''}`}>
                 {[...eventsForDay, ...appointmentsForDay].length > 0 && (
                   <span className="group-hover:text-primary md:hidden">More</span>
                 )}
-                {[...eventsForDay, ...appointmentsForDay].slice(0, 1).map(item => (
-                  <div key={item.id} className={`event invisible absolute left-2 z-99 mb-1 flex w-full flex-col rounded-sm border-l-[3px] ${isEvent(item) ? 'border-alef-purple bg-alef-purple ' : 'border-secondary bg-secondary '} bg-opacity-10 px-3 py-1 text-left max-w-[160px] opacity-0 group-hover:visible group-hover:opacity-100 dark:bg-meta-4 md:visible md:max-w-[150px] md:opacity-100`}>
-                    <div className="event-details">
+                {[...eventsForDay, ...appointmentsForDay].slice(0, 1).map((item) => (
+                  <div key={item.id} className={`event invisible relative z-99 mb-1 flex flex-col rounded-sm border-l-[3px] ${isEvent(item) ? 'border-alef-purple bg-alef-purple ' : 'border-secondary bg-secondary '} bg-opacity-10 px-3 py-1 text-left max-w-[160px] opacity-0 group-hover:visible group-hover:opacity-100 dark:bg-meta-4 sm:visible sm:max-w-[150px] sm:opacity-100 md:visible md:max-w-[150px] md:opacity-100`}>
+                    <div className="event-details flex-grow">
                       <span className="event-name text-sm font-semibold text-black dark:text-white">
                         {isEvent(item) ? item.event_name : 'Appointment'}
                       </span>
@@ -97,11 +98,12 @@ const Calendar = () => {
                   </div>
                 ))}
               </div>
-            </>
+            </div>
           )}
         </td>
       );
-
+      
+      
       // Start a new row (week) when reaching the end of a week or the end of the month
       if ((i + 1) % 7 === 0 || i === daysInMonth + startDay - 1) {
         days.push(<tr key={days.length} className="grid grid-cols-7">{currentWeek}</tr>);
@@ -327,14 +329,7 @@ const Calendar = () => {
 
       <div className="flex justify-end mb-4">
         <div className="relative inline-block text-left">
-          <button
-            type="button"
-            className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-primary text-white font-medium hover:bg-opacity-90"
-            onClick={handleDropdownToggle}
-          >
-            Add
-          </button>
-          <FormControl variant="outlined" size="small" style={{ minWidth: 150 }}>
+        <FormControl className="mx-4" variant="outlined" size="small" style={{ minWidth: 150 }}>
             <InputLabel>Filter By</InputLabel>
             <Select
               value={appliedFilter}
@@ -352,6 +347,14 @@ const Calendar = () => {
               </MenuItem>
             </Select>
           </FormControl>
+          <button
+            type="button"
+            className="inline-flex justify-center  ml-4 rounded-md border border-gray-300 shadow-sm px-8 py-2 bg-primary text-white font-medium hover:bg-opacity-90"
+            onClick={handleDropdownToggle}
+          >
+            Add
+          </button>
+         
           {isDropdownOpen && (
             <div className="origin-top-right absolute right-0 mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
               <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">

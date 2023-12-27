@@ -3,7 +3,7 @@ import { Request } from '@/types/request'
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { currentToken } from './authService';
 
-const BASE_URL = 'https://us-central1-alef-229ac.cloudfunctions.net/app/requests'; // Replace with your backend URL
+const BASE_URL = 'https://server-bckggkpqeq-uc.a.run.app/requests'; // Replace with your backend URL
 
 export async function createRequest(preschool_name: string,
     representitive_name: string,

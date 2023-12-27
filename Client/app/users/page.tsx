@@ -117,23 +117,12 @@ export default function UsersTable() {
           <h4 className="text-xl font-semibold text-black dark:text-white">Users</h4>
           <Link
             href="users/create"
-            className="inline-flex items-center justify-center bg-primary py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
-          >
+            className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
             Create User
           </Link>
         </div>
         <div className="flex flex-col dark:text-white dark:bg-boxdark">
-          {/* Search & Filter */}
-          {/* <div className="flex justify-between items-center mb-4 dark:text-white dark:bg-boxdark">
-            <TextField
-              label="Search by Name"
-              variant="outlined"
-              size="small"
-              fullWidth
-              value={searchValue}
-              onChange={handleSearchChange}
-              className="mb-4 dark:text-white dark:bg-boxdark"
-            /> */}
+         
             <div className="flex justify-between mb-4">
                             <TextField
                                 label="Search by Name"

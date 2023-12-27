@@ -4,7 +4,7 @@ import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { currentPreschool, currentToken } from './authService';
 
 // const BASE_URL = `http://localhost:3000/student/preschool/${currentUser?.preschool_id}`; // Backend URL for students
-const BASE_URL = 'https://us-central1-alef-229ac.cloudfunctions.net/app/student' // Backend URL for students
+const BASE_URL = 'https://server-bckggkpqeq-uc.a.run.app/student' // Backend URL for students
 
 export async function getStudents(grade?: string): Promise<Student[]> {
     try {

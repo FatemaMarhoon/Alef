@@ -3,7 +3,7 @@ import { currentPreschool, currentToken, currentUserId } from './authService';
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Class } from '@/types/class';
 
-const BASE_URL = 'https://us-central1-alef-229ac.cloudfunctions.net/app/events'; // Replace with your backend URL
+const BASE_URL = 'https://server-bckggkpqeq-uc.a.run.app/events'; // Replace with your backend URL
 
 export async function getEvents(): Promise<MyEvent[]> {
   //retrieve data from current user

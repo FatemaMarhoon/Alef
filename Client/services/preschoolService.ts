@@ -1,7 +1,7 @@
 import { Address, Preschool } from '@/types/preschool'; // Import the Preschool type
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { currentPreschool, currentToken, currentUser, currentUserId, currentUserRole } from './authService';
-const BASE_URL = 'https://us-central1-alef-229ac.cloudfunctions.net/app/preschools'; // Backend URL for preschools
+const BASE_URL = 'https://server-bckggkpqeq-uc.a.run.app/preschools'; // Backend URL for preschools
 
 // export async function getPreschools(): Promise<Preschool[]> {
 //     try {
