@@ -72,10 +72,11 @@ app.use("/grades", gradesRoutes);
 app.use("/media", mediaRoutes);
 app.use("/mail", mailRoutes);
 
-//  schedule the cron job for reminders
+// Schedule the cron job for reminders
 cron.schedule("0,30 * * * *", cronJob.appointmentsReminder); // daily when the minutes are 0 and 30 (every half an hour)
 cron.schedule("0 12 * * *", cronJob.eventsReminder); // daily at 12pm
-cron.schedule("* 8 26 * *", cronJob.monthlyPaymentGenerator); // on the 26th of each month at 8 am
+cron.schedule("0 8 26 * *", cronJob.monthlyPaymentGenerator); // on the 26th of each month at 8 am
+cron.schedule("0 8 * * *", cronJob.paymentDue); // daily at 8am
 
 // Schedule the backup to run every day at midnight
 cron.schedule('0 0 * * *', () => {

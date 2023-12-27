@@ -27,9 +27,6 @@ export default function RootLayout({
   return (
     <SuccessMessageProvider>
       <html lang="en">
-        <head>
-        <link rel="icon" type="image/x-icon" href="/favicon.ico"/>
-        </head>
         <body suppressHydrationWarning={true}>
           <div className="dark:bg-boxdark-2 dark:text-bodydark">
             {loading ? (
@@ -51,7 +48,7 @@ export default function RootLayout({
                       position="top-right"
                       reverseOrder={false}
                     />
-                    <NotificationToast />
+                    {/* <NotificationToast /> */}
                     <div className="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
                       {children}
                     </div>

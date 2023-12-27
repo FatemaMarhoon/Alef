@@ -25,6 +25,8 @@ Preschool.hasMany(Student, { foreignKey: 'preschool_id' });
 Class.belongsTo(Staff, { foreignKey: 'supervisor' })
 Staff.hasMany(Class, { foreignKey: 'supervisor' })
 Staff.belongsTo(User, { foreignKey: 'user_id' })
+Payment.belongsTo(Student, { foreignKey: 'student_id' })
+
 Event.belongsToMany(Class, {
     through: EventClass,
     foreignKey: 'event_id',
@@ -70,8 +72,8 @@ const cronJob = {
 
                 //generate for admins of related preschool 
                 const admins = await User.findAll({ where: { preschool_id: appointment.preschool_id, role_name: "Admin" } });
-                for (const admin of admins){
-                    await NotificationController.pushWebNotification(admin.id, title,body);
+                for (const admin of admins) {
+                    await NotificationController.pushWebNotification(admin.id, title, body);
                 }
 
             }
@@ -87,7 +89,7 @@ const cronJob = {
             //retrieve upcoming events (after 1 day)
             let currentDate = new Date();
             currentDate.setHours(0, 0, 0, 0); // Set the time to midnight for accurate date comparison
-            currentDate.setDate(currentDate.getDate() + 1); // Add 30 minutes to the current time
+            currentDate.setDate(currentDate.getDate() + 1); // Add 1 day to the current date
             const upcomingEvents = await Event.findAll({
                 where: {
                     event_date: {
@@ -149,7 +151,6 @@ const cronJob = {
         }
     },
 
-
     async monthlyPaymentGenerator() {
         //loop through all preschools and generate payment record for all students 
         try {
@@ -176,6 +177,60 @@ const cronJob = {
             }
         }
         catch (error) {
+            console.log(error.message)
+        }
+    },
+
+    // send reminders 2 days before 
+    async paymentReminder() {
+
+    },
+
+    // change status to overdue when due date arrive 
+    async paymentDue() {
+        try {
+            console.log("Starting payment lookup")
+            let currentDate = new Date();
+            currentDate.setHours(0, 0, 0, 0); // Set the time to midnight for accurate date comparison
+
+            // retrive payment records to be changed to overdue, to notify parents 
+            const paymentRecords = await Payment.findAll(
+                {
+                    where: {
+                        status: 'Pending',
+                        due_date: {
+                            [Op.eq]: currentDate,
+                        },
+                    },
+                    include: [{ model: Student, as: "Student", include: [{ model: User, as: "User" }] }]
+                }
+            );
+
+            // update all payment records that are still unpaid and the due date is today 
+            await Payment.update(
+                { status: 'Overdue' },
+                {
+                    where: {
+                        status: 'Pending',
+                        due_date: {
+                            [Op.eq]: currentDate,
+                        },
+                    },
+                }
+            );
+
+            // notify parents 
+            for (const record of paymentRecords) {
+                // if student has a parent account, notify 
+                if (record.Student.User) {
+                    const email = record.Student.User.email;
+                    const title = "Overdue Payment";
+                    const body = `${record.type} is now overdue. Please settle it promptly. Thank you!`;
+                    await NotificationController.pushSingleNotification(email, title, body);
+                }
+            }
+
+        } catch (error) {
             console.log(error.message)
         }
     }

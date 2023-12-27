@@ -23,9 +23,6 @@ export default function RootLayout({
     <SuccessMessageProvider>
 
     <html lang="en">
-    <head>
-        <link rel="icon" type="image/x-icon" href="/favicon.ico"/>
-        </head>
       <body suppressHydrationWarning={true}>
         <div className="dark:bg-boxdark-2 dark:text-bodydark">
           {loading ? (
