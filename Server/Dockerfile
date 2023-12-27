@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install -y \
 
 # Install Python dependencies
 RUN pip install --upgrade pip
+RUN pip install --no-cache-dir Flask==2.1.2 Pillow==8.2.0 face_recognition==1.3.0
 
 
 
