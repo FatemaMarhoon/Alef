@@ -8,6 +8,12 @@ router.get('/', AttendanceController.getAllAttendances);
 // Get all attendance records by class id 
 router.get('/class/:classId', AttendanceController.getAttendancesByClassId);
 
+//get attendance by student id
+router.get('/:studentId', AttendanceController.getAttendanceByStudentId);
+
+//get status by student id
+router.get('/status/:studentId', AttendanceController.getAttendanceStatusCountByStudentId);
+
 // Face Detection 
 router.get('/faceDetection', AttendanceController.detectFace);
 

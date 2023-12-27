@@ -8,6 +8,9 @@ router.get('/', StudentEvaluationController.getAllStudentEvaluations);
 
 router.get('/:id', StudentEvaluationController.getEvaluationById);
 
+//get evaluation report
+router.get('/report/:id', StudentEvaluationController.getEvaluationReposrtById);
+
 // Create a new student evaluation
 router.post('/', StudentEvaluationController.createStudentEvaluation);
 

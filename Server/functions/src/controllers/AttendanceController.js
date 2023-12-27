@@ -37,6 +37,61 @@ const AttendanceController = {
         }
     },
 
+    //attendance for student
+    async getAttendanceByStudentId(req, res) {
+        const studentId = req.params.studentId;
+    
+        try {
+            const attendances = await Attendance.findAll({
+                where: {
+                    student_id: studentId,
+                },
+            });
+    
+            if (attendances.length === 0) {
+                return res.status(400).json({ message: 'No attendance records found for the specified student ID' });
+            }
+    
+            res.json(attendances);
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    },
+//attendance ratio
+    async getAttendanceStatusCountByStudentId(req, res) {
+        const studentId = req.params.studentId;
+    
+        try {
+            const attendanceStatusCounts = await Attendance.findAll({
+                attributes: [
+                    ['attendance_status', 'status'],
+                    [sequelize.fn('COUNT', sequelize.literal('1')), 'count'],
+                ],
+                where: {
+                    student_id: studentId,
+                },
+                group: ['attendance_status'],
+            });
+    
+            const statusCounts = {
+                Absent: 0,
+                Present: 0,
+            };
+    
+            attendanceStatusCounts.forEach((record) => {
+                const status = record.get('status');
+                const count = record.get('count');
+                statusCounts[status] = count;
+            });
+    
+            res.json(statusCounts);
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    },
+    
+   
+
     async createAttendance(req, res) {
         const attendanceData = req.body;
         try {
