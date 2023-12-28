@@ -47,8 +47,7 @@ export default function ViewStudent({ studentId }: { studentId: string }) {
                 <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
                     <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
                         <h3 className="font-medium text-black dark:text-white">
-                            View Student
-                        </h3>
+                            Student Details                        </h3>
                     </div>
                     <div className="p-6.5">
                         <div className="mb-4.5">
@@ -103,21 +102,21 @@ export default function ViewStudent({ studentId }: { studentId: string }) {
                             <label className="mb-2.5 block text-black dark:text-white">
                                 Personal Picture
                             </label>
-                            <img src={student.personal_picture} alt="Personal Picture" className="w-32 h-32" />
+                            <Link className="text-secondary" href={`${student?.personal_picture}`} target="_blank"><p>View File</p></Link>
                         </div>
 
                         <div className="mb-4.5">
                             <label className="mb-2.5 block text-black dark:text-white">
                                 Certificate Of Birth
                             </label>
-                            <img src={student.certificate_of_birth} alt="Certificate Of Birth" className="w-32 h-32" />
+                            <Link className="text-secondary" href={`${student?.certificate_of_birth}`} target="_blank"><p>View File</p></Link>
                         </div>
 
                         <div className="mb-4.5">
                             <label className="mb-2.5 block text-black dark:text-white">
                                 Passport
                             </label>
-                            <img src={student.passport} alt="Passport" className="w-32 h-32" />
+                            <Link className="text-secondary" href={`${student?.passport}`} target="_blank"><p>View File</p></Link>
                         </div>
                         {/* Back to List Button */}
                         <div className="flex mt-4">

@@ -3,6 +3,7 @@ const sequelize = require('../config/seq');
 const admin = require('../config/firebase.config')
 const auth = admin.auth();
 const EmailsManager = require('./EmailsManager')
+const LogsController = require('./LogController'); // Import the LogsController module
 
 const Preschool = require('../models/preschool')(sequelize, DataTypes);
 const User = require('../models/user')(sequelize, DataTypes);
