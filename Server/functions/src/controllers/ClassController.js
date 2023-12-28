@@ -26,7 +26,24 @@ const ClassController = {
             res.status(500).json({ message: error.message });
         }
     },
+    async getClassesByStaffId(req, res) {
+        const { staffId } = req.params;
+        try {
+            // Find all classes where the staff is the supervisor
+            const classes = await Class.findAll({
+                where: { supervisor: staffId },
+                include: [Preschool, Staff],
+            });
 
+            if (classes.length > 0) {
+                res.json({ message: 'Classes found', classes });
+            } else {
+                res.status(404).json({ message: 'No classes found for the specified staff ID' });
+            }
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    },
     async createClass(req, res) {
         const classData = req.body;
         const user_id = await UsersController.getCurrentUser(req, res);
