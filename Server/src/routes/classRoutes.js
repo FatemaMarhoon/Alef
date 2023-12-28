@@ -6,6 +6,10 @@ const router = express.Router();
 // Get all classes for a specific preschool
 router.get('/preschool/:preschoolId', ClassController.getAllClasses);
 
+// Get all classes for a specific staff
+router.get('/staff/:staffId', ClassController.getClassesByStaffId);
+
+
 // Create a new class
 router.post('/', ClassController.createClass);
 
