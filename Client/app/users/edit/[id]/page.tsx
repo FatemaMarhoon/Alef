@@ -6,36 +6,72 @@ import { useRouter } from "next/navigation";
 import ErrorAlert from "@/components/ErrorAlert";
 import { User } from "@/types/user"
 import { useSuccessMessageContext } from "@/components/SuccessMessageContext";
+import { getStaff, getStaffById, getStaffByUserID, updateStaff } from "@/services/staffService";
+import { Staff } from "@/types/staff";
 
 export default function EditForm({ params }: { params: { id: number } }) {
   const router = useRouter();
   const { setSuccessMessage } = useSuccessMessageContext();
   const [user, setUser] = useState({ id: 0, name: "", email: "", status: "", role_name: "" });
   const [error, setError] = useState("");
+  const [staffList, setStaffList] = useState<Staff[]>([]);
+  const [connectedStaff, setConnectedStaff] = useState<number>(0);
+  const [oldStaff, setOldStaff] = useState<Staff>();
 
   // Fetch user details on component mount
   useEffect(() => {
-    const fetchUserDetails = async () => {
+    async function fetchStaff() {
+      const allStaff = await getStaff();
+      const filteredStaff = allStaff.filter((staff) => !staff.user_id); //return only staff with no account 
+      setStaffList(filteredStaff);
+    }
+
+    async function fetchUserDetails() {
       try {
         const response = await getUser(params.id);
-        const userData = response?.data; // Assuming the API returns user data
+        const userData = response?.data;
         // Set state with user data
         setUser(userData);
-      } catch (error) {
+
+        //get current user's staff record
+        const currentStaff = await getStaffByUserID(userData.id);
+        if (currentStaff.id)
+          setConnectedStaff(currentStaff.id);
+        setOldStaff(currentStaff);
+
+        // add to staff list
+        setStaffList(staffList.concat(currentStaff));
+
+      } catch (error: any) {
         console.error("Error fetching user details:", error);
-        // Handle error as needed
+        setError(error.message);
       }
     };
 
+    fetchStaff();
     fetchUserDetails();
   }, [params.id]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     try {
       if (user) {
         const response = await updateUser(user);
+        // after successful user update, update staff accordingly if needed
         if (response.status === 200 || response.status == 201) {
+
+          // staff has been changed, update 
+          if (oldStaff?.id && oldStaff?.id != connectedStaff) {
+            // remove user from old staff 
+            oldStaff.user_id = undefined;
+            await updateStaff(oldStaff.id, oldStaff);
+
+            // add user to new staff
+            const newStaff = await getStaffById(connectedStaff);
+            newStaff.user_id = user.id;
+            await updateStaff(connectedStaff, newStaff);
+
+          }
           setSuccessMessage(response.data.message);
           router.push('/users');
         } else if (response.status === 400 || response.status === 404 || response.status === 500) {
@@ -56,8 +92,8 @@ export default function EditForm({ params }: { params: { id: number } }) {
       {error && <ErrorAlert message={error}></ErrorAlert>}
       <Breadcrumb pageName="Edit User" />
 
-      <div className="grid grid-cols-1 gap-9 sm:grid-cols-2">
-        <div className="flex flex-col gap-9">
+      <div className="grid grid-cols-12 sm:grid-cols-2">
+        <div className="col-span-12">
           { /* FORM STARTS HERE */}
           <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
             <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
@@ -104,6 +140,44 @@ export default function EditForm({ params }: { params: { id: number } }) {
                       <option value="Admin">Admin</option>
                       <option value="Staff">Staff</option>
                       <option value="Teacher">Teacher</option>
+                    </select>
+                    <span className="absolute top-1/2 right-4 z-30 -translate-y-1/2">
+                      <svg
+                        className="fill-current"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <g opacity="0.8">
+                          <path
+                            fillRule="evenodd"
+                            clipRule="evenodd"
+                            d="M5.29289 8.29289C5.68342 7.90237 6.31658 7.90237 6.70711 8.29289L12 13.5858L17.2929 8.29289C17.6834 7.90237 18.3166 7.90237 18.7071 8.29289C19.0976 8.68342 19.0976 9.31658 18.7071 9.70711L12.7071 15.7071C12.3166 16.0976 11.6834 16.0976 11.2929 15.7071L5.29289 9.70711C4.90237 9.31658 4.90237 8.68342 5.29289 8.29289Z"
+                            fill=""
+                          ></path>
+                        </g>
+                      </svg>
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mb-4.5">
+                  <label className="mb-2.5 block text-black dark:text-white">
+                    For Staff <span className="text-meta-1">*</span>
+                  </label>
+                  <div className="relative z-20 bg-transparent dark:bg-form-input">
+                    <select
+                      value={connectedStaff}
+                      onChange={(e) => setConnectedStaff(Number(e.target.value))}
+                      className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary">
+                      <option value="">Select Staff</option>
+                      {staffList.map((staff, index) => (
+                        <option key={index} value={staff.id}>
+                          {staff.name + " - " + staff.staff_role_name}
+                        </option>
+                      ))}
                     </select>
                     <span className="absolute top-1/2 right-4 z-30 -translate-y-1/2">
                       <svg

@@ -30,7 +30,7 @@ const SignIn: React.FC = () => {
       else {
         const result = await loginWithEmail(email, password);
         if (!error) {
-          router.push("/");
+          window.location.assign('/')
         }
 
       }

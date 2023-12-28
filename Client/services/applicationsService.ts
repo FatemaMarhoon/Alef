@@ -96,7 +96,6 @@ export async function createApplication(
 
     return response;
   } catch (error) {
-    console.error("Error creating user:", error);
     // Type assertion for error variable
     const axiosError = error as AxiosError;
     throw axiosError;
