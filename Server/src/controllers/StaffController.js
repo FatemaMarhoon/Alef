@@ -21,11 +21,21 @@ const validateStaffData = (staffData) => {
     if (!Number.isInteger(staffData.CPR) || String(staffData.CPR).length !== 9) {
         return { isValid: false, message: 'CPR must be a 9-digit integer' };
     }
+    // Additional validations for specific fields
+    const cprString = String(staffData.CPR);
+    if (cprString.length !== 9 || !/^\d+$/.test(cprString)) {
+        return { isValid: false, message: 'CPR must be a 9-digit integer' };
+    }
 
     if (!Number.isInteger(staffData.phone) || String(staffData.phone).length !== 8) {
         return { isValid: false, message: 'Phone must be an 8-digit integer' };
     }
-
+    // Check if the hire date is in the future
+    const hireDate = new Date(staffData.hire_date);
+    const currentDate = new Date();
+    if (hireDate > currentDate) {
+        return { isValid: false, message: 'Hire date cannot be in the future' };
+    }
     // Add more validations as needed
 
     return { isValid: true };
@@ -86,8 +96,22 @@ const StaffController = {
         const existingUser = await Staff.findOne({ where: { email: staffData.email } });
 
         if (existingUser) {
+            //create log
+            await LogsController.createLog({
+                type: 'Error',
+                original_values: JSON.stringify(staffData),
+                current_values: JSON.stringify("Email already exists"),
+                user_id: user_id
+            });
             return res.status(400).json({ message: 'Email already exists' });
         }
+
+        // Check if the CPR already exists
+        const existingCPRUser = await Staff.findOne({ where: { CPR: staffData.CPR } });
+        if (existingCPRUser) {
+            return res.status(400).json({ message: 'CPR already exists' });
+        }
+
         if (!validation.isValid) {
             //create log
             await LogsController.createLog({
@@ -95,7 +119,6 @@ const StaffController = {
                 original_values: JSON.stringify(staffData),
                 current_values: JSON.stringify(validation.message),
                 user_id: user_id
-                //  user_id: 28
             });
             return res.status(400).json({ message: validation.message });
         }
