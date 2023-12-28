@@ -21,7 +21,7 @@ router.get('/:student_id', StudentController.getStudentById);
 router.post('/', multerMiddleware, StudentController.createStudent);
 
 // Update student
-router.put('/:student_id', StudentController.updateStudent);
+router.put('/:student_id',multerMiddleware, StudentController.updateStudent);
 
 // Delete student
 router.delete('/:student_id', StudentController.deleteStudent);

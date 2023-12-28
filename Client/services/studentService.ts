@@ -1,10 +1,11 @@
 import { Student } from '@/types/student'; // Import the Student type
 //import { currentUser } from './userService';
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { currentPreschool, currentToken } from './authService';
+import { currentPreschool, currentToken, currentUser } from './authService';
 
 // const BASE_URL = `http://localhost:3000/student/preschool/${currentUser?.preschool_id}`; // Backend URL for students
-const BASE_URL = 'https://server-bckggkpqeq-uc.a.run.app/student' // Backend URL for students
+const BASE_URL = `http://localhost:3000/student`; // Backend URL for students
+// const BASE_URL = 'https://server-bckggkpqeq-uc.a.run.app/student' // Backend URL for students
 
 export async function getStudents(grade?: string): Promise<Student[]> {
     try {
@@ -222,12 +223,11 @@ export async function updateStudent(
         const config: AxiosRequestConfig = {
             headers: {
                 Authorization: `Bearer ${token}`, // Include the token in the Authorization header
-                'Content-Type': 'application/json', // Set the content type to JSON
+                'Content-Type': 'multipart/form-data', // Make sure to set the content type
             },
         };
 
-        // Construct the data payload with only the attributes to be updated
-        const studentData: Partial<Student> = {
+        const updatedData = {
             student_name: studentAttributes.student_name,
             DOB: studentAttributes.DOB ? new Date(studentAttributes.DOB) : undefined,
             CPR: studentAttributes.CPR,
@@ -237,14 +237,21 @@ export async function updateStudent(
             enrollment_date: studentAttributes.enrollment_date
                 ? new Date(studentAttributes.enrollment_date)
                 : undefined,
-            class_id: studentAttributes.class_id
-            // Add other properties as needed
+            class_id: studentAttributes.class_id,
+            gender: studentAttributes.gender,
+            grade: studentAttributes.grade,
+            medical_history: studentAttributes.medical_history,
+            passport: studentAttributes.passportFile,
+            personal_picture: studentAttributes.personal_pictureFile,
+            certificate_of_birth: studentAttributes.certificate_of_birthFile
         };
+
+        console.log(updatedData);
 
         // Make the PUT request to update the student
         const response = await axios.put(
             `${BASE_URL}/${studentId}`,
-            studentData,
+            updatedData,
             config
         );
 

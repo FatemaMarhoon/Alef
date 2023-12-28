@@ -168,7 +168,11 @@ const StudentController = {
 
     async updateStudent(req, res) {
         const { student_id } = req.params;
-        const updatedStudentData = req.body;
+        const { student_name, DOB, CPR, grade, contact_number1, contact_number2, guardian_name, enrollment_date, medical_history, gender, certificate_of_birth, passport, personal_picture } = req.body;
+        const updatedStudentData = { student_name, DOB, grade, CPR, contact_number1, contact_number2, guardian_name, enrollment_date, medical_history, gender, certificate_of_birth, passport, personal_picture };
+        console.log('Req Body:', req.body);
+        console.log('Req Files:', req.files);
+
         // // Add validation logic here
         // const validation = validateStudentData(updatedStudentData);
         // if (!validation.isValid) {
@@ -181,8 +185,36 @@ const StudentController = {
 
             if (student) {
                 const originalValues = JSON.stringify(student.toJSON()); // Store the original values before the update
+                // student.set(updatedStudentData);
 
-                student.set(updatedStudentData);
+                // Check and update each property individually
+                if (student_name) student.student_name = student_name;
+                if (DOB) student.DOB = DOB;
+                if (CPR) student.CPR = CPR;
+                if (grade) student.grade = grade;
+                if (contact_number1) student.contact_number1 = contact_number1;
+                if (contact_number2) student.contact_number2 = contact_number2;
+                if (guardian_name) student.guardian_name = guardian_name;
+                if (enrollment_date) student.enrollment_date = enrollment_date;
+                if (gender) student.gender = gender;
+                if (medical_history) student.medical_history = medical_history;
+
+                //check for updating files 
+                if (req.files) {
+                    if (req.files['personal_picture']) {
+                        const picture_url = await FilesManager.upload(req.files['personal_picture'][0]);
+                        student.personal_picture = picture_url;
+                    }
+                    if (req.files['certificate_of_birth']) {
+                        const certificate_of_birth_url = await FilesManager.upload(req.files['certificate_of_birth'][0]);
+                        student.certificate_of_birth = certificate_of_birth_url;
+                    }
+                    if (req.files['passport']) {
+                        const passport_url = await FilesManager.upload(req.files['passport'][0]);
+                        student.passport = passport_url;
+                    }
+                }
+
                 await student.save();
 
                 const newValues = JSON.stringify(student.toJSON()); // Store the updated values after the update
