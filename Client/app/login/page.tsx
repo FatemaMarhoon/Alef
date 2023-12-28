@@ -30,7 +30,7 @@ const SignIn: React.FC = () => {
       else {
         const result = await loginWithEmail(email, password);
         if (!error) {
-          router.push("/");
+          window.location.assign('/')
         }
 
       }
@@ -54,11 +54,13 @@ const SignIn: React.FC = () => {
       if (!email) {
         setError("Please enter your email in the field first.")
       }
-      await forgetPassword(email).then(() => {
-        setError("");
-        setSuccessMessage("Reset password email was sent sucessfully.")
-        console.log("email sent");
-      })
+      else {
+        await forgetPassword(email).then(() => {
+          setError("");
+          setSuccessMessage("Reset password email was sent sucessfully.")
+          console.log("email sent");
+        })
+      }
     } catch (error: any) {
       setSuccessMessage("");
       setError(error.message)
@@ -231,7 +233,7 @@ const SignIn: React.FC = () => {
               {successMessage && <SuccessAlert message={successMessage} />}
 
               <form onSubmit={(e) => e.preventDefault()}>
-                <div className="mb-4">
+                <div className="mb-6">
                   <label className="mb-2.5 block font-medium text-black dark:text-white">
                     Email
                   </label>
@@ -264,10 +266,17 @@ const SignIn: React.FC = () => {
                 </div>
 
                 <div className="mb-6">
-                  <label className="mb-2.5 block font-medium text-black dark:text-white">
-                    Password
-                  </label>
-                  <div className="relative">
+                  <div className="flex items-center justify-between">
+                    <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
+                      Password
+                    </label>
+                    <div className="text-sm">
+                      <button className="text-primary" onClick={handleForgotPassword}>Forgot Password?</button>
+
+
+                    </div>
+                  </div>
+                  <div className="relative mt-3">
                     <input
                       type="password"
                       onChange={(e) => setPassword(e.target.value)}
@@ -306,12 +315,12 @@ const SignIn: React.FC = () => {
                   >Sign In</button>
                 </div>
 
-                <div className="text-center text-primary mb-2">
+                {/* <div className="text-center text-primary mb-2">
                   <button onClick={handleForgotPassword}>Forgot Password</button>
-                </div>
+                </div> */}
 
                 <div className="text-center ">
-                  New to Alef? <Link className="text-primary" href={"/plans"}>Subscribe Now</Link>
+                  Not a Member? <Link className="text-primary" prefetch={true} href={"/plans"}>Subscribe Now</Link>
                 </div>
               </form>
 

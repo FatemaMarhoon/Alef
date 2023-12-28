@@ -42,7 +42,7 @@ const UsersController = {
     try {
       if (preschool) {
         const users = await User.findAll({
-          where: { preschool_id: preschool }
+          where: { preschool_id: preschool, role_name:"" }
         });
         return res.status(200).json(users);
       }
@@ -244,12 +244,11 @@ function createFirebaseUser(email, password, name, role_name, preschool_id) {
         // See the UserRecord reference doc for the contents of userRecord.
         console.log('Successfully created new user:', userRecord.uid);
         auth.setCustomUserClaims(userRecord.uid, { "role": role_name, "preschool_id": preschool_id })
-        // Generate reset link and pass to smtp service to send it in the email
+        // Generate reset password link and send it via email for accounts created on behalf of users
         if (role_name != "Parent") {
           auth.generatePasswordResetLink(email)
             .then((link) => {
               EmailsManager.sendCustomPasswordResetEmail(email, name, link);
-              console.log('Password reset email sent:', link);
             })
             .catch((error) => {
               console.error('Error generating password reset link:', error);

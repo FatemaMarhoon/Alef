@@ -4,7 +4,7 @@ import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import dotenv from 'dotenv';
 dotenv.config(); // Load variables from .env
 
-const BASE_URL = 'https://us-central1-alef-229ac.cloudfunctions.net/app/plans'; // Replace with your backend URL
+const BASE_URL = 'https://server-bckggkpqeq-uc.a.run.app/plans'; // Replace with your backend URL
 
 export async function getPlans(): Promise<Plan[]> {
   try {

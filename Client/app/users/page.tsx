@@ -13,6 +13,12 @@ import InputLabel from '@mui/material/InputLabel';
 import Loader from "@/components/common/Loader"; // Import the Loader component
 import Select from '@mui/material/Select';
 import { useRouter, useSearchParams } from 'next/navigation';
+import SwitcherOne from '@/components/Switchers/SwitcherOne';
+import SwitcherTwo from '@/components/Switchers/SwitcherTwo';
+import SwitcherThree from '@/components/Switchers/SwitcherThree';
+import SwitcherFour from '@/components/Switchers/SwitcherFour';
+import { Delete, Edit } from '@mui/icons-material';
+import { EyeIcon } from '@heroicons/react/20/solid';
 
 export default function UsersTable() {
   const searchParams = useSearchParams();
@@ -37,7 +43,7 @@ export default function UsersTable() {
     }
   }
   useEffect(() => {
-  
+
     fetchUsers();
   }, []);
 
@@ -58,13 +64,15 @@ export default function UsersTable() {
   const statusChange = async (id: number, status: string) => {
     try {
       const newStatus = status === 'Disabled' ? 'Enabled' : 'Disabled';
-      const response = await updateUser({ id: id, status: newStatus });
-      if (response.status == 200 || response.status == 201) {
-        setSuccessMessage(`User ${newStatus} Successfully.`)
-        fetchUsers();
-      }
-      else if (response.status == 400 || response.status == 404 || response.status == 500) {
-        setError(response.data.message);
+      if (confirm(`Are your sure you want to ${newStatus == 'Enabled' ? 'enable' : 'disable'} this user?`)) {
+        const response = await updateUser({ id: id, status: newStatus });
+        if (response.status == 200 || response.status == 201) {
+          setSuccessMessage(`User ${newStatus} Successfully.`)
+          fetchUsers();
+        }
+        else if (response.status == 400 || response.status == 404 || response.status == 500) {
+          setError(response.data.message);
+        }
       }
     } catch (error: any) {
       if (error.response) {
@@ -113,41 +121,29 @@ export default function UsersTable() {
       {successMessage && <SuccessAlert message={successMessage}></SuccessAlert>}
       {loading && <Loader />}
       <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark dark:text-white sm:px-7.5 xl:pb-1">
-        <div className="flex justify-between items-center mb-6">
-          <h4 className="text-xl font-semibold text-black dark:text-white">Users</h4>
+        <h4 className="text-xl font-semibold text-black dark:text-white">Users</h4>
+        <div className="flex justify-end mb-4">
           <Link
             href="users/create"
-            className="inline-flex items-center justify-center bg-primary py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
-          >
+            className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
             Create User
           </Link>
         </div>
         <div className="flex flex-col dark:text-white dark:bg-boxdark">
-          {/* Search & Filter */}
-          {/* <div className="flex justify-between items-center mb-4 dark:text-white dark:bg-boxdark">
+          <div className="flex justify-between mb-4">
             <TextField
               label="Search by Name"
               variant="outlined"
               size="small"
-              fullWidth
-              value={searchValue}
-              onChange={handleSearchChange}
-              className="mb-4 dark:text-white dark:bg-boxdark"
-            /> */}
-            <div className="flex justify-between mb-4">
-                            <TextField
-                                label="Search by Name"
-                                variant="outlined"
-                                size="small"
 
-                                value={searchValue}
-                                onChange={(e) => {
-                                  handleSearchChange(e)
-                                  setCurrentPage(1);
-                                }}
-                                style={{ width: '60%' }}
-                            />
-            <FormControl variant="outlined" size="small" style={{ minWidth: 150 }}>
+              value={searchValue}
+              onChange={(e) => {
+                handleSearchChange(e)
+                setCurrentPage(1);
+              }}
+              style={{ width: '69%' }}
+            />
+            <FormControl variant="outlined" size="small" style={{ width: '29%' }}>
               <InputLabel id="filter-label" className='dark:text-white'>Role</InputLabel>
               <Select
                 labelId="filter-label"
@@ -161,7 +157,6 @@ export default function UsersTable() {
                 <MenuItem value="Admin" className={`dark:text-white dark:bg-boxdark dark:hover:text-black ${filterValue == 'Admin' ? 'dark:text-black' : ''}`}>Admin</MenuItem>
                 <MenuItem value="Staff" className={`dark:text-white dark:bg-boxdark dark:hover:text-black ${filterValue == 'Staff' ? 'dark:text-black' : ''}`}>Staff</MenuItem>
                 <MenuItem value="Teacher" className={`dark:text-white dark:bg-boxdark dark:hover:text-black ${filterValue == 'Teacher' ? 'dark:text-black' : ''}`}>Teacher</MenuItem>
-                <MenuItem value="Parent" className={`dark:text-white dark:bg-boxdark dark:hover:text-black ${filterValue == 'Parent' ? 'dark:text-black' : ''}`}>Parent</MenuItem>
               </Select>
             </FormControl>
           </div>
@@ -183,7 +178,7 @@ export default function UsersTable() {
                   <th className="min-w-150px py-4 px-4 font-medium text-black dark:text-white">
                     Status
                   </th>
-                  <th className="py-4 px-4 font-medium text-black dark:text-white">
+                  <th className="py-4 px-4 font-medium text-center text-black dark:text-white">
                     Actions
                   </th>
                 </tr>
@@ -196,26 +191,80 @@ export default function UsersTable() {
                       <td className="py-4 px-4 text-black dark:text-white">{user.email}</td>
                       <td className="py-4 px-4 text-black dark:text-white">{user.role_name}</td>
                       <td className="py-4 px-4 text-black dark:text-white">
-                        <span className={user.status === 'Enabled' ? 'text-meta-3' : 'text-danger'}>
+                        {/* <span className={user.status === 'Enabled' ? 'text-meta-3' : 'text-danger'}>
                           {user.status}
-                        </span>
+                        </span> */}
+                        <div>
+                            <label
+                              htmlFor="toggle3"
+                              className="flex mr-2 cursor-pointer select-none items-center"
+                            >
+                              <div className="relative">
+                                <input
+                                  type="checkbox"
+                                  id="toggle3"
+                                  className="sr-only"
+                                  onClick={() => statusChange(user.id, user.status)}
+
+                                />
+                                <div className="block h-8 w-14 rounded-full bg-meta-9 dark:bg-[#5A616B]"></div>
+                                <div
+                                  className={`dot absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-white transition ${user.status == 'Enabled' && "!right-1 !translate-x-full !bg-primary dark:!bg-white"
+                                    }`}
+                                >
+                                  <span className={`hidden ${user.status == 'Enabled' && "!block"}`}>
+                                    <svg
+                                      className="fill-white dark:fill-black"
+                                      width="11"
+                                      height="8"
+                                      viewBox="0 0 11 8"
+                                      fill="none"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                      <path
+                                        d="M10.0915 0.951972L10.0867 0.946075L10.0813 0.940568C9.90076 0.753564 9.61034 0.753146 9.42927 0.939309L4.16201 6.22962L1.58507 3.63469C1.40401 3.44841 1.11351 3.44879 0.932892 3.63584C0.755703 3.81933 0.755703 4.10875 0.932892 4.29224L0.932878 4.29225L0.934851 4.29424L3.58046 6.95832C3.73676 7.11955 3.94983 7.2 4.1473 7.2C4.36196 7.2 4.55963 7.11773 4.71406 6.9584L10.0468 1.60234C10.2436 1.4199 10.2421 1.1339 10.0915 0.951972ZM4.2327 6.30081L4.2317 6.2998C4.23206 6.30015 4.23237 6.30049 4.23269 6.30082L4.2327 6.30081Z"
+                                        fill=""
+                                        stroke=""
+                                        strokeWidth="0.4"
+                                      ></path>
+                                    </svg>
+                                  </span>
+                                  <span className={`${user.status == 'Enabled' && "hidden"}`}>
+                                    <svg
+                                      className="h-4 w-4 stroke-secondary"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="M6 18L18 6M6 6l12 12"
+                                      ></path>
+                                    </svg>
+                                  </span>
+                                </div>
+                              </div>
+                            </label>
+                          </div>
                       </td>
-                      <td className="py-4 px-4 text-black dark:text-white">
-                        <button
+                      <td className="py-4 px-4 text-black text-center dark:text-white">
+                        {/* <button
                           onClick={() => statusChange(user.id, user.status)}
                           className="mr-2 text-primary hover:underline"
-                        >
-                          {user.status === 'Enabled' ? 'Disable' : 'Enable'}
-                        </button>
+                        > */}
+                          
+                        {/* </button> */}
                         <button
                           onClick={() => handleDelete(user.id)}
                           className=" py-4 px-4 text-danger hover:underline">
-                          Delete
+                          <Delete></Delete>
                         </button>
                         <button
                           className=" py-4 px-4 text-primary hover:underline">
                           <Link href={`/users/edit/${user.id}`}>
-                            Edit
+                            <Edit></Edit>
                           </Link>
                         </button>
                       </td>

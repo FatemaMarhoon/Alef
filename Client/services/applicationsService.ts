@@ -5,7 +5,7 @@ import { currentPreschool, currentToken, currentUserId } from './authService';
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { useRouter } from 'next/navigation';
 
-const BASE_URL = 'https://us-central1-alef-229ac.cloudfunctions.net/app/applications'; // Replace with your backend URL
+const BASE_URL = 'https://server-bckggkpqeq-uc.a.run.app/applications'; // Replace with your backend URL
 
 export async function getApplications(): Promise<any> {
   try {
@@ -96,7 +96,6 @@ export async function createApplication(
 
     return response;
   } catch (error) {
-    console.error("Error creating user:", error);
     // Type assertion for error variable
     const axiosError = error as AxiosError;
     throw axiosError;

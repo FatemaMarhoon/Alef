@@ -10,16 +10,12 @@ const User = require('../models/user')(sequelize, DataTypes);
 const Student = require('../models/student')(sequelize, DataTypes);
 const Staff = require('../models/staff')(sequelize, DataTypes);
 const NotificationController = require('./NotificationController');
-// Event.hasMany(EventClass, { foreignKey: 'event_id' });
-// EventClass.belongsTo(Event, { foreignKey: 'event_id' });
 Class.hasMany(Student, { foreignKey: 'class_id' });
 Student.belongsTo(Class, { foreignKey: 'class_id' });
 Student.belongsTo(User, { foreignKey: 'user_id' });
 Class.belongsTo(Staff, { foreignKey: 'supervisor' })
 Staff.hasMany(Class, { foreignKey: 'supervisor' })
-// User.belongsTo(Staff,{ foreignKey: 'user_id' })
 Staff.belongsTo(User, { foreignKey: 'user_id' })
-// EventClass.belongsTo(Class, { foreignKey: 'class_id' });
 
 // Define the many-to-many relationships
 Event.belongsToMany(Class, {
@@ -43,19 +39,25 @@ const EventController = {
         const preschool_id = req.query.preschool_id;
         try {
             if (class_id) {
-                const classObject = await Class.findAll({
+                const classObject = await Class.findOne({
                     where: { id: class_id },
                     include: [
                         { model: Event, as: "Events" },
                     ],
                 });
+
                 if (classObject) {
-                    const classDetails = classObject[0].dataValues;
-                    events = classDetails.Events;
+                    events = classObject.Events;
+                    const publicEvents = await Event.findAll({
+                        where: { public_event: true, preschool_id: classObject.preschool_id },
+                    });
+
+                    events = events.concat(publicEvents);
                 }
                 else {
                     return res.status(404).json({ message: 'Class not found.' });
                 }
+
             }
             else if (preschool_id) {
                 events = await Event.findAll(({

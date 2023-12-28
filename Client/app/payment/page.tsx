@@ -128,16 +128,17 @@ export default function PaymentTable() {
                     Payment Records
                 </h4>
                 <div className="flex justify-end mb-4">
-                    <Link href="/payment/create" className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
+                    <Link href="/payment/create"
+                     className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
                         Add New Payment
                     </Link>
                 </div>
-                <div className="mb-4">
+                <div className="flex justify-between mb-4">
                     <TextField
                         label="Search by Student Name"
                         variant="outlined"
                         size="small"
-                        fullWidth
+                        style={{ width: '60%' }}
                         value={searchTerm}
                         onChange={(e) => {
                             setSearchTerm(e.target.value);

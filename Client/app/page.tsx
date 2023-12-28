@@ -3,6 +3,8 @@ import Dashboard from "./dashboard/page";
 import { useRouter } from 'next/navigation'
 import { currentUser } from "@/services/authService";
 import { useEffect, useState } from "react";
+import Router from "next/router";
+import RootLayout from "./layout";
 
 export default function Home() {
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
@@ -21,6 +23,7 @@ export default function Home() {
   }, []);
 
   return (
+
     <>{loggedIn &&
       <Dashboard>
       </Dashboard>

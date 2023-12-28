@@ -2,7 +2,7 @@ import { StaticValue } from '@/types/staticValue'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { currentToken } from './authService';
 
-const BASE_URL = 'https://us-central1-alef-229ac.cloudfunctions.net/app/staticValues'; // Replace with your backend URL
+const BASE_URL = 'https://server-bckggkpqeq-uc.a.run.app/staticValues'; // Replace with your backend URL
 
 export async function getRoles(): Promise<StaticValue[]> {
   try {

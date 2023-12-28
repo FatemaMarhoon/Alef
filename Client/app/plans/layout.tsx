@@ -31,7 +31,7 @@ export default function RootLayout({
               <GuestHeader></GuestHeader>
 
                 {/* <!-- ===== Main Content Start ===== --> */}
-                <main className="mt-10">
+                <main className="mt-2">
                   <div className="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
                     {children}
                   </div>

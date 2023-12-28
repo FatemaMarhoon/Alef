@@ -3,20 +3,16 @@ import { Request } from '@/types/request'
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { currentToken } from './authService';
 
-const BASE_URL = 'https://us-central1-alef-229ac.cloudfunctions.net/app/requests'; // Replace with your backend URL
+const BASE_URL = 'https://server-bckggkpqeq-uc.a.run.app/requests'; // Replace with your backend URL
 
 export async function createRequest(preschool_name: string,
     representitive_name: string,
     CR: string,
     phone: string,
-    email: string, plan_id: number): Promise<Request> {
-
-
+    email: string, plan_id: number) {
     try {
-
         var token; 
         await currentToken().then((returnedTOken) => { token = returnedTOken; })
-
         // Set up the request config with headers
         const config: AxiosRequestConfig = {
             headers: {
@@ -24,7 +20,7 @@ export async function createRequest(preschool_name: string,
             },
         };
 
-        const response = await axios.post<Request>(`${BASE_URL}`, {
+        const response = await axios.post(`${BASE_URL}`, {
             preschool_name: preschool_name,
             representitive_name: representitive_name,
             CR: CR,
@@ -32,7 +28,7 @@ export async function createRequest(preschool_name: string,
             email: email,
             plan_id: plan_id
         }, config);
-        return response.data;
+        return response;
     } catch (error) {
         throw error;
     }

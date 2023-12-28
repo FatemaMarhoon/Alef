@@ -5,7 +5,7 @@ import { UserStorage } from "@/types/user";
 import { currentPreschool, currentToken } from './authService';
 import { responsiveProperty } from '@mui/material/styles/cssUtils';
 
-const BASE_URL = 'http://127.0.0.1:5001/alef-229ac/us-central1/app/staff';
+const BASE_URL = 'https://server-bckggkpqeq-uc.a.run.app/staff';
 // Backend URL for staff
 
 export async function getStaff(): Promise<Staff[]> {
@@ -201,7 +201,7 @@ export async function deleteStaff(staffId: number): Promise<any> {
 
 export async function getStaffById(staffId: number): Promise<Staff> {
     try {
-        var token; var preschool;
+        var token;
         await currentToken().then((returnedTOken) => { token = returnedTOken; })
 
         // Set up the request config with headers
@@ -237,6 +237,27 @@ export async function getStaffById(staffId: number): Promise<Staff> {
         throw axiosError;
     }
 
+}
 
+export async function getStaffByUserID(userId: number) : Promise<Staff> {
+    try {
+        var token;
+        await currentToken().then((returnedTOken) => { token = returnedTOken; })
+
+        // Set up the request config with headers
+        const config: AxiosRequestConfig = {
+            headers: {
+                Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+            },
+        };
+
+        const response = await axios.get<Staff>(`${BASE_URL}/user/${userId}`, config);
+        return response.data;
+
+    } catch (error) {
+        // Type assertion for error variable
+        const axiosError = error as AxiosError;
+        throw axiosError;
+    }
 
 }
