@@ -65,7 +65,7 @@ const StaffController = {
         const { id } = req.params;
         try {
             const staffMember = await Staff.findOne({
-                where: {user_id:id}
+                where: { user_id: id }
             });
             if (staffMember) {
                 return res.status(200).json(staffMember);
@@ -76,13 +76,18 @@ const StaffController = {
             return res.status(500).json({ message: error.message });
         }
     },
-
     async createStaff(req, res) {
         const staffData = req.body;
         // Perform validations
         const validation = validateStaffData(staffData);
         const user_id = await UsersController.getCurrentUser(req, res);
 
+        // Check if the email already exists
+        const existingUser = await Staff.findOne({ where: { email: staffData.email } });
+
+        if (existingUser) {
+            return res.status(400).json({ message: 'Email already exists' });
+        }
         if (!validation.isValid) {
             //create log
             await LogsController.createLog({
@@ -226,7 +231,7 @@ const StaffController = {
         }
     }
 
-    
+
 };
 
 module.exports = StaffController;
