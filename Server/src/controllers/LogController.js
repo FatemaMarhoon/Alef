@@ -25,7 +25,7 @@ const LogsController = {
             const newLog = await Log.create(logData);
             //   res.json({ message: 'Log created successfully', newLog });
         } catch (error) {
-            res.status(500).json({ message: error.message });
+            // res.status(500).json({ message: error.message });
         }
     },
 

@@ -24,4 +24,5 @@ router.delete('/:staff_id', StaffController.deleteStaff);
 // Get all staff members uniquely
 router.get('/preschoolC/:preschoolId', StaffController.getAllStaffC);
 
+
 module.exports = router;
