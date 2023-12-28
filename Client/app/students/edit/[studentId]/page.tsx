@@ -331,17 +331,13 @@ export default function EditForm({ params }: { params: { studentId: number } }) 
                                     <label className="mb-3 block text-black dark:text-white">
                                         Personal Picture <span className="text-meta-1">*</span>
                                     </label>
-                                    <label>{student?.personal_picture}</label>
+                                    <Link className="text-secondary" href={`${student?.personal_picture}`} target="_blank"><p>View Existing File</p></Link>
+
+                                    {/* <label>{student?.personal_picture}</label> */}
                                     <input
                                         type="file"
-                                        onChange={(e) => {
-                                            handleFileChange(e, setPersonalPicture)
-                                            // setStudent({ ...student, personal_picture: e.target.files?.[0] })
-                                        }
-
-                                        }
-
-
+                                        name="personal_picture"
+                                        onChange={(e) => setStudent({ ...student, personal_pictureFile: e.target.files?.[0] })}
                                         className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary   dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
                                     />
                                 </div>
@@ -351,10 +347,13 @@ export default function EditForm({ params }: { params: { studentId: number } }) 
                                     <label className="mb-3 block text-black dark:text-white">
                                         Certificate of Birth <span className="text-meta-1">*</span>
                                     </label>
-                                    <label>{student?.certificate_of_birth}</label>
+                                    <Link className="text-secondary" href={`${student?.certificate_of_birth}`} target="_blank"><p>View Existing File</p></Link>
                                     <input
                                         type="file"
-                                        onChange={(e) => handleFileChange(e, setCertificateOfBirth)}
+                                        name="certificate_of_birth"
+                                        onChange={(e) => setStudent({ ...student, certificate_of_birthFile: e.target.files?.[0] })}
+
+
                                         className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary   dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
                                     />
                                 </div>
@@ -364,10 +363,12 @@ export default function EditForm({ params }: { params: { studentId: number } }) 
                                     <label className="mb-3 block text-black dark:text-white">
                                         Passport <span className="text-meta-1">*</span>
                                     </label>
-                                    <label>{student?.passport}</label>
+                                    <Link className="text-secondary" href={`${student?.passport}`} target="_blank"><p>View Existing File</p></Link>
+
                                     <input
                                         type="file"
-                                        onChange={(e) => handleFileChange(e, setPassport)}
+                                        name="passport"
+                                        onChange={(e) => setStudent({ ...student, passportFile: e.target.files?.[0] })}
                                         className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary   dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
                                     />
                                 </div>

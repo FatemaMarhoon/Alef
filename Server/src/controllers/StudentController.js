@@ -34,12 +34,6 @@ const validateStudentData = (studentData) => {
     var currentMonth = currentDate.getMonth() + 1; // Months are zero-indexed, so we add 1
     var currentDay = currentDate.getDate();
 
-    // // Check if the date is in the future
-    // if (dobYear > currentYear ||
-    //     (dobYear === currentYear && dobMonth > currentMonth) ||
-    //     (dobYear === currentYear && dobMonth === currentMonth && dobDay > currentDay)) {
-    //     return { isValid: false, message: 'DOB must not be before in the future' };
-    // }
     if (dobYear < 2018 || dobYear > 2023) {
         return { isValid: false, message: 'DOB must be between 2018 and 2023' };
     }
@@ -55,9 +49,6 @@ const validateStudentData = (studentData) => {
 
     return { isValid: true };
 };
-
-
-
 
 const StudentController = {
 
@@ -113,7 +104,11 @@ const StudentController = {
         console.log('Req Files:', req.files);
         const validation = validateStudentData(studentData);
         const user_id = await UsersController.getCurrentUser(req, res);
-
+        // Check if the CPR already exists
+        const existingCPRUser = await Student.findOne({ where: { CPR: studentData.CPR } });
+        if (existingCPRUser) {
+            return res.status(400).json({ message: 'CPR already exists' });
+        }
         if (!validation.isValid) {
             // Log validation error
             await LogsController.createLog({
