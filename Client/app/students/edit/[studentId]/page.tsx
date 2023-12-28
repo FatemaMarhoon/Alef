@@ -102,25 +102,8 @@ export default function EditForm({ params }: { params: { studentId: number } }) 
         e.preventDefault();
 
         try {
-            // Update the student data with the form values
-            const updatedStudent: Student = {
-                ...student,
-                gender: student.gender,
-                grade: student.grade,
-                DOB: new Date(student.DOB),
-                CPR: Number(student.CPR),
-                contact_number1: Number(student.contact_number1),
-                contact_number2: Number(student.contact_number2),
-                enrollment_date: new Date(student.enrollment_date),
-            };
-            // Use the functional form of setStudent to get the latest state
-            setStudent((prevStudent) => ({
-                ...prevStudent,
-                ...updatedStudent,
-            }));
-
             // Send the request and log the response
-            const response = await updateStudent(params.studentId.toString(), updatedStudent);
+            const response = await updateStudent(params.studentId.toString(), student);
             console.log('API Response:', response);
             console.log('API Response:', response);
             // Check if response is defined and has data

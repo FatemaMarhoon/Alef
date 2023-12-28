@@ -174,13 +174,11 @@ const ApplicationController = {
     },
 
     async updateApplication(req, res) {
-        console.log("HIIIII")
         const { id } = req.params;
         const { email, preschool_id, guardian_type, status, student_name, guardian_name, student_CPR, phone, student_DOB, medical_history, created_by, gender, personal_picture, grade, certificate_of_birth, passport } = req.body;
         const user_id = await UsersController.getCurrentUser(req, res);
         try {
 
-            console.log("Updating")
             // Fetch the existing application
             const applicationObject = await Application.findByPk(id);
             if (applicationObject) {

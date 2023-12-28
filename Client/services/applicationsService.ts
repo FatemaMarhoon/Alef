@@ -103,7 +103,6 @@ export async function createApplication(
 }
 
 export async function updateApplication(id:number, updatedApplication:ApplicationPOST) {
-  console.log("Status: ", updatedApplication.status)
   try {
     var token;
     await currentToken().then((returnedTOken) => { token = returnedTOken; })
