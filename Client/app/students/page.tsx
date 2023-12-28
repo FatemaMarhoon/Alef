@@ -181,15 +181,15 @@ export default function StudentTable() {
                                     <th className="py-4 px-4 font-medium text-black dark-text-white">
                                         Contact Number 2
                                     </th>
-                                    <th className="py-4 px-4 font-medium text-black dark-text-white">
+                                    {/* <th className="py-4 px-4 font-medium text-black dark-text-white">
                                         Guardian Name
-                                    </th>
+                                    </th> */}
                                     <th className="py-4 px-4 font-medium text-black dark-text-white">
                                         Enrollment Date
                                     </th>
-                                    <th className="py-4 px-4 font-medium text-black dark-text-white">
+                                    {/* <th className="py-4 px-4 font-medium text-black dark-text-white">
                                         Medical History
-                                    </th>
+                                    </th> */}
                                     <th className="py-4 px-4 font-medium text-black dark-text-white">
                                         Actions
                                     </th>
@@ -240,23 +240,41 @@ export default function StudentTable() {
                                                 {student.contact_number2}
                                             </p>
                                         </td>
-                                        <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                                        {/* <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                                             <p className="text-black dark-text-white">
                                                 {student.guardian_name}
                                             </p>
-                                        </td>
+                                        </td> */}
                                         <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                                             <p className="text-black dark-text-white">
                                                 {new Date(student.enrollment_date).toLocaleDateString()}
                                             </p>
                                         </td>
-                                        <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                                        {/* <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                                             <p className="text-black dark-text-white">
                                                 {student.medical_history}
                                             </p>
-                                        </td>
+                                        </td> */}
+
                                         <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                                             <div className="flex items-center space-x-3.5">
+                                                <button className="hover:text-primary">
+                                                    <Link href={`/students/view/${student.id}`}>
+                                                        View
+                                                    </Link>
+                                                </button>
+                                                <button className="hover:text-primary">
+                                                    <Link href={`/students/edit/${student.id}`}>
+                                                        Edit
+                                                    </Link>
+                                                </button>
+                                                <button className="hover:text-primary">
+                                                    <Link href={`/students/delete/${student.id}`}>
+                                                        Delete
+                                                    </Link>
+                                                </button>
+                                            </div>
+                                            {/* <div className="flex items-center space-x-3.5">
                                                 <button className="hover:text-primary">
                                                     <Link href={`/students/view/${student.id}`}>
 
@@ -330,7 +348,7 @@ export default function StudentTable() {
                                                         </svg>
                                                     </Link>
                                                 </button>
-                                            </div>
+                                            </div> */}
                                         </td>
                                     </tr>
                                 ))}

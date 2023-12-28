@@ -111,13 +111,16 @@ export default function CreateStaffPage() {
             } else if (response.status == 400 || response.status == 404 || response.status == 500) {
                 setError(response.data.message);
             }
-            // Create the user with information about the preschool
-            await createUser(
-                staffData.email!,
-                staffData.name,
-                staffData.staff_role_name,
-                staffData.preschool_id
-            );
+            // Check if the staff role is "teacher" before creating the user
+            if (staffData.staff_role_name === 'Teacher') {
+                // Create the user with information about the preschool
+                await createUser(
+                    staffData.email!,
+                    staffData.name,
+                    staffData.staff_role_name,
+                    staffData.preschool_id
+                );
+            }
 
             // Redirect after successful submission
             router.push('/staff'); // Assuming you have a staff page

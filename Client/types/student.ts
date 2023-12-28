@@ -18,4 +18,9 @@ export interface Student {
     createdAt: Date;
     updatedAt: Date;
     user_id: number | null; // Assuming 'user_id' is optional
+
+    passportFile?: File;
+    certificate_of_birthFile?: File;
+    personal_pictureFile?: File;
+
 }
