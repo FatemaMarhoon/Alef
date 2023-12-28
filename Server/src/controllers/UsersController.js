@@ -42,7 +42,7 @@ const UsersController = {
     try {
       if (preschool) {
         const users = await User.findAll({
-          where: { preschool_id: preschool, role_name:"" }
+          where: { preschool_id: preschool }
         });
         return res.status(200).json(users);
       }
