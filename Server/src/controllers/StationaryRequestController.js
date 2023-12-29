@@ -11,6 +11,7 @@ StationaryRequest.belongsTo(Stationary, { foreignKey: 'stationary_id' });
 
 const LogsController = require('./LogController');
 const UsersController = require('./UsersController');
+const NotificationController = require('./NotificationController');
 
 
 const validateStationaryRequestData = (stationaryRequestData) => {
@@ -89,6 +90,11 @@ const StationaryRequestController = {
                 user_id: user_id
             });
             const stationaryRequest = await StationaryRequest.create(stationaryRequestData);
+
+            // const title = 'New Stationary Request';
+            // const body = `New stationary request`;
+            // await NotificationController.pushWebNotification(user_id, title, body);
+
             res.json({ message: 'Stationary Request created successfully', stationaryRequest });
         } catch (error) {
             // Log validation error
@@ -139,6 +145,10 @@ const StationaryRequestController = {
                     current_values: newValues,
                     user_id: user_id
                 });
+                // const title = 'Stationary Request Status Updated';
+                // const body = `Rquest is ${stationaryRequest.status_name}`;
+                // await NotificationController.pushSingleNotification(user.email, title, body);
+
                 res.json({ message: 'Stationary Request updated successfully', stationaryRequest });
             } else {
                 res.status(404).json({ message: 'Stationary Request not found or no changes made' });
