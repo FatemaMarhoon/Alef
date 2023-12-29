@@ -5,6 +5,7 @@ import CreateForm from '@/components/Forms/createClassForm';
 import { NextPage } from 'next';
 import { useSearchParams } from 'next/navigation';
 import { Class } from '@/types/class';
+import Breadcrumbs from '@/components/Breadcrumbs/Breadcrumb2';
 
 interface CreatePageProps {
     numClasses: number;

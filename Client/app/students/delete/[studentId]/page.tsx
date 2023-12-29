@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useEffect } from "react";
-import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+import Breadcrumbs from "@/components/Breadcrumbs/Breadcrumb2";
 import { getStudentById, deleteStudent } from "@/services/studentService";
 import { useRouter } from 'next/navigation'; // Import from 'next/router' instead of 'next/navigation'
 import { Student } from "@/types/student";
@@ -67,7 +67,7 @@ export default function DeleteStudentPage({ params }: { params: { studentId: num
         <>
             {loading && <Loader />} {/* Show loading indicator */}
 
-            <Breadcrumb pageName="Delete Student" />
+            <Breadcrumbs previousName='Students' currentName='Delete' pageTitle="Delete Student" previousPath='/students' />
 
             <div className="items-center justify-center min-h-screen">
                 <div className="flex flex-col gap-9">

@@ -325,7 +325,7 @@ const Calendar = () => {
       <Breadcrumb pageName="Calendar" />
       {/* Add Event Button */}
       {successMessage && <SuccessAlert message={successMessage} />}
-
+      {error && <ErrorAlert message={error}></ErrorAlert>}
 
       <div className="flex justify-end mb-4">
         <div className="relative inline-block text-left">

@@ -1,7 +1,7 @@
 // Import necessary modules and components
 'use client';
 import { useEffect, useState } from 'react';
-import Breadcrumb from '@/components/Breadcrumbs/Breadcrumb';
+import Breadcrumbs from '@/components/Breadcrumbs/Breadcrumb2';
 import { getStationaryRequestById } from '@/services/stationaryRequestService'; // Update with your actual service function
 import { StationaryRequest } from '@/types/stationaryRequest';
 import { useRouter } from 'next/navigation';
@@ -31,8 +31,10 @@ export default function ViewStationaryRequest({ id }: { id: string }) {
                 setStationaries(stationariesData);
 
                 // Fetch staff information based on staff_id
-                const staffInfo = await getStaffById(parseInt(stationaryRequest.staff_id));
-                setStaffName(staffInfo ? staffInfo.name : 'Unknown');
+                if (stationaryRequest?.staff_id) {
+                    const staffInfo = await getStaffById(Number(stationaryRequest.staff_id));
+                    setStaffName(staffInfo ? staffInfo.name : 'Unknown');
+                }
             } catch (error) {
                 console.error('Error fetching stationary request data:', error);
             }
@@ -51,7 +53,7 @@ export default function ViewStationaryRequest({ id }: { id: string }) {
 
     return (
         <>
-            <Breadcrumb pageName="View Stationary Request" />
+            <Breadcrumbs previousName='Stationary Requests' currentName='Details' pageTitle="Stationary Request Details" previousPath='/stationaryRequest' />
 
             <div className="items-center justify-center min-h-screen">
                 <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">

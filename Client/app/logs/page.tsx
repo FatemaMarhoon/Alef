@@ -49,7 +49,7 @@ export default function LogsTable() {
     const checkAuthorization = async () => {
         try {
             const user = await currentUserRole();
-            SetRole(user);
+            SetRole(String(user));
             return user; // Return the user role
         } catch (error) {
             console.error('Error checking authorization:', error);

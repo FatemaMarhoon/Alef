@@ -1,7 +1,7 @@
 // Import necessary modules and components
 'use client';
 import { useState, useEffect } from 'react';
-import Breadcrumb from '@/components/Breadcrumbs/Breadcrumb';
+import Breadcrumbs from '@/components/Breadcrumbs/Breadcrumb2';
 import { getStationaryRequestById, updateStationaryRequest } from '@/services/stationaryRequestService';
 import { useRouter } from 'next/navigation';
 import { StationaryRequest } from '@/types/stationaryRequest';
@@ -164,14 +164,10 @@ export default function EditStationaryRequestForm({ params }: { params: { id: nu
     };
     return (
         <>
-
-
-            <Breadcrumb pageName="Edit Stationary Request" />
-            {error && <ErrorAlert message={error}></ErrorAlert>}
             {loading && <Loader />}
             {!loading && (
-                <div className="items-center justify-center min-h-screen">
-
+                <><Breadcrumbs previousName='Stationary Requests' currentName='Edit' pageTitle="Edit Stationary Request" previousPath='/stationaryRequest' />
+                    {error && <ErrorAlert message={error}></ErrorAlert>}
 
                     <div className="items-center justify-center min-h-screen">
                         <div className="flex flex-col gap-9">
@@ -189,8 +185,7 @@ export default function EditStationaryRequestForm({ params }: { params: { id: nu
                                                 disabled
                                                 value={stationaryRequest.stationary_id}
                                                 onChange={(e) => setStationaryRequest({ ...stationaryRequest, stationary_id: Number(e.target.value) })}
-                                                className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.statusName ? 'border-error' : ''
-                                                    }`}
+                                                className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.statusName ? 'border-error' : ''}`}
                                             >
                                                 <option value={0}>Select Stationary</option>
                                                 {stationaryList.length > 0 &&
@@ -212,11 +207,8 @@ export default function EditStationaryRequestForm({ params }: { params: { id: nu
                                             </label>
                                             <select
                                                 value={stationaryRequest.status_name}
-                                                onChange={(e) =>
-                                                    setStationaryRequest({ ...stationaryRequest, status_name: e.target.value })
-                                                }
-                                                className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.statusName ? 'border-error' : ''
-                                                    }`}
+                                                onChange={(e) => setStationaryRequest({ ...stationaryRequest, status_name: e.target.value })}
+                                                className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.statusName ? 'border-error' : ''}`}
                                             >
                                                 {requestStatuses.map((status, index) => (
                                                     <option key={index} value={status.ValueName}>
@@ -240,8 +232,7 @@ export default function EditStationaryRequestForm({ params }: { params: { id: nu
                                                 value={stationaryRequest.requested_quantity}
                                                 onChange={(e) => setStationaryRequest({ ...stationaryRequest, requested_quantity: (Number(e.target.value)) })}
                                                 placeholder="Enter requested quantity"
-                                                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary"
-                                            />
+                                                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary" />
                                             {errors.requestedQuantity && (
                                                 <p className="text-error text-sm mt-1">{errors.requestedQuantity}</p>
                                             )}
@@ -256,8 +247,7 @@ export default function EditStationaryRequestForm({ params }: { params: { id: nu
                                                 type="text"
                                                 value={staffName}
                                                 readOnly
-                                                className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary`}
-                                            />
+                                                className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary`} />
                                         </div>
                                         <div className="mb-4.5">
                                             <label className="mb-2.5 block text-black dark:text-white">
@@ -266,12 +256,9 @@ export default function EditStationaryRequestForm({ params }: { params: { id: nu
                                             <textarea
                                                 readOnly
                                                 value={stationaryRequest.notes}
-                                                onChange={(e) =>
-                                                    setStationaryRequest({ ...stationaryRequest, notes: e.target.value })
-                                                }
+                                                onChange={(e) => setStationaryRequest({ ...stationaryRequest, notes: e.target.value })}
                                                 placeholder="Enter notes"
-                                                className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary`}
-                                            />
+                                                className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary`} />
                                         </div>
 
                                         {/* Continue adding form fields as needed */}
@@ -285,8 +272,7 @@ export default function EditStationaryRequestForm({ params }: { params: { id: nu
                                 </form>
                             </div>
                         </div>
-                    </div>
-                </div>
+                    </div></>
             )}
         </>
     );

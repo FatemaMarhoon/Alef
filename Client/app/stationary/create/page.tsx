@@ -1,7 +1,7 @@
 
 'use client';
 import { useState } from 'react';
-import Breadcrumb from '@/components/Breadcrumbs/Breadcrumb';
+import Breadcrumbs from '@/components/Breadcrumbs/Breadcrumb2';
 import { createStationary } from '@/services/stationaryService';
 import { useRouter } from 'next/navigation';
 import { Stationary } from '@/types/stationary';
@@ -83,7 +83,7 @@ export default function CreateForm() {
     return (
         <>
 
-            <Breadcrumb pageName="Create Stationary Item" />
+            <Breadcrumbs previousName='Stationary' currentName='Create' pageTitle="Create Stationary" previousPath='/stationary' />
             <div className="items-center justify-center min-h-screen">
                 {error && <ErrorAlert message={error}></ErrorAlert>}
 

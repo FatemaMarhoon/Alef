@@ -219,18 +219,19 @@ export default function ApplicationsTable() {
                                             </Link>
                                         </button>
                                         <p> |</p>
-                                        <button
-                                            onClick={() => handleDelete(application.id)}
-                                            className="hover:text-primary">
-                                            Delete
-                                        </button>
-                                        <p> |</p>
-
+                                        
                                         <button className='hover:text-primary'>
                                             <Link href={`/applications/edit/${application.id}`}>
                                                 Edit
                                             </Link>
                                         </button>
+                                        <p> |</p>
+                                        <button
+                                            onClick={() => handleDelete(application.id)}
+                                            className="hover:text-primary">
+                                            Delete
+                                        </button>
+                                       
 
                                     </div>
                                 </td>

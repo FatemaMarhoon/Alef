@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect } from "react";
-import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+import Breadcrumbs from "@/components/Breadcrumbs/Breadcrumb2";
 import { updateUser, getUser } from "@/services/userService";
 import { useRouter } from "next/navigation";
 import ErrorAlert from "@/components/ErrorAlert";
@@ -104,7 +104,7 @@ export default function EditForm({ params }: { params: { id: number } }) {
   return (
     <>
       {error && <ErrorAlert message={error}></ErrorAlert>}
-      <Breadcrumb pageName="Edit User" />
+      <Breadcrumbs previousName='Users' currentName='Edit' pageTitle="Edit User" previousPath='/users' />
 
       <div className="grid grid-cols-12 sm:grid-cols-2">
         <div className="col-span-12">

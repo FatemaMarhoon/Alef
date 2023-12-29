@@ -1,7 +1,7 @@
 // Import necessary modules and components
 'use client'
 import { useEffect, useState } from "react";
-import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+import Breadcrumbs from "@/components/Breadcrumbs/Breadcrumb2";
 import { getStudentById } from '@/services/studentService';
 import { Student } from '@/types/student';
 import { useRouter } from 'next/navigation';
@@ -41,7 +41,7 @@ export default function ViewStudent({ studentId }: { studentId: string }) {
         <>
             {loading && <Loader />} {/* Show loading indicator */}
 
-            <Breadcrumb pageName="View Student" />
+            <Breadcrumbs previousName='Students' currentName='Details' pageTitle="Student Details" previousPath='/students' />
 
             <div className="items-center justify-center min-h-screen">
                 <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">

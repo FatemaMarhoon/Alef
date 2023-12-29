@@ -58,8 +58,24 @@ const PaymentController = {
     },
 
     async createPayment(req, res) {
-        const paymentData = req.body;
+        const { type, fees, due_date, student_id, notes } = req.body;
+        const paymentData = { fees, student_id, type, due_date, notes };
         try {
+            if (!type) {
+                return res.status(400).json({ message: "Type is Required." });
+            }
+
+            if (!fees) {
+                return res.status(400).json({ message: "Fees is Required." });
+            }
+
+            if (!due_date) {
+                return res.status(400).json({ message: "Due Date is Required." });
+            }
+
+            if (!student_id) {
+                return res.status(400).json({ message: "Student is Required." });
+            }
             paymentData.status = "Pending";
             const newPayment = await Payment.create(paymentData);
             if (newPayment) {

@@ -10,6 +10,7 @@ import { getPaymentStatuses, getPaymentTypes } from "@/services/staticValuesServ
 import { getStudents } from "@/services/studentService";
 import { StaticValue } from "@/types/staticValue";
 import { Payment } from "@/types/payment";
+import Breadcrumbs from "@/components/Breadcrumbs/Breadcrumb2";
 
 
 export default function EditPaymentForm({ params }: { params: { id: number } }) {
@@ -21,14 +22,14 @@ export default function EditPaymentForm({ params }: { params: { id: number } }) 
     const [students, setStudents] = useState<Student[]>([]);
     const [statuses, setStatuses] = useState<StaticValue[]>([]);
     const [paymentData, setPaymentData] = useState<Payment>({
-        id:0,
-        type:"",
-        status:"",
-        due_date:new Date().toISOString(),
-        fees:0,
-        notes:"",
+        id: 0,
+        type: "",
+        status: "",
+        due_date: new Date().toISOString(),
+        fees: 0,
+        notes: "",
         paid_on: new Date().toISOString(),
-        student_id:0,
+        student_id: 0,
         createdAt: ""
     })
 
@@ -102,8 +103,8 @@ export default function EditPaymentForm({ params }: { params: { id: number } }) 
 
     return (
         <>
+            <Breadcrumbs previousName='Payment Tracking' currentName='Edit' pageTitle="Edit Payment" previousPath='/payment' />
             {error && <ErrorAlert message={error}></ErrorAlert>}
-            <Breadcrumb pageName="Update Payment" />
 
             <div className="grid grid-cols-12 sm:grid-cols-2">
                 <div className="col-span-12">
@@ -123,7 +124,7 @@ export default function EditPaymentForm({ params }: { params: { id: number } }) 
                                     <div className="relative z-20 bg-transparent dark:bg-form-input">
                                         <select
                                             value={paymentData?.type}
-                                            onChange={(e) => setPaymentData({ ...paymentData, type:e.target.value })}
+                                            onChange={(e) => setPaymentData({ ...paymentData, type: e.target.value })}
                                             className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                                         >
                                             <option value="">Select Type</option>
@@ -173,8 +174,8 @@ export default function EditPaymentForm({ params }: { params: { id: number } }) 
                                     </label>
                                     <input
                                         type="date"
-                                        value={ new Date(paymentData?.due_date).toISOString().split('T')[0]}
-                                        onChange={(e) => setPaymentData({ ...paymentData, due_date: new Date(e.target.value).toISOString().split('T')[0]})}
+                                        value={new Date(paymentData?.due_date).toISOString().split('T')[0]}
+                                        onChange={(e) => setPaymentData({ ...paymentData, due_date: new Date(e.target.value).toISOString().split('T')[0] })}
                                         placeholder="Select a due date"
                                         className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                                     />
@@ -239,7 +240,7 @@ export default function EditPaymentForm({ params }: { params: { id: number } }) 
                                     <div className="relative z-20 bg-transparent dark:bg-form-input">
                                         <select
                                             value={paymentData?.status}
-                                            onChange={(e) => setPaymentData({ ...paymentData, status:e.target.value })}
+                                            onChange={(e) => setPaymentData({ ...paymentData, status: e.target.value })}
                                             className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                                         >
                                             <option value="">Select Status</option>

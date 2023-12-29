@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useEffect } from "react";
-import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+import Breadcrumbs from "@/components/Breadcrumbs/Breadcrumb2";
 import { getStaffById, deleteStaff } from "@/services/staffService"; // Assuming you have a staff service
 import { useRouter } from 'next/navigation';
 import { Staff } from "@/types/staff";
@@ -11,7 +11,7 @@ export default function DeleteStaffPage({ params }: { params: { staffId: number 
     const [staff, setStaff] = useState<Staff | null>(null);
     const { setSuccessMessage } = useSuccessMessageContext();
 
-    useEffect(() => {
+    useEffect(() => { 
         async function fetchStaff() {
             try {
                 if (params.staffId) {
@@ -59,7 +59,7 @@ export default function DeleteStaffPage({ params }: { params: { staffId: number 
 
     return (
         <>
-            <Breadcrumb pageName="Delete Staff" />
+            <Breadcrumbs previousName='Staff' currentName='Delete' pageTitle="Delete Staff" previousPath='/staff' />
 
             <div className="items-center justify-center min-h-screen">
                 <div className="flex flex-col gap-9">

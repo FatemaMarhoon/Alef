@@ -11,6 +11,7 @@ import { useSuccessMessageContext } from "@/components/SuccessMessageContext";
 import ErrorAlert from "@/components/ErrorAlert";
 import { ApplicationPOST } from "@/types/applicationPOST";
 import Link from "next/link";
+import Breadcrumbs from '@/components/Breadcrumbs/Breadcrumb2';
 
 
 export default function EditApplicationForm({ params }: { params: { id: number } }) {
@@ -102,7 +103,7 @@ export default function EditApplicationForm({ params }: { params: { id: number }
 
     return (
         <>
-            <Breadcrumb pageName="Edit Application" />
+            <Breadcrumbs previousName='Applications' currentName='Edit' pageTitle="Edit Application" previousPath='/applications' />
             {error && <ErrorAlert message={error}></ErrorAlert>}
 
             <div className="grid grid-cols-12 sm:grid-cols-2">
@@ -344,7 +345,7 @@ export default function EditApplicationForm({ params }: { params: { id: number }
                                     <Link className="text-secondary" href={`${application?.personal_picture}`} target="_blank"><p>View Existing File</p></Link>
                                     <input
                                         type="file"
-                                        accept="image/*"
+                                        accept="image/*,application/pdf"
                                         name="personal_picture"
                                         onChange={(e) => setUpdated({ ...updated, personal_picture: e.target.files?.[0] })}
                                         className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary   dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
@@ -359,7 +360,7 @@ export default function EditApplicationForm({ params }: { params: { id: number }
                                     <Link className="text-secondary" href={`${application?.certificate_of_birth}`} target="_blank"><p>View Existing File</p></Link>
                                     <input
                                         type="file"
-                                        accept="image/*"
+                                        accept="image/*,application/pdf"
                                         name="certificate_of_birth"
                                         onChange={(e) => setUpdated({ ...updated, certificate_of_birth: e.target.files?.[0] })}
                                         className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary   dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
@@ -374,7 +375,7 @@ export default function EditApplicationForm({ params }: { params: { id: number }
                                     <Link className="text-secondary" href={`${application?.passport}`} target="_blank"><p>View Existing File</p></Link>
                                     <input
                                         type="file"
-                                        accept="image/*"
+                                        accept="image/*,application/pdf"
                                         name="passport"
                                         onChange={(e) => setUpdated({ ...updated, passport: e.target.files?.[0] })}
                                         className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary   dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"

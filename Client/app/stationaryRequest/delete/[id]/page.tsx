@@ -1,7 +1,7 @@
 // Import necessary modules and components
 'use client'
 import React, { useState, useEffect } from "react";
-import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+import Breadcrumbs from "@/components/Breadcrumbs/Breadcrumb2";
 import { getStationaryRequestById, deleteStationaryRequest } from "@/services/stationaryRequestService"; // Update with your actual service functions
 import { useRouter } from 'next/navigation';
 import { StationaryRequest } from "@/types/stationaryRequest";
@@ -29,7 +29,7 @@ export default function DeleteStationaryRequestPage({ params }: { params: { id: 
                     setStationaries(stationariesData);
 
                     // Fetch staff information based on staff_id
-                    const staffInfo = await getStaffById(parseInt(stationaryRequestData.staff_id));
+                    const staffInfo = await getStaffById(parseInt(String(stationaryRequestData.staff_id)));
                     setStaffName(staffInfo ? staffInfo.name : 'Unknown');
                 }
             } catch (error) {
@@ -75,7 +75,7 @@ export default function DeleteStationaryRequestPage({ params }: { params: { id: 
     };
     return (
         <>
-            <Breadcrumb pageName="Delete Stationary Request" />
+            <Breadcrumbs previousName='Stationary Requests' currentName='Delete' pageTitle="Delete Stationary Request" previousPath='/stationaryRequest' />
 
             <div className="items-center justify-center min-h-screen">
                 <div className="flex flex-col gap-9">
