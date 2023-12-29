@@ -1,7 +1,7 @@
 // Import necessary modules and components
 'use client';
 import { useState, ChangeEvent, useEffect, useRef } from 'react';
-import Breadcrumb from '@/components/Breadcrumbs/Breadcrumb';
+import Breadcrumbs from '@/components/Breadcrumbs/Breadcrumb2';
 import { createStudent } from '@/services/studentService';
 import { useRouter } from 'next/navigation';
 import { Student } from '@/types/student';
@@ -67,8 +67,8 @@ export default function CreateForm() {
 
     try {
       //get the preschool id
-      var preschool;
-      await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
+      var preschool: number = 0;
+      await currentPreschool().then((preschoolId) => { preschool = Number(preschoolId) })
 
 
       // Send the request and log the response
@@ -76,12 +76,12 @@ export default function CreateForm() {
         preschool,
         studentName,
         grade,
-        DOB,
-        CPR,
-        contactNumber1,
-        contactNumber2,
+        new Date(DOB),
+        Number(CPR),
+        Number(contactNumber1),
+        Number(contactNumber2),
         guardianName,
-        enrollmentDate,
+        new Date(enrollmentDate),
         medicalHistory,
         gender,
         personal_picture,
@@ -151,8 +151,7 @@ export default function CreateForm() {
   };
   return (
     <>
-      <Breadcrumb pageName="Create Student" />
-      {/* {error && <ErrorAlert message={error}></ErrorAlert>} */}
+      <Breadcrumbs previousName='Students' currentName='Create' pageTitle="Create Student" previousPath='/students' />
       {error && <ErrorAlert message={error}></ErrorAlert>}
 
       <div className=" items-center justify-center min-h-screen">
@@ -344,7 +343,7 @@ export default function CreateForm() {
                   </label>
                   <input
                     type="file"
-                    // name="personal_picture"
+                    accept="image/*,application/pdf"
                     onChange={(e) => handleFileChange(e, setPersonalPicture)}
                     className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
                   />
@@ -357,7 +356,7 @@ export default function CreateForm() {
                   </label>
                   <input
                     type="file"
-                    // name="certificate_of_birth"
+                    accept="image/*,application/pdf"
                     onChange={(e) => handleFileChange(e, setCertificateOfBirth)}
                     className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
                   />
@@ -370,7 +369,7 @@ export default function CreateForm() {
                   </label>
                   <input
                     type="file"
-                    // name="passport"
+                    accept="image/*,application/pdf"
                     onChange={(e) => handleFileChange(e, setPassport)}
                     className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
                   />

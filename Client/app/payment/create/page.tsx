@@ -10,6 +10,7 @@ import { Student } from "@/types/student";
 import { getPaymentTypes } from "@/services/staticValuesService";
 import { getStudents } from "@/services/studentService";
 import { StaticValue } from "@/types/staticValue";
+import Breadcrumbs from "@/components/Breadcrumbs/Breadcrumb2";
 
 
 export default function CreateForm() {
@@ -73,9 +74,8 @@ export default function CreateForm() {
 
     return (
         <>
+            <Breadcrumbs previousName='Payment Tracking' currentName='Create' pageTitle="Create Payment" previousPath='/payment' />
             {error && <ErrorAlert message={error}></ErrorAlert>}
-            <Breadcrumb pageName="Create Payment" />
-
             <div className="grid grid-cols-12 sm:grid-cols-2">
                 <div className="col-span-12">
                     { /* FORM STARTS HERE */}

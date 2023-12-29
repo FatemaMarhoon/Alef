@@ -1,7 +1,7 @@
 // Import necessary modules and components
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import Breadcrumb from '@/components/Breadcrumbs/Breadcrumb';
+import Breadcrumbs from '@/components/Breadcrumbs/Breadcrumb2';
 import { createClass, getSumOfClassCapacitiesByGrade } from '@/services/classService';
 import { useRouter } from 'next/navigation';
 import { Class } from '@/types/class';
@@ -13,6 +13,7 @@ import { GradeCapacity } from '@/types/gradeCapacity';
 import { format } from 'url';
 import Link from 'next/link';
 import Loader from "@/components/common/Loader"; // Import the Loader component
+import ErrorAlert from '../ErrorAlert';
 
 
 const ClassForm: React.FC = ({ }) => {
@@ -329,166 +330,160 @@ const ClassForm: React.FC = ({ }) => {
         }
     }
     return (
-        <div className=" items-center justify-center min-h-screen">
-            <div className="flex flex-col gap-9">
-                {/* Error message */}
-                {errorMessage && (
-                    <div ref={errorRef} className="flex w-full border-l-6 border-[#F87171] bg-[#F87171] bg-opacity-[15%] px-7 py-8 shadow-md dark:bg-[#1B1B24] dark:bg-opacity-30 md:p-9">
-                        {errorMessage}
-                    </div>
-                )}
-                <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-                    <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
-                        <h3 className="font-medium text-black dark:text-white">
-                            Create Class
-                        </h3>
-                    </div>
-                    <form onSubmit={handleSubmit} className="p-6.5">
-                        <div className="mb-4.5">
-                            <label className="mb-2.5 block text-black dark:text-white">
-                                Grade <span className="text-meta-1">*</span>
-                            </label>
-                            <select
-                                name="grade"
-                                value={selectedGradeId} // Use grade directly instead of e.target.value
-                                onChange={(e) => {
-                                    handleGradeChange(e, e.target.value);
-                                    setSelectedGradeId(e.target.value);
-
-                                }}
-                                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                            >
-                                <option value="">Select Grade</option>
-                                {gradesList.map((grade, optionIndex) => (
-                                    <option key={optionIndex} value={grade.id}>
-                                        {grade.grade}
-                                    </option>
-                                ))}
-                            </select>
-
+        <><Breadcrumbs previousName='Classes' currentName='Create' pageTitle="Create Class" previousPath='/class' />
+            <div className=" items-center justify-center min-h-screen">
+                <div className="flex flex-col gap-9">
+                    {/* Error message */}
+                    {/* {errorMessage && (
+                        <div ref={errorRef} className="flex w-full border-l-6 border-[#F87171] bg-[#F87171] bg-opacity-[15%] px-7 py-8 shadow-md dark:bg-[#1B1B24] dark:bg-opacity-30 md:p-9">
+                            {errorMessage}
                         </div>
-                        {grade && (
-                            <div className="mb-4.5">
-                                <label className="mb-2.5 block text-black dark:text-white">
-                                    {grade}     Grade Capacity
-                                </label>
-                                <p >
-                                    {selectedGradeCapacity !== null ? selectedGradeCapacity.toString() : ''}
-                                </p>
-                            </div>
-                        )}
-
-                        {grade && (
-                            <div className="mb-4.5">
-                                <label className="mb-2.5 block text-black dark:text-white">
-                                    Current Classes Capacity
-                                </label>
-                                <p >                                    {selectedClassesCapacity !== null ? selectedClassesCapacity.toString() : ''}
-                                </p>
-                            </div>
-                        )}
-
-                        {grade && (
-                            <div className="mb-4.5">
-                                <label className="mb-2.5 block text-black dark:text-white">
-                                    Current Remaining Capacity
-                                </label>
-                                <p>
-                                    {remainingCapacity !== null ? remainingCapacity.toString() : ''}
-                                </p>
-                            </div>
-                        )}
-
-                        <div className="mb-4.5">
-                            <label className="mb-2.5 block text-black dark:text-white">
-                                Number of Classes <span className="text-meta-1">*</span>
-                            </label>
-                            <input
-                                type="number"
-                                name="numClasses"
-                                value={numClasses}
-                                onChange={(e) => {
-                                    handleNumClassesChange(e)
-                                }}
-                                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                            />
+                    )} */}
+                    {errorMessage && <ErrorAlert message={errorMessage}></ErrorAlert>}
+                    <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+                        <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
+                            <h3 className="font-medium text-black dark:text-white">
+                                Create Class
+                            </h3>
                         </div>
-                        {/* Inputs for each class */}
-                        {classData.map((classInfo, index) => (
-                            <div key={index} className="mb-4.5">
+                        <form onSubmit={handleSubmit} className="p-6.5">
+                            <div className="mb-4.5">
                                 <label className="mb-2.5 block text-black dark:text-white">
-                                    Class Name {index + 1} <span className="text-meta-1">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    name={`class_name-${index}`}
-                                    value={classInfo.class_name}
-                                    onChange={(e) => handleClassnameChange(e, index)}
-                                    className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                                />
-                                <label className="mb-2.5 block text-black dark:text-white">
-                                    Supervisor <span className="text-meta-1">*</span>
+                                    Grade <span className="text-meta-1">*</span>
                                 </label>
                                 <select
-                                    key={index}
-                                    name={`supervisor-${index}`}
-                                    value={classInfo.supervisor}
+                                    name="grade"
+                                    value={selectedGradeId} // Use grade directly instead of e.target.value
                                     onChange={(e) => {
-                                        handleSupervisorChange(e.target.value, index);
-                                        setSelectedSupervisor(e.target.value);
-                                    }
+                                        handleGradeChange(e, e.target.value);
+                                        setSelectedGradeId(e.target.value);
 
-
-
-                                    }
+                                    }}
                                     className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                                 >
-                                    <option value="">Select Supervisor</option>
-                                    {staffList.map((supervisor, optionIndex) => (
-                                        <option key={optionIndex} value={supervisor.id}>
-                                            {supervisor.name}
+                                    <option value="">Select Grade</option>
+                                    {gradesList.map((grade, optionIndex) => (
+                                        <option key={optionIndex} value={grade.id}>
+                                            {grade.grade}
                                         </option>
                                     ))}
                                 </select>
 
-                                <label className="mb-2.5 block text-black dark:text-white">
-                                    Classroom <span className="text-meta-1">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    name={`classroom-${index}`}
-                                    value={classInfo.classroom}
-                                    onChange={(e) => handleClassroomChange(e, index)}
-                                    className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                                />
-                                <label className="mb-2.5 block text-black dark:text-white">
-                                    Capacity <span className="text-meta-1">*</span>
-                                </label>
+                            </div>
+                            {grade && (
+                                <div className="mb-4.5">
+                                    <label className="mb-2.5 block text-black dark:text-white">
+                                        {grade}     Grade Capacity
+                                    </label>
+                                    <p>
+                                        {selectedGradeCapacity !== null ? selectedGradeCapacity.toString() : ''}
+                                    </p>
+                                </div>
+                            )}
 
+                            {grade && (
+                                <div className="mb-4.5">
+                                    <label className="mb-2.5 block text-black dark:text-white">
+                                        Current Classes Capacity
+                                    </label>
+                                    <p>                                    {selectedClassesCapacity !== null ? selectedClassesCapacity.toString() : ''}
+                                    </p>
+                                </div>
+                            )}
+
+                            {grade && (
+                                <div className="mb-4.5">
+                                    <label className="mb-2.5 block text-black dark:text-white">
+                                        Current Remaining Capacity
+                                    </label>
+                                    <p>
+                                        {remainingCapacity !== null ? remainingCapacity.toString() : ''}
+                                    </p>
+                                </div>
+                            )}
+
+                            <div className="mb-4.5">
+                                <label className="mb-2.5 block text-black dark:text-white">
+                                    Number of Classes <span className="text-meta-1">*</span>
+                                </label>
                                 <input
                                     type="number"
-                                    name={`capacity-${index}`}
-                                    value={classInfo.capacity}
-                                    onChange={(e) => handleCapacityChange(e, index)}
-                                    className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                                />
-
+                                    name="numClasses"
+                                    value={numClasses}
+                                    onChange={(e) => {
+                                        handleNumClassesChange(e);
+                                    }}
+                                    className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary" />
                             </div>
-                        ))}
-                        <button type="submit" className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray mb-4">
-                            Create
-                        </button>
-                        <Link
-                            href="/class"
-                            className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray"              >
-                            Back To List
-                        </Link>
-                    </form>
+                            {/* Inputs for each class */}
+                            {classData.map((classInfo, index) => (
+                                <div key={index} className="mb-4.5">
+                                    <label className="mb-2.5 block text-black dark:text-white">
+                                        Class Name {index + 1} <span className="text-meta-1">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name={`class_name-${index}`}
+                                        value={classInfo.class_name}
+                                        onChange={(e) => handleClassnameChange(e, index)}
+                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary" />
+                                    <label className="mb-2.5 block text-black dark:text-white">
+                                        Supervisor <span className="text-meta-1">*</span>
+                                    </label>
+                                    <select
+                                        key={index}
+                                        name={`supervisor-${index}`}
+                                        value={classInfo.supervisor}
+                                        onChange={(e) => {
+                                            handleSupervisorChange(e.target.value, index);
+                                            setSelectedSupervisor(e.target.value);
+                                        }}
+                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                                    >
+                                        <option value="">Select Supervisor</option>
+                                        {staffList.map((supervisor, optionIndex) => (
+                                            <option key={optionIndex} value={supervisor.id}>
+                                                {supervisor.name}
+                                            </option>
+                                        ))}
+                                    </select>
+
+                                    <label className="mb-2.5 block text-black dark:text-white">
+                                        Classroom <span className="text-meta-1">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name={`classroom-${index}`}
+                                        value={classInfo.classroom}
+                                        onChange={(e) => handleClassroomChange(e, index)}
+                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary" />
+                                    <label className="mb-2.5 block text-black dark:text-white">
+                                        Capacity <span className="text-meta-1">*</span>
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        name={`capacity-${index}`}
+                                        value={classInfo.capacity}
+                                        onChange={(e) => handleCapacityChange(e, index)}
+                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary" />
+
+                                </div>
+                            ))}
+                            <button type="submit" className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray mb-4">
+                                Create
+                            </button>
+                            <Link
+                                href="/class"
+                                className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray">
+                                Back To List
+                            </Link>
+                        </form>
+
+                    </div>
 
                 </div>
-
-            </div >
-        </div >
+            </div></>
     );
 };
 

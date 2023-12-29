@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Breadcrumb from '@/components/Breadcrumbs/Breadcrumb';
+import Breadcrumbs from '@/components/Breadcrumbs/Breadcrumb2';
 import { getStaffById, updateStaff } from '@/services/staffService'; // Assuming you have a staff service
 import { UserStorage } from '@/types/user';
 import { Staff } from '@/types/staff';
@@ -94,7 +94,7 @@ export default function EditStaffForm({ params }: { params: { staffId: number } 
 
     return (
         <>
-            <Breadcrumb pageName="Edit Staff" />
+            <Breadcrumbs previousName='Staff' currentName='Edit' pageTitle="Edit Staff" previousPath='/staff' />
             {error && <ErrorAlert message={error}></ErrorAlert>}
 
             <div className="items-center justify-center min-h-screen">

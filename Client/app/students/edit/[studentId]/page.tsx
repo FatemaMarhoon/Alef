@@ -2,7 +2,7 @@
 'use client'
 import { ChangeEvent, useEffect, useState } from "react";
 import { useRouter } from 'next/navigation';
-import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+import Breadcrumbs from "@/components/Breadcrumbs/Breadcrumb2";
 import { getStudentById, updateStudent } from '@/services/studentService';
 import { UserStorage } from "@/types/user";
 import { Student } from '@/types/student';
@@ -133,7 +133,7 @@ export default function EditForm({ params }: { params: { studentId: number } }) 
         <>
             {loading && <Loader />} {/* Show loading indicator */}
 
-            <Breadcrumb pageName="Edit Student" />
+            <Breadcrumbs previousName='Students' currentName='Edit' pageTitle="Edit Student" previousPath='/students' />
             {error && <ErrorAlert message={error}></ErrorAlert>}
 
             <div className=" items-center justify-center min-h-screen">
@@ -320,6 +320,7 @@ export default function EditForm({ params }: { params: { studentId: number } }) 
                                     <input
                                         type="file"
                                         name="personal_picture"
+                                        accept="image/*,application/pdf"
                                         onChange={(e) => setStudent({ ...student, personal_pictureFile: e.target.files?.[0] })}
                                         className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary   dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
                                     />
@@ -334,9 +335,8 @@ export default function EditForm({ params }: { params: { studentId: number } }) 
                                     <input
                                         type="file"
                                         name="certificate_of_birth"
+                                        accept="image/*,application/pdf"
                                         onChange={(e) => setStudent({ ...student, certificate_of_birthFile: e.target.files?.[0] })}
-
-
                                         className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary   dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
                                     />
                                 </div>
@@ -350,6 +350,7 @@ export default function EditForm({ params }: { params: { studentId: number } }) 
 
                                     <input
                                         type="file"
+                                        accept="image/*,application/pdf"
                                         name="passport"
                                         onChange={(e) => setStudent({ ...student, passportFile: e.target.files?.[0] })}
                                         className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary   dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"

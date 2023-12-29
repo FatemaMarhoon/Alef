@@ -1,10 +1,8 @@
 'use client'
 import { useEffect, useState } from 'react';
-import Breadcrumb from '@/components/Breadcrumbs/Breadcrumb';
 import { getEvaluationById } from '@/services/evaluationService';
-import { Application } from '@/types/application';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import Breadcrumbs from '@/components/Breadcrumbs/Breadcrumb3';
 import { Evaluation } from '@/types/evaluation';
 
 // Functional component for viewing application details
@@ -31,7 +29,7 @@ export default function Page({ params }: { params: { id: number } }) {
 
     return (
         <>
-            <Breadcrumb pageName="View Application" />
+            <Breadcrumbs beforePreviousName='Applications' beforePreviousPath='/application' previousName='Application Details' previousPath={`/applications/${evaluation?.application_id}`} currentName='Evaluation' pageTitle="View Evaluation"  />
 
             <div className="items-center justify-center min-h-screen">
                 <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">

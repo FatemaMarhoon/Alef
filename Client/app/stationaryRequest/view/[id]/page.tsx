@@ -6,7 +6,6 @@ const viewPage = ({ params }: { params: { id: number } }) => {
 
     return (
         <div>
-            {/* <p>Student ID: {params.studentId}</p> */}
             <ViewPage id={params.id.toString()} />
         </div >
     );

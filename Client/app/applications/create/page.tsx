@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { StaticValue } from "@/types/staticValue";
 import { getGrades } from "@/services/gradeCapacityService";
 import { useSuccessMessageContext } from '../../../components/SuccessMessageContext';
-import { AxiosError } from "axios";
+import Breadcrumbs from '@/components/Breadcrumbs/Breadcrumb2';
 import ErrorAlert from "@/components/ErrorAlert";
 
 export default function CreateApplicationForm() {
@@ -102,7 +102,7 @@ export default function CreateApplicationForm() {
 
     return (
         <>
-            <Breadcrumb pageName="Create Application" />
+            <Breadcrumbs previousName='Applications' currentName='Create' pageTitle="Create Application" previousPath='/applications' />
             {error && <ErrorAlert message={error}></ErrorAlert>}
             <div className="grid grid-cols-12 sm:grid-cols-2">
                 <div className="col-span-12">
@@ -331,13 +331,7 @@ export default function CreateApplicationForm() {
                                     <label className="mb-3 block text-black dark:text-white">
                                         Personal Picture <span className="text-meta-1">*</span>
                                     </label>
-                                    {/* <input
-                                        type="file"
-                                        accept="image/*,application/pdf"
-                                        onChange={(e) => handleFileChange(e, setPersonalPicture)}
-                                        className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
-                                    /> */}
-                                     <input
+                                    <input
                                         type="file"
                                         accept="image/*,application/pdf"
                                         onChange={(e) => handleFileChange(e, setPersonalPicture)}

@@ -58,9 +58,9 @@ export async function createStudent(
     enrollment_date: Date,
     medical_history: string,
     gender: string,
-    personal_picture: string | null,
-    certificate_of_birth: string | null,
-    passport: string | null
+    personal_picture: File | undefined,
+    certificate_of_birth: File | undefined,
+    passport: File | undefined
 ): Promise<any> {
     try {
         var token; var preschool;

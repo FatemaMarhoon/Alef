@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from "react";
-import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+import Breadcrumbs from "@/components/Breadcrumbs/Breadcrumb2";
 import { createUser } from '@/services/userService';
 import { useRouter } from 'next/navigation'
 import ErrorAlert from "@/components/ErrorAlert";
@@ -64,8 +64,8 @@ export default function CreateForm() {
 
   return (
     <>
+      <Breadcrumbs previousName='Users' currentName='Create' pageTitle="Create User" previousPath='/users' />
       {error && <ErrorAlert message={error}></ErrorAlert>}
-      <Breadcrumb pageName="Create User" />
 
       <div className="grid grid-cols-12 sm:grid-cols-2">
         <div className="col-span-12">

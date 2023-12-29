@@ -1,6 +1,6 @@
 // Import necessary modules and components
 import { useEffect, useState } from "react";
-import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+import Breadcrumbs from "@/components/Breadcrumbs/Breadcrumb2";
 import { getStaffById } from '@/services/staffService'; // Assuming you have a staff service
 import { Staff } from '@/types/staff';
 import { useRouter } from 'next/navigation';
@@ -32,7 +32,7 @@ export default function ViewStaff({ staffId }: { staffId: string }) {
 
     return (
         <>
-            <Breadcrumb pageName="View Staff" />
+            <Breadcrumbs previousName='Staff' currentName='Details' pageTitle="Staff Details" previousPath='/staff' />
 
             <div className="items-center justify-center min-h-screen">
                 <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">

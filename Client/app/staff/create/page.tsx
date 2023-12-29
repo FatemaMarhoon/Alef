@@ -13,6 +13,7 @@ import ErrorAlert from "@/components/ErrorAlert";
 import { createUser } from '@/services/userService';
 import { getStaffRoles } from "@/services/staticValuesService";
 import Link from 'next/link';
+import Breadcrumbs from '@/components/Breadcrumbs/Breadcrumb2';
 
 export default function CreateStaffPage() {
     const router = useRouter();
@@ -136,7 +137,7 @@ export default function CreateStaffPage() {
 
     return (
         <>
-            <Breadcrumb pageName="Create Staff" />
+            <Breadcrumbs previousName='Staff' currentName='Create' pageTitle="Create Staff" previousPath='/staff' />
             {error && <ErrorAlert message={error}></ErrorAlert>}
 
             <div className=" items-center justify-center min-h-screen">

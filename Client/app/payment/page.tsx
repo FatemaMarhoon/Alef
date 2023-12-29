@@ -272,6 +272,13 @@ export default function PaymentTable() {
                                                 </Link>
                                             </button>
                                             <p> |</p>
+                                           
+                                            <button className="hover:text-primary">
+                                                <Link href={`/payment/edit/${payment.id}`}>
+                                                   Edit
+                                                </Link>
+                                            </button>
+                                            <p> |</p>
                                             <button className="hover:text-primary"
                                                 onClick={() => {
                                                     if (window.confirm("Are you sure you want to delete this payment permanently?")) {
@@ -279,12 +286,6 @@ export default function PaymentTable() {
                                                     }
                                                 }}>
                                                Delete
-                                            </button>
-                                            <p> |</p>
-                                            <button className="hover:text-primary">
-                                                <Link href={`/payment/edit/${payment.id}`}>
-                                                   Edit
-                                                </Link>
                                             </button>
                                         </div>
                                     </td>

@@ -157,11 +157,13 @@ export default function StaffTable() {
                                                     View
                                                 </Link>
                                             </button>
+                                            <p>|</p>
                                             <button className="hover:text-primary">
                                                 <Link href={`/staff/edit/${staffMember.id}`}>
                                                     Edit
                                                 </Link>
                                             </button>
+                                            <p>|</p>
                                             <button className="hover:text-primary">
                                                 <Link href={`/staff/delete/${staffMember.id}`}>
                                                     Delete

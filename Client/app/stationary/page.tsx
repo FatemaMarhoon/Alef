@@ -116,11 +116,13 @@ export default function StationaryTable() {
                                                         View
                                                     </Link>
                                                 </button>
+                                                <p>|</p>
                                                 <button className="hover:text-primary">
                                                     <Link href={`/stationary/edit/${stationary.id}`}>
                                                         Edit
                                                     </Link>
                                                 </button>
+                                                <p>|</p>
                                                 <button className="hover:text-primary">
                                                     <Link href={`/stationary/delete/${stationary.id}`}>
                                                         Delete
