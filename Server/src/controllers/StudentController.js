@@ -25,15 +25,16 @@ const validateStudentData = (studentData) => {
         }
     }
     // Validate DOB
-    const currentYear = new Date().getFullYear();
     const dobYear = new Date(studentData.DOB).getFullYear();
-    const dobMonth = new Date(studentData.DOB).getMonth();
-    const dobDay = new Date(studentData.DOB).getDay();
+    const dob = new Date(studentData.DOB);
 
-    var currentDate = new Date();
-    var currentMonth = currentDate.getMonth() + 1; // Months are zero-indexed, so we add 1
-    var currentDay = currentDate.getDate();
+    if (isNaN(dob.getTime()) || dob > new Date()) {
+        return { isValid: false, message: 'DOB must be a valid date and should not be in the future' };
+    }
 
+    if (enrollment_date > new Date()) {
+        return { isValid: false, message: 'Enrollment date must be a valid date and should not be in the future' };
+    }
     if (dobYear < 2018 || dobYear > 2023) {
         return { isValid: false, message: 'DOB must be between 2018 and 2023' };
     }
@@ -168,8 +169,8 @@ const StudentController = {
 
     async updateStudent(req, res) {
         const { student_id } = req.params;
-        const { student_name, DOB, CPR, grade, contact_number1, contact_number2, guardian_name, enrollment_date, medical_history, gender, certificate_of_birth, passport, personal_picture } = req.body;
-        const updatedStudentData = { student_name, DOB, grade, CPR, contact_number1, contact_number2, guardian_name, enrollment_date, medical_history, gender, certificate_of_birth, passport, personal_picture };
+        const { student_name, DOB, CPR, grade, class_id, contact_number1, contact_number2, guardian_name, enrollment_date, medical_history, gender, certificate_of_birth, passport, personal_picture } = req.body;
+        const updatedStudentData = { student_name, DOB, grade, class_id, CPR, contact_number1, contact_number2, guardian_name, enrollment_date, medical_history, gender, certificate_of_birth, passport, personal_picture };
         console.log('Req Body:', req.body);
         console.log('Req Files:', req.files);
 
@@ -192,6 +193,8 @@ const StudentController = {
                 if (DOB) student.DOB = DOB;
                 if (CPR) student.CPR = CPR;
                 if (grade) student.grade = grade;
+                if (class_id) student.class_id = class_id;
+
                 if (contact_number1) student.contact_number1 = contact_number1;
                 if (contact_number2) student.contact_number2 = contact_number2;
                 if (guardian_name) student.guardian_name = guardian_name;

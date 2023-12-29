@@ -16,7 +16,9 @@ const validateStaffData = (staffData) => {
             return { isValid: false, message: `${field} is required` };
         }
     }
-
+    if (hireDate > new Date()) {
+        return { isValid: false, message: 'Hire date must be a valid date and should not be in the future' };
+    }
     // Additional validations for specific fields
     if (!Number.isInteger(staffData.CPR) || String(staffData.CPR).length !== 9) {
         return { isValid: false, message: 'CPR must be a 9-digit integer' };
