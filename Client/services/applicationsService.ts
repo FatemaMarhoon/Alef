@@ -57,8 +57,6 @@ export async function createApplication(
   student_DOB: Date,
   medical_history: string,
   personal_picture: File | undefined,
-  // certificate_of_birth:string,
-  // passport:string
   certificate_of_birth: File | undefined,
   passport: File | undefined
 ): Promise<any> {
@@ -66,7 +64,6 @@ export async function createApplication(
   await currentToken().then((returnedTOken) => { token = returnedTOken; })
   await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
   await currentUserId().then((user_id) => { userId = user_id; })
-
   try {
     // Set up the request config with headers
     const config: AxiosRequestConfig = {

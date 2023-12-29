@@ -80,11 +80,12 @@ const DetailsModal: React.FC<DetailsModalProps> = ({
                         </div>
                       </div>
                       <div className="col-span-4 flex items-start justify-end">
-                        <button onClick={() => handleEdit(undefined, event)}>
-                          <Edit />
+                        <button className="hover:text-primary mr-2" onClick={() => handleEdit(undefined, event)}>
+                          {/* <Edit /> */} Edit 
                         </button>
-                        <button className="text-red-500" onClick={() => onDelete(undefined, event)}>
-                          <Delete color="error" />
+                        <p> | </p>
+                        <button className="hover:text-primary ml-2"  onClick={() => onDelete(undefined, event)}>
+                          {/* <Delete color="error" /> */} Delete 
                         </button>
                       </div>
                     </div>
@@ -117,11 +118,13 @@ const DetailsModal: React.FC<DetailsModalProps> = ({
                 </div>
               </div>
               <div className="col-span-4 flex items-start justify-end">
-                <button onClick={() => handleEdit(appointment, undefined)}>
-                  <Edit />
+                <button className="hover:text-primary" onClick={() => handleEdit(appointment, undefined)}>
+                  {/* <Edit /> */} Edit
                 </button>
-                <button onClick={() => onDelete(appointment, undefined)}>
-                  <Delete color="error" />
+                <p>|</p>
+                <button className="hover:text-primary" onClick={() => onDelete(appointment, undefined)}>
+                  {/* <Delete color="error" /> */}
+                  Delete
                 </button>
               </div>
             </div>
