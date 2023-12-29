@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { getClasses } from '../../services/classService'; // Import the class service
 import { Class } from '../../types/class';
 import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
-import Loader from "@/components/common/Loader"; // Import the Loader component
+import Loader from "@/components/common/Loader"; // Import the Loader componentimport Breadcrumbs from '../Breadcrumbs/Breadcrumb2';
 import Breadcrumbs from '../Breadcrumbs/Breadcrumb2';
 
 
@@ -351,36 +351,6 @@ const CreateForm: React.FC = () => {
     return (
         <>
             {loading && <Loader />}
-        <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark-bg-boxdark sm-px-7.5 xl-pb-1">
-            <div className="flex flex-col items-center h-screen space-y-4">
-                <div className="space-x-4">
-                    <button
-                        onClick={handleAutomatedAssignment}
-                        className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90"
-                    >
-                        Automate Assignment
-                    </button>
-
-                    <button
-                        onClick={handleReset}
-                        className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90"
-                    >
-                        Reset
-                    </button>
-
-                    <button
-                        onClick={handleToggleStudents}
-                        className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90"
-                    >
-                        {showStudents ? 'Hide Students' : 'Show Students'}
-                    </button>
-                    <button
-                        onClick={handleSave}
-                        className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90 mt-4"
-                    >
-                        Save
-                    </button>
-                </div>
 
 
             <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark-bg-boxdark sm-px-7.5 xl-pb-1">
