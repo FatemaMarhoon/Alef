@@ -17,17 +17,30 @@ export default function EditForm({ params }: { params: { id: number } }) {
   const [staffList, setStaffList] = useState<Staff[]>([]);
   const [connectedStaff, setConnectedStaff] = useState<number>(0);
   const [oldStaff, setOldStaff] = useState<Staff>();
+  const [noStaff, setNoStaff] = useState<boolean>(true);
 
   // Fetch user details on component mount
   useEffect(() => {
     async function fetchStaff() {
-      const allStaff = await getStaff();
-      const filteredStaff = allStaff.filter((staff) => !staff.user_id); //return only staff with no account 
-      setStaffList(filteredStaff);
+      try {
+        const allStaff = await getStaff(); //get all staff
+        const filteredStaff = allStaff.filter((staff) => !staff.user_id); //filter only staff with no account 
+        setStaffList(filteredStaff);
+        if (filteredStaff.length > 0) {
+          setNoStaff(false);
+        }
+        console.log("STAFF LIST: ", filteredStaff);
+        console.log("NO STAFF: ", noStaff);
+
+      } catch (error: any) {
+        console.error("Error fetching user details:", error);
+        setError(error.message);
+      }
     }
 
-    async function fetchUserDetails() {
+    async function fecthUserDetails() {
       try {
+        await fetchStaff();
         const response = await getUser(params.id);
         const userData = response?.data;
         // Set state with user data
@@ -35,21 +48,22 @@ export default function EditForm({ params }: { params: { id: number } }) {
 
         //get current user's staff record
         const currentStaff = await getStaffByUserID(userData.id);
-        if (currentStaff.id)
+        if (currentStaff.id) {
           setConnectedStaff(currentStaff.id);
+        }
         setOldStaff(currentStaff);
 
         // add to staff list
-        setStaffList(staffList.concat(currentStaff));
-
-      } catch (error: any) {
-        console.error("Error fetching user details:", error);
+        staffList.push(currentStaff);
+        setStaffList(staffList);
+        console.log(connectedStaff)
+      }
+      catch (error: any) {
         setError(error.message);
       }
-    };
+    }
 
-    fetchStaff();
-    fetchUserDetails();
+    fecthUserDetails();
   }, [params.id]);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -103,6 +117,43 @@ export default function EditForm({ params }: { params: { id: number } }) {
             </div>
             <form action="#" onSubmit={handleSubmit}>
               <div className="p-6.5">
+                <div className="mb-4.5">
+                  <label className="mb-2.5 block text-black dark:text-white">
+                    For Staff <span className="text-meta-1">*</span>
+                  </label>
+                  <div className="relative z-20 bg-transparent dark:bg-form-input">
+                    <select
+                      value={connectedStaff}
+                      onChange={(e) => setConnectedStaff(Number(e.target.value))}
+                      className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary">
+                      {noStaff == true && <option value="" className="text-danger">All other existing staff have accounts already.</option>}
+                      {staffList.map((staff, index) => (
+                        <option key={index} value={staff.id}>
+                          {staff.name + " - " + staff.staff_role_name}
+                        </option>
+                      ))}
+                    </select>
+                    <span className="absolute top-1/2 right-4 z-30 -translate-y-1/2">
+                      <svg
+                        className="fill-current"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <g opacity="0.8">
+                          <path
+                            fillRule="evenodd"
+                            clipRule="evenodd"
+                            d="M5.29289 8.29289C5.68342 7.90237 6.31658 7.90237 6.70711 8.29289L12 13.5858L17.2929 8.29289C17.6834 7.90237 18.3166 7.90237 18.7071 8.29289C19.0976 8.68342 19.0976 9.31658 18.7071 9.70711L12.7071 15.7071C12.3166 16.0976 11.6834 16.0976 11.2929 15.7071L5.29289 9.70711C4.90237 9.31658 4.90237 8.68342 5.29289 8.29289Z"
+                            fill=""
+                          ></path>
+                        </g>
+                      </svg>
+                    </span>
+                  </div>
+                </div>
                 <div className="mb-4.5">
                   <label className="mb-2.5 block text-black dark:text-white">
                     Email <span className="text-meta-1">*</span>
@@ -163,43 +214,7 @@ export default function EditForm({ params }: { params: { id: number } }) {
                   </div>
                 </div>
 
-                <div className="mb-4.5">
-                  <label className="mb-2.5 block text-black dark:text-white">
-                    For Staff <span className="text-meta-1">*</span>
-                  </label>
-                  <div className="relative z-20 bg-transparent dark:bg-form-input">
-                    <select
-                      value={connectedStaff}
-                      onChange={(e) => setConnectedStaff(Number(e.target.value))}
-                      className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary">
-                      <option value="">Select Staff</option>
-                      {staffList.map((staff, index) => (
-                        <option key={index} value={staff.id}>
-                          {staff.name + " - " + staff.staff_role_name}
-                        </option>
-                      ))}
-                    </select>
-                    <span className="absolute top-1/2 right-4 z-30 -translate-y-1/2">
-                      <svg
-                        className="fill-current"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <g opacity="0.8">
-                          <path
-                            fillRule="evenodd"
-                            clipRule="evenodd"
-                            d="M5.29289 8.29289C5.68342 7.90237 6.31658 7.90237 6.70711 8.29289L12 13.5858L17.2929 8.29289C17.6834 7.90237 18.3166 7.90237 18.7071 8.29289C19.0976 8.68342 19.0976 9.31658 18.7071 9.70711L12.7071 15.7071C12.3166 16.0976 11.6834 16.0976 11.2929 15.7071L5.29289 9.70711C4.90237 9.31658 4.90237 8.68342 5.29289 8.29289Z"
-                            fill=""
-                          ></path>
-                        </g>
-                      </svg>
-                    </span>
-                  </div>
-                </div>
+
 
                 <button type="submit" className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray">
                   Save Changes

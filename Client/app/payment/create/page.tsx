@@ -76,8 +76,8 @@ export default function CreateForm() {
             {error && <ErrorAlert message={error}></ErrorAlert>}
             <Breadcrumb pageName="Create Payment" />
 
-            <div className="grid grid-cols-1 gap-9 sm:grid-cols-2">
-                <div className="flex flex-col gap-9">
+            <div className="grid grid-cols-12 sm:grid-cols-2">
+                <div className="col-span-12">
                     { /* FORM STARTS HERE */}
                     <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
                         <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">

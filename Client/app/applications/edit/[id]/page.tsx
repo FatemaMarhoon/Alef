@@ -105,8 +105,8 @@ export default function EditApplicationForm({ params }: { params: { id: number }
             <Breadcrumb pageName="Edit Application" />
             {error && <ErrorAlert message={error}></ErrorAlert>}
 
-            <div className="grid grid-cols-1 gap-9 sm:grid-cols-2">
-                <div className="flex flex-col gap-9">
+            <div className="grid grid-cols-12 sm:grid-cols-2">
+            <div className="col-span-12">
                     {/* FORM STARTS HERE */}
                     <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
                         <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
@@ -344,6 +344,7 @@ export default function EditApplicationForm({ params }: { params: { id: number }
                                     <Link className="text-secondary" href={`${application?.personal_picture}`} target="_blank"><p>View Existing File</p></Link>
                                     <input
                                         type="file"
+                                        accept="image/*"
                                         name="personal_picture"
                                         onChange={(e) => setUpdated({ ...updated, personal_picture: e.target.files?.[0] })}
                                         className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary   dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
@@ -358,6 +359,7 @@ export default function EditApplicationForm({ params }: { params: { id: number }
                                     <Link className="text-secondary" href={`${application?.certificate_of_birth}`} target="_blank"><p>View Existing File</p></Link>
                                     <input
                                         type="file"
+                                        accept="image/*"
                                         name="certificate_of_birth"
                                         onChange={(e) => setUpdated({ ...updated, certificate_of_birth: e.target.files?.[0] })}
                                         className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary   dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
@@ -372,6 +374,7 @@ export default function EditApplicationForm({ params }: { params: { id: number }
                                     <Link className="text-secondary" href={`${application?.passport}`} target="_blank"><p>View Existing File</p></Link>
                                     <input
                                         type="file"
+                                        accept="image/*"
                                         name="passport"
                                         onChange={(e) => setUpdated({ ...updated, passport: e.target.files?.[0] })}
                                         className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary   dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"

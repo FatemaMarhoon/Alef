@@ -8,10 +8,7 @@ import { SuccessMessageProvider, useSuccessMessageContext } from '../components/
 import NotificationToast from "@/components/notificationToast";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
-import { getMessaging, getToken, onMessage } from "firebase/messaging";
-import { FirebaseSetup } from "@/services/authService";
 import { Toaster } from "react-hot-toast";
-import Head from "next/head";
 import { usePathname } from "next/navigation";
 export default function RootLayout({
   children,
@@ -28,9 +25,7 @@ export default function RootLayout({
     setTimeout(() => setLoading(false), 1000);
   }, []);
 
-  useEffect(() => {
-    setSuccessMessage(""); // clear success message when route changes 
-  }, [pathname]); // Re-run the effect when the pathname changes
+
 
   return (
     <SuccessMessageProvider>

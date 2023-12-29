@@ -145,7 +145,8 @@ export async function getPreschoolById(preschoolId: string): Promise<Preschool> 
         return response.data;
     } catch (error) {
         console.error('Error fetching preschool by ID:', error);
-        throw error;
+        const axiosError = error as AxiosError;
+        throw axiosError;
     }
 }
 

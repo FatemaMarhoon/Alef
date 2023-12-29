@@ -27,8 +27,6 @@ export default function CreateApplicationForm() {
     const [personalPicture, setPersonalPicture] = useState<File | undefined>(undefined);
     const [passport, setPassport] = useState<File | undefined>(undefined);
     const [certificateOfBirth, setCertificateOfBirth] = useState<File | undefined>(undefined);
-    // const [passport, setPassport] = useState("url")
-    // const [certificateOfBirth, setCertificateOfBirth] = useState("url")
     const [guardianTypes, setGuardianTypes] = useState<StaticValue[]>([]);
     const [grades, setGrades] = useState<string[]>([]);
 
@@ -68,7 +66,6 @@ export default function CreateApplicationForm() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
         try {
             const response = await createApplication(
                 email,
@@ -93,8 +90,8 @@ export default function CreateApplicationForm() {
             else if (response.status == 400 || response.status == 404 || response.status == 500) {
                 setError(response.data.message);
             }
-        } catch (error : any) {
-            if (error.response){
+        } catch (error: any) {
+            if (error.response) {
                 setError(error.response.data.message);
             }
             else if (error.message) {
@@ -107,8 +104,8 @@ export default function CreateApplicationForm() {
         <>
             <Breadcrumb pageName="Create Application" />
             {error && <ErrorAlert message={error}></ErrorAlert>}
-            <div className="grid grid-cols-1 gap-9 sm:grid-cols-2">
-                <div className="flex flex-col gap-9">
+            <div className="grid grid-cols-12 sm:grid-cols-2">
+                <div className="col-span-12">
                     {/* FORM STARTS HERE */}
                     <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
                         <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
@@ -334,8 +331,15 @@ export default function CreateApplicationForm() {
                                     <label className="mb-3 block text-black dark:text-white">
                                         Personal Picture <span className="text-meta-1">*</span>
                                     </label>
-                                    <input
+                                    {/* <input
                                         type="file"
+                                        accept="image/*,application/pdf"
+                                        onChange={(e) => handleFileChange(e, setPersonalPicture)}
+                                        className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
+                                    /> */}
+                                     <input
+                                        type="file"
+                                        accept="image/*,application/pdf"
                                         onChange={(e) => handleFileChange(e, setPersonalPicture)}
                                         className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
                                     />
@@ -348,6 +352,7 @@ export default function CreateApplicationForm() {
                                     </label>
                                     <input
                                         type="file"
+                                        accept="image/*,application/pdf"
                                         onChange={(e) => handleFileChange(e, setCertificateOfBirth)}
                                         className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
                                     />
@@ -360,6 +365,7 @@ export default function CreateApplicationForm() {
                                     </label>
                                     <input
                                         type="file"
+                                        accept="image/*,application/pdf"
                                         onChange={(e) => handleFileChange(e, setPassport)}
                                         className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
                                     />
