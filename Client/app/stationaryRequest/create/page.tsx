@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect } from "react";
-import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+import Breadcrumbs from "@/components/Breadcrumbs/Breadcrumb2";
 import { createStationaryRequest } from '@/services/stationaryRequestService'; // Assuming you have this service
 import { useRouter } from 'next/navigation';
 import { StationaryRequest } from '@/types/stationaryRequest';
@@ -20,7 +20,7 @@ export default function CreateForm() {
     const [stationaryId, setStationaryId] = useState(""); // Set an appropriate default value
     const [requestedQuantity, setRequestedQuantity] = useState(0);
     const [notes, setNotes] = useState("");
-    const [stationaryList, setStationaryList] = useState([]);
+    const [stationaryList, setStationaryList] = useState<Stationary[]>([]);
     const [loading, setLoading] = useState(true);
     const { setSuccessMessage } = useSuccessMessageContext();
     const [error, setError] = useState("");
@@ -87,11 +87,11 @@ export default function CreateForm() {
             const stationaryRequestData: StationaryRequest = {
                 status_name: "Pending",
                 //fix the logic of the staff id
-                staff_id: staffId,
-                stationary_id: stationaryId,
+                staff_id: Number(staffId),
+                stationary_id: Number(stationaryId),
                 requested_quantity: requestedQuantity,
                 notes: notes,
-                preschool_id: preschool
+                preschool_id: Number(preschool)
             };
 
             // Log the complete stationary request data
@@ -122,7 +122,7 @@ export default function CreateForm() {
 
     return (
         <>
-            <Breadcrumb pageName="Create Stationary Request" />
+            <Breadcrumbs previousName='Stationary Requests' currentName='Create' pageTitle="Create Stationary Request" previousPath='/stationaryRequest' />
             {error && <ErrorAlert message={error}></ErrorAlert>}
 
             <div className="items-center justify-center min-h-screen">
@@ -154,7 +154,7 @@ export default function CreateForm() {
                                     </label>
                                     <input
                                         type="text"
-                                        value={currentUser.id}
+                                        value={currentUser?.id}
                                         onChange={(e) => setStaffId(e.target.value)}
                                         placeholder="Enter staff ID"
                                         className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
@@ -167,7 +167,7 @@ export default function CreateForm() {
                                     </label>
                                     <select
                                         value={stationaryId}
-                                        onChange={(e) => setStationaryId(Number(e.target.value))}
+                                        onChange={(e) => setStationaryId(e.target.value)}
                                         className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                                     >
                                         <option value={0}>Select Stationary</option>

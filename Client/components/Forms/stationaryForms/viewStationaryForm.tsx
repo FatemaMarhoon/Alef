@@ -1,7 +1,7 @@
 // Import necessary modules and components
 'use client';
 import { useEffect, useState } from 'react';
-import Breadcrumb from '@/components/Breadcrumbs/Breadcrumb';
+import Breadcrumbs from '@/components/Breadcrumbs/Breadcrumb2';
 import { getStationaryById } from '@/services/stationaryService';
 import { Stationary } from '@/types/stationary';
 import { useRouter } from 'next/navigation';
@@ -33,7 +33,7 @@ export default function ViewStationary({ stationaryId }: { stationaryId: string 
 
     return (
         <>
-            <Breadcrumb pageName="View Stationary" />
+            <Breadcrumbs previousName='Stationary' currentName='Details' pageTitle="Stationary Details" previousPath='/stationary' />
 
             <div className="items-center justify-center min-h-screen">
                 <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">

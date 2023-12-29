@@ -343,7 +343,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                       width="18"
                       height="18"
                       src="chalkboard-user.svg"
-                      alt="stationary"
+                      alt="classes"
                     />
                     Classes Managment
                   </Link>
@@ -357,7 +357,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                         width="18"
                         height="18"
                         src="child-head.svg"
-                        alt="report"
+                        alt="students"
                       />
                       Students Managment
                     </Link>
@@ -371,14 +371,14 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                         width="18"
                         height="18"
                         src="file-user (1).svg"
-                        alt="report"
+                        alt="staff"
                       />
                       Staff Management
                     </Link>
                   </li><li>
                     <Link
                       href="/stationary"
-                      className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes("stationary") &&
+                      className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.endsWith("stationary") ||pathname.includes("stationary/") &&
                         "bg-graydark dark:bg-meta-4"}`}
                     >
                       <Image

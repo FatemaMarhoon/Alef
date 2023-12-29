@@ -1,7 +1,7 @@
 // Import necessary modules and components
 'use client';
 import { useState, useEffect } from 'react';
-import Breadcrumb from '@/components/Breadcrumbs/Breadcrumb';
+import Breadcrumbs from '@/components/Breadcrumbs/Breadcrumb2';
 import { getStationaryById, updateStationary } from '@/services/stationaryService';
 import { useRouter } from 'next/navigation';
 import { Stationary } from '@/types/stationary';
@@ -103,7 +103,7 @@ export default function EditForm({ params }: { params: { stationaryId: number } 
     return (
         <>
 
-            <Breadcrumb pageName="Edit Stationary Item" />
+            <Breadcrumbs previousName='Stationary' currentName='Edit' pageTitle="Edit Stationary" previousPath='/stationary' />
             <div className="items-center justify-center min-h-screen">
                 {error && <ErrorAlert message={error}></ErrorAlert>}
 

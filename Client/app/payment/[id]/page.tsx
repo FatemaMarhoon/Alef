@@ -5,6 +5,7 @@ import { getPaymentById } from '@/services/paymentService';
 import { Payment } from '@/types/payment';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Breadcrumbs from '@/components/Breadcrumbs/Breadcrumb2';
 
 // Functional component for viewing application details
 export default function Page({ params }: { params: { id: number } }) {
@@ -33,7 +34,7 @@ export default function Page({ params }: { params: { id: number } }) {
 
     return (
         <>
-            <Breadcrumb pageName="View Payment" />
+            <Breadcrumbs previousName='Payments' currentName='Details' pageTitle="Payment Details" previousPath='/payment' />
 
             <div className="items-center justify-center min-h-screen">
                 <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">

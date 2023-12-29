@@ -204,16 +204,17 @@ export default function UsersTable() {
                           </button>
                           <p> |</p>
                           <button
-                            onClick={() => handleDelete(user.id)}
-                            className="hover:text-primary">
-                            Delete
-                          </button>
-                          <p> |</p>
-                          <button
                             className="hover:text-primary">
                             <Link href={`/users/edit/${user.id}`}>
                               Edit
                             </Link>
+                          </button>
+                          <p> |</p>
+                          
+                          <button
+                            onClick={() => handleDelete(user.id)}
+                            className="hover:text-primary">
+                            Delete
                           </button>
                         </div>
 

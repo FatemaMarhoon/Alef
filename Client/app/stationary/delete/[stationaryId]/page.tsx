@@ -1,7 +1,7 @@
 // Import necessary modules and components
 'use client'
 import React, { useState, useEffect } from "react";
-import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+import Breadcrumbs from "@/components/Breadcrumbs/Breadcrumb2";
 import { getStationaryById, deleteStationary } from "@/services/stationaryService";
 import { useRouter } from 'next/navigation'; // Import from 'next/router' instead of 'next/navigation';
 import { Stationary } from "@/types/stationary";
@@ -64,7 +64,7 @@ export default function DeleteStationaryPage({ params }: { params: { stationaryI
 
     return (
         <>
-            <Breadcrumb pageName="Delete Stationary Item" />
+            <Breadcrumbs previousName='Stationary' currentName='Delete' pageTitle="Delete Stationary" previousPath='/stationary' />
 
             <div className="items-center justify-center min-h-screen">
                 <div className="flex flex-col gap-9">
