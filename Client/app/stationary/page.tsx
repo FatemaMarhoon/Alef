@@ -111,12 +111,7 @@ export default function StationaryTable() {
                                         </td>
                                         <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                                             <div className="flex items-center space-x-3.5">
-                                                {/* <button className="hover:text-primary">
-                                                    <Link href={`/stationary/view/${stationary.id}`}>
-                                                        View
-                                                    </Link>
-                                                </button> */}
-                                                </button>
+
                                                 <p>|</p>
                                                 <button className="hover:text-primary">
                                                     <Link href={`/stationary/edit/${stationary.id}`}>
