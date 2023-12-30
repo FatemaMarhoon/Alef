@@ -1,7 +1,7 @@
 export interface Student {
     id: number;
     preschool_id: number;
-    class_id: number;
+    class_id?: number;
     student_name: string;
     grade: string;
     DOB: Date;

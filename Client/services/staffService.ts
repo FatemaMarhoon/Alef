@@ -239,7 +239,7 @@ export async function getStaffById(staffId: number): Promise<Staff> {
 
 }
 
-export async function getStaffByUserID(userId: number) : Promise<Staff> {
+export async function getStaffByUserID(userId: number): Promise<Staff> {
     try {
         var token;
         await currentToken().then((returnedTOken) => { token = returnedTOken; })
