@@ -1,9 +1,6 @@
 import { Staff } from '@/types/staff'; // Import the Staff type
 import axios, { AxiosRequestConfig, AxiosError } from 'axios';
-import { UserStorage } from "@/types/user";
-// const currentUser = UserStorage.getCurrentUser();
 import { currentPreschool, currentToken } from './authService';
-import { responsiveProperty } from '@mui/material/styles/cssUtils';
 
 const BASE_URL = 'https://server-bckggkpqeq-uc.a.run.app/staff';
 // Backend URL for staff

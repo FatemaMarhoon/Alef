@@ -14,6 +14,7 @@ export default function EditForm({ params }: { params: { id: number } }) {
   const { setSuccessMessage } = useSuccessMessageContext();
   const [user, setUser] = useState({ id: 0, name: "", email: "", status: "", role_name: "" });
   const [error, setError] = useState("");
+  const [unassigned, setUnassigned]=useState<Staff[]>([]);
   const [staffList, setStaffList] = useState<Staff[]>([]);
   const [connectedStaff, setConnectedStaff] = useState<number>(0);
   const [oldStaff, setOldStaff] = useState<Staff>();
@@ -25,7 +26,7 @@ export default function EditForm({ params }: { params: { id: number } }) {
       try {
         const allStaff = await getStaff(); //get all staff
         const filteredStaff = allStaff.filter((staff) => !staff.user_id); //filter only staff with no account 
-        setStaffList(filteredStaff);
+        setUnassigned(filteredStaff);
         if (filteredStaff.length > 0) {
           setNoStaff(false);
         }
@@ -53,10 +54,9 @@ export default function EditForm({ params }: { params: { id: number } }) {
         }
         setOldStaff(currentStaff);
 
-        // add to staff list
-        staffList.push(currentStaff);
-        setStaffList(staffList);
-        console.log(connectedStaff)
+        // add to unassigned staff list then set the updated list to staffList to be populated 
+        const returnedList = unassigned.concat(currentStaff);
+        setStaffList(returnedList);
       }
       catch (error: any) {
         setError(error.message);

@@ -42,6 +42,9 @@ const SignIn: React.FC = () => {
       else if (error.message == "Firebase: Error (auth/invalid-login-credentials).") {
         setError("Invalid Login Credentials.")
       }
+      else if (error.message == "Firebase: Error (auth/user-disabled)."){
+        setError("Your account has been disabled. Contact your preschool admin.")
+      }
       else {
         setError(error.message);
       }

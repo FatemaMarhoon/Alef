@@ -1,5 +1,5 @@
 'use client'
-import RequestForm from '../../../../components/Forms/requestForm'
+import RequestForm from '@/components/Forms/requestForm'
 const PlanDetailsPage = ({ params }: { params: { id: number } }) => {
     return (
         <>

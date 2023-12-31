@@ -57,10 +57,11 @@ export default function UsersTable() {
     setCurrentPage(value);
   };
 
-  const statusChange = async (id: number, status: string) => {
+  const statusChange = async (id: number,name:string, status: string) => {
     try {
       const newStatus = status === 'Disabled' ? 'Enabled' : 'Disabled';
-      if (confirm(`Are your sure you want to ${newStatus == 'Enabled' ? 'enable' : 'disable'} this user?`)) {
+      const message = newStatus == 'Enabled' ? `Are you sure that you want to enable ${name}'s user ?` : `Are you sure you want to disable ${name}'s user ? User will be prevented from loging-in.`
+      if (confirm(message)) {
         const response = await updateUser({ id: id, status: newStatus });
         if (response.status == 200 || response.status == 201) {
           setSuccessMessage(`User ${newStatus} Successfully.`)
@@ -90,13 +91,13 @@ export default function UsersTable() {
     setCurrentPage(1); // Reset to the first page when changing filter
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: number, name:string) => {
     try {
-      if (confirm("Are you sure you want to delete user permanently? ")) {
+      if (confirm(`Are you sure you want to delete ${name}'s user permanently? This action cannot be reverted. `)) {
         const response = await deleteUser(id);
         if (response.status == 200 || response.status == 201) {
           setSuccessMessage(response.data.message);
-          router.push('/users');
+          fetchUsers();
         }
         else if (response.status == 400 || response.status == 404 || response.status == 500) {
           setError(response.data.message);
@@ -200,7 +201,7 @@ export default function UsersTable() {
                         <div className="flex items-center space-x-3.5">
                           <button
                             className="hover:text-primary"
-                            onClick={() => statusChange(user.id, user.status)}> {user.status == "Enabled" ? "Disable" : "Enable"}
+                            onClick={() => statusChange(user.id, user.name, user.status)}> {user.status == "Enabled" ? "Disable" : "Enable"}
                           </button>
                           <p> |</p>
                           <button
@@ -210,9 +211,9 @@ export default function UsersTable() {
                             </Link>
                           </button>
                           <p> |</p>
-                          
+
                           <button
-                            onClick={() => handleDelete(user.id)}
+                            onClick={() => handleDelete(user.id, user.name)}
                             className="hover:text-primary">
                             Delete
                           </button>

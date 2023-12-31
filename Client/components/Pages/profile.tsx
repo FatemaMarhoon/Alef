@@ -113,7 +113,6 @@ const AppProfile: React.FC<ProfileProps> = (props) => {
             if (preschool.id) {
                 const gradesList = await getGradesByPreschool(preschool.id);
                 setGrades(gradesList);
-                console.log(gradesList)
             }
         } catch (error: any) {
             console.log(error.message)
