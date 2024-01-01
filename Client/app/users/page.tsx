@@ -27,7 +27,6 @@ export default function UsersTable() {
   const [error, setError] = useState("");
   const { successMessage, setSuccessMessage } = useSuccessMessageContext();
 
-  const [users, setUsers] = useState<User[]>([]);
   // search & pagination 
   const [searchValue, setSearchValue] = useState('');
   const [filterValue, setFilterValue] = useState('');
@@ -52,7 +51,7 @@ export default function UsersTable() {
 
     fetchData(); // Call the async function
 
-  }, [role]);
+  }, []);
   useEffect(() => {
 
     fetchUsers();
