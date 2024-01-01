@@ -50,7 +50,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({ isOpen, onClose, onSucc
             public_event: event.public_event,
             Classes: event.Classes ? event.Classes.map((classItem) => classItem.id) : [],
         });
-        const eventDate = new Date(formData.event_date);
+        const eventDate = new Date(event.event_date);
         const isoDate = eventDate.toISOString().slice(0, 10);
         setISODate(isoDate);
 
@@ -206,7 +206,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({ isOpen, onClose, onSucc
                                 label="Classes"
                                 multiple
                                 value={classIds}
-                                onChange={() => handleChange}
+                                onChange={(e) => setClassIds( e.target.value as [] )}
                                 name="Classes"
                             >
                                 {classesList.map((classItem) => (

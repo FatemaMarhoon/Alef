@@ -63,7 +63,7 @@ export default function ApplicationsTable() {
 
     async function handleDelete(id: number) {
         try {
-            if (confirm("Are you sure you want to delete application permenintaly?")) {
+            if (confirm("Are you sure you want to delete application permenantly?")) {
                 const response = await deleteApplication(id);
                 if (response.status == 200 || response.status == 201) {
                     setSuccessMessage(response.data.message);

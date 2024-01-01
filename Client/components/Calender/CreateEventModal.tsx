@@ -26,9 +26,11 @@ interface CreateEventModalProps {
 
 const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, onCreate, onSuccess }) => {
     const [classesList, setClassesList] = useState<Class[]>([]);
+    var currentDate = new Date();
+    currentDate.setDate(currentDate.getDate() + 1);
     const [newEvent, setNewEvent] = useState({
         event_name: '',
-        event_date: new Date(),
+        event_date: currentDate,
         notes: '',
         notify_parents: false,
         notify_staff: false,
@@ -75,10 +77,12 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, on
             onSuccess();
             onClose();
         } catch (error: any) {
-            const axiosError = error as AxiosError;
-            console.error('Error creating event:', error.response.data.message);
-            // If there's an error, set the error in the CreateEventModal
-            setError(error.response.data.message);
+            if (error.response) {
+                setError(error.response.data.message);
+            }
+            else if (error.message) {
+                setError(error.message);
+            }
         }
     };
 

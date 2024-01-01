@@ -1,8 +1,8 @@
 // services/userService.ts
 import { Class } from '@/types/class'
 import axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
-const BASE_URL = 'http://localhost:3000/class'
-//const BASE_URL = 'https://server-bckggkpqeq-uc.a.run.app/class'
+// const BASE_URL = 'http://localhost:3000/class'
+const BASE_URL = 'https://server-bckggkpqeq-uc.a.run.app/class'
 import { currentPreschool, currentToken } from './authService';
 
 export async function getClasses(): Promise<Class[]> {

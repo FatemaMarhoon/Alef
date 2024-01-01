@@ -4,7 +4,6 @@ import Breadcrumbs from "@/components/Breadcrumbs/Breadcrumb2";
 import { updateUser, getUser } from "@/services/userService";
 import { useRouter } from "next/navigation";
 import ErrorAlert from "@/components/ErrorAlert";
-import { User } from "@/types/user"
 import { useSuccessMessageContext } from "@/components/SuccessMessageContext";
 import { getStaff, getStaffById, getStaffByUserID, updateStaff } from "@/services/staffService";
 import { Staff } from "@/types/staff";
@@ -14,6 +13,7 @@ export default function EditForm({ params }: { params: { id: number } }) {
   const { setSuccessMessage } = useSuccessMessageContext();
   const [user, setUser] = useState({ id: 0, name: "", email: "", status: "", role_name: "" });
   const [error, setError] = useState("");
+  const [unassigned, setUnassigned]=useState<Staff[]>([]);
   const [staffList, setStaffList] = useState<Staff[]>([]);
   const [connectedStaff, setConnectedStaff] = useState<number>(0);
   const [oldStaff, setOldStaff] = useState<Staff>();
@@ -25,13 +25,10 @@ export default function EditForm({ params }: { params: { id: number } }) {
       try {
         const allStaff = await getStaff(); //get all staff
         const filteredStaff = allStaff.filter((staff) => !staff.user_id); //filter only staff with no account 
-        setStaffList(filteredStaff);
+        setUnassigned(filteredStaff);
         if (filteredStaff.length > 0) {
           setNoStaff(false);
         }
-        console.log("STAFF LIST: ", filteredStaff);
-        console.log("NO STAFF: ", noStaff);
-
       } catch (error: any) {
         console.error("Error fetching user details:", error);
         setError(error.message);
@@ -40,10 +37,8 @@ export default function EditForm({ params }: { params: { id: number } }) {
 
     async function fecthUserDetails() {
       try {
-        await fetchStaff();
-        const response = await getUser(params.id);
-        const userData = response?.data;
-        // Set state with user data
+        await fetchStaff(); // fetch staff 
+        const response = await getUser(params.id);  const userData = response?.data;  // get user to be edited
         setUser(userData);
 
         //get current user's staff record
@@ -53,16 +48,14 @@ export default function EditForm({ params }: { params: { id: number } }) {
         }
         setOldStaff(currentStaff);
 
-        // add to staff list
-        staffList.push(currentStaff);
-        setStaffList(staffList);
-        console.log(connectedStaff)
+        // add to unassigned staff list then set the updated list to staffList to be populated 
+        const returnedList = unassigned.concat(currentStaff);
+        setStaffList(returnedList);
       }
       catch (error: any) {
         setError(error.message);
       }
     }
-
     fecthUserDetails();
   }, [params.id]);
 

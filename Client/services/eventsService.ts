@@ -4,6 +4,7 @@ import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Class } from '@/types/class';
 
 const BASE_URL = 'https://server-bckggkpqeq-uc.a.run.app/events'; // Replace with your backend URL
+// const BASE_URL = 'http://localhost:30002/events'
 
 export async function getEvents(): Promise<MyEvent[]> {
   //retrieve data from current user
@@ -74,6 +75,7 @@ export async function createEvent(name: string, date: Date, notes: string, notif
   } catch (error) {
      // Type assertion for error variable
      const axiosError = error as AxiosError;
+     console.log(axiosError)
      throw axiosError;
   }
 }

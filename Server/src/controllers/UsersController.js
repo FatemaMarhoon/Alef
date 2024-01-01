@@ -13,7 +13,6 @@ User.belongsTo(Preschool, { foreignKey: 'preschool_id' });
 
 const UsersController = {
 
-
   getCurrentUser: async (req, res) => {
     let user_id = null;
 
@@ -56,6 +55,15 @@ const UsersController = {
     }
   },
 
+  async getAllFirebaseUsers(req, res) {
+    const preschool = req.query.preschool;
+    try {
+      
+    } catch (error) {
+      return res.status(500).json({ message: error.message });
+    }
+  },
+
   async getUserByEmail(req, res) {
     const { email } = req.params;
     try {
@@ -86,7 +94,6 @@ const UsersController = {
     }
   },
 
-  //to create users by admin and create user once preschool request approved
   async createUser(req, res) {
     try {
       // Extract user data from the request body
@@ -105,19 +112,19 @@ const UsersController = {
         return res.status(400).json({ message: "Role is Required" });
       }
 
-      // Handle password based on role
+      // Handle password and preschool based on role
       if (role_name === 'Parent' && !password) {
-        return res.status(400).json({ message: "Password is Required" });
-      } else if (['Admin', 'Staff', 'Teacher'].includes(role_name)) {
+        return res.status(400).json({ message: "Password is Required" }); // parent must set their password 
+      } else if (['Admin', 'Staff', 'Teacher'].includes(role_name)) { // roles that must have preschool  
         if (!preschool_id) {
           return res.status(400).json({ message: "Preschool is Required" });
         }
-        //generate random password
+        //generate random password (accounts created on behalf of user)
         password = generatePassword();
         console.log(password)
       }
-      else if (['Super Admin'].includes(role_name)) {
-        //generate random password
+      else if (['Super Admin'].includes(role_name)) { 
+        //generate random password (account created on behalf of user)
         password = generatePassword();
       }
 
@@ -128,11 +135,12 @@ const UsersController = {
 
         //store db id into firebase user
         const uid = (await auth.getUserByEmail(email)).uid;
-        const currentClaims = (await admin.auth().getUser(uid)).customClaims;
-        await auth.setCustomUserClaims(uid, {
+        const currentClaims = (await admin.auth().getUser(uid)).customClaims; // get existing claims 
+        await auth.setCustomUserClaims(uid, { //append to existing claims 
           ...currentClaims,
           dbId: createdUser.id
         });
+        
         // Send successful response with created user data
         return res.status(201).json({ message: 'User created successfully', createdUser });
       });
@@ -148,7 +156,7 @@ const UsersController = {
     const { id } = req.params;
     const { name, role_name, status } = req.body; //all are optional, only what has value should be updated
     try {
-      // Get the user by id (firebase and db)
+      // Get the user by id (from firebase and db)
       const dbUser = await User.findByPk(id);
       const firebaseUser = await admin.auth().getUserByEmail(dbUser.email);
 
@@ -182,18 +190,15 @@ const UsersController = {
   async deleteUser(req, res) {
     const { id } = req.params;
     try {
-      // Get firebase user 
-      const userObject = await User.findByPk(id);
-      const dbSuccess = await User.destroy({ where: { id: id } });
-      //if user found in both, update both 
+      const userObject = await User.findByPk(id); // get user object
+      const dbSuccess = await User.destroy({ where: { id: id } }); // delete user from database
       if (dbSuccess) {
-        await admin.auth().deleteUser((await admin.auth().getUserByEmail(userObject.email)).uid);
+        await admin.auth().deleteUser((await admin.auth().getUserByEmail(userObject.email)).uid); // delete user from firebase
         return res.status(201).json({ message: "User deleted successfully." });
       }
       else {
         return res.status(404).json({ message: "User not found" });
       }
-
     } catch (error) {
       console.log(error.message)
       return res.status(500).json({ message: error.message });
@@ -206,15 +211,15 @@ const UsersController = {
       for (const user of users) {
 
         const uid = (await auth.getUserByEmail(user.email)).uid;
-        const currentClaims = (await auth.getUser(uid)).customClaims;
-        const updatedClaims = {
-          ...currentClaims,
-          preschool_id: user.preschool_id,
-          role: user.role_name,
-          dbId: user.id
-        };
+        // const currentClaims = (await auth.getUser(uid)).customClaims;
+        // const updatedClaims = {
+        //   ...currentClaims,
+        //   preschool_id: user.preschool_id,
+        //   role: user.role_name,
+        //   dbId: user.id
+        // };
 
-        await auth.setCustomUserClaims(uid, updatedClaims);
+        // await auth.setCustomUserClaims(uid, updatedClaims);
         const stored = (await auth.getUser(uid)).customClaims;
         console.log(stored)
       }
@@ -244,10 +249,9 @@ function createFirebaseUser(email, password, name, role_name, preschool_id) {
       displayName: name,
       disabled: false,
     })
-      .then((userRecord) => {
-        // See the UserRecord reference doc for the contents of userRecord.
+      .then((userRecord) => { //after success creation on firebase 
         console.log('Successfully created new user:', userRecord.uid);
-        auth.setCustomUserClaims(userRecord.uid, { "role": role_name, "preschool_id": preschool_id })
+        auth.setCustomUserClaims(userRecord.uid, { "role": role_name, "preschool_id": preschool_id }) // store role and prescool in user claims
         // Generate reset password link and send it via email for accounts created on behalf of users
         if (role_name != "Parent") {
           auth.generatePasswordResetLink(email)

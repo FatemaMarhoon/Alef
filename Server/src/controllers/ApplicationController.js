@@ -58,20 +58,8 @@ const ApplicationController = {
         const user_id = await UsersController.getCurrentUser(req, res);
 
         try {
-            if (!email) {
-                return res.status(400).json({ message: "Email is required." });
-            }
-            if (!preschool_id) {
-                return res.status(400).json({ message: "Preschool ID is required." });
-            }
-            if (!guardian_type) {
-                return res.status(400).json({ message: "Guardian type is required." });
-            }
             if (!student_name) {
                 return res.status(400).json({ message: "Student name is required." });
-            }
-            if (!guardian_name) {
-                return res.status(400).json({ message: "Guardian name is required." });
             }
             if (!student_CPR) {
                 return res.status(400).json({ message: "Student CPR is required." });
@@ -79,14 +67,8 @@ const ApplicationController = {
             if (student_CPR.length != 9) {
                 return res.status(400).json({ message: "Student CPR is must be 9 digits." });
             }
-            if (!phone) {
-                return res.status(400).json({ message: "Phone number is required." });
-            }
             if (!student_DOB) {
                 return res.status(400).json({ message: "Student DOB is required." });
-            }
-            if (!created_by) {
-                return res.status(400).json({ message: "Created By is required." });
             }
             if (!gender) {
                 return res.status(400).json({ message: "Gender is required." });
@@ -94,6 +76,26 @@ const ApplicationController = {
             if (!grade) {
                 return res.status(400).json({ message: "Grade is required." });
             }
+            if (!guardian_name) {
+                return res.status(400).json({ message: "Guardian name is required." });
+            }
+            if (!guardian_type) {
+                return res.status(400).json({ message: "Guardian type is required." });
+            }
+            if (!phone) {
+                return res.status(400).json({ message: "Phone number is required." });
+            }
+            if (!email) {
+                return res.status(400).json({ message: "Email is required." });
+            }
+            if (!preschool_id) {
+                return res.status(400).json({ message: "Preschool ID is required." });
+            }
+
+            if (!created_by) {
+                return res.status(400).json({ message: "Created By is required." });
+            }
+            
             if (!req.files['personal_picture'][0]) {
                 return res.status(400).json({ message: "Personal Picture is required." });
             }
@@ -219,6 +221,8 @@ const ApplicationController = {
                         applicationObject.passport = passport_url;
                     }
                 }
+
+
                 const originalValues = JSON.stringify(applicationObject.toJSON()); // Store the original values before the update
 
                 // Save the updated applicationObject
@@ -246,14 +250,14 @@ const ApplicationController = {
                                 console.log("Token found, trying to push")
                                 if (status == "Accepted") {
                                     //send notification
-                                    await NotificationController.pushSingleNotification(parentUser.email, "Congratulations!", "Your application has been accepted. Please pay any pending fees.");
-
+                                    await NotificationController.pushSingleNotification(parentUser.email, "Congratulations!", 
+                                    "Your application has been accepted. Please pay any pending fees.");
                                     //subscribe to preschool topic 
                                     await NotificationController.subscribeToTopic(parentUser.email, applicationObject.preschool_id + '_Parent')
-
                                 }
                                 else {
-                                    await NotificationController.pushSingleNotification(parentUser.email, "Application Updates", "Your application status has been updated.");
+                                    await NotificationController.pushSingleNotification(parentUser.email, "Application Updates",
+                                     "Your application status has been updated.");
                                 }
                             }
                             else {
@@ -287,11 +291,13 @@ const ApplicationController = {
                         })
 
                         const preschool = await Preschool.findByPk(applicationObject.preschool_id);
+                        const dueDate = new Date();
+                        dueDate.setDate(paymentData.due_date.getDate() + 10) // set due date after 10 days
                         const payment = await Payment.create({
                             status: "Pending",
                             type: "Registration Fees",
                             fees: preschool.registration_fees,
-                            due_date: new Date(),
+                            due_date: dueDate,
                             notes: "Registration Fees",
                             student_id: student.id
                         });

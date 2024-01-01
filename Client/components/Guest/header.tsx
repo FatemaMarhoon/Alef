@@ -7,7 +7,7 @@ import Link from 'next/link';
 const navigation = [
   { name: 'About Us', href: '#' },
   { name: 'Products', href: '#' },
-  { name: 'Packages', href: '#' },
+  { name: 'Packages', href: '/plans' },
 ];
 
 export default function Navbar() {
@@ -20,11 +20,11 @@ export default function Navbar() {
           <a href="#" className="-m-1.5 p-1.5">
             <span className="sr-only">Your Company</span>
             <Image
-            width={88}
-            height={16}
-            src="/images/logo/Alef - bordered logo.png"
-            alt="Logo"
-          />
+              width={88}
+              height={16}
+              src="/images/logo/Alef - bordered logo.png"
+              alt="Logo"
+            />
           </a>
         </div>
         <div className="flex lg:hidden">
@@ -56,6 +56,16 @@ export default function Navbar() {
       </nav>
       <Dialog as="div" className="lg:hidden" open={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)}>
         {/* Mobile menu content */}
+        <div className="p-4 space-y-4">
+          {navigation.map((item) => (
+            <Link key={item.name} href={item.href} passHref>
+              <a className="block text-sm font-semibold text-gray-900">{item.name}</a>
+            </Link>
+          ))}
+          <Link href="/login" passHref>
+            <a className="block text-sm font-semibold text-gray-900">Log in &rarr;</a>
+          </Link>
+        </div>
       </Dialog>
     </header>
   );

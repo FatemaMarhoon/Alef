@@ -43,17 +43,25 @@ Class.belongsToMany(Event, {
 const cronJob = {
     async appointmentsReminder() {
         try {
-            // retrieve any appointment that should occur after 30 min 
-            let currentDate = new Date();
+            console.log("CRON JOB APPOINTMENT REMINDER STARTED AT: ", new Date());
+           
+            const currentDate = new Date();
             currentDate.setHours(0, 0, 0, 0); // Set the time to midnight for accurate date comparison
+
+            const nextDate = new Date(currentDate);
+            nextDate.setDate(currentDate.getDate() + 1); // Set the next day for the upper bound
+
             let currentTime = new Date();
             currentTime.setMinutes(currentTime.getMinutes() + 30); // Add 30 minutes to the current time
             currentTime.setSeconds(0); //set seconds to 0
-            currentTime = currentTime.toLocaleString('en-GB', { hour12: false, hour: 'numeric', minute: 'numeric', second: 'numeric' });
+            currentTime = currentTime.toLocaleTimeString('en-GB', { hour12: false, hour: 'numeric', minute: 'numeric', second: 'numeric' });
+            console.log('current time used for comparison: ', currentTime)
+            
             const upcomingAppointments = await Appointment.findAll({
                 where: {
                     date: {
-                        [Op.eq]: currentDate.toLocaleDateString(),
+                        [Op.gte]: currentDate,
+                        [Op.lt]: nextDate,
                     },
                     time: {
                         [Op.eq]: currentTime,
@@ -62,6 +70,7 @@ const cronJob = {
                 include: [{ model: Application, as: "Application", include: [{ model: User, as: "User" }] }]
             });
 
+            console.log(upcomingAppointments.length, " appointments found");
             const title = "Upcoming Appoinment ";
             for (const appointment of upcomingAppointments) {
                 const body = `Reminder: You have a scheduled appointment for applicant: ${appointment.Application.student_name} after 30 mins.`;
@@ -75,9 +84,7 @@ const cronJob = {
                 for (const admin of admins) {
                     await NotificationController.pushWebNotification(admin.id, title, body);
                 }
-
             }
-
         }
         catch (error) {
             console.log(error.message)
@@ -86,6 +93,7 @@ const cronJob = {
 
     async eventsReminder() {
         try {
+            console.log("CRON JOB EVENT REMINDER STARTED AT: ", new Date());
             //retrieve upcoming events (after 1 day)
             let currentDate = new Date();
             currentDate.setHours(0, 0, 0, 0); // Set the time to midnight for accurate date comparison
@@ -99,7 +107,7 @@ const cronJob = {
                 },
             });
 
-
+            console.log(upcomingEvents.length, " events found.")
             for (const event of upcomingEvents) {
                 //notification body 
                 const title = "Upcoming Event";
@@ -107,9 +115,9 @@ const cronJob = {
                 if (event.public_event == true) {
                     //notify all parents and teachers of that preschool (all already subscribed to topic > they're using mobile app)
                     await NotificationController.pushTopicNotification(event.preschool_id + '_Parent', title, body)
-                    console.log("done from parents")
+                    console.log("done sending public event reminder to all parents")
                     await NotificationController.pushTopicNotification(event.preschool_id + '_Teacher', title, body)
-                    console.log("done from teachers")
+                    console.log("done sending public event reminder to all teachers")
 
                     //notify web users (all staffs and admins)
                     const WebUsers = await User.findAll({
@@ -120,15 +128,13 @@ const cronJob = {
                             },
                         },
                     });
-                    console.log("got web users: ", WebUsers.length)
                     for (const user of WebUsers) {
                         await NotificationController.pushWebNotification(user.id, title, body);
                     }
+                    console.log("done sending public event reminder to all web users")
                 }
                 else {
-
-                    //get related classes
-                    const classIds = await EventClass.findAll({
+                    const classIds = await EventClass.findAll({    //get related classes
                         where: { event_id: event.id },
                         attributes: ['class_id'],
                         raw: true,
@@ -139,12 +145,17 @@ const cronJob = {
 
                     //notify parents and teachers (supervisors) of event related classes only
                     const parentsEmails = await EventController.getParentsEmails(classes);
-                    await NotificationController.pushMultipleNotification(parentsEmails, title, body)
-
                     const supervisorsEmails = await EventController.getSupervisorsEmails(classes);
-                    await NotificationController.pushMultipleNotification(supervisorsEmails, title, body)
-                }
+                    for (const email of parentsEmails) {
+                        await NotificationController.pushSingleNotification(email, title, body)
+                    }
+                    console.log("done sending class-specific reminder to all related parents")
+                    for (const email of supervisorsEmails) {
+                        await NotificationController.pushSingleNotification(email, title, body)
+                    }
+                    console.log("done sending class-specific reminder to all related supervisors")
 
+                }
             }
         } catch (error) {
             console.log(error)
@@ -154,14 +165,15 @@ const cronJob = {
     async monthlyPaymentGenerator() {
         //loop through all preschools and generate payment record for all students 
         try {
-            console.log("Job started at: ", new Date());
+            console.log("CRON JOB PAYMENT GENERATOR STARTED AT: ", new Date());
             const preschools = await Preschool.findAll({ include: { model: Student, as: "Students", include: { model: User, as: "User" } } });
             for (const preschool of preschools) {
-                console.log("Looping")
                 if (preschool.Students.length > 0) {
-                    console.log("Looping through students:", preschool.Students.length)
                     for (const student of preschool.Students) {
-                        const paymentData = { fees: preschool.monthly_fees, type: "Monthly Fees", student_id: student.id, due_date: new Date(), status: "Pending" }
+                        const paymentData = {
+                            fees: preschool.monthly_fees, type: "Monthly Fees", student_id: student.id, due_date: new Date(),
+                            status: "Pending"
+                        }
                         paymentData.due_date.setDate(paymentData.due_date.getDate() + 7)
                         const newPayment = await Payment.create(paymentData);
                         if (newPayment && student.User) {
@@ -181,15 +193,11 @@ const cronJob = {
         }
     },
 
-    // send reminders 2 days before 
-    async paymentReminder() {
-
-    },
-
     // change status to overdue when due date arrive 
     async paymentDue() {
         try {
-            console.log("Starting payment lookup")
+            console.log("CRON JOB PAYMENT DUE STARTED AT: ", new Date());
+
             let currentDate = new Date();
             currentDate.setHours(0, 0, 0, 0); // Set the time to midnight for accurate date comparison
 

@@ -4,6 +4,7 @@ const Application = require('../models/preschool_application')(sequelize, DataTy
 const Appointment = require('../models/appointment')(sequelize, DataTypes);
 
 Appointment.belongsTo(Application, { foreignKey: 'application_id' });
+
 const AppointmentController = {
     async getAllAppointments(req, res) {
         const { preschool } = req.query;
@@ -67,6 +68,21 @@ const AppointmentController = {
             return res.status(500).json({ message: error.message });
         }
     },
+    
+    async deleteAppointment(req, res) {
+        const { id } = req.params;
+        try {
+            const deletedCount = await Appointment.destroy({
+                where: { id }
+            });
+            if (deletedCount === 0) {
+                return res.status(404).json({ message: 'Appointment not found for deletion.' });
+            }
+            res.json({ message: 'Appointment deleted successfully.' });
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    },
 
     async updateAppointment(req, res) {
         const { id } = req.params;
@@ -92,20 +108,7 @@ const AppointmentController = {
         }
     },
 
-    async deleteAppointment(req, res) {
-        const { id } = req.params;
-        try {
-            const deletedCount = await Appointment.destroy({
-                where: { id }
-            });
-            if (deletedCount === 0) {
-                return res.status(404).json({ message: 'Appointment not found for deletion.' });
-            }
-            res.json({ message: 'Appointment deleted successfully.' });
-        } catch (error) {
-            res.status(500).json({ message: error.message });
-        }
-    },
+   
 
     async availableSlots(req, res) {
         const { preschool, date } = req.query;
