@@ -30,7 +30,6 @@ const ClassDetails: React.FC<ClassDetailsProps> = (props) => {
             // Fetch students for the class
             const studentsData = await getStudentsByClassId(classId as string);
             setStudents(studentsData);
-
             // Fetch class details
             const classDetailsData = await getClassById(classId as string);
             setClassDetails(classDetailsData);
@@ -40,47 +39,17 @@ const ClassDetails: React.FC<ClassDetailsProps> = (props) => {
             setStudentsCount(numberOfStudents);
             // setGrade(classDetailsData?.class.grade)
             setLoading(false); // Set loading to false once data is fetched
-
         } catch (error) {
             console.error('Error fetching class details:', error);
             setLoading(false); // Set loading to false once data is fetched
 
         }
     };
-
     useEffect(() => {
         if (classId) {
             fetchData();
         }
     }, [classId]);
-    const removeStudentFromClass = async (studentId: number) => {
-        try {
-            // Get the current student data
-            const student = students.find((s) => s.id === studentId);
-            console.log("studentdata", student)
-            // Confirm before removing
-            const confirmRemove = window.confirm('Are you sure you want to remove this student from the class?');
-            if (!confirmRemove) {
-                return; // Do nothing if the user cancels
-            }
-
-            // Set class_id to null
-            const updatedStudentData = {
-                ...student,
-                class_id: null,
-            };
-            console.log('Updating student with data:', updatedStudentData);
-
-            // Update the student
-            await updateStudent(studentId.toString(), updatedStudentData);
-
-            // After updating, refetch the data to update the UI
-            fetchData();
-        } catch (error) {
-            console.error('Error updating student:', error);
-        }
-    };
-
     const fetchStudents = async () => {
         try {
             console.log('grade: ', classDetails?.class.grade);
@@ -108,45 +77,7 @@ const ClassDetails: React.FC<ClassDetailsProps> = (props) => {
         }
     }, [classDetails?.class.grade]);
 
-    const addStudentToClass = async () => {
 
-        try {
-            if (selectedStudentId === null) {
-                console.error('No student selected.');
-                return;
-            }
-
-            // Get the current student data
-            const student = unassignedStudents.find((s) => s.id === selectedStudentId);
-            console.log("student data", student)
-            if (!student) {
-                console.error(`Student with ID ${selectedStudentId} not found.`);
-                return;
-            }
-            // Confirm before adding
-            const confirmAdd = window.confirm('Are you sure you want to add this student to the class?');
-            if (!confirmAdd) {
-                return; // Do nothing if the user cancels
-            }
-
-            // Set class_id to class id
-            const updatedStudentData = {
-                ...student,
-                class_id: classId,
-            };
-            console.log('Updating student with data:', updatedStudentData);
-
-            console.log("selected student:", selectedStudentId)
-            // Update the student
-            await updateStudent(selectedStudentId.toString(), updatedStudentData);
-
-            // After updating, refetch the data to update the UI
-            fetchData();
-            fetchStudents();
-        } catch (error) {
-            console.error('Error updating student:', error);
-        }
-    };
 
     const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedStudentId(Number(e.target.value));

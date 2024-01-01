@@ -97,9 +97,9 @@ export default function StaffTable() {
                                     <th className="min-w-220px py-4 px-4 font-medium text-black dark-text-white xl-pl-11">
                                         Role
                                     </th>
-                                    <th className="py-4 px-4 font-medium text-black dark-text-white">
+                                    {/* <th className="py-4 px-4 font-medium text-black dark-text-white">
                                         CPR
-                                    </th>
+                                    </th> */}
                                     <th className="py-4 px-4 font-medium text-black dark-text-white">
                                         Phone
                                     </th>
@@ -130,11 +130,11 @@ export default function StaffTable() {
                                             {staffMember.staff_role_name}
                                         </h5>
                                     </td>
-                                    <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                                    {/* <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                                         <p className="text-black dark-text-white">
                                             {staffMember.CPR}
                                         </p>
-                                    </td>
+                                    </td> */}
                                     <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                                         <p className="text-black dark-text-white">
                                             {staffMember.phone}

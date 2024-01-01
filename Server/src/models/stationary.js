@@ -1,5 +1,5 @@
 const { DataTypes, Model } = require('sequelize');
-const db = require('../config/seq'); // Use the appropriate Sequelize connection
+const db = require('../config/seq');
 
 module.exports = (sequelize, DataTypes) => {
   const Stationary = sequelize.define('Stationary', {

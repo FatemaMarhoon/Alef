@@ -13,6 +13,20 @@ Class.belongsTo(Staff, { foreignKey: 'supervisor' });
 const LogsController = require('./LogController');
 const UsersController = require('./UsersController');
 
+
+const validateClassData = (classData) => {
+    const requiredFields = ['class_name', 'grade', 'capacity', 'classroom', 'supervisor'];
+
+    for (const field of requiredFields) {
+        if (!classData[field]) {
+            return { isValid: false, message: `${field.replace('_', ' ')} is required` };
+        }
+    }
+
+    return { isValid: true };
+};
+
+
 const ClassController = {
     async getAllClasses(req, res) {
         try {
@@ -47,7 +61,18 @@ const ClassController = {
     async createClass(req, res) {
         const classData = req.body;
         const user_id = await UsersController.getCurrentUser(req, res);
-
+        const validation = validateClassData(classData);
+        if (!validation.isValid) {
+            // Log validation error
+            await LogsController.createLog({
+                type: 'Error',
+                original_values: JSON.stringify(classData),
+                current_values: JSON.stringify({ error: validation.message }),
+                user_id: user_id
+                //user_id: 28
+            });
+            return res.status(400).json({ message: validation.message });
+        }
         try {
 
             // Log validation error

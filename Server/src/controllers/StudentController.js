@@ -17,7 +17,7 @@ Preschool.hasMany(Student, { foreignKey: 'preschool_id' });
 Class.hasMany(Student, { foreignKey: 'class_id' });
 
 const validateStudentData = (studentData) => {
-    const requiredFields = ['student_name', 'DOB', 'CPR', 'contact_number1', 'contact_number2', 'guardian_name', 'enrollment_date', 'medical_history', 'preschool_id', 'gender'];
+    const requiredFields = ['student_name', 'DOB', 'CPR', 'contact_number1', 'contact_number2', 'guardian_name', 'enrollment_date', 'medical_history', 'gender'];
 
     for (const field of requiredFields) {
         if (!studentData[field]) {
@@ -32,7 +32,7 @@ const validateStudentData = (studentData) => {
         return { isValid: false, message: 'DOB must be a valid date and should not be in the future' };
     }
 
-    if (enrollment_date > new Date()) {
+    if (studentData.enrollment_date > new Date()) {
         return { isValid: false, message: 'Enrollment date must be a valid date and should not be in the future' };
     }
     if (dobYear < 2018 || dobYear > 2023) {
@@ -174,11 +174,11 @@ const StudentController = {
         console.log('Req Body:', req.body);
         console.log('Req Files:', req.files);
 
-        // // Add validation logic here
-        // const validation = validateStudentData(updatedStudentData);
-        // if (!validation.isValid) {
-        //     return res.status(400).json({ message: validation.message });
-        // }
+        // Add validation logic here
+        const validation = validateStudentData(updatedStudentData);
+        if (!validation.isValid) {
+            return res.status(400).json({ message: validation.message });
+        }
         const user_id = await UsersController.getCurrentUser(req, res);
 
         try {
@@ -249,6 +249,7 @@ const StudentController = {
     async deleteStudent(req, res) {
         const { student_id } = req.params;
         let deletedStudentData; // Declare the variable outside the block
+        const user_id = await UsersController.getCurrentUser(req, res);
 
         try {
             const student = await Student.findByPk(student_id);

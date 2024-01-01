@@ -128,8 +128,11 @@ const UsersController = {
 
         //store db id into firebase user
         const uid = (await auth.getUserByEmail(email)).uid;
-        await auth.setCustomUserClaims(uid, { 'dbId': createdUser.id });
-
+        const currentClaims = (await admin.auth().getUser(uid)).customClaims;
+        await auth.setCustomUserClaims(uid, {
+          ...currentClaims,
+          dbId: createdUser.id
+        });
         // Send successful response with created user data
         return res.status(201).json({ message: 'User created successfully', createdUser });
       });

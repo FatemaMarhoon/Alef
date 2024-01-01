@@ -21,7 +21,10 @@ const ClassForm: React.FC = ({ }) => {
     const currentUser = UserStorage.getCurrentUser();
     const router = useRouter();
     const [numClasses, setNumClasses] = useState(0);
-    const [classData, setClassData] = useState<Array<{ class_name: string, supervisor: string, classroom: string, capacity: number }>>(
+    const [classData, setClassData] = useState<Array<{
+        class_name: string, supervisor: string, classroom: string,
+        capacity: number
+    }>>(
         Array.from({ length: numClasses }, () => ({ class_name: '', supervisor: '', classroom: '', capacity: 0 })));
     const [selectedSupervisors, setSelectedSupervisors] = useState<string[]>([]);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -133,23 +136,14 @@ const ClassForm: React.FC = ({ }) => {
         fetchData();
     }, [grade, selectedGradeCapacity]);
 
-
-
-
     const handleClassnameChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
         updateClassData(index, 'class_name', e.target.value);
     };
-    // this code is working for selected supervisor
     const handleSupervisorChange = (selectedSupervisorId: string, index: number) => {
         updateClassData(index, 'supervisor', selectedSupervisorId);
         setSelectedSupervisors((prevSelected) => [...prevSelected, selectedSupervisorId]);
 
-        //     // Filter out the selected supervisor from other drop-down lists
-        //     const updatedStaffList = staffList.filter((supervisor) => supervisor.id !== parseInt(selectedSupervisorId));
-        //     setStaffList(updatedStaffList);
     };
-
-
     const handleClassroomChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
         updateClassData(index, 'classroom', e.target.value);
     };
@@ -227,11 +221,6 @@ const ClassForm: React.FC = ({ }) => {
     }, []); // Empty
 
 
-
-
-
-
-
     // handle form submitting
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -300,7 +289,7 @@ const ClassForm: React.FC = ({ }) => {
                 .catch((error) => {
                     // Handle error
                     console.error("Error creating classes:", error);
-                    setErrorMessage("Error creating classes");
+                    setErrorMessage(error.response.data.message);
                     if (errorRef.current) {
                         errorRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }
@@ -333,12 +322,7 @@ const ClassForm: React.FC = ({ }) => {
         <><Breadcrumbs previousName='Classes' currentName='Create' pageTitle="Create Class" previousPath='/class' />
             <div className=" items-center justify-center min-h-screen">
                 <div className="flex flex-col gap-9">
-                    {/* Error message */}
-                    {/* {errorMessage && (
-                        <div ref={errorRef} className="flex w-full border-l-6 border-[#F87171] bg-[#F87171] bg-opacity-[15%] px-7 py-8 shadow-md dark:bg-[#1B1B24] dark:bg-opacity-30 md:p-9">
-                            {errorMessage}
-                        </div>
-                    )} */}
+
                     {errorMessage && <ErrorAlert message={errorMessage}></ErrorAlert>}
                     <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
                         <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
