@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useEffect } from 'react';
-import { getUsers, updateUser, deleteUser } from '@/services/userService';
+import { getUsers, updateUser, deleteUser, getAllUsers } from '@/services/userService';
 import { User } from '@/types/user';
 import Link from 'next/link';
 import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
@@ -15,21 +15,54 @@ import Select from '@mui/material/Select';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Delete, Edit } from '@mui/icons-material';
 import { EyeIcon } from '@heroicons/react/20/solid';
+import { currentUserRole } from "@/services/authService";
 
 export default function UsersTable() {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true); // Added loading state
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
+  const [allusers, setAllUsers] = useState<User[]>([]);
+
   const [error, setError] = useState("");
   const { successMessage, setSuccessMessage } = useSuccessMessageContext();
   const [searchValue, setSearchValue] = useState('');
   const [filterValue, setFilterValue] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+
+  const [role, setRole] = useState('');
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+
+        const userRole = await currentUserRole();
+        setRole(String(userRole));
+        console.log("role", role);
+
+
+      } catch (error) {
+        console.error("Error fetching :", error);
+
+      }
+    };
+
+    fetchData(); // Call the async function
+
+  }, [role]);
+
   async function fetchUsers() {
     try {
-      const usersData = await getUsers();
+      let usersData;
+
+      if (role === 'Super Admin') {
+        // Fetch all users if the role is 'Super admin'
+        usersData = await getAllUsers();
+      } else {
+        // Fetch regular users based on the current role
+        usersData = await getUsers();
+      }
+
       setUsers(usersData);
       setLoading(false); // Set loading to false once data is fetched
 
@@ -210,7 +243,7 @@ export default function UsersTable() {
                             </Link>
                           </button>
                           <p> |</p>
-                          
+
                           <button
                             onClick={() => handleDelete(user.id)}
                             className="hover:text-primary">

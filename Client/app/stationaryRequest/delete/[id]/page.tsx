@@ -9,20 +9,31 @@ import { getStationary } from '@/services/stationaryService';
 import { getStaffById } from '@/services/staffService'; // Add the actual service function
 import { Stationary } from '@/types/stationary';
 import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
-
+import NotFound from '@/components/Pages/404';
+import NotAuthorized from '@/components/Pages/403';
+import { currentPreschool } from "@/services/authService";
+import Loader from "@/components/common/Loader"; // Import the Loader component
 export default function DeleteStationaryRequestPage({ params }: { params: { id: number } }) {
     const router = useRouter();
     const [stationaryRequest, setStationaryRequest] = useState<StationaryRequest | null>(null);
     const [stationaries, setStationaries] = useState<Stationary[]>([]);
     const [staffName, setStaffName] = useState<string>('');
     const { setSuccessMessage } = useSuccessMessageContext();
-
+    const [loading, setLoading] = useState(true); // Added loading state
+    const [notFound, setNotFound] = useState<boolean>(false);
+    const [authorized, setAuthorized] = useState<boolean>(true);
     useEffect(() => {
         async function fetchStationaryRequest() {
             try {
                 if (params.id) {
                     const stationaryRequestData = await getStationaryRequestById(params.id.toString());
                     setStationaryRequest(stationaryRequestData);
+                    // Authorization check after staff data is fetched
+                    if (stationaryRequestData && stationaryRequestData.preschool_id !== (await currentPreschool())) {
+                        setAuthorized(false);
+                    } else {
+                        setAuthorized(true);
+                    }
 
                     // Fetch the list of stationary items
                     const stationariesData = await getStationary();
@@ -31,9 +42,13 @@ export default function DeleteStationaryRequestPage({ params }: { params: { id: 
                     // Fetch staff information based on staff_id
                     const staffInfo = await getStaffById(parseInt(String(stationaryRequestData.staff_id)));
                     setStaffName(staffInfo ? staffInfo.name : 'Unknown');
+                    setLoading(false); // Set loading to false once data is fetched
+
                 }
             } catch (error) {
                 console.error("Error fetching stationary request:", error);
+                setLoading(false); // Set loading to false once data is fetched
+
             }
         }
 
@@ -75,50 +90,55 @@ export default function DeleteStationaryRequestPage({ params }: { params: { id: 
     };
     return (
         <>
-            <Breadcrumbs previousName='Stationary Requests' currentName='Delete' pageTitle="Delete Stationary Request" previousPath='/stationaryRequest' />
+            {loading && <Loader />}
+            {!loading && !authorized && <NotAuthorized />}
+            {!loading && notFound && <NotFound></NotFound>}
+            {!loading && !notFound && authorized && (
+                <>            <Breadcrumbs previousName='Stationary Requests' currentName='Delete' pageTitle="Delete Stationary Request" previousPath='/stationaryRequest' />
 
-            <div className="items-center justify-center min-h-screen">
-                <div className="flex flex-col gap-9">
-                    <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-                        <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
-                            <h3 className="font-medium text-black dark:text-white">Delete Stationary Request</h3>
-                        </div>
-                        <div className="p-6.5">
-                            {stationaryRequest ? (
-                                <>
-                                    <p>
-                                        <strong>Stationary Name:</strong> {getStationaryName(stationaryRequest.stationary_id)}
-                                    </p>
-                                    <p>
-                                        <strong>Status:</strong> {stationaryRequest.status_name}
-                                    </p>
-                                    <p>
-                                        <strong>Requested Quantity:</strong> {stationaryRequest.requested_quantity}
-                                    </p>
-                                    <p>
-                                        <strong>Staff Name:</strong> {staffName}
-                                    </p>
-                                    <p>
-                                        <strong>Notes:</strong> {stationaryRequest.notes}
-                                    </p>
-                                </>
-                            ) : (
-                                <p>Loading stationary request information...</p>
-                            )}
+                    <div className="items-center justify-center min-h-screen">
+                        <div className="flex flex-col gap-9">
+                            <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+                                <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
+                                    <h3 className="font-medium text-black dark:text-white">Delete Stationary Request</h3>
+                                </div>
+                                <div className="p-6.5">
+                                    {stationaryRequest ? (
+                                        <>
+                                            <p>
+                                                <strong>Stationary Name:</strong> {getStationaryName(stationaryRequest.stationary_id)}
+                                            </p>
+                                            <p>
+                                                <strong>Status:</strong> {stationaryRequest.status_name}
+                                            </p>
+                                            <p>
+                                                <strong>Requested Quantity:</strong> {stationaryRequest.requested_quantity}
+                                            </p>
+                                            <p>
+                                                <strong>Staff Name:</strong> {staffName}
+                                            </p>
+                                            <p>
+                                                <strong>Notes:</strong> {stationaryRequest.notes}
+                                            </p>
+                                        </>
+                                    ) : (
+                                        <p>Loading stationary request information...</p>
+                                    )}
 
-                            <div className="mt-6">
-                                <button
-                                    type="button"
-                                    onClick={handleDelete}
-                                    className="flex justify-center items-center rounded bg-danger p-3 font-medium text-white"
-                                >
-                                    Delete Stationary Request
-                                </button>
+                                    <div className="mt-6">
+                                        <button
+                                            type="button"
+                                            onClick={handleDelete}
+                                            className="flex justify-center items-center rounded bg-danger p-3 font-medium text-white"
+                                        >
+                                            Delete Stationary Request
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </>
-    );
+                </>
+            )}
+        </>);
 }

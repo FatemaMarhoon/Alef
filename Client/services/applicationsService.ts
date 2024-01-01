@@ -99,7 +99,7 @@ export async function createApplication(
   }
 }
 
-export async function updateApplication(id:number, updatedApplication:ApplicationPOST) {
+export async function updateApplication(id: number, updatedApplication: ApplicationPOST) {
   try {
     var token;
     await currentToken().then((returnedTOken) => { token = returnedTOken; })

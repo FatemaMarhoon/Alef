@@ -26,6 +26,26 @@ export async function getUsers(): Promise<User[]> {
   }
 }
 
+export async function getAllUsers(): Promise<User[]> {
+  //retrieve data from current user
+  var token; var preschool;
+  await currentToken().then((returnedTOken) => { token = returnedTOken; })
+
+  try {
+    // Set up the request config with headers
+    const config: AxiosRequestConfig = {
+      headers: {
+        Authorization: `Bearer ${token}` // Include the token in the Authorization header
+      },
+    };
+
+    const response = await axios.get<User[]>(`${BASE_URL}`, config);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
 export async function getUser(id: number) {
   try {
 

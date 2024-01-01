@@ -14,15 +14,17 @@ import { StaticValue } from "@/types/staticValue";
 import { getGender } from "@/services/staticValuesService";
 import Link from "next/link";
 import Loader from "@/components/common/Loader"; // Import the Loader component
-
+import NotFound from '@/components/Pages/404';
+import NotAuthorized from '@/components/Pages/403';
+import { currentPreschool } from "@/services/authService";
 export default function EditForm({ params }: { params: { studentId: number } }) {
     const router = useRouter();
     const currentUser = UserStorage.getCurrentUser();
     const { setSuccessMessage } = useSuccessMessageContext();
     const [error, setError] = useState("");
-    // const [newGender, setNewGender] = useState("");
     const [loading, setLoading] = useState(true); // Added loading state
-
+    const [notFound, setNotFound] = useState<boolean>(false);
+    const [authorized, setAuthorized] = useState<boolean>(true);
     const [student, setStudent] = useState<Student>({});
     const [gradesList, setGradesList] = useState<GradeCapacity[]>([]);
     const [genderTypes, setGenderTypes] = useState<StaticValue[]>([]);
@@ -36,6 +38,13 @@ export default function EditForm({ params }: { params: { studentId: number } }) 
             try {
                 const existingStudent = await getStudentById(params.studentId.toString());
                 setStudent(existingStudent);
+                // Authorization check after student data is fetched
+                if (existingStudent && existingStudent.preschool_id !== (await currentPreschool())) {
+                    setAuthorized(false);
+                } else {
+                    setAuthorized(true);
+                }
+
                 setLoading(false); // Set loading to false once data is fetched
 
             } catch (error) {
@@ -131,244 +140,248 @@ export default function EditForm({ params }: { params: { studentId: number } }) 
 
     return (
         <>
-            {loading && <Loader />} {/* Show loading indicator */}
+            {loading && <Loader />}
+            {!loading && !authorized && <NotAuthorized />}
+            {!loading && notFound && <NotFound></NotFound>}
+            {!loading && !notFound && authorized && (
+                <>
+                    <Breadcrumbs previousName='Students' currentName='Edit' pageTitle="Edit Student" previousPath='/students' />
+                    {error && <ErrorAlert message={error}></ErrorAlert>}
 
-            <Breadcrumbs previousName='Students' currentName='Edit' pageTitle="Edit Student" previousPath='/students' />
-            {error && <ErrorAlert message={error}></ErrorAlert>}
+                    <div className=" items-center justify-center min-h-screen">
+                        <div className="flex flex-col gap-9">
+                            <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+                                <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
+                                    <h3 className="font-medium text-black dark:text-white">
+                                        Edit Student
+                                    </h3>
+                                </div>
+                                <form onSubmit={handleSubmit}>
+                                    <div className="p-6.5">
+                                        <div className="mb-4.5">
+                                            <label className="mb-2.5 block text-black dark:text-white">
+                                                Student Name <span className="text-meta-1">*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={student.student_name}
+                                                onChange={(e) => setStudent({ ...student, student_name: e.target.value })}
+                                                placeholder="Enter student's name"
+                                                className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.student_name ? 'border-error' : ''
+                                                    }`}
+                                            />
+                                            {errors.student_name && (
+                                                <p className="text-error text-sm mt-1">{errors.student_name}</p>
+                                            )}
+                                        </div>
+                                        <div className="mb-4.5">
+                                            <label className="mb-2.5 block text-black dark:text-white">
+                                                Date of Birth <span className="text-meta-1">*</span>
+                                            </label>
+                                            <input
+                                                type="date"
+                                                value={student.DOB ? new Date(student.DOB).toISOString().substring(0, 10) : ''}
+                                                onChange={(e) => setStudent({ ...student, DOB: new Date(e.target.value) })}
+                                                className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.DOB ? 'border-error' : ''
+                                                    }`}
+                                            />
+                                            {errors.DOB && (
+                                                <p className="text-error text-sm mt-1">{errors.DOB}</p>
+                                            )}
+                                        </div>
+                                        <div className="mb-4.5">
+                                            <label className="mb-2.5 block text-black dark:text-white">Gender:</label>
+                                            <select
+                                                value={student.gender}
+                                                onChange={
+                                                    (e) => {
+                                                        setStudent({ ...student, gender: (e.target.value) })
+                                                        // setNewGender(e.target.value);
+                                                    }
+                                                }
+                                                className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary`}
+                                            >
+                                                <option value="">Select Gender</option>
+                                                {genderTypes.map((genderValue, index) => (
+                                                    <option key={index} value={genderValue.ValueName}>
+                                                        {genderValue.ValueName}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div className="mb-4.5">
+                                            <label className="mb-2.5 block text-black dark:text-white">
+                                                Grade <span className="text-meta-1">*</span>
+                                            </label>
+                                            <select
+                                                name="grade"
+                                                value={student.grade}
+                                                onChange={(e) => setStudent({ ...student, grade: (e.target.value) })}
+                                                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                                            >
+                                                <option value="">Select Grade</option>
+                                                {gradesList.map((grade, optionIndex) => (
+                                                    <option key={optionIndex} value={grade.grade}>
+                                                        {grade.grade}
+                                                    </option>
+                                                ))}
+                                            </select>
 
-            <div className=" items-center justify-center min-h-screen">
-                <div className="flex flex-col gap-9">
-                    <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-                        <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
-                            <h3 className="font-medium text-black dark:text-white">
-                                Edit Student
-                            </h3>
-                        </div>
-                        <form onSubmit={handleSubmit}>
-                            <div className="p-6.5">
-                                <div className="mb-4.5">
-                                    <label className="mb-2.5 block text-black dark:text-white">
-                                        Student Name <span className="text-meta-1">*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={student.student_name}
-                                        onChange={(e) => setStudent({ ...student, student_name: e.target.value })}
-                                        placeholder="Enter student's name"
-                                        className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.student_name ? 'border-error' : ''
-                                            }`}
-                                    />
-                                    {errors.student_name && (
-                                        <p className="text-error text-sm mt-1">{errors.student_name}</p>
-                                    )}
-                                </div>
-                                <div className="mb-4.5">
-                                    <label className="mb-2.5 block text-black dark:text-white">
-                                        Date of Birth <span className="text-meta-1">*</span>
-                                    </label>
-                                    <input
-                                        type="date"
-                                        value={student.DOB ? new Date(student.DOB).toISOString().substring(0, 10) : ''}
-                                        onChange={(e) => setStudent({ ...student, DOB: new Date(e.target.value) })}
-                                        className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.DOB ? 'border-error' : ''
-                                            }`}
-                                    />
-                                    {errors.DOB && (
-                                        <p className="text-error text-sm mt-1">{errors.DOB}</p>
-                                    )}
-                                </div>
-                                <div className="mb-4.5">
-                                    <label className="mb-2.5 block text-black dark:text-white">Gender:</label>
-                                    <select
-                                        value={student.gender}
-                                        onChange={
-                                            (e) => {
-                                                setStudent({ ...student, gender: (e.target.value) })
-                                                // setNewGender(e.target.value);
-                                            }
-                                        }
-                                        className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary`}
-                                    >
-                                        <option value="">Select Gender</option>
-                                        {genderTypes.map((genderValue, index) => (
-                                            <option key={index} value={genderValue.ValueName}>
-                                                {genderValue.ValueName}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div className="mb-4.5">
-                                    <label className="mb-2.5 block text-black dark:text-white">
-                                        Grade <span className="text-meta-1">*</span>
-                                    </label>
-                                    <select
-                                        name="grade"
-                                        value={student.grade}
-                                        onChange={(e) => setStudent({ ...student, grade: (e.target.value) })}
-                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                                    >
-                                        <option value="">Select Grade</option>
-                                        {gradesList.map((grade, optionIndex) => (
-                                            <option key={optionIndex} value={grade.grade}>
-                                                {grade.grade}
-                                            </option>
-                                        ))}
-                                    </select>
+                                        </div>
+                                        <div className="mb-4.5">
+                                            <label className="mb-2.5 block text-black dark:text-white">
+                                                CPR <span className="text-meta-1">*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={student.CPR}
+                                                onChange={(e) => setStudent({ ...student, CPR: parseInt(e.target.value) })}
+                                                placeholder="Enter student's CPR"
+                                                className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.CPR ? 'border-error' : ''
+                                                    }`}
+                                            />
+                                            {errors.CPR && (
+                                                <p className="text-error text-sm mt-1">{errors.CPR}</p>
+                                            )}
+                                        </div>
+                                        <div className="mb-4.5">
+                                            <label className="mb-2.5 block text-black dark:text-white">
+                                                Contact Number 1<span className="text-meta-1">*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={student.contact_number1}
+                                                onChange={(e) => setStudent({ ...student, contact_number1: parseInt(e.target.value) })} placeholder="Enter student's Contact Number"
+                                                className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.contact_number1 ? 'border-error' : ''
+                                                    }`}
+                                            />
+                                            {errors.contact_number1 && (
+                                                <p className="text-error text-sm mt-1">{errors.contact_number1}</p>
+                                            )}
+                                        </div>
+                                        <div className="mb-4.5">
+                                            <label className="mb-2.5 block text-black dark:text-white">
+                                                Contact Number 2<span className="text-meta-1">*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={student.contact_number2}
+                                                onChange={(e) => setStudent({ ...student, contact_number2: parseInt(e.target.value) })} placeholder="Enter student's Contact Number"
+                                                className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.contact_number2 ? 'border-error' : ''
+                                                    }`}
+                                            />
+                                            {errors.contact_number2 && (
+                                                <p className="text-error text-sm mt-1">{errors.contact_number2}</p>
+                                            )}
+                                        </div>
+                                        <div className="mb-4.5">
+                                            <label className="mb-2.5 block text-black dark:text-white">
+                                                Guardian Name<span className="text-meta-1">*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={student.guardian_name}
+                                                onChange={(e) => setStudent({ ...student, guardian_name: e.target.value })}
+                                                placeholder="Enter student's Guardian Name"
+                                                className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.guardian_name ? 'border-error' : ''
+                                                    }`}
+                                            />
+                                            {errors.guardian_name && (
+                                                <p className="text-error text-sm mt-1">{errors.guardian_name}</p>
+                                            )}
+                                        </div>
+                                        <div className="mb-4.5">
+                                            <label className="mb-2.5 block text-black dark:text-white">
+                                                Enrollment Date <span className="text-meta-1">*</span>
+                                            </label>
+                                            <input
+                                                type="date"
+                                                value={student.enrollment_date ? new Date(student.enrollment_date).toISOString().substring(0, 10) : ''}
+                                                onChange={(e) => setStudent({ ...student, enrollment_date: new Date(e.target.value) })}
+                                                className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.enrollment_date ? 'border-error' : ''
+                                                    }`}
+                                            />
+                                            {errors.enrollment_date && (
+                                                <p className="text-error text-sm mt-1">{errors.enrollment_date}</p>
+                                            )}
+                                        </div>
+                                        <div className="mb-4.5">
+                                            <label className="mb-2.5 block text-black dark:text-white">
+                                                Medical History <span className="text-meta-1">*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={student.medical_history}
+                                                onChange={(e) => setStudent({ ...student, medical_history: e.target.value })}
+                                                placeholder="Enter student's medical history"
+                                                className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.medical_history ? 'border-error' : ''
+                                                    }`}
+                                            />
+                                            {errors.medical_history && (
+                                                <p className="text-error text-sm mt-1">{errors.medical_history}</p>
+                                            )}
+                                        </div>
+                                        {/* Personal Picture */}
+                                        <div className="mb-4.5">
+                                            <label className="mb-3 block text-black dark:text-white">
+                                                Personal Picture <span className="text-meta-1">*</span>
+                                            </label>
+                                            <Link className="text-secondary" href={`${student?.personal_picture}`} target="_blank"><p>View Existing File</p></Link>
 
-                                </div>
-                                <div className="mb-4.5">
-                                    <label className="mb-2.5 block text-black dark:text-white">
-                                        CPR <span className="text-meta-1">*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={student.CPR}
-                                        onChange={(e) => setStudent({ ...student, CPR: parseInt(e.target.value) })}
-                                        placeholder="Enter student's CPR"
-                                        className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.CPR ? 'border-error' : ''
-                                            }`}
-                                    />
-                                    {errors.CPR && (
-                                        <p className="text-error text-sm mt-1">{errors.CPR}</p>
-                                    )}
-                                </div>
-                                <div className="mb-4.5">
-                                    <label className="mb-2.5 block text-black dark:text-white">
-                                        Contact Number 1<span className="text-meta-1">*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={student.contact_number1}
-                                        onChange={(e) => setStudent({ ...student, contact_number1: parseInt(e.target.value) })} placeholder="Enter student's Contact Number"
-                                        className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.contact_number1 ? 'border-error' : ''
-                                            }`}
-                                    />
-                                    {errors.contact_number1 && (
-                                        <p className="text-error text-sm mt-1">{errors.contact_number1}</p>
-                                    )}
-                                </div>
-                                <div className="mb-4.5">
-                                    <label className="mb-2.5 block text-black dark:text-white">
-                                        Contact Number 2<span className="text-meta-1">*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={student.contact_number2}
-                                        onChange={(e) => setStudent({ ...student, contact_number2: parseInt(e.target.value) })} placeholder="Enter student's Contact Number"
-                                        className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.contact_number2 ? 'border-error' : ''
-                                            }`}
-                                    />
-                                    {errors.contact_number2 && (
-                                        <p className="text-error text-sm mt-1">{errors.contact_number2}</p>
-                                    )}
-                                </div>
-                                <div className="mb-4.5">
-                                    <label className="mb-2.5 block text-black dark:text-white">
-                                        Guardian Name<span className="text-meta-1">*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={student.guardian_name}
-                                        onChange={(e) => setStudent({ ...student, guardian_name: e.target.value })}
-                                        placeholder="Enter student's Guardian Name"
-                                        className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.guardian_name ? 'border-error' : ''
-                                            }`}
-                                    />
-                                    {errors.guardian_name && (
-                                        <p className="text-error text-sm mt-1">{errors.guardian_name}</p>
-                                    )}
-                                </div>
-                                <div className="mb-4.5">
-                                    <label className="mb-2.5 block text-black dark:text-white">
-                                        Enrollment Date <span className="text-meta-1">*</span>
-                                    </label>
-                                    <input
-                                        type="date"
-                                        value={student.enrollment_date ? new Date(student.enrollment_date).toISOString().substring(0, 10) : ''}
-                                        onChange={(e) => setStudent({ ...student, enrollment_date: new Date(e.target.value) })}
-                                        className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.enrollment_date ? 'border-error' : ''
-                                            }`}
-                                    />
-                                    {errors.enrollment_date && (
-                                        <p className="text-error text-sm mt-1">{errors.enrollment_date}</p>
-                                    )}
-                                </div>
-                                <div className="mb-4.5">
-                                    <label className="mb-2.5 block text-black dark:text-white">
-                                        Medical History <span className="text-meta-1">*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={student.medical_history}
-                                        onChange={(e) => setStudent({ ...student, medical_history: e.target.value })}
-                                        placeholder="Enter student's medical history"
-                                        className={`w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary ${errors.medical_history ? 'border-error' : ''
-                                            }`}
-                                    />
-                                    {errors.medical_history && (
-                                        <p className="text-error text-sm mt-1">{errors.medical_history}</p>
-                                    )}
-                                </div>
-                                {/* Personal Picture */}
-                                <div className="mb-4.5">
-                                    <label className="mb-3 block text-black dark:text-white">
-                                        Personal Picture <span className="text-meta-1">*</span>
-                                    </label>
-                                    <Link className="text-secondary" href={`${student?.personal_picture}`} target="_blank"><p>View Existing File</p></Link>
+                                            {/* <label>{student?.personal_picture}</label> */}
+                                            <input
+                                                type="file"
+                                                name="personal_picture"
+                                                accept="image/*,application/pdf"
+                                                onChange={(e) => setStudent({ ...student, personal_pictureFile: e.target.files?.[0] })}
+                                                className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary   dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
+                                            />
+                                        </div>
 
-                                    {/* <label>{student?.personal_picture}</label> */}
-                                    <input
-                                        type="file"
-                                        name="personal_picture"
-                                        accept="image/*,application/pdf"
-                                        onChange={(e) => setStudent({ ...student, personal_pictureFile: e.target.files?.[0] })}
-                                        className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary   dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
-                                    />
-                                </div>
+                                        {/* Certificate of Birth */}
+                                        <div className="mb-4.5">
+                                            <label className="mb-3 block text-black dark:text-white">
+                                                Certificate of Birth <span className="text-meta-1">*</span>
+                                            </label>
+                                            <Link className="text-secondary" href={`${student?.certificate_of_birth}`} target="_blank"><p>View Existing File</p></Link>
+                                            <input
+                                                type="file"
+                                                name="certificate_of_birth"
+                                                accept="image/*,application/pdf"
+                                                onChange={(e) => setStudent({ ...student, certificate_of_birthFile: e.target.files?.[0] })}
+                                                className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary   dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
+                                            />
+                                        </div>
 
-                                {/* Certificate of Birth */}
-                                <div className="mb-4.5">
-                                    <label className="mb-3 block text-black dark:text-white">
-                                        Certificate of Birth <span className="text-meta-1">*</span>
-                                    </label>
-                                    <Link className="text-secondary" href={`${student?.certificate_of_birth}`} target="_blank"><p>View Existing File</p></Link>
-                                    <input
-                                        type="file"
-                                        name="certificate_of_birth"
-                                        accept="image/*,application/pdf"
-                                        onChange={(e) => setStudent({ ...student, certificate_of_birthFile: e.target.files?.[0] })}
-                                        className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary   dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
-                                    />
-                                </div>
+                                        {/* Passport */}
+                                        <div className="mb-4.5">
+                                            <label className="mb-3 block text-black dark:text-white">
+                                                Passport <span className="text-meta-1">*</span>
+                                            </label>
+                                            <Link className="text-secondary" href={`${student?.passport}`} target="_blank"><p>View Existing File</p></Link>
 
-                                {/* Passport */}
-                                <div className="mb-4.5">
-                                    <label className="mb-3 block text-black dark:text-white">
-                                        Passport <span className="text-meta-1">*</span>
-                                    </label>
-                                    <Link className="text-secondary" href={`${student?.passport}`} target="_blank"><p>View Existing File</p></Link>
-
-                                    <input
-                                        type="file"
-                                        accept="image/*,application/pdf"
-                                        name="passport"
-                                        onChange={(e) => setStudent({ ...student, passportFile: e.target.files?.[0] })}
-                                        className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary   dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
-                                    />
-                                </div>
-                                <button type="submit" className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray mb-4">
-                                    Update
-                                </button>
-                                <Link
-                                    href="/students"
-                                    className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray"              >
-                                    Back To List
-                                </Link>
+                                            <input
+                                                type="file"
+                                                accept="image/*,application/pdf"
+                                                name="passport"
+                                                onChange={(e) => setStudent({ ...student, passportFile: e.target.files?.[0] })}
+                                                className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary   dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
+                                            />
+                                        </div>
+                                        <button type="submit" className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray mb-4">
+                                            Update
+                                        </button>
+                                        <Link
+                                            href="/students"
+                                            className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray"              >
+                                            Back To List
+                                        </Link>
+                                    </div>
+                                </form>
                             </div>
-                        </form>
+                        </div>
                     </div>
-                </div>
-            </div>
-        </>
-    );
+                </>
+            )}
+        </>);
 }

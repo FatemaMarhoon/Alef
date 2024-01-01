@@ -323,6 +323,54 @@ const ApplicationController = {
             res.status(500).json({ message: error.message });
         }
     },
+
+
+    // async deleteApplication(req, res) {
+    //     const { id } = req.params;
+    //     let deletedApplicationData; // Declare the variable outside the block
+    //     const user_id = await UsersController.getCurrentUser(req, res);
+
+    //     try {
+    //         const application = await Application.findByPk(id);
+
+    //         if (application) {
+    //             deletedApplicationData = JSON.stringify(application.toJSON()); // Store the application data before deletion
+
+    //             const deletedCount = await Application.destroy({ where: { id } });
+
+    //             if (deletedCount > 0) {
+    //                 // Create a log entry for the application deletion
+    //                 await LogsController.createLog({
+    //                     type: 'Application Deletion',
+    //                     original_values: deletedApplicationData,
+    //                     current_values: 'Application deleted',
+    //                     user_id: user_id
+    //                 });
+
+    //                 res.json({ message: 'Application deleted successfully' });
+    //             } else {
+    //                 res.status(404).json({ message: 'Application not found' });
+    //             }
+    //         } else {
+    //             res.status(404).json({ message: 'Application not found' });
+    //         }
+    //     } catch (error) {
+    //         if (deletedApplicationData) {
+    //             // Create a log entry for the error if deletedApplicationData is defined
+    //             await LogsController.createLog({
+    //                 type: 'Error',
+    //                 original_values: deletedApplicationData,
+    //                 current_values: JSON.stringify({ error: error.message }),
+    //                 user_id: user_id
+    //             });
+    //         } else {
+    //             // Handle the error if deletedApplicationData is not defined
+    //             console.error('Error deleting application:', error);
+    //         }
+
+    //         res.status(500).json({ message: error.message });
+    //     }
+    // },
 };
 
 
