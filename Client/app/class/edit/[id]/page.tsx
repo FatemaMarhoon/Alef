@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getClassById, updateClass } from '@/services/classService';
 import { Student } from '@/types/student';
-import { getStudents, getStudentsByClassId } from '@/services/studentService';
+import { getStudents, getStudentsByClassId, updateStudentClassId } from '@/services/studentService';
 import { Class } from '@/types/class';
 import Link from 'next/link';
 import { updateStudent } from '@/services/studentService';
@@ -99,7 +99,7 @@ export default function EditForm({ params }: { params: { id: number } }) {
             console.log('Updating student with data:', updatedStudentData);
 
             // Update the student
-            await updateStudent(studentId.toString(), updatedStudentData);
+            await updateStudentClassId(studentId.toString(), null);
 
             // After updating, refetch the data to update the UI
             fetchData();
@@ -169,7 +169,7 @@ export default function EditForm({ params }: { params: { id: number } }) {
 
             console.log("selected student:", selectedStudentId)
             // Update the student
-            await updateStudent(selectedStudentId.toString(), updatedStudentData);
+            await updateStudentClassId(selectedStudentId.toString(), classId);
 
             // After updating, refetch the data to update the UI
             fetchData();
