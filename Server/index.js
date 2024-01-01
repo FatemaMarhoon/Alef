@@ -8,7 +8,7 @@ const app = express();
 //  Invoke the cors middleware
 app.use(cors());
 
-const PORT = process.env.PORT || 30002;
+const PORT = process.env.PORT || 3000;
 
 const server = http.createServer(app);
 
