@@ -3,8 +3,8 @@ import { Student } from '@/types/student'; // Import the Student type
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { currentPreschool, currentToken, currentUser } from './authService';
 
-// const BASE_URL = `http://localhost:3000/student`; // Backend URL for students
-const BASE_URL = 'https://server-bckggkpqeq-uc.a.run.app/student' // Backend URL for students
+const BASE_URL = `http://localhost:3000/student`; // Backend URL for students
+//const BASE_URL = 'https://server-bckggkpqeq-uc.a.run.app/student' // Backend URL for students
 
 export async function getStudents(grade?: string): Promise<Student[]> {
     try {
@@ -318,7 +318,7 @@ export async function getStudentsByClassId(classId: string): Promise<Student[]> 
         throw axiosError;
     }
 }
-export async function updateStudentClassId(studentId: string, classId: number): Promise<any> {
+export async function updateStudentClassId(studentId: string, classId: any): Promise<any> {
     try {
         let token;
         let preschool;
@@ -346,7 +346,7 @@ export async function updateStudentClassId(studentId: string, classId: number): 
 
         // Make the PUT request to update the class_id of the student
         const response = await axios.put(
-            `${BASE_URL}/${studentId}`,
+            `${BASE_URL}/class/${studentId}`,
             studentData,
             config
         );

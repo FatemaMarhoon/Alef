@@ -84,8 +84,8 @@ export default function ChartThree() {
     }, []);
 
     return (
-        <div className="col-span-12 rounded-sm border border-stroke bg-white px-5 pt-7.5 pb-5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:col-span-6">
-            <div className="mb-6 justify-between gap-4 sm:flex">
+        <div className="col-span-12 rounded-sm border border-stroke bg-white px-8 pt-10 pb-8 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-8 xl:col-span-12">
+            <div className="mb-6 flex items-center justify-between gap-4 sm:flex">
                 <div>
                     <h5 className="text-xl font-semibold text-black dark:text-white">
                         Preschool Requests
