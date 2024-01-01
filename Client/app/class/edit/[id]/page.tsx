@@ -14,7 +14,9 @@ import { GradeCapacity } from '@/types/gradeCapacity';
 import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
 import Loader from "@/components/common/Loader"; // Import the Loader component
 import Breadcrumbs from '@/components/Breadcrumbs/Breadcrumb2';
-
+import NotFound from '@/components/Pages/404';
+import NotAuthorized from '@/components/Pages/403';
+import { currentPreschool } from "@/services/authService";
 export default function EditForm({ params }: { params: { id: number } }) {
     const classId = params.id;
     const router = useRouter();
@@ -29,16 +31,30 @@ export default function EditForm({ params }: { params: { id: number } }) {
     const { setSuccessMessage } = useSuccessMessageContext();
     const [studentsCount, setStudentsCount] = useState(0);
     const [loading, setLoading] = useState(true); // Added loading state
-
+    const [notFound, setNotFound] = useState<boolean>(false);
+    const [authorized, setAuthorized] = useState<boolean>(true);
     const fetchData = async () => {
         try {
-            // Fetch students for the class
+            // Fetch class details
+            const classDetailsData = await getClassById(classId.toString());
+            console.log(classDetailsData);
+            // Authorization check based on class's preschool ID
+            if (classDetailsData && classDetailsData.class.preschool_id !== (await currentPreschool())) {
+                setAuthorized(false);
+                setLoading(false);
+                return; // Exit the function if unauthorized
+            } else {
+                setAuthorized(true);
+            }
+
+            setClassDetails(classDetailsData);
+
+            // // Fetch students for the class
             const studentsData = await getStudentsByClassId(classId.toString());
             setStudents(studentsData);
 
-            // Fetch class details
-            const classDetailsData = await getClassById(classId.toString());
-            setClassDetails(classDetailsData);
+
+
             // Count the number of students
             const numberOfStudents = studentsData.length;
             console.log(`Number of students in the class: ${numberOfStudents}`);
@@ -248,7 +264,9 @@ export default function EditForm({ params }: { params: { id: number } }) {
     return (
         <>
             {loading && <Loader />}
-            {!loading && (
+            {!loading && !authorized && <NotAuthorized />}
+            {!loading && notFound && <NotFound></NotFound>}
+            {!loading && !notFound && authorized && (
                 <>
                     <Breadcrumbs previousName='Classes' currentName='Edit' pageTitle="Edit Class" previousPath='/class' />
                     <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark-bg-boxdark sm-px-7.5 xl-pb-1">

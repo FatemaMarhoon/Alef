@@ -14,6 +14,9 @@ import ErrorAlert from "@/components/ErrorAlert";
 import { StaticValue } from "@/types/staticValue";
 import { getRequestStatuses } from "@/services/staticValuesService";
 import Loader from "@/components/common/Loader"; // Import the Loader component
+import NotFound from '@/components/Pages/404';
+import NotAuthorized from '@/components/Pages/403';
+import { currentPreschool } from "@/services/authService";
 export default function EditStationaryRequestForm({ params }: { params: { id: number } }) {
     const router = useRouter();
     const { setSuccessMessage } = useSuccessMessageContext();
@@ -33,10 +36,11 @@ export default function EditStationaryRequestForm({ params }: { params: { id: nu
     const [stationaries, setStationaries] = useState<Stationary[]>([]);
     const [staffName, setStaffName] = useState<string>('');
     const [stationaryList, setStationaryList] = useState<Stationary[]>([]);
-    const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [requestStatuses, setRequestStatuses] = useState<StaticValue[]>([]);
-
+    const [loading, setLoading] = useState(true); // Added loading state
+    const [notFound, setNotFound] = useState<boolean>(false);
+    const [authorized, setAuthorized] = useState<boolean>(true);
     useEffect(() => {
         // Fetch gender types when the component mounts
         async function fetchRequestStatuses() {
@@ -61,6 +65,12 @@ export default function EditStationaryRequestForm({ params }: { params: { id: nu
             try {
                 const existingStationaryRequest = await getStationaryRequestById(params.id.toString());
                 setStationaryRequest(existingStationaryRequest);
+                // Authorization check after staff data is fetched
+                if (existingStationaryRequest && existingStationaryRequest.preschool_id !== (await currentPreschool())) {
+                    setAuthorized(false);
+                } else {
+                    setAuthorized(true);
+                }
 
                 // Fetch the list of stationary items
                 const stationariesData = await getStationary();
@@ -165,8 +175,10 @@ export default function EditStationaryRequestForm({ params }: { params: { id: nu
     return (
         <>
             {loading && <Loader />}
-            {!loading && (
-                <><Breadcrumbs previousName='Stationary Requests' currentName='Edit' pageTitle="Edit Stationary Request" previousPath='/stationaryRequest' />
+            {!loading && !authorized && <NotAuthorized />}
+            {!loading && notFound && <NotFound></NotFound>}
+            {!loading && !notFound && authorized && (
+                <> <Breadcrumbs previousName='Stationary Requests' currentName='Edit' pageTitle="Edit Stationary Request" previousPath='/stationaryRequest' />
                     {error && <ErrorAlert message={error}></ErrorAlert>}
 
                     <div className="items-center justify-center min-h-screen">
@@ -272,7 +284,8 @@ export default function EditStationaryRequestForm({ params }: { params: { id: nu
                                 </form>
                             </div>
                         </div>
-                    </div></>
+                    </div>
+                </>
             )}
         </>
     );

@@ -177,7 +177,7 @@ const ClassController = {
             });
 
             if (classObj) {
-                res.json({ message: 'Class found', class: classObj });
+                res.json({ class: classObj });
             } else {
                 res.status(404).json({ message: 'Class not found' });
             }

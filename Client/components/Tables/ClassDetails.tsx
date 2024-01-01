@@ -9,7 +9,9 @@ import { updateStudent } from '../../services/studentService';
 import { Grade } from '@mui/icons-material';
 import Loader from "@/components/common/Loader"; // Import the Loader component
 import Breadcrumbs from '../Breadcrumbs/Breadcrumb2';
-
+import NotFound from '@/components/Pages/404';
+import NotAuthorized from '@/components/Pages/403';
+import { currentPreschool } from "@/services/authService";
 interface ClassDetailsProps {
     classId: string;
 }
@@ -24,15 +26,29 @@ const ClassDetails: React.FC<ClassDetailsProps> = (props) => {
     const [grade, setGrade] = useState("");
     const [studentsCount, setStudentsCount] = useState(0);
     const [loading, setLoading] = useState(true); // Added loading state
-
+    const [notFound, setNotFound] = useState<boolean>(false);
+    const [authorized, setAuthorized] = useState<boolean>(true);
     const fetchData = async () => {
         try {
+            // Fetch class details
+            const classDetailsData = await getClassById(classId.toString());
+            console.log(classDetailsData);
+            // Authorization check based on class's preschool ID
+            if (classDetailsData && classDetailsData.class.preschool_id !== (await currentPreschool())) {
+                setAuthorized(false);
+                setLoading(false);
+                return; // Exit the function if unauthorized
+            } else {
+                setAuthorized(true);
+            }
+
+            setClassDetails(classDetailsData);
             // Fetch students for the class
             const studentsData = await getStudentsByClassId(classId as string);
             setStudents(studentsData);
-            // Fetch class details
-            const classDetailsData = await getClassById(classId as string);
-            setClassDetails(classDetailsData);
+            // // Fetch class details
+            // const classDetailsData = await getClassById(classId as string);
+            // setClassDetails(classDetailsData);
             // Count the number of students
             const numberOfStudents = studentsData.length;
             console.log(`Number of students in the class: ${numberOfStudents}`);
@@ -86,7 +102,9 @@ const ClassDetails: React.FC<ClassDetailsProps> = (props) => {
     return (
         <>
             {loading && <Loader />}
-            {!loading && (
+            {!loading && !authorized && <NotAuthorized />}
+            {!loading && notFound && <NotFound></NotFound>}
+            {!loading && !notFound && authorized && (
                 <>
                     <Breadcrumbs previousName='Classes' currentName='Details' pageTitle="Class Details" previousPath='/class' />
                     <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark-bg-boxdark sm-px-7.5 xl-pb-1">

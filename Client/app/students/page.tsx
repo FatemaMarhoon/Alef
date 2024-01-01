@@ -30,12 +30,23 @@ export default function StudentTable() {
     const { successMessage, clearSuccessMessage } = useSuccessMessageContext();
     const [loading, setLoading] = useState(true); // Added loading state
     const [plan, setPlan] = useState(0);
-    const [authorizationCheckComplete, setAuthorizationCheckComplete] = useState(false);
+    const [authorizationCheckComplete, setAuthorizationCheckComplete] = useState(true);
     const [showUnassigned, setShowUnassigned] = useState(false); // New state for the filter
 
     useEffect(() => {
+        async function checkAuthorization() {
+            try {
+                const plan = await getPlan();
+                setPlan(plan);
+                return plan; // Return the user role
+            } catch (error) {
+                console.error('Error checking authorization:', error);
+            }
+        }
+
         async function fetchStudents() {
             try {
+                await checkAuthorization();
                 const studentsData = await getStudents();
                 // Filter unassigned students if showUnassigned is true
                 const filteredStudents = showUnassigned
@@ -43,14 +54,18 @@ export default function StudentTable() {
                     : studentsData;
                 setStudents(filteredStudents);
                 setLoading(false); // Set loading to false once data is fetched
+                setAuthorizationCheckComplete(true); // Mark authorization check as complete
             } catch (error) {
                 console.error('Error fetching students:', error);
                 setLoading(false); // Set loading to false in case of an error
+                setAuthorizationCheckComplete(true); // Mark authorization check as complete in case of an error
             }
         }
+
         fetchStudents();
         console.log("Message on Students load: ", successMessage);
     }, [successMessage, showUnassigned]);
+
 
     const paginate = (event: React.ChangeEvent<unknown>, pageNumber: number) => {
         setCurrentPage(pageNumber);
@@ -66,211 +81,196 @@ export default function StudentTable() {
     const indexOfFirstStudent = indexOfLastStudent - studentsPerPage;
     const currentStudents = filteredStudents.slice(indexOfFirstStudent, indexOfLastStudent);
 
-    const checkAuthorization = async () => {
-        try {
-            const plan = await getPlan();
-            setPlan(plan);
-            return plan; // Return the user role
-        } catch (error) {
-            console.error('Error checking authorization:', error);
-        } finally {
-            // Mark authorization check as complete
-            setAuthorizationCheckComplete(true);
-        }
-    };
-
-    useEffect(() => {
-        // Call the function to check authorization when the component mounts or when user changes
-        checkAuthorization();
-    }, []); // The empty dependency array means this useEffect runs once when the component mounts
 
 
     return (
         <>
 
-            {successMessage && <SuccessAlert message={successMessage} />}
             {loading && !authorizationCheckComplete && <Loader />}
             {!loading && (plan !== 3 && plan !== 2) && <Access />}
             {!loading && (plan === 3 || plan === 2) && (
-                <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark-bg-boxdark sm-px-7.5 xl-pb-1">
-                    <h4 className="mb-6 text-xl font-semibold text-black dark-text-white">
-                        Students Management
-                    </h4>
-                    <div className="flex justify-end mb-4">
-                        <Link
-                            href="/students/create"
-                            className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90"
-                        >
-                            Add new student
-                        </Link>
-                    </div>
-                    <Grid container spacing={2} alignItems="center">
-                        <Grid item xs={6}>
-                            <TextField
-                                label="Search by student name"
-                                variant="outlined"
-                                size="small"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                fullWidth
-                            />
-                        </Grid>
-                        <Grid item xs={3}>
-                            <FormControl variant="outlined" size="small" fullWidth>
-                                <InputLabel id="gender-filter-label">Gender</InputLabel>
-                                <Select
-                                    labelId="gender-filter-label"
-                                    id="gender-filter"
-                                    value={genderFilter}
-                                    onChange={(e) => setGenderFilter(e.target.value as string)}
-                                    label="Gender"
-                                >
-                                    {['All', 'Male', 'Female'].map((gender, index) => (
-                                        <MenuItem key={index} value={gender.toLowerCase()}>
-                                            {gender}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                        </Grid>
-                        <Grid item xs={3}>
-                            {/* Toggle button group for unassigned students */}
-                            <ToggleButtonGroup
-                                value={showUnassigned}
-                                exclusive
-                                onChange={() => setShowUnassigned(!showUnassigned)}
-                                aria-label="text alignment"
-                                fullWidth
+                <>
+                    {successMessage && <SuccessAlert message={successMessage} />}
+
+                    <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark-bg-boxdark sm-px-7.5 xl-pb-1">
+                        <h4 className="mb-6 text-xl font-semibold text-black dark-text-white">
+                            Students Management
+                        </h4>
+                        <div className="flex justify-end mb-4">
+                            <Link
+                                href="/students/create"
+                                className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90"
                             >
-                                <ToggleButton value={false} aria-label="left aligned" style={{ height: '36px' }}>
-                                    <Typography variant="caption">All Students</Typography>
-                                </ToggleButton>
-                                <ToggleButton value={true} aria-label="centered" style={{ height: '36px' }}>
-                                    <Typography variant="caption">Unassigned </Typography>
-                                </ToggleButton>
-                            </ToggleButtonGroup>
+                                Add new student
+                            </Link>
+                        </div>
+                        <Grid container spacing={2} alignItems="center">
+                            <Grid item xs={6}>
+                                <TextField
+                                    label="Search by student name"
+                                    variant="outlined"
+                                    size="small"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    fullWidth
+                                />
+                            </Grid>
+                            <Grid item xs={3}>
+                                <FormControl variant="outlined" size="small" fullWidth>
+                                    <InputLabel id="gender-filter-label">Gender</InputLabel>
+                                    <Select
+                                        labelId="gender-filter-label"
+                                        id="gender-filter"
+                                        value={genderFilter}
+                                        onChange={(e) => setGenderFilter(e.target.value as string)}
+                                        label="Gender"
+                                    >
+                                        {['All', 'Male', 'Female'].map((gender, index) => (
+                                            <MenuItem key={index} value={gender.toLowerCase()}>
+                                                {gender}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                            <Grid item xs={3}>
+                                {/* Toggle button group for unassigned students */}
+                                <ToggleButtonGroup
+                                    value={showUnassigned}
+                                    exclusive
+                                    onChange={() => setShowUnassigned(!showUnassigned)}
+                                    aria-label="text alignment"
+                                    fullWidth
+                                >
+                                    <ToggleButton value={false} aria-label="left aligned" style={{ height: '36px' }}>
+                                        <Typography variant="caption">All Students</Typography>
+                                    </ToggleButton>
+                                    <ToggleButton value={true} aria-label="centered" style={{ height: '36px' }}>
+                                        <Typography variant="caption">Unassigned </Typography>
+                                    </ToggleButton>
+                                </ToggleButtonGroup>
+                            </Grid>
                         </Grid>
-                    </Grid>
-                    <div className="mb-4"></div> {/* Add space between the search/filter div and the table */}
-                    <div className="max-w-full overflow-x-auto">
-                        <table className="w-full table-auto">
-                            <thead>
-                                <tr className="bg-gray-2 text-left dark-bg-meta-4">
-                                    <th className="min-w-220px py-4 px-4 font-medium text-black dark-text-white xl-pl-11">
-                                        Student ID
-                                    </th>
-                                    <th className="min-w-150px py-4 px-4 font-medium text-black dark-text-white">
-                                        Student Name
-                                    </th>
-                                    <th className="py-4 px-4 font-medium text-black dark-text-white">
-                                        Date of Birth
-                                    </th>
-                                    <th className="py-4 px-4 font-medium text-black dark-text-white">
-                                        Gender
-                                    </th>
-                                    <th className="py-4 px-4 font-medium text-black dark-text-white">
-                                        CPR
-                                    </th>
-                                    <th className="py-4 px-4 font-medium text-black dark-text-white">
-                                        Contact Number 1
-                                    </th>
-                                    <th className="py-4 px-4 font-medium text-black dark-text-white">
-                                        Contact Number 2
-                                    </th>
-                                    {/* <th className="py-4 px-4 font-medium text-black dark-text-white">
+                        <div className="mb-4"></div> {/* Add space between the search/filter div and the table */}
+                        <div className="max-w-full overflow-x-auto">
+                            <table className="w-full table-auto">
+                                <thead>
+                                    <tr className="bg-gray-2 text-left dark-bg-meta-4">
+                                        <th className="min-w-220px py-4 px-4 font-medium text-black dark-text-white xl-pl-11">
+                                            Student ID
+                                        </th>
+                                        <th className="min-w-150px py-4 px-4 font-medium text-black dark-text-white">
+                                            Student Name
+                                        </th>
+                                        <th className="py-4 px-4 font-medium text-black dark-text-white">
+                                            Date of Birth
+                                        </th>
+                                        <th className="py-4 px-4 font-medium text-black dark-text-white">
+                                            Gender
+                                        </th>
+                                        <th className="py-4 px-4 font-medium text-black dark-text-white">
+                                            CPR
+                                        </th>
+                                        <th className="py-4 px-4 font-medium text-black dark-text-white">
+                                            Contact Number 1
+                                        </th>
+                                        <th className="py-4 px-4 font-medium text-black dark-text-white">
+                                            Contact Number 2
+                                        </th>
+                                        {/* <th className="py-4 px-4 font-medium text-black dark-text-white">
                                         Guardian Name
                                     </th> */}
-                                    <th className="py-4 px-4 font-medium text-black dark-text-white">
-                                        Enrollment Date
-                                    </th>
-                                    {/* <th className="py-4 px-4 font-medium text-black dark-text-white">
+                                        <th className="py-4 px-4 font-medium text-black dark-text-white">
+                                            Enrollment Date
+                                        </th>
+                                        {/* <th className="py-4 px-4 font-medium text-black dark-text-white">
                                         Medical History
                                     </th> */}
-                                    <th className="py-4 px-4 font-medium text-black dark-text-white">
-                                        Actions
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {currentStudents.map((student, key) => (
-                                    <tr key={key}>
-                                        <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                                            <h5 className="font-medium text-black dark-text-white">
-                                                {student.id}
-                                            </h5>
-                                        </td>
-                                        <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                                            <p className="text-black dark-text-white">
-                                                {student.student_name}
-                                            </p>
-                                        </td>
-                                        <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                                            <p className="text-black dark-text-white">
-                                                {new Date(student.DOB).toLocaleDateString()}
-                                            </p>
-                                        </td>
-                                        <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                                            <p
-                                                className="text-black dark-text-white"
-                                            //                                         className={`inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium 
-                                            //    ${student.gender === "Male" ? "text-blue-500 bg-blue-100" :
-                                            //                                                 student.gender === "Female" ? "text-pink-500 bg-pink-100" : ""}
-                                            // `}
+                                        <th className="py-4 px-4 font-medium text-black dark-text-white">
+                                            Actions
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {currentStudents.map((student, key) => (
+                                        <tr key={key}>
+                                            <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                                                <h5 className="font-medium text-black dark-text-white">
+                                                    {student.id}
+                                                </h5>
+                                            </td>
+                                            <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                                                <p className="text-black dark-text-white">
+                                                    {student.student_name}
+                                                </p>
+                                            </td>
+                                            <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                                                <p className="text-black dark-text-white">
+                                                    {new Date(student.DOB).toLocaleDateString()}
+                                                </p>
+                                            </td>
+                                            <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                                                <p
+                                                    className="text-black dark-text-white"
+                                                //                                         className={`inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium 
+                                                //    ${student.gender === "Male" ? "text-blue-500 bg-blue-100" :
+                                                //                                                 student.gender === "Female" ? "text-pink-500 bg-pink-100" : ""}
+                                                // `}
 
-                                            >
-                                                {student.gender}
-                                            </p>
-                                        </td>
-                                        <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                                            <p className="text-black dark-text-white">
-                                                {student.CPR}
-                                            </p>
-                                        </td>
-                                        <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                                            <p className="text-black dark-text-white">
-                                                {student.contact_number1}
-                                            </p>
-                                        </td>
-                                        <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                                            <p className="text-black dark-text-white">
-                                                {student.contact_number2}
-                                            </p>
-                                        </td>
-                                        {/* <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                                                >
+                                                    {student.gender}
+                                                </p>
+                                            </td>
+                                            <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                                                <p className="text-black dark-text-white">
+                                                    {student.CPR}
+                                                </p>
+                                            </td>
+                                            <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                                                <p className="text-black dark-text-white">
+                                                    {student.contact_number1}
+                                                </p>
+                                            </td>
+                                            <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                                                <p className="text-black dark-text-white">
+                                                    {student.contact_number2}
+                                                </p>
+                                            </td>
+                                            {/* <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                                             <p className="text-black dark-text-white">
                                                 {student.guardian_name}
                                             </p>
                                         </td> */}
-                                        <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                                            <p className="text-black dark-text-white">
-                                                {new Date(student.enrollment_date).toLocaleDateString()}
-                                            </p>
-                                        </td>
-                                        {/* <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                                            <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                                                <p className="text-black dark-text-white">
+                                                    {new Date(student.enrollment_date).toLocaleDateString()}
+                                                </p>
+                                            </td>
+                                            {/* <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                                             <p className="text-black dark-text-white">
                                                 {student.medical_history}
                                             </p>
                                         </td> */}
 
-                                        <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                                            <div className="flex items-center space-x-3.5">
-                                                <button className="hover:text-primary">
-                                                    <Link href={`/students/view/${student.id}`}>
-                                                        View
-                                                    </Link>
-                                                </button>
-                                                <button className="hover:text-primary">
-                                                    <Link href={`/students/edit/${student.id}`}>
-                                                        Edit
-                                                    </Link>
-                                                </button>
-                                                <button className="hover:text-primary">
-                                                    <Link href={`/students/delete/${student.id}`}>
-                                                        Delete
-                                                    </Link>
-                                                </button>
-                                            </div>
-                                            {/* <div className="flex items-center space-x-3.5">
+                                            <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                                                <div className="flex items-center space-x-3.5">
+                                                    <button className="hover:text-primary">
+                                                        <Link href={`/students/view/${student.id}`}>
+                                                            View
+                                                        </Link>
+                                                    </button>
+                                                    <button className="hover:text-primary">
+                                                        <Link href={`/students/edit/${student.id}`}>
+                                                            Edit
+                                                        </Link>
+                                                    </button>
+                                                    <button className="hover:text-primary">
+                                                        <Link href={`/students/delete/${student.id}`}>
+                                                            Delete
+                                                        </Link>
+                                                    </button>
+                                                </div>
+                                                {/* <div className="flex items-center space-x-3.5">
                                                 <button className="hover:text-primary">
                                                     <Link href={`/students/view/${student.id}`}>
 
@@ -345,28 +345,28 @@ export default function StudentTable() {
                                                     </Link>
                                                 </button>
                                             </div> */}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                    {filteredStudents.length === 0 && (
-                        <div className="text-center text-gray-700 dark:text-gray-300 mt-4">
-                            No Students found.
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
-                    )}
-                    <div className="flex justify-end mt-4">
-                        <Pagination
-                            count={Math.ceil(filteredStudents.length / studentsPerPage)}
-                            page={currentPage}
-                            onChange={paginate}
-                        // color="primary"
-                        />
-                    </div>
+                        {filteredStudents.length === 0 && (
+                            <div className="text-center text-gray-700 dark:text-gray-300 mt-4">
+                                No Students found.
+                            </div>
+                        )}
+                        <div className="flex justify-end mt-4">
+                            <Pagination
+                                count={Math.ceil(filteredStudents.length / studentsPerPage)}
+                                page={currentPage}
+                                onChange={paginate}
+                            // color="primary"
+                            />
+                        </div>
 
-                </div>
-            )}
+                    </div>
+                </>)}
         </>
     );
 }
