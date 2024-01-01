@@ -4,7 +4,6 @@ import Breadcrumbs from "@/components/Breadcrumbs/Breadcrumb2";
 import { updateUser, getUser } from "@/services/userService";
 import { useRouter } from "next/navigation";
 import ErrorAlert from "@/components/ErrorAlert";
-import { User } from "@/types/user"
 import { useSuccessMessageContext } from "@/components/SuccessMessageContext";
 import { getStaff, getStaffById, getStaffByUserID, updateStaff } from "@/services/staffService";
 import { Staff } from "@/types/staff";
@@ -30,9 +29,6 @@ export default function EditForm({ params }: { params: { id: number } }) {
         if (filteredStaff.length > 0) {
           setNoStaff(false);
         }
-        console.log("STAFF LIST: ", filteredStaff);
-        console.log("NO STAFF: ", noStaff);
-
       } catch (error: any) {
         console.error("Error fetching user details:", error);
         setError(error.message);
@@ -41,10 +37,8 @@ export default function EditForm({ params }: { params: { id: number } }) {
 
     async function fecthUserDetails() {
       try {
-        await fetchStaff();
-        const response = await getUser(params.id);
-        const userData = response?.data;
-        // Set state with user data
+        await fetchStaff(); // fetch staff 
+        const response = await getUser(params.id);  const userData = response?.data;  // get user to be edited
         setUser(userData);
 
         //get current user's staff record
@@ -62,7 +56,6 @@ export default function EditForm({ params }: { params: { id: number } }) {
         setError(error.message);
       }
     }
-
     fecthUserDetails();
   }, [params.id]);
 

@@ -76,20 +76,8 @@ const EventController = {
     },
 
     async createEvent(req, res) {
-        var {
-            event_name,
-            event_date,
-            notes,
-            notify_parents,
-            notify_staff,
-            public_event,
-            created_by,
-            preschool_id,
-            classes,
-        } = req.body;
-
+        var { event_name, event_date, notes, notify_parents, notify_staff, public_event, created_by, preschool_id, classes, } = req.body;
         try {
-
             if (!event_name) {
                 return res.status(400).json({ message: "Event Name is Required" });
             }
@@ -110,29 +98,17 @@ const EventController = {
                 return res.status(400).json({ message: "Classes are Required When It's not a Public Event" });
             }
 
-            //dates formatting
-            let selectedDate = new Date(event_date); // format passed date 
-            selectedDate.setHours(0, 0, 0, 0); //set time value of the date to 00:00:00
-            selectedDate = selectedDate.toLocaleDateString();
+            // Dates formatting
+            let selectedDate = new Date(event_date);
+            selectedDate.setHours(0, 0, 0, 0); // Set the time value of the date to 00:00:00
             let currentDate = new Date();
             currentDate.setHours(0, 0, 0, 0); // Set the time to midnight for accurate date comparison
-            currentDate = currentDate.toLocaleDateString(); //format current date 
 
-            //if date in the past, return error message 
+            // If date is in the past or today, return error message
             if (selectedDate <= currentDate) {
                 return res.status(400).json({ message: 'Please select a date in the future.' });
             }
-
-            const newEvent = await Event.create({
-                event_name,
-                event_date,
-                notes,
-                created_by,
-                notify_parents,
-                notify_staff,
-                public_event,
-                preschool_id,
-            });
+            const newEvent = await Event.create({ event_name, event_date, notes, created_by, notify_parents, notify_staff, public_event, preschool_id });
 
             if (classes && classes.length) {
                 const eventClassBulkData = [];
@@ -166,7 +142,12 @@ const EventController = {
                 else {
                     //notify parents of students in those classes 
                     const emails = await getParentsEmails(classes);
-                    await NotificationController.pushMultipleNotification(emails, title, body)
+                    if (emails.length > 0) {
+                        for (const email of emails) {
+                            await NotificationController.pushSingleNotification(email, title, body)
+                        }
+                    }
+
                 }
             }
 
@@ -174,6 +155,7 @@ const EventController = {
                 //notify all teachers (previously subscribed to the topic) & web users 
                 if (public_event == true) {
                     await NotificationController.pushTopicNotification(preschool_id + '_Teacher', title, body)
+
                     const WebUsers = await User.findAll({
                         where: {
                             preschool_id: preschool_id,
@@ -189,7 +171,12 @@ const EventController = {
                 //notify classes supervisors only
                 else {
                     const emails = await getSupervisorsEmails(classes);
-                    // await NotificationController.pushMultipleNotification(emails, title, body)
+                    if (emails.length > 0) {
+                        for (const email of emails) {
+                            await NotificationController.pushSingleNotification(email, title, body)
+                        }
+                    }
+
                 }
             }
 
@@ -198,6 +185,7 @@ const EventController = {
                 event: newEvent,
             });
         } catch (error) {
+            console.log(error.message)
             return res.status(400).json({ message: error.message });
         }
     },
@@ -224,9 +212,9 @@ const EventController = {
             event_name,
             event_date,
             notes,
-            notify_parents,
-            notify_staff,
             public_event,
+            notify_staff,
+            notify_parents,
             classes,
         } = req.body;
         try {
@@ -239,21 +227,19 @@ const EventController = {
                 if (event_name) event.event_name = event_name;
                 if (event_date) event.event_date = event_date;
                 if (notes) event.notes = notes;
-                if (public_event) event.public_event = public_event;
+                if (public_event != undefined) event.public_event = public_event;
+                if (notify_parents != undefined) event.notify_parents = notify_parents;
+                if (notify_staff != undefined) event.notify_staff = notify_staff;
 
                 if (classes && classes.length) {
                     //remove existing records in EventClass 
                     await EventClass.destroy({
                         where: { event_id: event.id },
                     });
-
                     //insert new records
                     const eventClassBulkData = [];
                     for (const classId of classes) {
-                        eventClassBulkData.push({
-                            class_id: classId,
-                            event_id: event.id,
-                        });
+                        eventClassBulkData.push({ class_id: classId, event_id: event.id });
                     }
                     await EventClass.bulkCreate(eventClassBulkData);
                 }
@@ -270,28 +256,50 @@ const EventController = {
 
                 //notifications
                 const title = 'Event Updates!';
-                const body = `There are some updated regarding ${event_name}. Check it out now!`;
+                const body = `There are some updates regarding ${event_name} event. Check it out now!`;
                 if (event.notify_parents == true) {
                     //notify all teachers (let them subscribe to topics)
                     if (event.public_event == true) {
-                        NotificationController.pushTopicNotification(preschool_id + '_Parent', title, body)
+                        NotificationController.pushTopicNotification(event.preschool_id + '_Parent', title, body)
                     }
                     else {
                         //notify parents of students in those classes 
-                        const tokens = getParentsEmails(classes);
-                        NotificationController.pushMultipleNotification(tokens, title, body)
+                        const emails = getParentsEmails(classes);
+                        if (emails.length > 0) {
+                            for (const email of emails) {
+                                await NotificationController.pushSingleNotification(email, title, body)
+                            }
+                        }
                     }
                 }
 
                 if (event.notify_staff == true) {
-                    //notify all teachers (let them subscribe to topics)
                     if (event.public_event == true) {
-                        NotificationController.pushTopicNotification(preschool_id + '_Staff')
+                        //notify all teachers (let them subscribe to topics)
+                        NotificationController.pushTopicNotification(event.preschool_id + '_Staff')
+
+                        //notify all web users 
+                        const WebUsers = await User.findAll({
+                            where: {
+                                preschool_id: event.preschool_id,
+                                role_name: {
+                                    [Op.in]: ['Admin', 'Staff'],
+                                },
+                            },
+                        });
+                        for (const user of WebUsers) {
+                            await NotificationController.pushWebNotification(user.id, title, body);
+                        }
                     }
                     //notify classes supervisors only
                     else {
-                        const tokens = getSupervisorsTokens(classes);
-                        NotificationController.pushMultipleNotification(tokens, title, body)
+                        const emails = getSupervisorsEmails(classes);
+                        if (emails.length > 0) {
+                            for (const email of emails) {
+                                await NotificationController.pushSingleNotification(email, title, body)
+                            }
+                        }
+
                     }
                 }
                 return res.status(200).json({ message: 'Event updated successfully.' });
@@ -300,6 +308,7 @@ const EventController = {
                 return res.status(404).json({ message: 'Event not found for updating.' });
             }
         } catch (error) {
+            console.log(error)
             return res.status(500).json({ message: 'Internal server error while updating the event.', message: error.message });
         }
     },
@@ -332,7 +341,7 @@ async function getParentsEmails(classes) {
             const students = await Student.findAll({
                 where: { class_id: { [Op.in]: classes }, user_id: { [Op.not]: null } },
                 include: [
-                    { model: Class }, { model: User }
+                    { model: Class, as: "Class" }, { model: User, as: "User" }
                 ],
             });
             // Extract associated user email from each student and add to 
@@ -363,8 +372,12 @@ async function getSupervisorsEmails(classes) {
                 ],
             });
             // Extract associated user email from each student and add to 
-            const supervisorsEmailsSet = new Set(classList.map(classObject => classObject.Staff.User.email));
-            supervisorsEmails = Array.from(supervisorsEmailsSet);
+            const user = classObject.Staff.User;
+            if (user) {
+                const supervisorsEmailsSet = new Set(classList.map(classObject => classObject.Staff.User.email));
+                supervisorsEmails = Array.from(supervisorsEmailsSet);
+            }
+
         }
         return supervisorsEmails;
 

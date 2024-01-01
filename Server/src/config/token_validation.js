@@ -1,38 +1,36 @@
 const admin = require('./firebase.config')
 
 const token_validation = {
-    //must log-in (no matter what is the role to access the endpoint)
+    //must log-in (role doesn't matter)
     checkToken: (req, res, next) => {
-        var token = req.get("authorization"); 
+        var token = req.get("authorization"); // extract the token from request header 
         if (token) {
             token = token.split(' ')[1]
-            const decoded = admin.auth().verifyIdToken(token) 
+            const decoded = admin.auth().verifyIdToken(token) // validate token 
             if (decoded) {
-                next();
+                next(); // if valid, proceed to the next item called (the controller in the route)
             }
             else {
-                res.status(401).json({ message: "Access Denied! Invalid Token." });
+                res.status(401).json({ message: "Access Denied! Invalid Token." }); // invalid or expired token  
             }
         }
         else {
-            res.status(401).json({ message: "Access Denied! Unauthorized User." })
+            res.status(401).json({ message: "Access Denied! Unauthenticated User." }) // no token passed with the request
         }
     },
 
-    //protect staff only endpoints 
+    //must be logged-in and role is Staff 
     checkStaff: (req, res, next) => {
-        var token = req.get("authorization");
+        var token = req.get("authorization"); // extract the token from request header 
         if (token) {
             token = token.split(' ')[1]
-            admin.auth().verifyIdToken(token)
-                .then((claims) => {
-                    console.log("token:",token)
-                    console.log("claims:",claims)
-                    if (claims.role === "Staff") {
-                        next();
+            admin.auth().verifyIdToken(token) // validate token 
+                .then((claims) => { 
+                    if (claims.role === "Staff") { // compare role stored in user claims 
+                        next(); // if matches, proceed to the next 
                     }
                     else {
-                        res.status(403).json({ message: "Access Denied! User Role Unauthorized." });
+                        res.status(403).json({ message: "Access Denied! User Role Unauthorized." }); 
                     }
                 });
         }
@@ -41,15 +39,13 @@ const token_validation = {
         }
     },
 
-    //protect admin only endpoints
+    //must be logged in and role is Admin
     checkAdmin: (req, res, next) => {
         var token = req.get("authorization");
         if (token) {
             token = token.split(' ')[1]
             admin.auth().verifyIdToken(token)
                 .then((claims) => {
-                    console.log("token:",token)
-                    console.log("claims:",claims)
                     if (claims.role === "Admin") {
                         next();
                     }
@@ -63,15 +59,13 @@ const token_validation = {
         }
     },
 
-    //protect parent only endpoints
+    //must be logged in and role is Parent
     checkParent: (req, res, next) => {
         var token = req.get("authorization");
         if (token) {
             token = token.split(' ')[1]
             admin.auth().verifyIdToken(token)
                 .then((claims) => {
-                    console.log("token:",token)
-                    console.log("claims:",claims)
                     if (claims.role === "Parent") {
                         next();
                     }
@@ -85,15 +79,13 @@ const token_validation = {
         }
     },
 
-    //protect teachers only endpoints
+    //must be logged in and role is Teacher
     checkTeacher: (req, res, next) => {
         var token = req.get("authorization");
         if (token) {
             token = token.split(' ')[1]
             admin.auth().verifyIdToken(token)
                 .then((claims) => {
-                    console.log("token:",token)
-                    console.log("claims:",claims)
                     if (claims.role === "Teacher") {
                         next();
                     }
@@ -107,15 +99,13 @@ const token_validation = {
         }
     },
     
-    //protect super admin only endpoints
+    //must be logged in and role is Super Admin
     checkSuperAdmin: (req, res, next) => {
         var token = req.get("authorization");
         if (token) {
             token = token.split(' ')[1]
             admin.auth().verifyIdToken(token)
                 .then((claims) => {
-                    console.log("token:",token)
-                    console.log("claims:",claims)
                     if (claims.role === "Super Admin") {
                         next();
                     }

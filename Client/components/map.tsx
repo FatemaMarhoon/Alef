@@ -11,7 +11,6 @@ interface MapComponentProps {
 
 }
 
-
 export default function Map({ initialLatitude, initialLongitude, onLocationChange }: MapComponentProps) {
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: "AIzaSyCWkOL5KrLFbG0hluLfQdKSuM0IkrB_uQQ",
@@ -29,9 +28,13 @@ export default function Map({ initialLatitude, initialLongitude, onLocationChang
     };
 
     useEffect(() => {
+        setSelectedLocation({lat:initialLatitude, lng:initialLongitude});
+    },[initialLatitude, initialLongitude])
+
+    useEffect(() => {
         // Notify the parent component of the location change
         onLocationChange(selectedLocation.lat, selectedLocation.lng);
-    }, [onLocationChange, selectedLocation]);
+    }, [selectedLocation]);
 
     if (!isLoaded) return <div><Loader></Loader></div>;
     return (<>

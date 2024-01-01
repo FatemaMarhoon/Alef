@@ -22,6 +22,11 @@ const NotificationToast = () => {
         path: '/socket.io',
       });
 
+      // const socket = io('http://localhost:30002', {
+      //   path: '/socket.io',
+      // });
+
+
       socket.on('connect', () => {
         // Pass the user ID to the server once the connection is established
         socket.emit('login', { userID });
@@ -52,6 +57,7 @@ const NotificationToast = () => {
       // Generate a unique ID for each notification
       const notificationId = `notification-${new Date().getTime()}`;
 
+      // display the toast with notifictaion details 
       toast.custom((t) => (
         <div
           key={notificationId}

@@ -49,7 +49,7 @@ const FilesManager = {
         const file = bucket.file(fileName);
       
         // Set the expiration time for the signed URL (in seconds)
-        const expiration = Date.now() + 5 * 60 * 1000; // 5 minutes
+        const expiration = Date.now() + 10 * 60 * 1000; // 10 minutes
       
         // Generate the signed URL
         const signedUrl = await file.getSignedUrl({

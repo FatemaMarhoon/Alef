@@ -52,10 +52,10 @@ const EmailsManager = {
 
     await sgMail.send(msg)
       .then(() => {
-        console.log('Email sent successfully');
+        console.log('Notification Email sent successfully');
       })
       .catch((error) => {
-        console.error('Error sending email:', error);
+        console.error('Error sending notification email:', error);
       });
 
   }

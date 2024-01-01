@@ -77,21 +77,16 @@ const NotificationController = {
         await admin.auth().getUserByEmail(email).then((userRecord) => {
             console.log(userRecord.customClaims)
             registrationToken = userRecord.customClaims['regToken'];
-            userId = userRecord.customClaims['dbId'];
-        })
+            userId = userRecord.customClaims['dbId'];  })
 
-        console.log("Inside push notification")
         if (registrationToken) {
             const message = {
                 token: registrationToken,
                 notification: {
                     title: title,
-                    body: body,
-                }
+                    body: body,  }
             };
-
-            // Send a message to the device corresponding to the provided
-            // registration token.
+            // Send a message to the device corresponding to the provided registration token.
             const result = messaging.send(message)
                 .then(async (response) => {
                     // Response is a message ID string.
@@ -172,18 +167,10 @@ const NotificationController = {
         }
     },
 
-    async subscribeToTopic(email, topic) {
-        const tempemail = "not@crying.com";
-        const tempTopic = "1_Parent"
+    async subscribeToTopic(token, topic) {
+        
         try {
-            let registrationToken;
-
-            await admin.auth().getUserByEmail(tempemail).then((userRecord) => {
-                registrationToken = userRecord.customClaims['regToken'];
-                console.log(userRecord.customClaims)
-            })
-
-            messaging.subscribeToTopic(registrationToken, tempTopic).then((response) => {
+            messaging.subscribeToTopic(token, topic).then((response) => {
                 console.log("Subscribed to Preschool: ", response)
             })
 
@@ -194,8 +181,6 @@ const NotificationController = {
 
     async pushTopicNotification(topic, title, body) {
         try {
-            console.log("Started Pushing to topic")
-
             const message = {
                 topic: topic,
                 notification: {
@@ -203,16 +188,16 @@ const NotificationController = {
                     body: body,
                 }
             };
-            console.log("Message Payload: ", message)
+            console.log("Message Payload for topic: ", message)
             // Send a message to all client devices subscribed to the specific topic
             const result = messaging.send(message)
                 .then(async (response) => {
                     // Response is a message ID string.
-                    console.log('Successfully sent message:', response);
+                    console.log('Successfully sent topic message:', response);
                     return "success";
                 })
                 .catch((error) => {
-                    console.log('Error sending message:', error);
+                    console.log('Error sending topic message:', error);
                     return null;
                 });
             return result;
@@ -267,7 +252,7 @@ const NotificationController = {
             if (targetSocketId) {
                 // Emit the notification only to the target user's socket
                 await io.to(targetSocketId).emit('notification', { title: title, body: body });
-                console.log("Notification sent");
+                console.log("Web Notification Sent");
             } else {
                 //if not connected, sent via email 
                 console.log(`User ${user_id} is not currently connected`);
@@ -279,7 +264,6 @@ const NotificationController = {
         } catch (error) {
             return null;
         }
-
     }
 
 };

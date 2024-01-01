@@ -37,24 +37,21 @@ export async function loginWithGoogle() {
 }
 
 export async function loginWithEmail(email: string, password: string): Promise<UserCredential | any> {
-  const auth = getAuth(FirebaseSetup());
-  await signInWithEmailAndPassword(auth, email, password)
-    .then(async (userCredential) => {
-      // Check the user's preschool subscription expiry date
-      const isSubscriptionValid = await checkExpiry();
-      const role = await currentUserRole();
+  const auth = getAuth(FirebaseSetup()); // initialize firebase app 
+  await signInWithEmailAndPassword(auth, email, password) // sign in function from firebase 
+    .then(async (userCredential) => { // if logged in successfully 
+      const isSubscriptionValid = await checkExpiry(); // Check the user's preschool subscription expiry date
+      const role = await currentUserRole(); // check user role 
       if (role != 'Super Admin') {
-        //check the role first, teachers and parents should only login to mobile apps
-        if (role == "Teacher" || role == "Parent") {
-          await signOut(auth);
+        if (role == "Teacher" || role == "Parent") { //teachers and parents should only login to mobile apps
+          await signOut(auth); // sign out directly and throw error 
           throw new Error("You're unauthorized to login to the portal.");
         }
         if (isSubscriptionValid) {
           console.log("User logged in");
           return userCredential;
         } else {
-          // Subscription is expired, sign out the user and prevent login
-          await signOut(auth);
+          await signOut(auth);  // Subscription is expired, sign out the user and prevent login
           throw new Error("Preschool subscription has expired. Please renew your subscription.");
         }
       }
@@ -79,10 +76,8 @@ export async function forgetPassword(email: string) {
 export async function logout() {
   const auth = getAuth(FirebaseSetup());
   signOut(auth).then(() => {
-    // Sign-out successful.
     console.log("logged out")
   }).catch((error) => {
-    // An error happened.
     throw error;
   });
 }
@@ -114,7 +109,6 @@ export async function currentPreschool(): Promise<unknown | undefined> {
 
 export async function currentUserId(): Promise<unknown | undefined> {
   const user = await currentUser();
-  console.log(user)
   const id = await user?.getIdTokenResult(true).then((idTokenResult) => {
     const customClaims = idTokenResult.claims;
     console.log(customClaims.dbId)

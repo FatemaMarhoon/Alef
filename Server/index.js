@@ -8,7 +8,7 @@ const app = express();
 //  Invoke the cors middleware
 app.use(cors());
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 30002;
 
 const server = http.createServer(app);
 
@@ -17,6 +17,12 @@ socketSetup.initializeSocket(server);
 const cron = require("node-cron");
 const cronJob = require("./src/cron-job");
 const backup = require("./src/backup");
+
+// middelware
+app.use(express.json());
+
+// Set the timezone to Asia/Bahrain
+process.env.TZ = 'Asia/Bahrain';
 
 // import routes
 const userRoutes = require("./src/routes/userRoutes");
@@ -44,8 +50,6 @@ const gradesRoutes = require("./src/routes/gradesRoutes");
 const mediaRoutes = require("./src/routes/mediaRoutes");
 const mailRoutes = require("./src/routes/mailRoutes");
 
-// middelware
-app.use(express.json());
 
 // define top-level routes 
 app.use("/users", userRoutes);
@@ -74,7 +78,7 @@ app.use("/media", mediaRoutes);
 app.use("/mail", mailRoutes);
 
 // Schedule the cron job for reminders
-cron.schedule("0,30 * * * *", cronJob.appointmentsReminder); // daily when the minutes are 0 and 30 (every half an hour)
+cron.schedule("0,58 * * * *", cronJob.appointmentsReminder); // daily when the minutes are 0 and 30 (every half an hour)
 cron.schedule("0 12 * * *", cronJob.eventsReminder); // daily at 12pm
 cron.schedule("0 8 26 * *", cronJob.monthlyPaymentGenerator); // on the 26th of each month at 8 am
 cron.schedule("0 8 * * *", cronJob.paymentDue); // daily at 8am
