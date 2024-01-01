@@ -13,22 +13,16 @@ const LogsController = require('./LogController');
 const UsersController = require('./UsersController');
 const NotificationController = require('./NotificationController');
 
-
 const validateStationaryRequestData = (stationaryRequestData) => {
-
     const requiredFields = ['status_name', 'staff_id', 'stationary_id', 'requested_quantity'];
     for (const field of requiredFields) {
         if (!stationaryRequestData[field]) {
             return { isValid: false, message: `${field} is required` };
         }
     }
-
-    // Additional validations for specific fields
     if (stationaryRequestData.requested_quantity < 1) {
         return { isValid: false, message: 'Requested quantity must be at least 1' };
     }
-
-    // Add more validations as needed
 
     return { isValid: true };
 }
@@ -77,7 +71,6 @@ const StationaryRequestController = {
                 original_values: JSON.stringify(stationaryRequestData),
                 current_values: JSON.stringify({ error: validation.message }),
                 user_id: user_id
-                //user_id: 28
             });
             return res.status(400).json({ message: validation.message });
         }
@@ -170,7 +163,6 @@ const StationaryRequestController = {
         const { request_id } = req.params;
         const user_id = await UsersController.getCurrentUser(req, res);
         let deletedStationaryReqData; // Declare the variable outside the block
-
         try {
             const stationaryReq = await StationaryRequest.findByPk(request_id);
 
@@ -187,7 +179,6 @@ const StationaryRequestController = {
                         current_values: 'Stationary Req deleted',
                         user_id: user_id
                     });
-
                     res.json({ message: 'Stationary Req deleted successfully' });
                 } else {
                     res.status(404).json({ message: 'Stationary Req not found' });
@@ -208,7 +199,6 @@ const StationaryRequestController = {
                 // Handle the error if deletedStudentData is not defined
                 console.error('Error deleting Stationary Req:', error);
             }
-
             res.status(500).json({ message: error.message });
         }
     },

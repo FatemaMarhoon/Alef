@@ -8,13 +8,13 @@ router.get('/', checkToken, UsersController.getAllUsers);
 
 // // Get user by email
 // router.get('/:email', checkToken, UsersController.getUserByEmail);
-router.get('/updateAll',  UsersController.updateAll);
+router.get('/updateAll', UsersController.updateAll);
 
 // Get user by id
 router.get('/:id', checkToken, UsersController.getUserById);
 
 // Create a new user
-router.post('/',checkAdmin, UsersController.createUser);
+router.post('/', UsersController.createUser);
 
 // parent register 
 router.post('/register', UsersController.createUser);

@@ -6,8 +6,6 @@ export interface Class {
     grade: string;
     capacity: number;
     classroom: string;
-    // createdAt: string; /
-    // updatedAt: string; 
     Preschool: {
         id: number;
         preschool_name: string;
