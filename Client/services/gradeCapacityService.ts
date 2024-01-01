@@ -121,7 +121,7 @@ export async function updateGradesCapacity(gradesList:{grade:string, capacity:st
             preschool_id
         }, config);
 
-        return response.data;
+        return response;
     } catch (error) {
         throw error;
     }

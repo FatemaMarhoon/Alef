@@ -28,10 +28,9 @@ const SignIn: React.FC = () => {
         setError("Enter your password.")
       }
       else {
-        const result = await loginWithEmail(email, password);
-        if (!error) {
+        await loginWithEmail(email, password).then(() =>
           window.location.assign('/')
-        }
+        );
 
       }
     } catch (error: any) {
@@ -41,6 +40,9 @@ const SignIn: React.FC = () => {
       }
       else if (error.message == "Firebase: Error (auth/invalid-login-credentials).") {
         setError("Invalid Login Credentials.")
+      }
+      else if (error.message == "Firebase: Error (auth/user-disabled).") {
+        setError("Your account has been disabled. Contact your preschool admin.")
       }
       else {
         setError(error.message);
@@ -58,7 +60,6 @@ const SignIn: React.FC = () => {
         await forgetPassword(email).then(() => {
           setError("");
           setSuccessMessage("Reset password email was sent sucessfully.")
-          console.log("email sent");
         })
       }
     } catch (error: any) {
@@ -270,11 +271,11 @@ const SignIn: React.FC = () => {
                     <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
                       Password
                     </label>
-                    <div className="text-sm">
+                    {/*<div className="text-sm">
                       <button className="text-primary" onClick={handleForgotPassword}>Forgot Password?</button>
 
 
-                    </div>
+  </div>*/}
                   </div>
                   <div className="relative mt-3">
                     <input
@@ -315,9 +316,9 @@ const SignIn: React.FC = () => {
                   >Sign In</button>
                 </div>
 
-                {/* <div className="text-center text-primary mb-2">
+                <div className="text-center text-primary mb-2">
                   <button onClick={handleForgotPassword}>Forgot Password</button>
-                </div> */}
+                </div>
 
                 <div className="text-center ">
                   Not a Member? <Link className="text-primary" prefetch={true} href={"/plans"}>Subscribe Now</Link>

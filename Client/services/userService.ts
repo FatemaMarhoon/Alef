@@ -2,15 +2,16 @@
 import { User } from '@/types/user'
 import { currentPreschool, currentToken } from './authService';
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
-//const BASE_URL = 'https://server-bckggkpqeq-uc.a.run.app/users'; // Replace with your backend URL
-const BASE_URL = 'http://localhost:3000/users'; // Replace with your backend URL
+
+const BASE_URL = 'https://server-bckggkpqeq-uc.a.run.app/users'; // server URL
+//const BASE_URL = 'http://localhost:3000/users'; // localhost URL
 
 export async function getUsers(): Promise<User[]> {
-  //retrieve data from current user
+  //retrieve token and preschool from current user
   var token; var preschool;
   await currentToken().then((returnedTOken) => { token = returnedTOken; })
   await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
-  console.log("preschool: ", preschool)
+
   try {
     // Set up the request config with headers
     const config: AxiosRequestConfig = {

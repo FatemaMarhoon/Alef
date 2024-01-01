@@ -16,7 +16,6 @@ const PaymentController = {
     async getAllPayments(req, res) {
         const { preschool_id } = req.query;
         const { student_id } = req.query;
-
         try {
             if (preschool_id) {
                 const payments = await Payment.findAll({
@@ -64,15 +63,15 @@ const PaymentController = {
             if (!type) {
                 return res.status(400).json({ message: "Type is Required." });
             }
-
             if (!fees) {
                 return res.status(400).json({ message: "Fees is Required." });
             }
-
+            if (!fees > 0) {
+                return res.status(400).json({ message: "Fees must be more than zero." });
+            }
             if (!due_date) {
                 return res.status(400).json({ message: "Due Date is Required." });
             }
-
             if (!student_id) {
                 return res.status(400).json({ message: "Student is Required." });
             }
@@ -89,7 +88,6 @@ const PaymentController = {
                 }
                 return res.status(201).json({ message: 'Payment Record Created Successfully', payment: newPayment });
             }
-
         } catch (error) {
             return res.status(400).json({ message: 'Failed to create a new payment. Please check your request data.', message: error.message });
         }
@@ -99,6 +97,9 @@ const PaymentController = {
         const paymentId = req.params.id;
         const updatedPaymentData = req.body;
         try {
+            if (updatedPaymentData.fees && !updatedPaymentData.fees > 0) {
+                return res.status(400).json({ message: "Fees must be more than zero." });
+            }
             const payment = await Payment.findByPk(paymentId);
             if (payment) {
                 if (updatedPaymentData.status == "Paid") {
@@ -157,7 +158,6 @@ const PaymentController = {
             else {
                 return res.status(404).json({ message: 'Payment not found' });
             }
-
         }
         catch (error) {
             return res.status(500).json(error.message);
