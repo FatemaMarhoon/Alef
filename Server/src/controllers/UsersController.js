@@ -140,7 +140,7 @@ const UsersController = {
           ...currentClaims,
           dbId: createdUser.id
         });
-
+        
         // Send successful response with created user data
         return res.status(201).json({ message: 'User created successfully', createdUser });
       });

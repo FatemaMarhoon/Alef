@@ -4,6 +4,7 @@ import { currentPreschool, currentToken } from './authService';
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 const BASE_URL = 'https://server-bckggkpqeq-uc.a.run.app/users'; // server URL
+//const BASE_URL = 'http://localhost:3000/users'; // localhost URL
 
 export async function getUsers(): Promise<User[]> {
   //retrieve token and preschool from current user
@@ -26,7 +27,7 @@ export async function getUsers(): Promise<User[]> {
   }
 }
 
-export async function getUser(id:number) {
+export async function getUser(id: number) {
   try {
 
     var token;
@@ -36,8 +37,8 @@ export async function getUser(id:number) {
         Authorization: `Bearer ${token}`, // Include the token in the Authorization header
       },
     };
-      const response = await axios.get(`${BASE_URL}/${id}`, config);
-      return response;
+    const response = await axios.get(`${BASE_URL}/${id}`, config);
+    return response;
   } catch (error) {
 
   }

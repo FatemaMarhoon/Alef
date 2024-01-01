@@ -4,13 +4,13 @@ const { checkAdmin, checkToken } = require('../config/token_validation');
 const router = express.Router();
 
 // Get all users
-router.get('/', checkAdmin, UsersController.getAllUsers);
-router.get('/firebaseAll', UsersController.updateAll)
+router.get('/', checkToken, UsersController.getAllUsers);
+
 // Get user by id
 router.get('/:id', checkToken, UsersController.getUserById);
 
 // Create a new user
-router.post('/',checkAdmin, UsersController.createUser);
+router.post('/', UsersController.createUser);
 
 // parent register 
 router.post('/register', UsersController.createUser);

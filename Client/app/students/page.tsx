@@ -12,7 +12,7 @@ import InputLabel from '@mui/material/InputLabel';
 import { useSuccessMessageContext } from '../../components/SuccessMessageContext';
 import Alert from '@/components/SuccessAlert';
 import SuccessAlert from '@/components/SuccessAlert';
-//import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import Loader from "@/components/common/Loader"; // Import the Loader component
 import Access from "@/components/Pages/403"; // Import the 403 component
 import { getPlan } from '@/services/authService';
@@ -41,17 +41,13 @@ export default function StudentTable() {
                 const filteredStudents = showUnassigned
                     ? studentsData.filter(student => student.class_id === null)
                     : studentsData;
-
                 setStudents(filteredStudents);
                 setLoading(false); // Set loading to false once data is fetched
-
             } catch (error) {
                 console.error('Error fetching students:', error);
                 setLoading(false); // Set loading to false in case of an error
-
             }
         }
-
         fetchStudents();
         console.log("Message on Students load: ", successMessage);
     }, [successMessage, showUnassigned]);

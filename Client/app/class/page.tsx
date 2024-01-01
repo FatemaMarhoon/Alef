@@ -1,10 +1,10 @@
 // Import necessary modules and components
 'use client';
 import React, { useState, useEffect } from 'react';
-import { getClasses, deleteClass } from '../../services/classService'; // Import the class service
+import { getClasses, deleteClass } from '../../services/classService';
 import { Class } from '../../types/class';
 import Link from 'next/link';
-import { getStaff } from '@/services/staffService'; // Add the actual service function
+import { getStaff } from '@/services/staffService';
 import { Staff } from '../../types/staff';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
@@ -14,7 +14,7 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import SuccessAlert from '@/components/SuccessAlert';
 import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
-import Loader from "@/components/common/Loader"; // Import the Loader component
+import Loader from "@/components/common/Loader";
 
 // Functional component for viewing class details
 export default function ClassTable() {
@@ -37,48 +37,37 @@ export default function ClassTable() {
             const staffInfo = await getStaff();
             setStaff(staffInfo);
             console.log('staffInfo:', staffInfo);
-            // setStaffName(staffInfo ? staffInfo.name : 'Unknown');
             // Set loading to false once data is fetched
             setLoading(false);
         } catch (error) {
             console.error('Error fetching classes:', error);
-            // Set loading to false once data is fetched
+            // Set loading 
             setLoading(false);
         }
     };
-
     useEffect(() => {
         // Fetch class data when the component mounts
         fetchClasses();
         console.log("Message on Classes load: ", successMessage);
     }, []);
-
-
     const getStaffName = (staffId: number): string => {
         if (!Array.isArray(staff)) {
             console.error('Staff is not an array:', staff);
             return 'Unknown';
         }
-
         const staffName = staff.find(item => item.id === staffId);
-
         console.log('staff:', staff);
         console.log('staffId:', staffId);
         console.log('staffName:', staffName);
-
         return staffName ? staffName.name : 'Unknown';
     };
-
-
     const filteredClasses = classes.filter((classItem) =>
         classItem.class_name.toLowerCase().includes(searchTerm.toLowerCase()) &&
         (selectedGrade ? classItem.grade === selectedGrade : true) &&
         (selectedSupervisor ? classItem.supervisor === parseInt(selectedSupervisor) : true)
     );
-
     const grades = Array.from(new Set(classes.map((classItem) => classItem.grade)));
     const supervisors = Array.from(new Set(classes.map((classItem) => classItem.supervisor)));
-
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentClasses = filteredClasses.slice(indexOfFirstItem, indexOfLastItem);
@@ -88,7 +77,6 @@ export default function ClassTable() {
         if (confirmDelete) {
             try {
                 const response = await deleteClass(id.toString());
-                // Add any additional logic or state updates as needed after the deletion
                 fetchClasses();
 
             } catch (error) {
@@ -99,7 +87,6 @@ export default function ClassTable() {
     return (
         <>
             {successMessage && <SuccessAlert message={successMessage} />}
-
             {loading && <Loader />}
             {!loading && (
                 <>

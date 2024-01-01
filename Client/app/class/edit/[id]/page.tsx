@@ -10,7 +10,6 @@ import { updateStudent } from '@/services/studentService';
 import { getGrades, getGradeCapacityById } from '@/services/gradeCapacityService';
 import { getNotAssignedStaff, getStaffById } from '@/services/staffService';
 import { Staff } from '@/types/staff';
-import { Grade } from '@mui/icons-material';
 import { GradeCapacity } from '@/types/gradeCapacity';
 import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
 import Loader from "@/components/common/Loader"; // Import the Loader component
@@ -121,13 +120,11 @@ export default function EditForm({ params }: { params: { id: number } }) {
     }, [classDetails?.class.grade]);
 
     const addStudentToClass = async () => {
-
         try {
             if (selectedStudentId === null) {
                 console.error('No student selected.');
                 return;
             }
-
             // Get the current student data
             const student = unassignedStudents.find((s) => s.id === selectedStudentId);
             console.log("student data", student)
@@ -147,7 +144,6 @@ export default function EditForm({ params }: { params: { id: number } }) {
                 alert('Class is at full capacity. Cannot add more students.');
                 return;
             }
-
             // Set class_id to class id
             const updatedStudentData = {
                 ...student,
@@ -173,11 +169,9 @@ export default function EditForm({ params }: { params: { id: number } }) {
 
     const updateClassDetails = async () => {
         try {
-            // Perform the update operation (make an API call or dispatch an action)
-            // For example, you can use the updateClassById function from your service
+
             await updateClass(classId, classDetails.class);
 
-            // Optionally, you can add a success message or perform any other actions
             setSuccessMessage("Class is updated successfully");
 
             try {
@@ -265,14 +259,6 @@ export default function EditForm({ params }: { params: { id: number } }) {
                             </h3>
                         </div>
                         {classDetails && (
-                            // <div className="mb-4.5">
-                            //     <h1 className="mb-4.5">Class Name: {classDetails.class.class_name}</h1>
-                            //     <h1 className="mb-4.5">Supervisor: {classDetails.class.supervisor}</h1>
-                            //     <h1 className="mb-4.5">Grade: {classDetails.class.grade}</h1>
-                            //     <h1 className="mb-4.5">Capacity: {classDetails.class.capacity}</h1>
-                            //     <h1 className="mb-4.5">Classroom: {classDetails.class.classroom}</h1>
-                            //     {/* Add more details as needed */}
-                            // </div>
                             <div className="mb-4.5">
                                 {/* Editable Class Name */}
                                 <div className="mb-2">
@@ -302,14 +288,6 @@ export default function EditForm({ params }: { params: { id: number } }) {
                                         Current  Supervisor:
                                     </label>
                                     <h3 className="mb-4.5"><strong>{supervisor}</strong></h3>
-                                    {/* <input
-        type="text"
-        id="supervisor"
-        name="supervisor"
-        value={supervisor}
-        disabled
-        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-    /> */}
 
                                     <label htmlFor="supervisor" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                                         Change Supervisor:
@@ -519,17 +497,7 @@ export default function EditForm({ params }: { params: { id: number } }) {
                                                     <button className="hover:text-primary" onClick={() => removeStudentFromClass(student.id)}>
                                                         Remove
                                                     </button>
-                                                    {/* <button className="hover:text-primary">
-        <Link href={`/students/delete/${student.id}`}>
-            Delete
 
-        </Link>
-    </button>
-    <button className="hover:text-primary">
-        <Link href={`/students/edit/${student.id}`}>
-            Edit
-        </Link>
-    </button> */}
                                                 </div>
                                             </td>
                                         </tr>

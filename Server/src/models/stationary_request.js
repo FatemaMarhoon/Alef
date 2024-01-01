@@ -19,9 +19,6 @@ module.exports = (sequelize, DataTypes) => {
         notNull: {
           msg: 'Preschool ID is required',
         },
-        isInt: {
-          msg: 'Preschool ID must be an integer',
-        },
       },
     },
     class_id: {
