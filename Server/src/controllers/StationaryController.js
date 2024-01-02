@@ -1,5 +1,6 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../config/seq');
+const { verifyPreschool } = require('../config/token_validation');
 
 const Stationary = require('../models/stationary')(sequelize, DataTypes);
 const Preschool = require('../models/preschool')(sequelize, DataTypes);
@@ -47,7 +48,7 @@ const StationaryController = {
         const user_id = await UsersController.getCurrentUser(req, res);
         try {
             // access control (creating stationary outside his preschool)
-            if (await verifyPreschool(stationaryData.preschool_id) == false) {
+            if (await verifyPreschool(stationaryData.preschool_id, req) == false) {
                 return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
             }
 
@@ -85,7 +86,7 @@ const StationaryController = {
 
             if (stationary) {
                 // access control (updating stationary outside his preschool)
-                if (await verifyPreschool(stationary.preschool_id) == false) {
+                if (await verifyPreschool(stationary.preschool_id,req) == false) {
                     return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
                 }
 
@@ -128,7 +129,7 @@ const StationaryController = {
 
             if (stationary) {
                 // access control (creating stationary outside user's preschool)
-                if (await verifyPreschool(stationary.preschool_id) == false) {
+                if (await verifyPreschool(stationary.preschool_id,req) == false) {
                     return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
                 }
 

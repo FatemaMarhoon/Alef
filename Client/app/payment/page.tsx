@@ -32,7 +32,8 @@ export default function PaymentTable() {
         async function fetchPayments() {
             try {
                 const response = await getPayments();
-                setPayments(response);
+                const sorted = response.sort((a, b) => Number(b.id) - Number(a.id));
+                setPayments(sorted);
             } catch (error: any) {
                 setError(error.message)
             }

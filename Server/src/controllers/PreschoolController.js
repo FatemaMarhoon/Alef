@@ -8,6 +8,7 @@ const Address = require('../models/address')(sequelize, DataTypes);
 const Student = require('../models/student')(sequelize, DataTypes);
 const Media = require('../models/preschool_media')(sequelize, DataTypes);
 const FilesManager = require('./FilesManager');
+const { verifyPreschool } = require('../config/token_validation');
 
 Preschool.hasMany(Media, { foreignKey: 'preschool_id' });
 Preschool.hasMany(User, { foreignKey: 'preschool_id' });
