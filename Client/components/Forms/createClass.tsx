@@ -5,7 +5,7 @@ import Breadcrumbs from '@/components/Breadcrumbs/Breadcrumb2';
 import { createClass, getSumOfClassCapacitiesByGrade } from '@/services/classService';
 import { useRouter } from 'next/navigation';
 import { Class } from '@/types/class';
-import { UserStorage } from "@/types/user";
+
 import { getNotAssignedStaff } from '@/services/staffService';
 import { Staff } from '@/types/staff';
 import { getGrades, getGradeCapacityById } from '@/services/gradeCapacityService';
@@ -18,7 +18,6 @@ import ErrorAlert from '../ErrorAlert';
 
 const ClassForm: React.FC = ({ }) => {
     //declare variables
-    const currentUser = UserStorage.getCurrentUser();
     const router = useRouter();
     const [numClasses, setNumClasses] = useState(0);
     const [classData, setClassData] = useState<Array<{

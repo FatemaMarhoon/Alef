@@ -5,14 +5,12 @@ import Breadcrumbs from '@/components/Breadcrumbs/Breadcrumb2';
 import { createStationary } from '@/services/stationaryService';
 import { useRouter } from 'next/navigation';
 import { Stationary } from '@/types/stationary';
-// import { UserStorage } from '@/types/user';
 import { currentPreschool } from '@/services/authService';
 import { useSuccessMessageContext } from '../../../components/SuccessMessageContext';
 import ErrorAlert from "@/components/ErrorAlert";
 
 export default function CreateForm() {
     const router = useRouter();
-    // const currentUser = UserStorage.getCurrentUser();
 
     const [stationaryName, setStationaryName] = useState('');
     const [quantityAvailable, setQuantityAvailable] = useState(0);

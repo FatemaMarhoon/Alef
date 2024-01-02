@@ -5,10 +5,10 @@ const { checkStaff, checkTeacher, checkToken } = require('../config/token_valida
 const router = express.Router();
 
 // Get all classes for a specific preschool
-router.get('/preschool/:preschoolId',checkStaff, ClassController.getAllClasses);
+router.get('/preschool/:preschoolId',checkToken, ClassController.getAllClasses);
 
 // Get all classes for a specific staff
-router.get('/staff/:staffId',checkTeacher, ClassController.getClassesByStaffId);
+router.get('/staff/:staffId',checkToken, ClassController.getClassesByStaffId);
 
 // Create a new class
 router.post('/',checkStaff, ClassController.createClass);

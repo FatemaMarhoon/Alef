@@ -133,7 +133,8 @@ export async function deletePreschool(preschoolId: string): Promise<void> {
 }
 export async function getPreschoolById(preschoolId: string): Promise<Preschool> {
     try {
-        const token = localStorage.getItem('token');
+        var token;
+        await currentToken().then((returnedTOken) => { token = returnedTOken; })
         const config: AxiosRequestConfig = {
             headers: {
                 Authorization: `Bearer ${token}`,

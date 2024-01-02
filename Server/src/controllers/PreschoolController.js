@@ -9,6 +9,8 @@ const Student = require('../models/student')(sequelize, DataTypes);
 const Media = require('../models/preschool_media')(sequelize, DataTypes);
 const FilesManager = require('./FilesManager');
 const { verifyPreschool } = require('../config/token_validation');
+const UsersController = require('./UsersController');
+
 
 Preschool.hasMany(Media, { foreignKey: 'preschool_id' });
 Preschool.hasMany(User, { foreignKey: 'preschool_id' });
@@ -183,7 +185,7 @@ const PreschoolController = {
       const preschool = await Preschool.findByPk(preschoolId);
       if (preschool) {
         // access control 
-        if (await getCurrentUserRole(req) == "Admin" && await verifyPreschool(preschoolId, req) == false) {
+        if (await  UsersController.getCurrentUserRole(req) == "Admin" && await verifyPreschool(preschoolId, req) == false) {
           return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
         }
 
@@ -212,7 +214,7 @@ const PreschoolController = {
       const preschool = await Preschool.findByPk(preschoolId);
       if (preschool) {
         // access control 
-        if (await getCurrentUserRole(req) == "Admin" && await verifyPreschool(preschoolId, req) == false) {
+        if (await UsersController.getCurrentUserRole(req) == "Admin" && await verifyPreschool(preschoolId, req) == false) {
           return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
         }
       }
@@ -236,7 +238,7 @@ const PreschoolController = {
 
       if (address) {
         // access control 
-        if (await getCurrentUserRole(req) == "Admin" && await verifyPreschool(address.preschool_id, req) == false) {
+        if (await UsersController.getCurrentUserRole(req) == "Admin" && await verifyPreschool(address.preschool_id, req) == false) {
           return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
         }
 

@@ -5,7 +5,6 @@ import Breadcrumbs from '@/components/Breadcrumbs/Breadcrumb2';
 import { getStationaryById, updateStationary } from '@/services/stationaryService';
 import { useRouter } from 'next/navigation';
 import { Stationary } from '@/types/stationary';
-import { UserStorage } from '@/types/user';
 import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
 import NotFound from '@/components/Pages/404';
 import NotAuthorized from '@/components/Pages/403';
@@ -15,7 +14,6 @@ import ErrorAlert from "@/components/ErrorAlert";
 
 export default function EditForm({ params }: { params: { stationaryId: number } }) {
     const router = useRouter();
-    const currentUser = UserStorage.getCurrentUser();
     const { setSuccessMessage } = useSuccessMessageContext();
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(true); // Added loading state
