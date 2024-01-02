@@ -205,7 +205,7 @@ const ClassForm: React.FC = ({ }) => {
                 console.log('Staff List Response:', response);
 
                 // Log the response.data or the actual array
-                console.log('Staff List Data:', response.data || response);
+                // console.log('Staff List Data:', response.data || response);
 
                 setStaffList(response || []); // Assuming response.data is the array of staff
                 // Set loading to false after fetching data (if needed)
@@ -246,9 +246,9 @@ const ClassForm: React.FC = ({ }) => {
             // Create an array of promises for each class creation
             const createClassPromises = classData.map(async (classInfo) => {
                 const newClass: Class = {
-                    preschool_id: currentUser?.preschool_id, // Replace with the actual preschool ID
+                    preschool_id: currentUser?.preschool_id, // Provide a default value if currentUser is undefined
                     grade,
-                    ...classInfo,
+                    ...classInfo
                 };
 
                 return createClass(newClass);

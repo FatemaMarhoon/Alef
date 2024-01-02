@@ -1,8 +1,9 @@
 import { Staff } from '@/types/staff'; // Import the Staff type
 import axios, { AxiosRequestConfig, AxiosError } from 'axios';
 import { currentPreschool, currentToken } from './authService';
+const BASE_URL = 'http://localhost:3000/staff';
 
-const BASE_URL = 'https://server-bckggkpqeq-uc.a.run.app/staff';
+//const BASE_URL = 'https://server-bckggkpqeq-uc.a.run.app/staff';
 // Backend URL for staff
 
 export async function getStaff(): Promise<Staff[]> {

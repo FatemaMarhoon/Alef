@@ -98,7 +98,7 @@ export default function EditStationaryRequestForm({ params }: { params: { id: nu
                 console.log('Stationary List Response:', response);
 
                 // Log the response.data or the actual array
-                console.log('Stationary List Data:', response.data || response);
+                //  console.log('Stationary List Data:', response.data || response);
 
                 setStationaryList(response || []);
                 setLoading(false); // Set loading to false after fetching data
@@ -115,25 +115,8 @@ export default function EditStationaryRequestForm({ params }: { params: { id: nu
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // // Reset errors
-        // setErrors({});
-
-        // // Validate form data
-        // let hasErrors = false;
-
-        // // Validation logic
-        // if (stationaryRequest.status_name === 'Accepted' && stationaryRequest.requested_quantity > getStationaryQuantity(stationaryRequest.stationary_id)) {
-        //     setErrors({ requestedQuantity: 'Requested quantity is greater than the existing quantity.' });
-        //     hasErrors = true;
-        // }
-
-        // // Add validation logic here
-
-        // if (hasErrors) {
-        //     return;
-        // }
-
         try {
+
             // Send the request and log the response
             const response = await updateStationaryRequest(params.id.toString(), stationaryRequest);
 
@@ -160,12 +143,7 @@ export default function EditStationaryRequestForm({ params }: { params: { id: nu
             }
         }
     };
-    const getStationaryName = (stationaryId: number): string => {
-        const stationary = stationaries.find(item => item.id === stationaryId);
-        return stationary ? stationary.stationary_name : 'Unknown';
 
-
-    };
 
     // Function to get the existing quantity of the selected stationary
     const getStationaryQuantity = (stationaryId: number): number => {

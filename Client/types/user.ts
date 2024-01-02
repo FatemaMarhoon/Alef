@@ -4,7 +4,7 @@ export interface User {
   password: string;
   role_name: string;
   name: string;
-  status:string;
+  status: string;
   createdAt: string;
   updatedAt: string;
   preschool_id: number | null;

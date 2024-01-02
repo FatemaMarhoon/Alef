@@ -53,6 +53,7 @@ export default function CreateForm() {
                 stationary_name: stationaryName,
                 quantity_available: quantityAvailable,
                 preschool_id: preschool || 0,
+                id: 0
             };
 
             // Log the complete stationary data

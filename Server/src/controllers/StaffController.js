@@ -16,7 +16,7 @@ const validateStaffData = (staffData) => {
             return { isValid: false, message: `${field} is required` };
         }
     }
-    if (hireDate > new Date()) {
+    if (staffData.hire_date > new Date()) {
         return { isValid: false, message: 'Hire date must be a valid date and should not be in the future' };
     }
     // Additional validations for specific fields

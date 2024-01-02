@@ -22,9 +22,10 @@ export default function EditForm({ params }: { params: { stationaryId: number } 
     const [notFound, setNotFound] = useState<boolean>(false);
     const [authorized, setAuthorized] = useState<boolean>(true);
     const [stationary, setStationary] = useState<Stationary>({
+id:0,
         stationary_name: '',
         quantity_available: 0,
-        preschool_id: currentUser?.preschool_id,
+        preschool_id: 0,
     });
     const [errors, setErrors] = useState<{ stationaryName?: string; quantityAvailable?: string }>({});
 
