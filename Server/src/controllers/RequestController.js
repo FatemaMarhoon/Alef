@@ -3,12 +3,14 @@ const sequelize = require('../config/seq');
 
 const Request = require('../models/request')(sequelize, DataTypes);
 const Plan = require('../models/subscription_plan')(sequelize, DataTypes);
+const User = require('../models/subscription_plan')(sequelize, DataTypes);
 
 Request.belongsTo(Plan, { foreignKey: 'plan_id' });
 Plan.hasMany(Request, { foreignKey: 'plan_id' });
 
 const LogsController = require('./LogController');
 const UsersController = require('./UsersController');
+const NotificationController = require('./NotificationController');
 
 const RequestsController = {
     async getAllRequests(req, res) {
@@ -30,26 +32,26 @@ const RequestsController = {
         const { preschool_name, representitive_name, CR, phone, email, plan_id, status } = req.body;
         const RequestData = { preschool_name, representitive_name, CR, phone, email, plan_id, status }
         try {
-            if (!preschool_name){
+            if (!preschool_name) {
                 return res.status(400).json({ message: "Preschool Name is Required." });
             }
 
-            if (!representitive_name){
+            if (!representitive_name) {
                 return res.status(400).json({ message: "Representitive Name is Required." });
             }
 
-            if (!CR){
+            if (!CR) {
                 return res.status(400).json({ message: "CR is Required." });
             }
 
-            if (!phone){
+            if (!phone) {
                 return res.status(400).json({ message: "Contact Number is Required." });
             }
 
-            if (!email){
+            if (!email) {
                 return res.status(400).json({ message: "Email is Required." });
             }
-            
+
             if (!plan_id) {
                 return res.status(400).json({ message: "Plan Id is Required." });
             }
@@ -72,7 +74,15 @@ const RequestsController = {
                 plan_id,
                 status: "Pending"
             });
+
+            // const SuperAdmin = await User.findOne({ where: { role_name: "Super Admin" } });
+            // const title = 'New Preschool Request';
+            // const body = `New Preschool Request from ${RequestData.preschool_name}`;
+            // await NotificationController.pushWebNotification(SuperAdmin.id, title, body);
+
             return res.status(201).json({ message: 'Request created successfully', request: newRequest });
+
+
         } catch (error) {
             // Create a log entry for the error
             await LogsController.createLog({
@@ -81,6 +91,7 @@ const RequestsController = {
                 current_values: JSON.stringify({ error: error.message }),
                 user_id: user_id
             });
+
             return res.status(500).json({ message: error.message });
         }
     },

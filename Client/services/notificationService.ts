@@ -26,22 +26,22 @@ export async function getNotifications(): Promise<Notification[]> {
 }
 
 export async function markAllRead() {
-    //retrieve data from current user
-    var token; var userId;
-    await currentToken().then((returnedTOken) => { token = returnedTOken; })
-    await currentUserId().then((user_id) => { userId = user_id; })
-  
-    try {
-      // Set up the request config with headers
-      const config: AxiosRequestConfig = {
-        headers: {
-          Authorization: `Bearer ${token}` // Include the token in the Authorization header
-        },
-      };
-  
-      const response = await axios.put(`${BASE_URL}/${userId}`, config);
-      return response;
-    } catch (error) {
-      throw error;
-    }
+  //retrieve data from current user
+  var token; var userId;
+  await currentToken().then((returnedTOken) => { token = returnedTOken; })
+  await currentUserId().then((user_id) => { userId = user_id; })
+
+  try {
+    // Set up the request config with headers
+    const config: AxiosRequestConfig = {
+      headers: {
+        Authorization: `Bearer ${token}` // Include the token in the Authorization header
+      },
+    };
+
+    const response = await axios.put(`${BASE_URL}/${userId}`, config);
+    return response;
+  } catch (error) {
+    throw error;
   }
+}

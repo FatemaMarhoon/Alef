@@ -90,6 +90,7 @@ export default function StationaryRequestTable() {
 
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentReq = filteredRequests.slice(indexOfFirstItem, indexOfLastItem);
 
     const paginate = (event: React.ChangeEvent<unknown>, pageNumber: number) => {
         setCurrentPage(pageNumber);
@@ -177,7 +178,7 @@ export default function StationaryRequestTable() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredRequests.map((request, key) => (
+                                {currentReq.map((request, key) => (
                                     <tr key={key}>
 
                                         <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
@@ -250,7 +251,7 @@ export default function StationaryRequestTable() {
                         <Pagination
                             count={Math.ceil(filteredRequests.length / itemsPerPage)}
                             page={currentPage}
-                            onChange={paginate}
+                            onChange={(event, value) => setCurrentPage(value)}
                         // shape="rounded"
                         />
                     </div>

@@ -3,24 +3,6 @@ import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { currentPreschool, currentToken, currentUser, currentUserId, currentUserRole } from './authService';
 const BASE_URL = 'https://server-bckggkpqeq-uc.a.run.app/preschools'; // Backend URL for preschools
 
-// export async function getPreschools(): Promise<Preschool[]> {
-//     try {
-//         var token;
-//         await currentToken().then((returnedTOken) => { token = returnedTOken; })
-
-//         // Set up the request config with headers
-//         const config: AxiosRequestConfig = {
-//             headers: {
-//                 Authorization: `Bearer ${token}`, // Include the token in the Authorization header
-//             },
-//         };
-
-//         const response = await axios.get<Preschool[]>(BASE_URL, config);
-//         return response.data;
-//     } catch (error) {
-//         throw error;
-//     }
-// }
 
 
 

@@ -45,8 +45,9 @@ const Dashboard: React.FC = () => {
         )}
         {(role === 'Super Admin') && (
           <>
-            <Requests />
             <SuperStats />
+
+            <Requests />
           </>
         )}
       </div>

@@ -11,7 +11,7 @@ export async function createRequest(preschool_name: string,
     phone: string,
     email: string, plan_id: number) {
     try {
-        var token; 
+        var token;
         await currentToken().then((returnedTOken) => { token = returnedTOken; })
         // Set up the request config with headers
         const config: AxiosRequestConfig = {
