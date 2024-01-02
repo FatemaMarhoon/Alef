@@ -91,7 +91,7 @@ const StudentController = {
             const student = await Student.findByPk(student_id);
 
             // access control 
-            if (await verifyPreschool(student.preschoolId, req) == false && await UsersController.getCurrentUser(req) != student.user_id) {
+            if (await verifyPreschool(student.preschool_id, req) == false && await UsersController.getCurrentUser(req) != student.user_id) {
                 return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
             }
 

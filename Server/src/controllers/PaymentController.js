@@ -183,9 +183,8 @@ const PaymentController = {
         try {
             const payment = await Payment.findOne({ where: { id: id }, include: { model: Student, as: "Student" } });
             if (payment) {
-
                 // access control 
-                if (await verifyPreschool(payment.preschool_id, req) == false) {
+                if (await verifyPreschool(payment.Student.preschool_id, req) == false) {
                     return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
                 }
 
