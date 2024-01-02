@@ -12,9 +12,10 @@ StationaryRequest.belongsTo(Stationary, { foreignKey: 'stationary_id' });
 const LogsController = require('./LogController');
 const UsersController = require('./UsersController');
 const NotificationController = require('./NotificationController');
+const User = require('../models/user')(sequelize, DataTypes);
 
 const validateStationaryRequestData = (stationaryRequestData) => {
-    const requiredFields = ['status_name', 'staff_id', 'stationary_id', 'requested_quantity'];
+    const requiredFields = ['staff_id', 'stationary_id', 'requested_quantity'];
     for (const field of requiredFields) {
         if (!stationaryRequestData[field]) {
             return { isValid: false, message: `${field} is required` };
@@ -75,6 +76,7 @@ const StationaryRequestController = {
             return res.status(400).json({ message: validation.message });
         }
         try {
+            stationaryRequestData.status_name = 'Pending';
             //create log
             await LogsController.createLog({
                 type: 'Stationary Req Creation',
@@ -83,11 +85,14 @@ const StationaryRequestController = {
                 user_id: user_id
             });
             const stationaryRequest = await StationaryRequest.create(stationaryRequestData);
-
-            // const title = 'New Stationary Request';
-            // const body = `New stationary request`;
-            // await NotificationController.pushWebNotification(user_id, title, body);
-
+            const staffMember = await Staff.findOne({ where: { id: stationaryRequestData.staff_id } });
+            const title = 'New Stationary Request';
+            const body = `New stationary Request from ${staffMember.name}`;
+            //generate for admins of related preschool 
+            const admins = await User.findAll({ where: { preschool_id: stationaryRequestData.preschool_id, role_name: "Admin" } });
+            for (const admin of admins) {
+                await NotificationController.pushWebNotification(admin.id, title, body);
+            }
             res.json({ message: 'Stationary Request created successfully', stationaryRequest });
         } catch (error) {
             // Log validation error
@@ -138,9 +143,13 @@ const StationaryRequestController = {
                     current_values: newValues,
                     user_id: user_id
                 });
-                // const title = 'Stationary Request Status Updated';
-                // const body = `Rquest is ${stationaryRequest.status_name}`;
-                // await NotificationController.pushSingleNotification(user.email, title, body);
+
+                //notification
+                const stafMember = Staff.findOne({ where: { id: updatedStationaryRequest.staff_id } })
+                const title = 'Stationary Request Status Updated';
+                const body = `Rquest is ${stationaryRequest.status_name}`;
+                await NotificationController.pushSingleNotification(stafMember.email, title, body);
+
 
                 res.json({ message: 'Stationary Request updated successfully', stationaryRequest });
             } else {
