@@ -19,7 +19,7 @@ router.get('/', checkStaff, ApplicationController.getAllApplications);
 router.get('/:id',checkToken, ApplicationController.getApplicationById);
 
 // Create a new application
-router.post('/',checkToken, multerMiddleware, ApplicationController.createApplication); 
+router.post('/', multerMiddleware, ApplicationController.createApplication); 
 
 // withdraw application by parent 
 router.put('/withdraw/:id',checkToken, ApplicationController.withdrawApplication);

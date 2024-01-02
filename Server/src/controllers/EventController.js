@@ -352,10 +352,6 @@ const EventController = {
             if (!event) {
                 return res.status(404).json({ message: 'Event not found for deletion.' });
             }
-            // access control 
-            if (await verifyPreschool(event.preschool_id, req) == false) {
-                return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
-            }
 
             const deletedCount = await Event.destroy({
                 where: { id }

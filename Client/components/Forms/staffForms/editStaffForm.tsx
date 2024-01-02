@@ -2,12 +2,10 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Breadcrumb from '@/components/Breadcrumbs/Breadcrumb';
 import { getStaffById, updateStaff } from '@/services/staffService'; // Assuming you have a staff service
-import { UserStorage } from '@/types/user';
 import { Staff } from '@/types/staff';
 
 export default function EditStaffForm({ staffId }: { staffId: string }) {
     const router = useRouter();
-    const currentUser = UserStorage.getCurrentUser();
 
     const [staff, setStaff] = useState<Staff>({
         preschool_id: 0,
