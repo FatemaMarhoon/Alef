@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { getRequestById, updateRequestStatus } from '@/services/requestService';
 import { Request } from '@/types/request';
 import { useRouter } from 'next/navigation';
-import { createPreschool } from '@/services/preschoolService'; // Import the preschool service
+import { createPreschool, getPreschools } from '@/services/preschoolService'; // Import the preschool service
 import { createUser } from '@/services/userService'; // Import the preschool service
 import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
 import ErrorAlert from "@/components/ErrorAlert";
@@ -14,12 +14,9 @@ import { currentUserRole } from '@/services/authService';
 import Access from "@/components/Pages/403"; // Import the Loader component
 import Breadcrumbs from '@/components/Breadcrumbs/Breadcrumb2';
 
-// interface RequestReviewPageProps {
-//     requestId: string;
-// }
+
 export default function RequestReviewPage({ params }: { params: { requestId: number } }) {
 
-    // const RequestReviewPage: React.FC<RequestReviewPageProps> = ({ requestId }) => {
     const [request, setRequest] = useState<Request | null>(null);
     const [newStatus, setNewStatus] = useState<string>('');
     const router = useRouter();
@@ -27,8 +24,8 @@ export default function RequestReviewPage({ params }: { params: { requestId: num
     const [requestStatuses, setRequestStatuses] = useState<StaticValue[]>([]);
     const [role, SetRole] = useState('');
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
 
-    // const parsedRequestId = parseInt(params.requestId.toString());
 
 
 
@@ -37,9 +34,8 @@ export default function RequestReviewPage({ params }: { params: { requestId: num
             try {
                 const requestData = await getRequestById(params.requestId.toString());
                 setRequest(requestData);
-                setNewStatus(requestData.status); // Set the initial selected value here
+                setNewStatus(requestData.status);
                 setLoading(false)
-                // setNewStatus(requestData.status); // Set the initial selected value here
 
             } catch (error) {
                 setLoading(false)
@@ -51,7 +47,7 @@ export default function RequestReviewPage({ params }: { params: { requestId: num
         fetchRequest();
     }, [params.requestId]);
     useEffect(() => {
-        // Fetch gender types when the component mounts
+        // Fetch request stauses when the component mounts
         async function fetchRequestStatuses() {
             try {
                 const types = await getRequestStatuses();
@@ -69,6 +65,20 @@ export default function RequestReviewPage({ params }: { params: { requestId: num
     }, []);
     const handleStatusChange = async () => {
         try {
+
+            if (request?.status == "Approved") {
+                // Fetch the current preschool email
+                const preschools = await getPreschools();
+                const email = preschools.find(i => i.email === request?.email)
+                console.log(email);
+                // Check if the email already exists for a preschool
+                if (email) {
+                    setError('Email already exists for another preschool.');
+                    // Optionally, display an error message to the user
+                    // or handle the situation as needed.
+                    return;
+                }
+            }
             console.log('Updating status...');
             console.log('Request ID:', params.requestId);
             console.log('New Status:', newStatus);
@@ -158,6 +168,8 @@ export default function RequestReviewPage({ params }: { params: { requestId: num
             {!loading && role !== 'Super Admin' && <Access />}
             {!loading && role === 'Super Admin' && (
                 <><Breadcrumbs previousName='Requests' currentName='Review' pageTitle="Review Request" previousPath='/requests' />
+                    {error && <ErrorAlert message={error}></ErrorAlert>}
+
                     <div className="flex flex-col gap-9">
                         <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
                             <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">

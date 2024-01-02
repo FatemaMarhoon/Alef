@@ -223,12 +223,19 @@ export default function StationaryRequestTable() {
 
 
                                         <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                                            <button className="bg-primary text-white px-3 py-1 rounded-md" >
+                                            <button className="bg-primary text-white px-3 py-1 rounded-md">
                                                 <Link href={`/stationaryRequest/edit/${request.id}`}>
                                                     Review
                                                 </Link>
                                             </button>
+                                            {/* |
+                                            <button className="bg-danger text-white px-3 py-1 rounded-md mr-4">
+                                                <Link href={`/stationaryRequest/edit/${request.id}`}>
+                                                    Delete
+                                                </Link>
+                                            </button> */}
                                         </td>
+
                                     </tr>
                                 ))}
                             </tbody>

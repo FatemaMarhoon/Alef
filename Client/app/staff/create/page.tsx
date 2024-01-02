@@ -2,7 +2,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Breadcrumb from '@/components/Breadcrumbs/Breadcrumb';
-import { createStaff } from '@/services/staffService'; // Assuming you have a service for staff
+import { createStaff, getStaff } from '@/services/staffService'; // Assuming you have a service for staff
 import { useRouter } from 'next/navigation';
 import { Staff } from '@/types/staff'; // Import the Staff interface
 import { UserStorage } from "@/types/user";
@@ -10,7 +10,7 @@ import { StaticValue } from "@/types/staticValue";
 import { currentPreschool } from '@/services/authService';
 import { useSuccessMessageContext } from '../../../components/SuccessMessageContext';
 import ErrorAlert from "@/components/ErrorAlert";
-import { createUser } from '@/services/userService';
+import { createUser, getUsers } from '@/services/userService';
 import { getStaffRoles } from "@/services/staticValuesService";
 import Link from 'next/link';
 import Breadcrumbs from '@/components/Breadcrumbs/Breadcrumb2';
@@ -46,46 +46,6 @@ export default function CreateStaffPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Reset errors
-        // setErrors({});
-
-        // // Validate form data
-        // let hasErrors = false;
-
-        // // Ensure staff role is not empty
-        // if (!staffRole.trim()) {
-        //     setErrors((prevErrors) => ({ ...prevErrors, staffRole: 'Staff role cannot be empty.' }));
-        //     hasErrors = true;
-        // }
-
-        // // Ensure staff name is not empty
-        // if (!staffName.trim()) {
-        //     setErrors((prevErrors) => ({ ...prevErrors, staffName: 'Staff name cannot be empty.' }));
-        //     hasErrors = true;
-        // }
-
-        // // Ensure CPR is a number and not empty
-        // if (isNaN(Number(CPR)) || CPR.trim() === "") {
-        //     setErrors((prevErrors) => ({ ...prevErrors, CPR: 'Please enter a valid CPR.' }));
-        //     hasErrors = true;
-        // }
-
-        // // Ensure phone is a number and not empty
-        // if (isNaN(Number(phone)) || phone.trim() === "") {
-        //     setErrors((prevErrors) => ({ ...prevErrors, phone: 'Please enter a valid phone number.' }));
-        //     hasErrors = true;
-        // }
-
-        // // Ensure hire date is not empty
-        // if (!hireDate.trim()) {
-        //     setErrors((prevErrors) => ({ ...prevErrors, hireDate: 'Hire date cannot be empty.' }));
-        //     hasErrors = true;
-        // }
-
-        // if (hasErrors) {
-        //     return;
-        // }
-
         try {
             var preschool;
             await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
@@ -103,6 +63,15 @@ export default function CreateStaffPage() {
             // Log the complete staff data
             console.log('Staff Data:', staffData);
 
+            // Fetch the users
+            const users = await getUsers();
+            const ExisitingEmail = users.find(i => i.email === staffData.email)
+            console.log(email);
+            // Check if the email already exists for a preschool
+            if (ExisitingEmail) {
+                setError('Email already exists for another user.');
+                return;
+            }
             // Send the request and log the response
             const response = await createStaff(staffData); // Assuming you have a createStaff function
             console.log('API Response:', response);
@@ -114,6 +83,7 @@ export default function CreateStaffPage() {
             }
             // Check if the staff role is "teacher" before creating the user
             if (staffData.staff_role_name === 'Teacher') {
+
                 // Create the user with information about the preschool
                 await createUser(
                     staffData.email!,
