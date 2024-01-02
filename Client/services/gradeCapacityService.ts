@@ -86,8 +86,9 @@ export async function getGradesByPreschool(preschoolId:number): Promise<GradeCap
 
 export async function getGradeCapacityById(gradeId: string): Promise<GradeCapacity> {
     try {
-        var token;
+        var token; var preschool;
         await currentToken().then((returnedTOken) => { token = returnedTOken; })
+        await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
         // Set up the request config with headers
         const config: AxiosRequestConfig = {
             headers: {
@@ -95,7 +96,7 @@ export async function getGradeCapacityById(gradeId: string): Promise<GradeCapaci
             },
         };
 
-        const response = await axios.get<GradeCapacity>(`${BASE_URL}/${currentUser?.preschool_id}/${gradeId}`, config);
+        const response = await axios.get<GradeCapacity>(`${BASE_URL}/${preschool}/${gradeId}`, config);
 
         return response.data;
     } catch (error) {

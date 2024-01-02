@@ -10,6 +10,7 @@ import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import { Toaster } from "react-hot-toast";
 import { usePathname } from "next/navigation";
+import { currentUser } from "@/services/authService";
 export default function RootLayout({
   children,
 }: {
@@ -19,9 +20,11 @@ export default function RootLayout({
   const [loading, setLoading] = useState<boolean>(true);
   const pathname = usePathname();
   const { setSuccessMessage } = useSuccessMessageContext();
+  const [loggedIn, setLoggedin] = useState(false);
 
 
   useEffect(() => {
+    
     setTimeout(() => setLoading(false), 1000);
   }, []);
 
