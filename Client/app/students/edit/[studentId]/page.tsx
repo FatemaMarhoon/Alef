@@ -25,13 +25,34 @@ export default function EditForm({ params }: { params: { studentId: number } }) 
     const [loading, setLoading] = useState(true); // Added loading state
     const [notFound, setNotFound] = useState<boolean>(false);
     const [authorized, setAuthorized] = useState<boolean>(true);
-    const [student, setStudent] = useState<Student>({});
+    const [student, setStudent] = useState<Student>({
+        id: 0,
+        student_name: '',
+        preschool_id: 0,
+        class_id: 0,
+        grade: '',
+        DOB: new Date(),
+        CPR: 0,
+        contact_number1: 0,
+        contact_number2: 0,
+        guardian_name: '',
+        enrollment_date: new Date(),
+        medical_history: '',
+        gender: '',
+        passport: '',
+        personal_picture: '',
+        certificate_of_birth: '',
+        user_id: 0
+
+    });
     const [gradesList, setGradesList] = useState<GradeCapacity[]>([]);
     const [genderTypes, setGenderTypes] = useState<StaticValue[]>([]);
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
     const [personalPicture, setPersonalPicture] = useState<File | undefined>(undefined);
     const [passport, setPassport] = useState<File | undefined>(undefined);
     const [certificateOfBirth, setCertificateOfBirth] = useState<File | undefined>(undefined);
+    const [isFormChanged, setIsFormChanged] = useState(false);
+
     useEffect(() => {
         // Fetch the existing student data when the component mounts
         const fetchStudentData = async () => {
@@ -137,6 +158,14 @@ export default function EditForm({ params }: { params: { studentId: number } }) 
             }
         }
     };
+    useEffect(() => {
+        // Check for changes in the student state
+        const isStudentChanged =
+            JSON.stringify(student) !== JSON.stringify(getStudentById(params.studentId.toString()));
+
+        // Update the isFormChanged state
+        setIsFormChanged(isStudentChanged);
+    }, [student, params.studentId]);
 
     return (
         <>
@@ -368,7 +397,10 @@ export default function EditForm({ params }: { params: { studentId: number } }) 
                                                 className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary   dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
                                             />
                                         </div>
-                                        <button type="submit" className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray mb-4">
+                                        <button type="submit"
+                                            className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray mb-4"
+                                            disabled={!isFormChanged}
+                                        >
                                             Update
                                         </button>
                                         <Link

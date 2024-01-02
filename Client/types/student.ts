@@ -15,8 +15,8 @@ export interface Student {
     personal_picture: string; // Assuming 'personal_picture' is a URL or null
     certificate_of_birth: string; // Assuming 'certificate_of_birth' is a URL or null
     passport: string  // Assuming 'passport' is a URL or null
-    createdAt: Date;
-    updatedAt: Date;
+    // createdAt: Date;
+    // updatedAt: Date;
     user_id: number | null; // Assuming 'user_id' is optional
 
     passportFile?: File;

@@ -29,9 +29,9 @@ export default function RequestTable() {
 
     const checkAuthorization = async () => {
         try {
-            const user = await currentUserRole();
-            SetRole(user);
-            return user; // Return the user role
+            const role = await currentUserRole();
+            SetRole(role as string);
+            return role; // Return the user role
 
         } catch (error) {
             console.error('Error checking authorization:', error);

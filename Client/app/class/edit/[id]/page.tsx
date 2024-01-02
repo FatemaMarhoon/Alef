@@ -186,7 +186,7 @@ export default function EditForm({ params }: { params: { id: number } }) {
     const updateClassDetails = async () => {
         try {
 
-            await updateClass(classId, classDetails.class);
+            await updateClass(classId.toString(), classDetails?.class);
 
             setSuccessMessage("Class is updated successfully");
 

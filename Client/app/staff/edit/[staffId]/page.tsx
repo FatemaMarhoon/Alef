@@ -22,7 +22,15 @@ export default function EditStaffForm({ params }: { params: { staffId: number } 
     const [error, setError] = useState("");
     const [staffRoles, setStaffRoles] = useState<StaticValue[]>([]);
 
-    const [staff, setStaff] = useState<Staff>({});
+    const [staff, setStaff] = useState<Staff>({
+        name: '',
+        preschool_id: 0,
+        staff_role_name: '',
+        CPR: 0,
+        phone: 0,
+        hire_date: new Date()
+
+    });
 
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
     const [loading, setLoading] = useState(true); // Added loading state

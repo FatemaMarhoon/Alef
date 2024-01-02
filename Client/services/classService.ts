@@ -198,7 +198,7 @@ export async function getClassByStaffId(staffId: string): Promise<any> {
 }
 
 // Function to get the sum of class capacities for a specific grade
-export async function getSumOfClassCapacitiesByGrade(grade: string): Promise<number> {
+export async function getSumOfClassCapacitiesByGrade(grade: string): Promise<any> {
     try {
         var token; var preschool;
         await currentToken().then((returnedTOken) => { token = returnedTOken; })
