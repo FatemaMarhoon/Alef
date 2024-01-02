@@ -39,7 +39,6 @@ Class.belongsToMany(Event, {
     as: 'Events',
 });
 
-
 const cronJob = {
     async appointmentsReminder() {
         try {

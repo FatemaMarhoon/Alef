@@ -22,9 +22,6 @@ const backup = require("./src/backup");
 // middelware
 app.use(express.json());
 
-// Set the timezone to Bahrain
-process.env.TZ = '+03:00';
-
 // import routes
 const userRoutes = require("./src/routes/userRoutes");
 const applicationRoutes = require("./src/routes/applicationRoutes");
@@ -48,7 +45,6 @@ const applicationEvaluationRoutes = require("./src/routes/applicationEvaluationR
 const gradesRoutes = require("./src/routes/gradesRoutes");
 const mediaRoutes = require("./src/routes/mediaRoutes");
 const mailRoutes = require("./src/routes/mailRoutes");
-
 
 // define top-level routes 
 app.use("/users", userRoutes);
@@ -87,5 +83,5 @@ cron.schedule('0 0 * * *', () => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Server started running on port ${PORT}, at ${new Date()}`);
 });

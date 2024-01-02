@@ -91,7 +91,7 @@ const StudentController = {
             const student = await Student.findByPk(student_id);
 
             // access control 
-            if (await verifyPreschool(student.preschoolId, req) == false) {
+            if (await verifyPreschool(student.preschoolId, req) == false && await UsersController.getCurrentUser(req) != student.user_id) {
                 return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
             }
 
@@ -114,6 +114,13 @@ const StudentController = {
         const studentData = { student_name, DOB, grade, CPR, contact_number1, contact_number2, guardian_name, enrollment_date, medical_history, preschool_id, gender, certificate_of_birth, passport, personal_picture };
         console.log('Req Body:', req.body);
         console.log('Req Files:', req.files);
+
+        // access control 
+        if (await verifyPreschool(preschool_id, req) == false) {
+            return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+        }
+
+
         const validation = validateStudentData(studentData);
         const user_id = await UsersController.getCurrentUser(req, res);
         // Check if the CPR already exists
@@ -197,7 +204,7 @@ const StudentController = {
 
             if (student) {
                 // access control 
-                if (await verifyPreschool(student.preschool_id) == false) {
+                if (await verifyPreschool(student.preschool_id, req) == false) {
                     return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
                 }
                 const originalValues = JSON.stringify(student.toJSON()); // Store the original values before the update
@@ -315,7 +322,7 @@ const StudentController = {
 
             if (student) {
                 // access control 
-                if (await verifyPreschool(student.preschool_id) == false) {
+                if (await verifyPreschool(student.preschool_id, req) == false) {
                     return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
                 }
 
@@ -362,7 +369,7 @@ const StudentController = {
         const { preschool_id } = req.params;
         try {
             // access control 
-            if (await verifyPreschool(preschool_id) == false) {
+            if (await verifyPreschool(preschool_id, req) == false) {
                 return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
             }
             const students = await Student.findAll({ where: { preschool_id } });
@@ -378,7 +385,7 @@ const StudentController = {
             const { preschoolId } = req.params;
             const { classId } = req.params;
             // access control 
-            if (await verifyPreschool(preschoolId) == false) {
+            if (await verifyPreschool(preschoolId, req) == false) {
                 return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
             }
             const students = await Student.findAll({

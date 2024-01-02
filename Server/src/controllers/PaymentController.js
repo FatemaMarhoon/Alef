@@ -6,6 +6,7 @@ const Student = require('../models/student')(sequelize, DataTypes);
 const User = require('../models/user')(sequelize, DataTypes);
 const NotificationController = require('./NotificationController');
 const UsersController = require('./UsersController');
+const { verifyPreschool } = require('../config/token_validation');
 
 Payment.belongsTo(Student, { foreignKey: 'student_id' });
 Student.belongsTo(Preschool, { foreignKey: 'preschool_id' });
@@ -22,7 +23,7 @@ const PaymentController = {
                 // access control 
                 if ((await UsersController.getCurrentUserRole(req) == 'Admin'
                     || await UsersController.getCurrentUserRole(req) == 'Staff')
-                    && await verifyPreschool(preschool_id) == false) {
+                    && await verifyPreschool(preschool_id, req) == false) {
                     return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
                 }
 
@@ -63,7 +64,7 @@ const PaymentController = {
                 // access control 
                 const preschoolStaff = (await UsersController.getCurrentUserRole(req) == 'Admin'
                     || await UsersController.getCurrentUserRole(req) == 'Staff')
-                    && await verifyPreschool(payment.preschool_id) == false
+                    && await verifyPreschool(payment.preschool_id, req) == false
                 const owner = await UsersController.getCurrentUserRole(req) == 'Parent'
                     && await UsersController.getCurrentUser(req) == payment.Student.user_id;
 
@@ -100,12 +101,22 @@ const PaymentController = {
             if (!student_id) {
                 return res.status(400).json({ message: "Student is Required." });
             }
+
+            const student = await Student.findOne({ where: student_id, include: { model: User, as: "User" } });
+            if (!student) {
+                return res.status(404).json({ message: "Student Doesn't Exist." });
+            }
+
+            // access control 
+            if (await verifyPreschool(student.preschool_id, req) == false) {
+                return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+            }
+
             paymentData.status = "Pending";
             const newPayment = await Payment.create(paymentData);
             if (newPayment) {
-                //notify parent
-                const student = await Student.findOne({ where: newPayment.student_id, include: { model: User, as: "User" } });
-                if (student.User.role_name == "Parent") {
+                //notify parent 
+                if (student.User && student.User.role_name == "Parent") {
                     console.log("Parent User Found")
                     const title = "New Payment Request"
                     const body = "Dear Parent, Admin has requested a payment for your child. Please review and respond accordingly.";
@@ -144,13 +155,13 @@ const PaymentController = {
     async deletePayment(req, res) {
         const paymentId = req.params.id;
         try {
-            const payment = await Payment.findByPk(paymentId);
+            const payment = await Payment.findOne({ where: { id: paymentId }, include: { model: Student, as: "Student" } });
             if (!payment) {
                 return res.status(404).json({ message: 'Payment not found' });
             }
 
             // access control 
-            if (await verifyPreschool(payment.preschool_id) == false) {
+            if (await verifyPreschool(payment.Student.preschool_id, req) == false) {
                 return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
             }
 
@@ -161,7 +172,8 @@ const PaymentController = {
                 return res.status(404).json({ message: 'Payment not found' });
             }
         } catch (error) {
-            return res.status(500).json({ message: 'Internal server error while deleting the payment.' });
+            console.log(error);
+            return res.status(500).json({ message: error.message});
         }
     },
 
@@ -173,7 +185,7 @@ const PaymentController = {
             if (payment) {
 
                 // access control 
-                if (await verifyPreschool(payment.preschool_id) == false) {
+                if (await verifyPreschool(payment.preschool_id, req) == false) {
                     return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
                 }
 
