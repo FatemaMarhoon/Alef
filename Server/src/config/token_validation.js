@@ -171,6 +171,7 @@ const token_validation = {
             token = token.split(' ')[1]
             const result = await admin.auth().verifyIdToken(token)
                 .then((claims) => {
+                    console.log(`Passed Preschool:${passedId} , Token Preschool:${claims.preschool_id}`);
                     if (claims.preschool_id == passedId) {
                         console.log('preschool match');
                         return true;
