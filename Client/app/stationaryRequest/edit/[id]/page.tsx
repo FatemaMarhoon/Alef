@@ -116,6 +116,29 @@ export default function EditStationaryRequestForm({ params }: { params: { id: nu
         e.preventDefault();
 
         try {
+            console.log("before response");
+
+            // Find the Stationary item in stationaryList corresponding to stationaryRequest.stationary_id
+            const selectedStationary = stationaryList.find(item => item.id === stationaryRequest.stationary_id);
+
+            if (!selectedStationary) {
+                console.error('Corresponding Stationary not found.');
+                return;
+            }
+
+            // Simplified condition
+            if (stationaryRequest.requested_quantity > selectedStationary.quantity_available) {
+                console.log('Alert triggered: Requested quantity is greater than the available quantity!');
+
+                // Display a confirmation dialog
+                const confirmation = window.confirm('Requested quantity is greater than the available quantity. Do you want to proceed?');
+
+                // If the user clicks "Cancel," stop further processing
+                if (!confirmation) {
+                    console.log('User canceled the operation.');
+                    return;
+                }
+            }
 
             // Send the request and log the response
             const response = await updateStationaryRequest(params.id.toString(), stationaryRequest);
@@ -130,19 +153,18 @@ export default function EditStationaryRequestForm({ params }: { params: { id: nu
                 } else if (response.status == 400 || response.status == 404 || response.status == 500) {
                     setError(response.data.message);
                 }
-
             }
-            router.push('/stationaryRequest'); // Update the route accordingly
 
+            router.push('/stationaryRequest'); // Update the route accordingly
         } catch (error: any) {
             if (error.response) {
                 setError(error.response.data.message);
-            }
-            else if (error.message) {
+            } else if (error.message) {
                 setError(error.message);
             }
         }
     };
+
 
 
     // Function to get the existing quantity of the selected stationary
@@ -258,6 +280,7 @@ export default function EditStationaryRequestForm({ params }: { params: { id: nu
                                         >
                                             Update
                                         </button>
+
                                     </div>
                                 </form>
                             </div>

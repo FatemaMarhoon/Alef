@@ -50,9 +50,6 @@ export default function StaffTable() {
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentStaff = filteredStaff.slice(indexOfFirstItem, indexOfLastItem);
 
-
-
-
     return (
         <>
             {loading && <Loader />}
