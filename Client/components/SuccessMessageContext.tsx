@@ -8,8 +8,8 @@ type SuccessMessageContextType = {
 
 const SuccessMessageContext = createContext<SuccessMessageContextType>({
   successMessage: null,
-  setSuccessMessage: () => {},
-  clearSuccessMessage: () => {},
+  setSuccessMessage: () => { },
+  clearSuccessMessage: () => { },
 });
 
 export function useSuccessMessageContext() {
@@ -23,8 +23,21 @@ export function SuccessMessageProvider({ children }: { children: React.ReactNode
     setSuccessMessage(null);
   };
 
+
+  const setSuccessMessageWithTimer = (message: string | null) => {
+    setSuccessMessage(message);
+
+    if (message) {
+      // Set a timer to clear the success message after 5 seconds
+      setTimeout(() => {
+        clearSuccessMessage();
+      }, 5000);
+    }
+  };
+
+
   return (
-    <SuccessMessageContext.Provider value={{ successMessage, setSuccessMessage, clearSuccessMessage }}>
+    <SuccessMessageContext.Provider value={{ successMessage, setSuccessMessage: setSuccessMessageWithTimer, clearSuccessMessage }}>
       {children}
     </SuccessMessageContext.Provider>
   );

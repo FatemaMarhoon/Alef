@@ -4,6 +4,7 @@ const admin = require('../config/firebase.config')
 const auth = admin.auth();
 const EmailsManager = require('./EmailsManager')
 const LogsController = require('./LogController'); // Import the LogsController module
+const { verifyPreschool } = require('../config/token_validation');
 
 const Preschool = require('../models/preschool')(sequelize, DataTypes);
 const User = require('../models/user')(sequelize, DataTypes);
@@ -13,7 +14,7 @@ User.belongsTo(Preschool, { foreignKey: 'preschool_id' });
 
 const UsersController = {
 
-  getCurrentUser: async (req, res) => {
+  getCurrentUser: async (req) => {
     let user_id = null;
 
     const token = req.get("authorization");
@@ -28,7 +29,6 @@ const UsersController = {
           user_id = claims['dbId'];
         } catch (error) {
           console.error('Error verifying token:', error);
-          res.status(401).json({ message: 'Invalid token' });
           return;
         }
       }
@@ -37,16 +37,47 @@ const UsersController = {
     return user_id;
   },
 
+  getCurrentUserRole: async (req) => {
+    let role = null;
+
+    const token = req.get("authorization");
+    if (token) {
+      const tokenParts = token.split(' ');
+
+      if (tokenParts.length === 2) {
+        const tokenValue = tokenParts[1];
+
+        try {
+          const claims = await admin.auth().verifyIdToken(tokenValue);
+          role = claims['role'];
+        } catch (error) {
+          console.error('Error verifying token:', error);
+          throw error;
+        }
+      }
+    }
+
+    return role;
+  },
+
   async getAllUsers(req, res) {
     const preschool = req.query.preschool;
     try {
       if (preschool) {
+        // access control (admin trying to access another preschool's users)
+        if (await UsersController.getCurrentUserRole(req) == 'Admin' && await verifyPreschool(preschool, req) == false) {
+          return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+        }
         const users = await User.findAll({
           where: { preschool_id: preschool }
         });
         return res.status(200).json(users);
       }
       else {
+        // access control (preschool admin trying to access all users in the system)
+        if (await UsersController.getCurrentUserRole(req) != 'Super Admin') {
+          return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+        }
         const users = await User.findAll();
         return res.status(200).json(users);
       }
@@ -58,7 +89,7 @@ const UsersController = {
   async getAllFirebaseUsers(req, res) {
     const preschool = req.query.preschool;
     try {
-      
+
     } catch (error) {
       return res.status(500).json({ message: error.message });
     }
@@ -99,6 +130,11 @@ const UsersController = {
       // Extract user data from the request body
       var { email, password, preschool_id, role_name, name } = req.body;
 
+      // access control (preschool admin trying to create user outside his preschool)
+      if (await UsersController.getCurrentUserRole(req) == 'Admin' && await verifyPreschool(preschool_id, req) == false) {
+        return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+      }
+
       // Validate required fields
       if (!email) {
         return res.status(400).json({ message: "Email is Required" });
@@ -123,7 +159,7 @@ const UsersController = {
         password = generatePassword();
         console.log(password)
       }
-      else if (['Super Admin'].includes(role_name)) { 
+      else if (['Super Admin'].includes(role_name)) {
         //generate random password (account created on behalf of user)
         password = generatePassword();
       }
@@ -140,7 +176,7 @@ const UsersController = {
           ...currentClaims,
           dbId: createdUser.id
         });
-        
+
         // Send successful response with created user data
         return res.status(201).json({ message: 'User created successfully', createdUser });
       });
@@ -154,7 +190,7 @@ const UsersController = {
 
   async updateUser(req, res) {
     const { id } = req.params;
-    const { name, role_name, status } = req.body; //all are optional, only what has value should be updated
+    const { name, role_name, status, email } = req.body; //all are optional, only what has value should be updated
     try {
       // Get the user by id (from firebase and db)
       const dbUser = await User.findByPk(id);
@@ -162,11 +198,19 @@ const UsersController = {
 
       //if user found in both, update both 
       if (dbUser && firebaseUser) {
+
+        // access control (preschool admin trying to update user outside his preschool)
+        if (await UsersController.getCurrentUserRole(req) == 'Admin' && await verifyPreschool(dbUser.preschool_id, req) == false) {
+          return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+        }
+
         if (status) dbUser.set({ status: status });
         if (status == "Disabled") await admin.auth().updateUser(firebaseUser.uid, { disabled: true });
         if (status == "Enabled") await admin.auth().updateUser(firebaseUser.uid, { disabled: false });
         if (name) dbUser.set({ name: name });
         if (name) await admin.auth().updateUser(firebaseUser.uid, { displayName: name });
+        if (email) dbUser.set({ email: email });
+        if (email) await admin.auth().updateUser(firebaseUser.uid, { email: email });
         if (role_name) dbUser.set({ role_name: role_name });
         const currentClaims = firebaseUser.customClaims;
         const updatedClaims = {
@@ -191,6 +235,12 @@ const UsersController = {
     const { id } = req.params;
     try {
       const userObject = await User.findByPk(id); // get user object
+
+      // access control (preschool admin trying to create user outside his preschool)
+      if (await UsersController.getCurrentUserRole(req) == 'Admin' && await verifyPreschool(userObject.preschool_id, req) == false) {
+        return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+      }
+
       const dbSuccess = await User.destroy({ where: { id: id } }); // delete user from database
       if (dbSuccess) {
         await admin.auth().deleteUser((await admin.auth().getUserByEmail(userObject.email)).uid); // delete user from firebase

@@ -4,7 +4,9 @@ import { useRouter } from 'next/navigation'
 import { currentUser } from "@/services/authService";
 import { useEffect, useState } from "react";
 import Router from "next/router";
-import RootLayout from "./layout";
+import RootLayout from "./plans/layout";
+import Layout from "./layout"
+import SubscriptionPlansPage from "./plans/page";
 
 export default function Home() {
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
@@ -23,11 +25,13 @@ export default function Home() {
   }, []);
 
   return (
-
-    <>{loggedIn &&
+    <>
+      {/* {!loggedIn &&
+        <><RootLayout><SubscriptionPlansPage></SubscriptionPlansPage></RootLayout></>
+      } */}
       <Dashboard>
       </Dashboard>
-    }
+
     </>
 
   );

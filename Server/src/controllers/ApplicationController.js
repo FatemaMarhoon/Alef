@@ -20,7 +20,7 @@ Preschool.hasMany(Application, { foreignKey: 'preschool_id' });
 
 const LogsController = require('./LogController');
 const UsersController = require('./UsersController');
-const grade_capacity = require('../models/grade_capacity');
+const { verifyPreschool, checkAdmin } = require('../config/token_validation');
 
 const ApplicationController = {
     async getAllApplications(req, res) {
@@ -29,15 +29,20 @@ const ApplicationController = {
         try {
             //for web 
             if (preschool) {
-                //normal listing 
-                const applications = await Application.findAll({
-                    include: [
-                        { model: User },
-                        { model: Evaluation }
-                    ],
-                    where: { preschool_id: preschool }
-                });
-                return res.json(applications);
+                if (await verifyPreschool(preschool, req) == false) {
+                    return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+                } else {
+                    //return preschool application 
+                    const applications = await Application.findAll({
+                        include: [
+                            { model: User },
+                            { model: Evaluation }
+                        ],
+                        where: { preschool_id: preschool }
+                    });
+                    return res.json(applications);
+                }
+
             }
             //for mobile 
             else if (user_id) {
@@ -95,7 +100,7 @@ const ApplicationController = {
             if (!created_by) {
                 return res.status(400).json({ message: "Created By is required." });
             }
-            
+
             if (!req.files['personal_picture'][0]) {
                 return res.status(400).json({ message: "Personal Picture is required." });
             }
@@ -154,6 +159,7 @@ const ApplicationController = {
     async getApplicationById(req, res) {
         const { id } = req.params;
         try {
+
             const application = await Application.findByPk(id, {
                 include: [
                     { model: User },
@@ -161,17 +167,52 @@ const ApplicationController = {
                     { model: Evaluation },
                 ]
             });
-            //generate and set urls for files 
-            application.personal_picture = await FilesManager.generateSignedUrl(application.personal_picture);
-            application.passport = await FilesManager.generateSignedUrl(application.passport);
-            application.certificate_of_birth = await FilesManager.generateSignedUrl(application.certificate_of_birth);
 
-            if (!application) {
-                return res.status(404).json({ message: 'Application not found.' });
+            // only proceed if user is owner of the applicaton, or staff/admin of preschool 
+            console.log(await verifyPreschool(application.preschool_id, req));
+            if (!(await verifyPreschool(application.preschool_id, req) == true || UsersController.getCurrentUser(req) == application.created_by)) {
+                return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+            } else {
+                //generate and set urls for files 
+                application.personal_picture = await FilesManager.generateSignedUrl(application.personal_picture);
+                application.passport = await FilesManager.generateSignedUrl(application.passport);
+                application.certificate_of_birth = await FilesManager.generateSignedUrl(application.certificate_of_birth);
+
+                if (!application) {
+                    return res.status(404).json({ message: 'Application not found.' });
+                }
+                return res.status(200).json(application);
             }
-            res.json(application);
         } catch (error) {
             res.status(500).json({ message: error.message });
+        }
+    },
+
+    // Parent withdraw their own application
+    async withdrawApplication(req, res) {
+        const { id } = req.params;
+        try {
+            const application = await Application.findByPk(id);
+            if (application) {
+                if (await UsersController.getCurrentUser(req) == application.created_by) {
+                    await Application.update(
+                        { status: 'Cancelled' },
+                        { where: { id: id } }
+                    );
+                    return res.status(200).json({ message: 'Application Withdrawn Successfully.' });
+                }
+                else {
+                    return res.status(403).json({ message: "Access Denied! You're unauthorized to perform this action" });
+                }
+            }
+            else {
+                return res.status(404).json({ message: 'Application not found.' });
+            }
+
+
+        } catch (error) {
+            return res.status(500).json({ message: error.message });
+
         }
     },
 
@@ -184,132 +225,139 @@ const ApplicationController = {
             // Fetch the existing application
             const applicationObject = await Application.findByPk(id);
             if (applicationObject) {
-                // if student with same CPR existed anywhere else, it means student have been already enrolled > prevent accepting 
-                const exist = await Student.findOne({ where: { CPR: applicationObject.student_CPR } });
-                if (exist && status == "Accepted") {
-                    return res.status(500).json({ message: "Child already enrolled in another preschool." })
-                }
+                // access control 
+                if (await verifyPreschool(applicationObject.preschool_id, req) == false) {
+                    return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+                } else {
 
-                // Check and update each property individually
-                if (email) applicationObject.email = email;
-                if (preschool_id) applicationObject.preschool_id = preschool_id;
-                if (guardian_type) applicationObject.guardian_type = guardian_type;
-                if (status) applicationObject.status = status;
-                if (student_name) applicationObject.student_name = student_name;
-                if (guardian_name) applicationObject.guardian_name = guardian_name;
-                if (student_CPR) applicationObject.student_CPR = student_CPR;
-                if (phone) applicationObject.phone = phone;
-                if (student_DOB) applicationObject.student_DOB = student_DOB;
-                if (medical_history) applicationObject.medical_history = medical_history;
-                if (created_by) applicationObject.created_by = created_by;
-                if (gender) applicationObject.gender = gender;
-                if (grade) applicationObject.grade = grade;
-
-                //check for updating files 
-                if (req.files) {
-                    if (req.files['personal_picture']) {
-                        console.log("INSIDE")
-                        const picture_url = await FilesManager.upload(req.files['personal_picture'][0]);
-                        applicationObject.personal_picture = picture_url;
+                    // if student with same CPR existed anywhere else, it means student have been already enrolled > prevent accepting 
+                    const exist = await Student.findOne({ where: { CPR: applicationObject.student_CPR } });
+                    if (exist && status == "Accepted") {
+                        return res.status(500).json({ message: "Child already enrolled in another preschool." })
                     }
-                    if (req.files['certificate_of_birth']) {
-                        const certificate_of_birth_url = await FilesManager.upload(req.files['certificate_of_birth'][0]);
-                        applicationObject.certificate_of_birth = certificate_of_birth_url;
+
+                    // Check and update each property individually
+                    if (email) applicationObject.email = email;
+                    if (preschool_id) applicationObject.preschool_id = preschool_id;
+                    if (guardian_type) applicationObject.guardian_type = guardian_type;
+                    if (status) applicationObject.status = status;
+                    if (student_name) applicationObject.student_name = student_name;
+                    if (guardian_name) applicationObject.guardian_name = guardian_name;
+                    if (student_CPR) applicationObject.student_CPR = student_CPR;
+                    if (phone) applicationObject.phone = phone;
+                    if (student_DOB) applicationObject.student_DOB = student_DOB;
+                    if (medical_history) applicationObject.medical_history = medical_history;
+                    if (created_by) applicationObject.created_by = created_by;
+                    if (gender) applicationObject.gender = gender;
+                    if (grade) applicationObject.grade = grade;
+
+                    //check for updating files 
+                    if (req.files) {
+                        if (req.files['personal_picture']) {
+                            console.log("INSIDE")
+                            const picture_url = await FilesManager.upload(req.files['personal_picture'][0]);
+                            applicationObject.personal_picture = picture_url;
+                        }
+                        if (req.files['certificate_of_birth']) {
+                            const certificate_of_birth_url = await FilesManager.upload(req.files['certificate_of_birth'][0]);
+                            applicationObject.certificate_of_birth = certificate_of_birth_url;
+                        }
+                        if (req.files['passport']) {
+                            const passport_url = await FilesManager.upload(req.files['passport'][0]);
+                            applicationObject.passport = passport_url;
+                        }
                     }
-                    if (req.files['passport']) {
-                        const passport_url = await FilesManager.upload(req.files['passport'][0]);
-                        applicationObject.passport = passport_url;
-                    }
-                }
 
 
-                const originalValues = JSON.stringify(applicationObject.toJSON()); // Store the original values before the update
+                    const originalValues = JSON.stringify(applicationObject.toJSON()); // Store the original values before the update
 
-                // Save the updated applicationObject
-                await applicationObject.save();
+                    // Save the updated applicationObject
+                    await applicationObject.save();
 
-                const newValues = JSON.stringify(applicationObject.toJSON()); // Store the updated values after the update
-                await LogsController.createLog({
-                    type: 'Application Update',
-                    original_values: originalValues,
-                    current_values: newValues,
-                    user_id: user_id
-                });
+                    const newValues = JSON.stringify(applicationObject.toJSON()); // Store the updated values after the update
+                    await LogsController.createLog({
+                        type: 'Application Update',
+                        original_values: originalValues,
+                        current_values: newValues,
+                        user_id: user_id
+                    });
 
-                //if status updated, notify parent
-                if (status) {
-                    // Lookup the user associated with the application.
-                    const parentUser = await User.findByPk(applicationObject.created_by);
-                    if (parentUser.role_name == "Parent") {
-                        let regToken;
-                        //retrieve registration token and push notification 
-                        console.log("User is parent")
-                        await admin.auth().getUserByEmail(parentUser.email).then(async (userRecord) => {
-                            regToken = userRecord.customClaims['regToken'];
-                            if (regToken) {
-                                console.log("Token found, trying to push")
-                                if (status == "Accepted") {
-                                    //send notification
-                                    await NotificationController.pushSingleNotification(parentUser.email, "Congratulations!", 
-                                    "Your application has been accepted. Please pay any pending fees.");
-                                    //subscribe to preschool topic 
-                                    await NotificationController.subscribeToTopic(parentUser.email, applicationObject.preschool_id + '_Parent')
+                    //if status updated, notify parent
+                    if (status) {
+                        // Lookup the user associated with the application.
+                        const parentUser = await User.findByPk(applicationObject.created_by);
+                        if (parentUser.role_name == "Parent") {
+                            let regToken;
+                            //retrieve registration token and push notification 
+                            console.log("User is parent")
+                            await admin.auth().getUserByEmail(parentUser.email).then(async (userRecord) => {
+                                regToken = userRecord.customClaims['regToken'];
+                                if (regToken) {
+                                    console.log("Token found, trying to push")
+                                    if (status == "Accepted") {
+                                        //send notification
+                                        await NotificationController.pushSingleNotification(parentUser.email, "Congratulations!",
+                                            "Your application has been accepted. Please pay any pending fees.");
+                                        //subscribe to preschool topic 
+                                        await NotificationController.subscribeToTopic(parentUser.email, applicationObject.preschool_id + '_Parent')
+                                    }
+                                    else {
+                                        await NotificationController.pushSingleNotification(parentUser.email, "Application Updates",
+                                            "Your application status has been updated.");
+                                    }
                                 }
                                 else {
-                                    await NotificationController.pushSingleNotification(parentUser.email, "Application Updates",
-                                     "Your application status has been updated.");
+                                    console.log("No token")
                                 }
-                            }
-                            else {
-                                console.log("No token")
-                            }
-                        });
-                    }
-                    //if status set to rejected, check the waiting list 
-                    if (status == "Rejected" || status == "Cancelled") {
-                        await GradesController.trackWaitlist(applicationObject.preschool_id, applicationObject.grade);
-                    }
-                    //once application has been accepted, create a student and payment record
-                    else if (status == "Accepted") {
-                        const creator = await User.findByPk(applicationObject.created_by);
-                        const student = await Student.create({
-                            preschool_id: applicationObject.preschool_id,
-                            student_name: applicationObject.student_name,
-                            grade: applicationObject.grade,
-                            DOB: applicationObject.student_DOB,
-                            CPR: applicationObject.student_CPR,
-                            contact_number1: applicationObject.phone,
-                            contact_number2: applicationObject.phone,
-                            guardian_name: applicationObject.guardian_name,
-                            enrollment_date: new Date(),
-                            medical_history: applicationObject.medical_history,
-                            gender: applicationObject.gender,
-                            personal_picture: applicationObject.personal_picture,
-                            certificate_of_birth: applicationObject.certificate_of_birth,
-                            passport: applicationObject.passport,
-                            user_id: creator.role_name == "Parent" ? applicationObject.created_by : null //link parent account to the student
-                        })
+                            });
+                        }
+                        //if status set to rejected, check the waiting list 
+                        if (status == "Rejected" || status == "Cancelled") {
+                            await GradesController.trackWaitlist(applicationObject.preschool_id, applicationObject.grade);
+                        }
+                        //once application has been accepted, create a student and payment record
+                        else if (status == "Accepted") {
+                            const creator = await User.findByPk(applicationObject.created_by);
+                            const student = await Student.create({
+                                preschool_id: applicationObject.preschool_id,
+                                student_name: applicationObject.student_name,
+                                grade: applicationObject.grade,
+                                DOB: applicationObject.student_DOB,
+                                CPR: applicationObject.student_CPR,
+                                contact_number1: applicationObject.phone,
+                                contact_number2: applicationObject.phone,
+                                guardian_name: applicationObject.guardian_name,
+                                enrollment_date: new Date(),
+                                medical_history: applicationObject.medical_history,
+                                gender: applicationObject.gender,
+                                personal_picture: applicationObject.personal_picture,
+                                certificate_of_birth: applicationObject.certificate_of_birth,
+                                passport: applicationObject.passport,
+                                user_id: creator.role_name == "Parent" ? applicationObject.created_by : null //link parent account to the student
+                            })
 
-                        const preschool = await Preschool.findByPk(applicationObject.preschool_id);
-                        const dueDate = new Date();
-                        dueDate.setDate(paymentData.due_date.getDate() + 10) // set due date after 10 days
-                        const payment = await Payment.create({
-                            status: "Pending",
-                            type: "Registration Fees",
-                            fees: preschool.registration_fees,
-                            due_date: dueDate,
-                            notes: "Registration Fees",
-                            student_id: student.id
-                        });
-                        return res.status(201).json({ message: 'Application Accepted and Student Registered Successfully.', student });
+                            const preschool = await Preschool.findByPk(applicationObject.preschool_id);
+                            const dueDate = new Date();
+                            dueDate.setDate(paymentData.due_date.getDate() + 10) // set due date after 10 days
+                            const payment = await Payment.create({
+                                status: "Pending",
+                                type: "Registration Fees",
+                                fees: preschool.registration_fees,
+                                due_date: dueDate,
+                                notes: "Registration Fees",
+                                student_id: student.id
+                            });
+                            return res.status(201).json({ message: 'Application Accepted and Student Registered Successfully.', student });
+                        }
                     }
+
+                    return res.status(200).json({ message: 'Application updated successfully.' });
                 }
-
-                return res.status(200).json({ message: 'Application updated successfully.' });
             }
             else {
                 return res.status(404).json({ message: 'Application not found.' });
             }
+
         } catch (error) {
             return res.status(500).json({ message: error.message });
         }
@@ -318,13 +366,28 @@ const ApplicationController = {
     async deleteApplication(req, res) {
         const { id } = req.params;
         try {
-            const deletedCount = await Application.destroy({
-                where: { id }
-            });
-            if (deletedCount === 0) {
-                return res.status(404).json({ message: 'Application not found for deletion.', message: error.message });
+
+
+            // Fetch the existing application
+            const applicationObject = await Application.findByPk(id);
+            if (applicationObject) {
+                // access control 
+                if (await verifyPreschool(applicationObject.preschool_id, req) == false) {
+                    return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+                } else {
+
+                    const deletedCount = await Application.destroy({
+                        where: { id }
+                    });
+                    if (deletedCount === 0) {
+                        return res.status(404).json({ message: 'Application not found for deletion.', message: error.message });
+                    }
+                    return res.json({ message: 'Application deleted successfully.' });
+                }
             }
-            res.json({ message: 'Application deleted successfully.' });
+            else {
+                return res.status(404).json({ message: 'Application not found.' });
+            }
         } catch (error) {
             res.status(500).json({ message: error.message });
         }

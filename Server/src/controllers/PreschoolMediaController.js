@@ -4,6 +4,8 @@ const sequelize = require('../config/seq');
 const Preschool = require('../models/preschool')(sequelize, DataTypes);
 const Media = require('../models/preschool_media')(sequelize, DataTypes);
 const FilesManager = require('./FilesManager');
+const { getCurrentUser, getCurrentUserRole } = require('./UsersController');
+const { verifyPreschool } = require('../config/token_validation');
 
 Preschool.hasMany(Media, { foreignKey: 'preschool_id' });
 Media.belongsTo(Preschool, { foreignKey: 'preschool_id' });
@@ -38,10 +40,14 @@ const MediaController = {
     async uploadMedia(req, res) {
         const { preschool_id } = req.body;
         const files = req.files;
-
-        console.log(files);
-        console.log(preschool_id);
         try {
+            // access control 
+            if (await getCurrentUserRole(req) == "Admin") {
+                if (await verifyPreschool(preschool_id, req) == false) {
+                    return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+                }
+            }
+
             let mediaObjects = [];
             if (files.length > 0) {
                 for (const file of files) {
@@ -68,6 +74,14 @@ const MediaController = {
     async deleteMedia(req, res) {
         const mediaId = req.params.id;
         try {
+            const media = await Media.findByPk(mediaId);
+            // access control 
+            if (await getCurrentUserRole(req) == "Admin") {
+                if (await verifyPreschool(media.preschool_id, req) == false) {
+                    return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+                }
+            }
+
             const success = await Media.destroy({ where: { id: mediaId } });
 
             if (success) {
@@ -82,8 +96,24 @@ const MediaController = {
 
     async deleteMultipleMedia(req, res) {
         const { mediaIds } = req.body;
-
         try {
+            const mediaObjects = await Media.findAll({
+                where: {
+                    id: {
+                        [Op.in]: mediaIds,
+                    },
+                },
+            });
+
+            for (const media of mediaObjects) {
+                // access control (validate that all media belongs to the user who's trying to update)
+                if (await getCurrentUserRole(req) == "Admin") {
+                    if (await verifyPreschool(media.preschool_id, req) == false) {
+                        return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+                    }
+                }
+            }
+
             const deletedRows = await Media.destroy({
                 where: {
                     id: {
