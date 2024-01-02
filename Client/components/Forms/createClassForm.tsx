@@ -7,8 +7,9 @@ import Link from 'next/link';
 import { getClasses } from '../../services/classService'; // Import the class service
 import { Class } from '../../types/class';
 import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
-import Loader from "@/components/common/Loader"; // Import the Loader componentimport Breadcrumbs from '../Breadcrumbs/Breadcrumb2';
+import Loader from "@/components/common/Loader"; // Import the Loader component
 import Breadcrumbs from '../Breadcrumbs/Breadcrumb2';
+
 
 const CreateForm: React.FC = () => {
     const searchParams = useSearchParams();
@@ -29,38 +30,40 @@ const CreateForm: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
+        // Extract class IDs from classIDsArray
+        const classIds = classIDsArray[0].split(',');
+
         // Fetch class data when the component mounts
         async function fetchClasses() {
             try {
                 const classesData = await getClasses();
                 setClasses(classesData);
 
-                // Dynamically generate class assignments based on class IDs
-                const updatedClassAssignments: Record<string, Student[]> = {};
-
-                const classIds = classIDsArray[0].split(',');
-
-                classIds.forEach((classId: string) => {
-                    const foundClass = classes.find((c) => c.id === parseInt(classId));
-
-                    if (foundClass) {
-                        updatedClassAssignments[foundClass.class_name] = [];
-                        setLoading(false); // Set loading to false in case of an error
-
-                    }
+                // Extract class names based on class IDs
+                const classNames = classIds.map((classId: any) => {
+                    const foundClass = classesData.find((c) => c.id === parseInt(classId));
+                    return foundClass ? foundClass.class_name : `Class ${classId}`;
                 });
 
+                // Dynamically generate class assignments based on class names
+                const updatedClassAssignments: Record<string, Student[]> = {};
+
+                classNames.forEach((className: any) => {
+                    updatedClassAssignments[className] = [];
+                });
+
+                // Set the updated class assignments in the state
                 setClassAssignments(updatedClassAssignments);
+
+                // You can perform additional logic here if needed
 
             } catch (error) {
                 console.error('Error fetching classes:', error);
-                setLoading(false); // Set loading to false in case of an error
-
             }
         }
 
         fetchClasses();
-    }, [classIDsArray]);  // Include classIDsArray in the dependencies array
+    }, []); // Empty dependency array to run only once when the component mounts
 
     const fetchStudents = async () => {
         try {
@@ -228,7 +231,9 @@ const CreateForm: React.FC = () => {
                 console.error('classIDsArray is undefined or empty');
                 return; // Exit the function early if classIDsArray is not valid
             }
+
             const updatedStudents: Student[] = [];
+
             Object.entries(classAssignments).forEach(([className, classStudents], classIndex) => {
                 // Use modulo to handle cases where classStudents is longer than classIds
                 const classIdIndex = classIndex % classIDsArray[0].split(',').length;
@@ -241,8 +246,11 @@ const CreateForm: React.FC = () => {
                     }))
                 );
             });
+
+
             console.log('Class Assignments before update:', classAssignments);
             console.log('Updated Students before update:', updatedStudents);
+
             for (const student of updatedStudents) {
                 const response = await updateStudentClassId(student.id.toString(), student.class_id);
                 console.log('API Response:', response);
@@ -253,14 +261,18 @@ const CreateForm: React.FC = () => {
                 } else {
                     // Error response
                     console.error('Error updating students:', response);
-
+                    // Display error message to the user
+                    // You may want to extract the error message from the response and display it
                 }
             }
+
             try {
                 await router.push('/class');
+                console.log('After router.push');
             } catch (error) {
                 console.error('Error during redirection:', error);
             }
+
         } catch (error) {
             // Handle errors here
             console.error('Error updating students:', error);
@@ -276,8 +288,10 @@ const CreateForm: React.FC = () => {
         e.preventDefault();
         const studentId = e.dataTransfer.getData('studentId');
         const student = students.find(student => student.id.toString() === studentId);
+
         if (student) {
             const updatedClassAssignments = { ...classAssignments };
+
             // If dropping outside class areas, add the student back to the list
             if (destinationClassName === null) {
                 setStudents(prevStudents => [...prevStudents, student]);
@@ -303,6 +317,8 @@ const CreateForm: React.FC = () => {
             }
         }
     };
+
+
     const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         // Add a visual indication, for example:

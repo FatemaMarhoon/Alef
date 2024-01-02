@@ -23,6 +23,8 @@ router.post('/',checkStaff, multerMiddleware, StudentController.createStudent);
 
 // Update student
 router.put('/:student_id',checkStaff,multerMiddleware, StudentController.updateStudent);
+//Update student class id
+router.put('/class/:student_id', StudentController.updateStudentClassId);
 
 // Delete student
 router.delete('/:student_id',checkStaff, StudentController.deleteStudent);

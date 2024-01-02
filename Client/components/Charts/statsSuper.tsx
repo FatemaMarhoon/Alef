@@ -39,7 +39,7 @@ export default function StatisticsCards() {
     }, []);
 
     return (
-        <div className="col-span-12 grid grid-cols-12 gap-4  xl:col-span-6">
+        <div className="col-span-12 grid grid-cols-12 gap-4 xl:col-span-6">
             <div className="col-span-4">
                 <CardDataStats title="Total Preschools" total={String(totalPreschools)}>
                     <Image
@@ -63,7 +63,7 @@ export default function StatisticsCards() {
                 </CardDataStats>
             </div>
             <div className="col-span-4">
-                <CardDataStats title="Total Users" total={String(totalUsers)} >
+                <CardDataStats title="Total Users" total={String(totalUsers)}>
                     <Image
                         className="fill-primary dark:fill-white"
                         width="20"
@@ -75,5 +75,6 @@ export default function StatisticsCards() {
             </div>
         </div>
     );
+
 }
 

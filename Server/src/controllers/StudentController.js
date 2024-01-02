@@ -209,7 +209,6 @@ const StudentController = {
                 if (CPR) student.CPR = CPR;
                 if (grade) student.grade = grade;
                 if (class_id) student.class_id = class_id;
-
                 if (contact_number1) student.contact_number1 = contact_number1;
                 if (contact_number2) student.contact_number2 = contact_number2;
                 if (guardian_name) student.guardian_name = guardian_name;
@@ -260,7 +259,52 @@ const StudentController = {
             res.status(500).json({ message: error.message });
         }
     },
+    async updateStudentClassId(req, res) {
+        const { student_id } = req.params;
+        const { class_id } = req.body; // Only class_id is required for this update
+        console.log('Req Body:', req.body);
+        console.log('Req Files:', req.files);
 
+        // Add validation logic here if needed
+
+        const user_id = await UsersController.getCurrentUser(req, res);
+
+        try {
+            const student = await Student.findByPk(student_id);
+
+            if (student) {
+                const originalClassId = student.class_id; // Store the original class_id before the update
+
+                // Update only the class_id property
+                if (class_id !== undefined) {
+                    student.class_id = class_id;
+                    await student.save();
+                }
+
+                // Create a log entry for the student class_id update
+                await LogsController.createLog({
+                    type: 'Student Class Update',
+                    original_values: JSON.stringify({ class_id: originalClassId }),
+                    current_values: JSON.stringify({ class_id: student.class_id }),
+                    user_id: user_id
+                });
+
+                res.json({ message: 'Student class_id updated successfully', student });
+            } else {
+                res.status(404).json({ message: 'Student not found' });
+            }
+        } catch (error) {
+            // Create a log entry for the error
+            await LogsController.createLog({
+                type: 'Error',
+                original_values: JSON.stringify({ class_id }),
+                current_values: JSON.stringify({ error: error.message }),
+                user_id: user_id
+            });
+            res.status(500).json({ message: error.message });
+        }
+    }
+    ,
     async deleteStudent(req, res) {
         const { student_id } = req.params;
         let deletedStudentData; // Declare the variable outside the block
