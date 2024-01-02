@@ -14,10 +14,10 @@ router.post('/',checkToken, EventController.createEvent); // staff, admin, or te
 router.get('/:id',checkToken, EventController.getEventById); // all in preschool (including parents)
 
 // Update an event by ID
-router.put('/:id',checkStaff, EventController.updateEvent); // only staff
+router.put('/:id',checkToken, EventController.updateEvent); // only staff
 
 // Delete an event by ID
-router.delete('/:id',checkStaff, EventController.deleteEvent); // only staff
+router.delete('/:id',checkToken, EventController.deleteEvent); // only staff
 
 
 module.exports = router;
