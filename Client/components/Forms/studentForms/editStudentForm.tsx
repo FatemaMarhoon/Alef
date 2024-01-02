@@ -2,13 +2,12 @@ import { useEffect, useState } from "react";
 import { useRouter } from 'next/navigation';
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { getStudentById, updateStudent } from '@/services/studentService';
-import { UserStorage } from "@/types/user";
+
 import { Student } from '@/types/student';
 import { useSuccessMessageContext } from '../../../components/SuccessMessageContext';
 
 export default function EditForm({ studentId }: { studentId: string }) {
     const router = useRouter();
-    const currentUser = UserStorage.getCurrentUser();
 
     const [student, setStudent] = useState<Student>({
         student_name: "",
@@ -289,7 +288,7 @@ export default function EditForm({ studentId }: { studentId: string }) {
 // import { useRouter } from 'next/navigation';
 // import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 // import { getStudentById, updateStudent } from '@/services/studentService';
-// import { UserStorage } from "@/types/user";
+// 
 // import { Student } from '@/types/student';
 
 // export default function EditForm({ studentId }: { studentId: string }) {

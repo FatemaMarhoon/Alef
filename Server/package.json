@@ -29,7 +29,8 @@
     "python-shell": "^5.0.0",
     "sequelize": "^6.33.0",
     "sequelize-cli": "^6.6.1",
-    "socket.io": "^4.7.2"
+    "socket.io": "^4.7.2",
+    "tzdata": "^1.0.39"
   },
   "private": true
 }

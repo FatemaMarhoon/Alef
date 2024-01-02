@@ -12,7 +12,17 @@ const StudentEvaluationController = {
     async getAllStudentEvaluations(req, res) {
         const { student_id } = req.query;
         try {
+
+
             if (student_id) {
+                const student = await Student.findByPk(student_id);
+                if (!student) {
+                    return res.status(404).json({ message: 'Student Not Found.' });
+                }
+                // access control 
+                if (await verifyPreschool(student.preschool_id, req) == false) {
+                    return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+                }
                 const studentEvaluations = await StudentEvaluation.findAll({
                     where: { student_id: student_id }
                 });
@@ -34,7 +44,16 @@ const StudentEvaluationController = {
     async getEvaluationById(req, res) {
         const { id } = req.params;
         try {
-            const studentEvaluations = await StudentEvaluation.findByPk(id);
+            const studentEvaluations = await StudentEvaluation.findOne({ where: { id: id }, include: { model: Student, as: "Student" } });
+            if (!studentEvaluations) {
+                return res.status(404).json({ message: 'Student evaluation not found.' });
+            }
+
+            // access control 
+            if (await verifyPreschool(studentEvaluations.Student.preschool_id, req) == false) {
+                return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+            }
+
             return res.status(200).json(studentEvaluations);
 
         } catch (error) {
@@ -46,6 +65,14 @@ const StudentEvaluationController = {
     async createStudentEvaluation(req, res) {
         const studentEvaluationData = req.body;
         try {
+            const student = await Student.findByPk(req.body.student_id);
+            if (!student) {
+                return res.status(404).json({ message: 'Student Not Found.' });
+            }
+            // access control 
+            if (await verifyPreschool(student.preschool_id, req) == false) {
+                return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+            }
             const newStudentEvaluation = await StudentEvaluation.create(studentEvaluationData);
             return res.status(201).json({ message: 'Student evaluation created successfully', newStudentEvaluation });
         } catch (error) {
@@ -58,9 +85,13 @@ const StudentEvaluationController = {
         const studentEvaluationId = req.params.id;
         const updatedStudentEvaluationData = req.body;
         try {
-            const studentEvaluation = await StudentEvaluation.findByPk(studentEvaluationId);
+            const studentEvaluation = await StudentEvaluation.findOne({ where: { id: studentEvaluationId }, include: { model: Student, as: "Student" } });
 
             if (studentEvaluation) {
+                // access control 
+                if (await verifyPreschool(studentEvaluation.student.preschool_id, req) == false) {
+                    return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+                }
                 studentEvaluation.set(updatedStudentEvaluationData);
                 await studentEvaluation.save();
 
@@ -77,11 +108,22 @@ const StudentEvaluationController = {
     async deleteStudentEvaluation(req, res) {
         const studentEvaluationId = req.params.id;
         try {
-            const success = await StudentEvaluation.destroy({ where: { id: studentEvaluationId } });
+            const studentEvaluation = await StudentEvaluation.findOne({ where: { id: studentEvaluationId }, include: { model: Student, as: "Student" } });
 
-            if (success) {
-                res.json({ message: 'Student evaluation deleted successfully' });
-            } else {
+            if (studentEvaluation) {
+                // access control 
+                if (await verifyPreschool(studentEvaluation.Student.preschool_id, req) == false) {
+                    return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+                }
+                const success = await StudentEvaluation.destroy({ where: { id: studentEvaluationId } });
+
+                if (success) {
+                    res.json({ message: 'Student evaluation deleted successfully' });
+                } else {
+                    res.status(404).json({ message: 'Student evaluation not found' });
+                }
+            }
+            else {
                 res.status(404).json({ message: 'Student evaluation not found' });
             }
         } catch (error) {
@@ -104,8 +146,8 @@ const StudentEvaluationController = {
             const doc = new PDFDocument();
             const createdAt = studentEvaluation.createdAt.toLocaleDateString();
             const logoPath =
-            // await FilesManager.generateSignedUrl('Alef%20logo.png')
-            'Server/functions/src/images/Alef_logo.png';
+                // await FilesManager.generateSignedUrl('Alef%20logo.png')
+                'Server/functions/src/images/Alef_logo.png';
             const imageX = doc.page.width - 50 - 30;
 
 
@@ -155,8 +197,8 @@ const StudentEvaluationController = {
             const table = {
                 title: 'Personal Skills',
                 headers: [
-                    { label: "Skills", property: 'skill', width: 250,  headerColor: '#9EA1D4', align: 'center', headerOpacity: 1 },
-                    { label: "Grade", property: 'grade', width: 200,  headerColor: '#9EA1D4', align: 'center', headerOpacity: 1 },
+                    { label: "Skills", property: 'skill', width: 250, headerColor: '#9EA1D4', align: 'center', headerOpacity: 1 },
+                    { label: "Grade", property: 'grade', width: 200, headerColor: '#9EA1D4', align: 'center', headerOpacity: 1 },
                 ],
                 rows: Object.entries(personalGrades).map(([skill, personalGrades]) => [skill.replace('_', ' '), personalGrades]),
                 options: {
@@ -165,17 +207,17 @@ const StudentEvaluationController = {
 
                     },
                 },
-              divider: { hLineWidth: 1 }, // Use a thin line thickness for subtle separation
+                divider: { hLineWidth: 1 }, // Use a thin line thickness for subtle separation
 
             };
             doc.moveDown(3);
             doc.table(table, {
                 prepareHeader: () => doc.font("Helvetica-Bold").fontSize(12),
                 prepareRow: (row, indexColumn, indexRow, rectRow, rectCell) => {
-                  doc.font("Helvetica").fontSize(11);
-                  indexColumn === 0 && doc.addBackground(rectRow, '#9EA1D4', 0.3);
+                    doc.font("Helvetica").fontSize(11);
+                    indexColumn === 0 && doc.addBackground(rectRow, '#9EA1D4', 0.3);
                 },
-              });
+            });
             doc.moveDown(2);
 
 
@@ -194,10 +236,10 @@ const StudentEvaluationController = {
             doc.table(socialSkills, {
                 prepareHeader: () => doc.font("Helvetica-Bold").fontSize(12),
                 prepareRow: (row, indexColumn, indexRow, rectRow, rectCell) => {
-                  doc.font("Helvetica").fontSize(11);
-                  indexColumn === 0 && doc.addBackground(rectRow, '#FD8A8A', 0.3);
+                    doc.font("Helvetica").fontSize(11);
+                    indexColumn === 0 && doc.addBackground(rectRow, '#FD8A8A', 0.3);
                 },
-              });
+            });
             doc.moveDown(2);
 
             const academicSkills = {
@@ -205,8 +247,8 @@ const StudentEvaluationController = {
                 headers: [
                     {
                         label: "Skills", property: 'skill', width: 250, renderer: null,
-                         headerColor: '#A8D1D1', align: 'center', headerOpacity: 1,
-                    
+                        headerColor: '#A8D1D1', align: 'center', headerOpacity: 1,
+
                     },
                     { label: "Grade", property: 'grade', width: 200, renderer: null, headerColor: '#A8D1D1', align: 'center', headerOpacity: 1 },
                 ],
@@ -220,10 +262,10 @@ const StudentEvaluationController = {
             doc.table(academicSkills, {
                 prepareHeader: () => doc.font("Helvetica-Bold").fontSize(12),
                 prepareRow: (row, indexColumn, indexRow, rectRow, rectCell) => {
-                  doc.font("Helvetica").fontSize(11);
-                  indexColumn === 0 && doc.addBackground(rectRow, '#A8D1D1', 0.3);
+                    doc.font("Helvetica").fontSize(11);
+                    indexColumn === 0 && doc.addBackground(rectRow, '#A8D1D1', 0.3);
                 },
-              });
+            });
 
             doc.end();
 

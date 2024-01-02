@@ -5,6 +5,8 @@ const Payment = require('../models/payment')(sequelize, DataTypes);
 const Student = require('../models/student')(sequelize, DataTypes);
 const User = require('../models/user')(sequelize, DataTypes);
 const NotificationController = require('./NotificationController');
+const UsersController = require('./UsersController');
+const { verifyPreschool } = require('../config/token_validation');
 
 Payment.belongsTo(Student, { foreignKey: 'student_id' });
 Student.belongsTo(Preschool, { foreignKey: 'preschool_id' });
@@ -18,6 +20,13 @@ const PaymentController = {
         const { student_id } = req.query;
         try {
             if (preschool_id) {
+                // access control 
+                if ((await UsersController.getCurrentUserRole(req) == 'Admin'
+                    || await UsersController.getCurrentUserRole(req) == 'Staff')
+                    && await verifyPreschool(preschool_id, req) == false) {
+                    return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+                }
+
                 const payments = await Payment.findAll({
                     include: { model: Student, as: 'Student', where: { preschool_id: preschool_id } }
                 });
@@ -25,6 +34,12 @@ const PaymentController = {
                 return res.status(200).json(payments);
             }
             else if (student_id) {
+                const student = await Student.findByPk(student_id);
+                // // access control 
+                // if (await UsersController.getCurrentUserRole(req) == 'Parent' && await UsersController.getCurrentUser(req) == student.user_id) {
+                //     return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+                // }
+
                 const payments = await Payment.findAll({
                     where: { student_id: student_id }
                 });
@@ -46,7 +61,18 @@ const PaymentController = {
             const payment = await Payment.findOne({ where: { id: paymentId }, include: { model: Student, as: "Student" } });
 
             if (payment) {
-                return res.status(200).json(payment);
+                // access control 
+                const preschoolStaff = (await UsersController.getCurrentUserRole(req) == 'Admin'
+                    || await UsersController.getCurrentUserRole(req) == 'Staff')
+                    && await verifyPreschool(payment.preschool_id, req) == false
+                const owner = await UsersController.getCurrentUserRole(req) == 'Parent'
+                    && await UsersController.getCurrentUser(req) == payment.Student.user_id;
+
+                if (preschoolStaff || owner) {
+                    return res.status(200).json(payment);
+                } else {
+                    return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+                }
             }
             else {
                 return res.status(404).json({ message: 'Payment not found.' });
@@ -75,12 +101,22 @@ const PaymentController = {
             if (!student_id) {
                 return res.status(400).json({ message: "Student is Required." });
             }
+
+            const student = await Student.findOne({ where: student_id, include: { model: User, as: "User" } });
+            if (!student) {
+                return res.status(404).json({ message: "Student Doesn't Exist." });
+            }
+
+            // access control 
+            if (await verifyPreschool(student.preschool_id, req) == false) {
+                return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+            }
+
             paymentData.status = "Pending";
             const newPayment = await Payment.create(paymentData);
             if (newPayment) {
-                //notify parent
-                const student = await Student.findOne({ where: newPayment.student_id, include: { model: User, as: "User" } });
-                if (student.User.role_name == "Parent") {
+                //notify parent 
+                if (student.User && student.User.role_name == "Parent") {
                     console.log("Parent User Found")
                     const title = "New Payment Request"
                     const body = "Dear Parent, Admin has requested a payment for your child. Please review and respond accordingly.";
@@ -119,15 +155,25 @@ const PaymentController = {
     async deletePayment(req, res) {
         const paymentId = req.params.id;
         try {
-            const success = await Payment.destroy({ where: { id: paymentId } });
+            const payment = await Payment.findOne({ where: { id: paymentId }, include: { model: Student, as: "Student" } });
+            if (!payment) {
+                return res.status(404).json({ message: 'Payment not found' });
+            }
 
+            // access control 
+            if (await verifyPreschool(payment.Student.preschool_id, req) == false) {
+                return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+            }
+
+            const success = await Payment.destroy({ where: { id: paymentId } });
             if (success) {
-                res.json({ message: 'Payment deleted successfully' });
+                return res.json({ message: 'Payment deleted successfully' });
             } else {
-                res.status(404).json({ message: 'Payment not found' });
+                return res.status(404).json({ message: 'Payment not found' });
             }
         } catch (error) {
-            res.status(500).json({ message: 'Internal server error while deleting the payment.' });
+            console.log(error);
+            return res.status(500).json({ message: error.message});
         }
     },
 
@@ -135,14 +181,16 @@ const PaymentController = {
         const { id } = req.params;
         console.log(id);
         try {
-            console.log("starting notify function")
             const payment = await Payment.findOne({ where: { id: id }, include: { model: Student, as: "Student" } });
             if (payment) {
-                console.log("Payment record found")
+                // access control 
+                if (await verifyPreschool(payment.Student.preschool_id, req) == false) {
+                    return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+                }
+
                 const student = await Student.findOne({ where: payment.student_id, include: { model: User, as: "User" } });
                 //if student has an associated parent account
                 if (student.User) {
-                    console.log("user has been found")
                     const response = await NotificationController.pushSingleNotification(student.User.email, "Payment Reminder", "You have pending payments, please reiew and act accordingly.")
                     if (response) {
                         return res.status(200).json({ message: 'Reminder sent successfully.' });

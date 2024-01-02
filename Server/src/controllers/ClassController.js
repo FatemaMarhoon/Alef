@@ -12,6 +12,7 @@ Class.belongsTo(Staff, { foreignKey: 'supervisor' });
 
 const LogsController = require('./LogController');
 const UsersController = require('./UsersController');
+const { verifyPreschool } = require('../config/token_validation');
 
 
 const validateClassData = (classData) => {
@@ -31,6 +32,9 @@ const ClassController = {
     async getAllClasses(req, res) {
         try {
             const { preschoolId } = req.params;
+            if (await verifyPreschool(preschoolId, req) == false) {
+                return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+            }
             const classes = await Class.findAll({
                 where: { preschool_id: preschoolId },
                 include: [Preschool, Staff]
@@ -48,6 +52,13 @@ const ClassController = {
                 where: { supervisor: staffId },
                 include: [Preschool, Staff],
             });
+            const staff = await Staff.findByPk(staffId);
+            if (!staff) {
+                res.status(404).json({ message: 'No Staff found for passed Staff ID.' });
+            }
+            if (await verifyPreschool(staff.preschool_id, req) == false) {
+                return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+            }
 
             if (classes.length > 0) {
                 res.json({ classes });
@@ -177,6 +188,9 @@ const ClassController = {
             });
 
             if (classObj) {
+                if (await verifyPreschool(classObj.preschool_id, req) == false) {
+                    return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+                }
                 res.json({ class: classObj });
             } else {
                 res.status(404).json({ message: 'Class not found' });

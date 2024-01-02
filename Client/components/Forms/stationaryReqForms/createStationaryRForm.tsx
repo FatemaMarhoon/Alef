@@ -4,13 +4,12 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { createStationaryRequest } from '@/services/stationaryRequestService'; // Assuming you have this service
 import { useRouter } from 'next/navigation';
 import { StationaryRequest } from '@/types/stationaryRequest';
-import { UserStorage } from "@/types/user";
+
 import { getStationary } from '@/services/stationaryService'; // Assuming you have this service
 import { Stationary } from '@/types/stationary';
 
 export default function CreateForm() {
     const router = useRouter();
-    const currentUser = UserStorage.getCurrentUser();
 
     const [statusName, setStatusName] = useState("");
     const [staffId, setStaffId] = useState(currentUser?.id || ""); // Set default value to current user's id

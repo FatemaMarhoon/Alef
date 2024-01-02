@@ -2,6 +2,7 @@ const express = require("express");
 const http = require("http");
 const socketSetup = require("./src/config/socket-setup");
 const cors = require("cors"); //  Import cors module
+const { checkToken } = require("./src/config/token_validation");
 
 const app = express();
 
@@ -21,18 +22,13 @@ const backup = require("./src/backup");
 // middelware
 app.use(express.json());
 
-// Set the timezone to Asia/Bahrain
-process.env.TZ = 'Asia/Bahrain';
-
 // import routes
 const userRoutes = require("./src/routes/userRoutes");
 const applicationRoutes = require("./src/routes/applicationRoutes");
-const attachementRoutes = require("./src/routes/attachementRoutes");
 const classRoutes = require("./src/routes/classRoutes");
 const studentEvaluationRoutes = require("./src/routes/studentEvaluationRoutes");
 const AttendanceRoutes = require("./src/routes/attendanceRoutes");
 const logsRoutes = require("./src/routes/logRoutes");
-const ReportRoutes = require("./src/routes/reportRoutes");
 const plansRoute = require("./src/routes/planRoutes");
 const requestRoute = require("./src/routes/requestRoutes");
 const preschoolRoute = require("./src/routes/preschoolRoutes");
@@ -50,16 +46,13 @@ const gradesRoutes = require("./src/routes/gradesRoutes");
 const mediaRoutes = require("./src/routes/mediaRoutes");
 const mailRoutes = require("./src/routes/mailRoutes");
 
-
 // define top-level routes 
 app.use("/users", userRoutes);
 app.use("/applications", applicationRoutes);
-app.use("/attachement", attachementRoutes);
 app.use("/class", classRoutes);
 app.use("/studentEvaluation", studentEvaluationRoutes);
 app.use("/attendance", AttendanceRoutes);
 app.use("/log", logsRoutes);
-app.use("/report", ReportRoutes);
 app.use("/plans", plansRoute);
 app.use("/requests", requestRoute);
 app.use("/preschools", preschoolRoute);
@@ -78,7 +71,7 @@ app.use("/media", mediaRoutes);
 app.use("/mail", mailRoutes);
 
 // Schedule the cron job for reminders
-cron.schedule("0,58 * * * *", cronJob.appointmentsReminder); // daily when the minutes are 0 and 30 (every half an hour)
+cron.schedule("0,30 * * * *", cronJob.appointmentsReminder); // daily when the minutes are 0 and 30 (every half an hour)
 cron.schedule("0 12 * * *", cronJob.eventsReminder); // daily at 12pm
 cron.schedule("0 8 26 * *", cronJob.monthlyPaymentGenerator); // on the 26th of each month at 8 am
 cron.schedule("0 8 * * *", cronJob.paymentDue); // daily at 8am
@@ -90,5 +83,5 @@ cron.schedule('0 0 * * *', () => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Server started running on port ${PORT}, at ${new Date()}`);
 });

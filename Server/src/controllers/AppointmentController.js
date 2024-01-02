@@ -1,7 +1,10 @@
 const { Op, DataTypes } = require('sequelize');
 const sequelize = require('../config/seq');
+const { verifyPreschool } = require('../config/token_validation');
 const Application = require('../models/preschool_application')(sequelize, DataTypes);
 const Appointment = require('../models/appointment')(sequelize, DataTypes);
+const User = require('../models/user')(sequelize, DataTypes);
+const UsersController = require('./UsersController');
 
 Appointment.belongsTo(Application, { foreignKey: 'application_id' });
 
@@ -9,12 +12,20 @@ const AppointmentController = {
     async getAllAppointments(req, res) {
         const { preschool } = req.query;
         try {
+
             if (preschool) {
-                const appointments = await Appointment.findAll({
-                    where: { preschool_id: preschool },
-                    include: Application
-                });
-                return res.status(200).json(appointments);
+                // access control 
+                console.log(preschool);
+                if (await verifyPreschool(preschool, req) != true) {
+                    return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+                } else {
+                    const appointments = await Appointment.findAll({
+                        where: { preschool_id: preschool },
+                        include: Application
+                    });
+                    return res.status(200).json(appointments);
+                }
+
             }
             else {
                 return res.status(404).json({ message: 'Preschool id must be passed in the query.' });
@@ -28,6 +39,7 @@ const AppointmentController = {
     async createAppointment(req, res) {
         let { date, time, preschool_id, application_id } = req.body;
         try {
+
             if (!date) {
                 return res.status(404).json({ message: 'Date is Required.' });
             }
@@ -63,15 +75,43 @@ const AppointmentController = {
             if (!appointment) {
                 return res.status(404).json({ message: 'Appointment not found.' });
             }
+
+            // access control (parent or admin/staff of that preschool)
+            const curentRole = await UsersController.getCurrentUserRole(req);
+            const owner = curentRole == 'Parent' && appointment.Application.created_by == await UsersController.getCurrentUser(req);
+            const preschoolStaff = (curentRole == 'Admin' || curentRole == 'Staff') && await verifyPreschool(appointment.preschool_id, req);
+            console.log("Owner: ", owner);
+            console.log("preschool staff: ", preschoolStaff);
+            if (!(owner || preschoolStaff)) {
+                return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+            }
+
             return res.status(200).json(appointment);
         } catch (error) {
             return res.status(500).json({ message: error.message });
         }
     },
-    
+
     async deleteAppointment(req, res) {
         const { id } = req.params;
         try {
+            const appointment = await Appointment.findByPk(id, {
+                include: Application
+            });
+            if (!appointment) {
+                return res.status(404).json({ message: 'Appointment not found.' });
+            }
+
+            // access control (parent or admin/staff of that preschool)
+            const curentRole = await UsersController.getCurrentUserRole(req);
+            const owner = curentRole == 'Parent' && appointment.Application.created_by == await UsersController.getCurrentUser(req);
+            const preschoolStaff = (curentRole == 'Admin' || curentRole == 'Staff') && await verifyPreschool(appointment.preschool_id, req);
+            console.log("Owner: ", owner);
+            console.log("preschool staff: ", preschoolStaff);
+            if (!(owner || preschoolStaff)) {
+                return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+            }
+            
             const deletedCount = await Appointment.destroy({
                 where: { id }
             });
@@ -91,6 +131,23 @@ const AppointmentController = {
                 return res.status(404).json({ message: 'Appointment Id must be specified.' });
             }
 
+            const appointment = await Appointment.findByPk(id, {
+                include: Application
+            });
+            if (!appointment) {
+                return res.status(404).json({ message: 'Appointment not found.' });
+            }
+
+            // access control (parent or admin/staff of that preschool)
+            const curentRole = await UsersController.getCurrentUserRole(req);
+            const owner = curentRole == 'Parent' && appointment.Application.created_by == await UsersController.getCurrentUser(req);
+            const preschoolStaff = (curentRole == 'Admin' || curentRole == 'Staff') && await verifyPreschool(appointment.preschool_id, req);
+            console.log("Owner: ", owner);
+            console.log("preschool staff: ", preschoolStaff);
+            if (!(owner || preschoolStaff)) {
+                return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+            }
+
             if (req.body.date) {
                 let formattedDate = new Date(req.body.date);
                 req.body.date = formattedDate.setHours(0, 0, 0, 0); // Set the time to midnight for accurate date comparison
@@ -102,13 +159,13 @@ const AppointmentController = {
             if (updatedCount === 0) {
                 return res.status(404).json({ message: 'Appointment not found for updating.' });
             }
-            res.status(200).json({ message: 'Appointment updated successfully.' });
+            return res.status(200).json({ message: 'Appointment updated successfully.' });
         } catch (error) {
-            res.status(500).json({ message: error.message });
+            return res.status(500).json({ message: error.message });
         }
     },
 
-   
+
 
     async availableSlots(req, res) {
         const { preschool, date } = req.query;
@@ -122,11 +179,11 @@ const AppointmentController = {
 
             //dates formatting
             const passedDate = new Date(date).toLocaleDateString(); // format passed date 
-            let currentDate = new Date(); 
+            let currentDate = new Date();
             currentDate.setHours(0, 0, 0, 0); // Set the time to midnight for accurate date comparison
             currentDate = currentDate.toLocaleDateString(); //format current date 
             const currentTime = new Date().toLocaleTimeString(); //get current timing 
-           
+
             //if date passed, return error message 
             if (passedDate < currentDate) {
                 return res.status(400).json({ message: 'Please select a date in the future.' });

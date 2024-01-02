@@ -1,6 +1,5 @@
 import { GradeCapacity } from '@/types/gradeCapacity'
-import { UserStorage } from "@/types/user";
-const currentUser = UserStorage.getCurrentUser();
+
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { currentToken, currentPreschool } from './authService';
 

@@ -19,14 +19,14 @@ const NotificationToast = () => {
     //only connect to web socket if we have a logged-in user 
     if (userID) {
       const socket = io('https://server-bckggkpqeq-uc.a.run.app', {
-        path: '/socket.io',
+path: '/socket.io',
       });
 
       // const socket = io('http://localhost:30002', {
       //   path: '/socket.io',
       // });
 
-
+      
       socket.on('connect', () => {
         // Pass the user ID to the server once the connection is established
         socket.emit('login', { userID });

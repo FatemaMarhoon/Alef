@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Breadcrumbs from '@/components/Breadcrumbs/Breadcrumb2';
 import { getStaffById, updateStaff } from '@/services/staffService'; // Assuming you have a staff service
-import { UserStorage } from '@/types/user';
 import { Staff } from '@/types/staff';
 import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
 import ErrorAlert from "@/components/ErrorAlert";
@@ -17,7 +16,6 @@ import Link from 'next/link';
 
 export default function EditStaffForm({ params }: { params: { staffId: number } }) {
     const router = useRouter();
-    const currentUser = UserStorage.getCurrentUser();
     const { setSuccessMessage } = useSuccessMessageContext();
     const [error, setError] = useState("");
     const [staffRoles, setStaffRoles] = useState<StaticValue[]>([]);

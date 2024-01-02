@@ -5,7 +5,6 @@ import Breadcrumb from '@/components/Breadcrumbs/Breadcrumb';
 import { createStaff, getStaff } from '@/services/staffService'; // Assuming you have a service for staff
 import { useRouter } from 'next/navigation';
 import { Staff } from '@/types/staff'; // Import the Staff interface
-import { UserStorage } from "@/types/user";
 import { StaticValue } from "@/types/staticValue";
 import { currentPreschool } from '@/services/authService';
 import { useSuccessMessageContext } from '../../../components/SuccessMessageContext';

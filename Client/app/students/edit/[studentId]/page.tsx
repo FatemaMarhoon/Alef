@@ -4,7 +4,6 @@ import { ChangeEvent, useEffect, useState } from "react";
 import { useRouter } from 'next/navigation';
 import Breadcrumbs from "@/components/Breadcrumbs/Breadcrumb2";
 import { getStudentById, updateStudent } from '@/services/studentService';
-import { UserStorage } from "@/types/user";
 import { Student } from '@/types/student';
 import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
 import ErrorAlert from "@/components/ErrorAlert";
@@ -19,7 +18,6 @@ import NotAuthorized from '@/components/Pages/403';
 import { currentPreschool } from "@/services/authService";
 export default function EditForm({ params }: { params: { studentId: number } }) {
     const router = useRouter();
-    const currentUser = UserStorage.getCurrentUser();
     const { setSuccessMessage } = useSuccessMessageContext();
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(true); // Added loading state

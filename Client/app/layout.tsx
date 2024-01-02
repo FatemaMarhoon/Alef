@@ -35,29 +35,33 @@ export default function RootLayout({
             {loading ? (
               <Loader />
             ) : (
-              <div className="flex h-screen overflow-hidden">
-                {/* Sidebar */}
-                <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+              <>
+                {children && (
+                  <div className="flex h-screen overflow-hidden">
+                    {/* Sidebar */}
+                    <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
-                {/* Content Area */}
-                <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
-                  {/* Header */}
-                  <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+                    {/* Content Area */}
+                    <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
+                      {/* Header */}
+                      <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
-                  {/* Main Content */}
-                  <main>
-                    {/* NotificationToast */}
-                    <Toaster
-                      position="top-right"
-                      reverseOrder={false}
-                    />
-                    <NotificationToast />
-                    <div className="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
-                      {children}
+                      {/* Main Content */}
+                      <main>
+                        {/* NotificationToast */}
+                        <Toaster
+                          position="top-right"
+                          reverseOrder={false}
+                        />
+                        <NotificationToast />
+                        <div className="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
+                          {children}
+                        </div>
+                      </main>
                     </div>
-                  </main>
-                </div>
-              </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </body>

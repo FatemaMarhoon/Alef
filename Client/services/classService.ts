@@ -17,7 +17,7 @@ export async function getClasses(): Promise<Class[]> {
             },
         };
 
-        const response = await axios.get<Class[]>(`${BASE_URL}/preschool/${preschool}`);
+        const response = await axios.get<Class[]>(`${BASE_URL}/preschool/${preschool}`,config);
         return response.data;
     } catch (error) {
         throw error;

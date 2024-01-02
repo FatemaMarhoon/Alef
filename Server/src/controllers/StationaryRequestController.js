@@ -13,6 +13,7 @@ const LogsController = require('./LogController');
 const UsersController = require('./UsersController');
 const NotificationController = require('./NotificationController');
 const User = require('../models/user')(sequelize, DataTypes);
+const { verifyPreschool } = require('../config/token_validation');
 
 const validateStationaryRequestData = (stationaryRequestData) => {
     const requiredFields = ['staff_id', 'stationary_id', 'requested_quantity'];
@@ -32,12 +33,16 @@ const StationaryRequestController = {
     async getAllStationaryRequests(req, res) {
         try {
             const { preschoolId } = req.params;
+            // access control 
+            if (await verifyPreschool(preschoolId, req) == false) {
+                return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+            }
 
             const stationaryRequests = await StationaryRequest.findAll({
                 where: { preschool_id: preschoolId },
-
                 include: Stationary
             });
+
             res.json(stationaryRequests);
         } catch (error) {
             res.status(500).json({ message: error.message });
@@ -47,8 +52,16 @@ const StationaryRequestController = {
     async getStationaryRequestById(req, res) {
         const { request_id } = req.params;
         try {
-            const stationaryRequest = await StationaryRequest.findByPk(request_id);
+            const stationaryRequest = await StationaryRequest.findOne({
+                where: { id: request_id },
+                include: Stationary
+            });
+
             if (stationaryRequest) {
+                // access control 
+                if (await verifyPreschool(Stationary.preschool_id, req) == false) {
+                    return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+                }
                 res.json(stationaryRequest);
             } else {
                 res.status(404).json({ message: 'Stationary Request not found' });
@@ -64,7 +77,6 @@ const StationaryRequestController = {
         // Perform validations
         const validation = validateStationaryRequestData(stationaryRequestData);
         const user_id = await UsersController.getCurrentUser(req, res);
-
         if (!validation.isValid) {
             // Log validation error
             await LogsController.createLog({
