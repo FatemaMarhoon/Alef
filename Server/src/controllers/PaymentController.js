@@ -35,10 +35,10 @@ const PaymentController = {
             }
             else if (student_id) {
                 const student = await Student.findByPk(student_id);
-                // access control 
-                if (await UsersController.getCurrentUserRole(req) == 'Parent' && await UsersController.getCurrentUser(req) == student.user_id) {
-                    return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
-                }
+                // // access control 
+                // if (await UsersController.getCurrentUserRole(req) == 'Parent' && await UsersController.getCurrentUser(req) == student.user_id) {
+                //     return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+                // }
 
                 const payments = await Payment.findAll({
                     where: { student_id: student_id }

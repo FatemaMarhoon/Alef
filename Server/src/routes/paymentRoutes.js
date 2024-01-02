@@ -5,7 +5,7 @@ const { checkToken, checkStaff } = require('../config/token_validation');
 const router = express.Router();
 
 // Get all payments
-router.get('/',checkToken, PaymentController.getAllPayments);
+router.get('/', PaymentController.getAllPayments);
 
 // Create a new payment
 router.post('/',checkStaff, PaymentController.createPayment);

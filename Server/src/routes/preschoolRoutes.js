@@ -12,13 +12,13 @@ const multerMiddleware = multer({
 ]);
 
 // Get all preschools 
-router.get('/', checkToken, PreschoolController.getAllPreschools);
+router.get('/', PreschoolController.getAllPreschools);
 
 // Create a new preschool
 router.post('/', checkSuperAdmin, PreschoolController.createPreschool);
 
 //Get a preschool by ID
-router.get('/:id',checkToken, PreschoolController.getPreschoolById);
+router.get('/:id', PreschoolController.getPreschoolById);
 
 // Update preschool address 
 router.put('/address/:id',checkBothAdmins, PreschoolController.updatePreschoolAddress); //super admin & preschool admin 
