@@ -45,8 +45,12 @@ const StationaryController = {
     async createStationary(req, res) {
         const stationaryData = req.body;
         const user_id = await UsersController.getCurrentUser(req, res);
-
         try {
+            // access control (creating stationary outside his preschool)
+            if (await verifyPreschool(stationaryData.preschool_id) == false) {
+                return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+            }
+
             //create log
             await LogsController.createLog({
                 type: 'Stationary Creation',
@@ -80,6 +84,11 @@ const StationaryController = {
             const stationary = await Stationary.findByPk(stationaryId);
 
             if (stationary) {
+                // access control (updating stationary outside his preschool)
+                if (await verifyPreschool(stationary.preschool_id) == false) {
+                    return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+                }
+
                 const originalValues = JSON.stringify(stationary.toJSON()); // Store the original values before the update
 
                 stationary.set(updatedStationaryData); // Update stationary properties
@@ -118,6 +127,11 @@ const StationaryController = {
             const stationary = await Stationary.findByPk(stationary_id);
 
             if (stationary) {
+                // access control (creating stationary outside user's preschool)
+                if (await verifyPreschool(stationary.preschool_id) == false) {
+                    return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+                }
+
                 deletedStationaryData = JSON.stringify(stationary.toJSON()); // Store the student data before deletion
 
                 const success = await Stationary.destroy({ where: { id: stationary_id } });

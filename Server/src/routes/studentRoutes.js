@@ -2,6 +2,7 @@ const express = require('express');
 const StudentController = require('../controllers/StudentController');
 const router = express.Router();
 const multer = require('multer');
+const { checkToken, checkStaff } = require('../config/token_validation');
 
 const multerMiddleware = multer({
     storage: multer.memoryStorage(),
@@ -12,21 +13,22 @@ const multerMiddleware = multer({
 ]);
 
 // Get all students
-router.get('/preschool/:preschoolId', StudentController.getAllStudents);
+router.get('/preschool/:preschoolId',checkStaff, StudentController.getAllStudents); 
 
 // Get student by student_id
-router.get('/:student_id', StudentController.getStudentById);
+router.get('/:student_id',checkToken, StudentController.getStudentById); 
 
 // Create a new student
-router.post('/', multerMiddleware, StudentController.createStudent);
+router.post('/',checkStaff, multerMiddleware, StudentController.createStudent);
 
 // Update student
-router.put('/:student_id',multerMiddleware, StudentController.updateStudent);
+router.put('/:student_id',checkStaff,multerMiddleware, StudentController.updateStudent);
 
 // Delete student
-router.delete('/:student_id', StudentController.deleteStudent);
+router.delete('/:student_id',checkStaff, StudentController.deleteStudent);
+
 // Get students by preschool
-router.get('/preschool/:preschool_id', StudentController.getStudentsByPreschool);
+router.get('/preschool/:preschool_id',checkStaff, StudentController.getStudentsByPreschool);
 
 // Get students by class
 router.get('/:preschoolId/:classId', StudentController.getStudentsByClassId);
@@ -38,6 +40,6 @@ router.get('/preschool/:preschoolId/grade/:grade?', StudentController.getAllStud
 router.get('/preschool/:preschoolId/class/:class_id?', StudentController.getAllStudents);
 
 // Get all students by user id (query parameter)
-router.get('/', StudentController.getAllStudentsByUserId);
+router.get('/',checkToken, StudentController.getAllStudentsByUserId);
 
 module.exports = router;

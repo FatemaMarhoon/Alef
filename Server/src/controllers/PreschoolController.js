@@ -27,7 +27,7 @@ const PreschoolController = {
 
     try {
 
-      let whereCondition = [];
+      let whereCondition = []; 
 
       if (searchExpression) {
         whereCondition.push({
@@ -69,13 +69,21 @@ const PreschoolController = {
         );
 
         const transformedResults = Object.values(results);
+        const preschoolsWithLogos = await Promise.all(
+          transformedResults.map(async (preschool) => {
+            if (preschool.logo) {
+              preschool.logo = await FilesManager.generateSignedUrl(preschool.logo);
+            }
+            return preschool;
+          })
+        );
 
-        return res.json(transformedResults);
+        return res.json(preschoolsWithLogos);
       }
       else {
         const preschools = await Preschool.findAll({
           where: {
-            [Op.and]: whereCondition, 
+            [Op.and]: whereCondition,
           },
           include: [{ model: Address, as: 'Address' }],
         });
@@ -157,44 +165,14 @@ const PreschoolController = {
       preschoolData.subscription_expiry_date = subscriptionExpiryDate;
 
       const newPreschool = await Preschool.create(preschoolData);
-      res.status(201).json({
+      return res.status(201).json({
         message: 'Preschool created successfully',
         preschool: newPreschool,
       });
     } catch (error) {
-      res.status(400).json({ message: 'Failed to create a new preschool. Please check your request data.', error: error.message });
+      return res.status(400).json({ message: 'Failed to create a new preschool. Please check your request data.', error: error.message });
     }
   },
-
-
-  //this doesnt work correctly, it needs to be created after approving reuqest
-  // async createPreschool(req, res) {
-  //   const preschoolData = req.body;
-  //   try {
-  //     const newPreschool = await Preschool.create(preschoolData);
-  //     res.status(201).json({
-  //       message: 'Preschool created successfully',
-  //       preschool: newPreschool,
-  //     });
-  //   } catch (error) {
-  //     res.status(400).json({ message: 'Failed to create a new preschool. Please check your request data.', message: error.message });
-  //   }
-  // },
-  //   // In your PreschoolController
-  // async createPreschoolAfterApproval(req, res) {
-  //   const preschoolData = req.body; // You may need to modify this data based on your request approval logic
-  //   try {
-  //     // Implement your approval logic here, and then create the preschool
-  //     const newPreschool = await Preschool.create(preschoolData);
-  //     res.status(201).json({
-  //       message: 'Preschool created successfully after request approval',
-  //       preschool: newPreschool,
-  //     });
-  //   } catch (error) {
-  //     res.status(400).json({ message: 'Failed to create a new preschool after request approval. Please check your request data.', error: error.message });
-  //   }
-  // }
-
 
   async updatePreschool(req, res) {
     const preschoolId = req.params.id;
@@ -202,14 +180,18 @@ const PreschoolController = {
     try {
 
       const preschool = await Preschool.findByPk(preschoolId);
-
-      //handle upload file for logo 
-      if (req.files['logoFile']) {
-        const logo_url = await FilesManager.upload(req.files['logoFile'][0]);
-        updatedPreschoolData.logo = logo_url;
-      }
-
       if (preschool) {
+        // access control 
+        if (await getCurrentUserRole(req) == "Admin" && await verifyPreschool(preschoolId, req) == false) {
+          return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+        }
+
+        //handle upload file for logo 
+        if (req.files['logoFile']) {
+          const logo_url = await FilesManager.upload(req.files['logoFile'][0]);
+          updatedPreschoolData.logo = logo_url;
+        }
+
         preschool.set(updatedPreschoolData);
         await preschool.save();
 
@@ -226,6 +208,13 @@ const PreschoolController = {
   async deletePreschool(req, res) {
     const preschoolId = req.params.id;
     try {
+      const preschool = await Preschool.findByPk(preschoolId);
+      if (preschool) {
+        // access control 
+        if (await getCurrentUserRole(req) == "Admin" && await verifyPreschool(preschoolId, req) == false) {
+          return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+        }
+      }
       const success = await Preschool.destroy({ where: { id: preschoolId } });
 
       if (success) {
@@ -238,7 +227,6 @@ const PreschoolController = {
     }
   },
 
-
   async updatePreschoolAddress(req, res) {
     const addressId = req.params.id;
     const updatedAddress = req.body;
@@ -246,6 +234,11 @@ const PreschoolController = {
       const address = await Address.findByPk(addressId);
 
       if (address) {
+        // access control 
+        if (await getCurrentUserRole(req) == "Admin" && await verifyPreschool(address.preschool_id, req) == false) {
+          return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+        }
+
         address.set(updatedAddress);
         await address.save();
 

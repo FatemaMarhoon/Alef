@@ -9,6 +9,7 @@ const FilesManager = require('./FilesManager');
 
 const LogsController = require('./LogController');
 const UsersController = require('./UsersController');
+const { verifyPreschool } = require('../config/token_validation');
 
 
 Student.belongsTo(User, { foreignKey: 'user_id' });
@@ -57,6 +58,10 @@ const StudentController = {
     async getAllStudents(req, res) {
         try {
             const { preschoolId, grade, class_id } = req.params;
+            // access control 
+            if (await verifyPreschool(preschoolId, req) == false) {
+                return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+            }
 
             const whereClause = { preschool_id: preschoolId };
 
@@ -84,6 +89,12 @@ const StudentController = {
         const { student_id } = req.params;
         try {
             const student = await Student.findByPk(student_id);
+
+            // access control 
+            if (await verifyPreschool(student.preschoolId, req) == false) {
+                return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+            }
+
             //generate and set urls for files 
             student.personal_picture = await FilesManager.generateSignedUrl(student.personal_picture);
             student.passport = await FilesManager.generateSignedUrl(student.passport);
@@ -185,6 +196,10 @@ const StudentController = {
             const student = await Student.findByPk(student_id);
 
             if (student) {
+                // access control 
+                if (await verifyPreschool(student.preschool_id) == false) {
+                    return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+                }
                 const originalValues = JSON.stringify(student.toJSON()); // Store the original values before the update
                 // student.set(updatedStudentData);
 
@@ -255,6 +270,11 @@ const StudentController = {
             const student = await Student.findByPk(student_id);
 
             if (student) {
+                // access control 
+                if (await verifyPreschool(student.preschool_id) == false) {
+                    return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+                }
+
                 deletedStudentData = JSON.stringify(student.toJSON()); // Store the student data before deletion
 
                 const success = await Student.destroy({ where: { id: student_id } });
@@ -297,6 +317,10 @@ const StudentController = {
     async getStudentsByPreschool(req, res) {
         const { preschool_id } = req.params;
         try {
+            // access control 
+            if (await verifyPreschool(preschool_id) == false) {
+                return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+            }
             const students = await Student.findAll({ where: { preschool_id } });
             res.json(students);
         } catch (error) {
@@ -309,12 +333,13 @@ const StudentController = {
         try {
             const { preschoolId } = req.params;
             const { classId } = req.params;
+            // access control 
+            if (await verifyPreschool(preschoolId) == false) {
+                return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+            }
             const students = await Student.findAll({
                 where: { preschool_id: preschoolId, class_id: classId },
-
                 include: Preschool
-
-
             });
             res.json(students);
         } catch (error) {
@@ -326,6 +351,11 @@ const StudentController = {
         const user_id = req.query.user_id;
         try {
             if (user_id) {
+                // access control 
+                if (await UsersController.getCurrentUser(req) != user_id) {
+                    return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+                }
+
                 const students = await Student.findAll({ where: { user_id: user_id } });
                 if (students) {
                     res.status(200).json(students);

@@ -1,6 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const ApplicationController = require('../controllers/ApplicationController');
+const { checkStaff, checkToken } = require('../config/token_validation');
 const router = express.Router();
 
 const multerMiddleware = multer({
@@ -12,19 +13,23 @@ const multerMiddleware = multer({
   ]);
 
 // Get all applications
-router.get('/', ApplicationController.getAllApplications);
+router.get('/', checkStaff, ApplicationController.getAllApplications);
 
 // Get a single application by ID
-router.get('/:id', ApplicationController.getApplicationById);
+router.get('/:id',checkToken, ApplicationController.getApplicationById);
 
 // Create a new application
-router.post('/',multerMiddleware, ApplicationController.createApplication);
+router.post('/',checkToken, multerMiddleware, ApplicationController.createApplication); 
+
+// withdraw application by parent 
+router.put('/withdraw/:id',checkToken, ApplicationController.withdrawApplication);
 
 // Update an application by ID
-router.put('/:id', multerMiddleware, ApplicationController.updateApplication);
+router.put('/:id', checkStaff, multerMiddleware, ApplicationController.updateApplication);
+
 
 // Delete an application by ID
-router.delete('/:id', ApplicationController.deleteApplication);
+router.delete('/:id',checkStaff, ApplicationController.deleteApplication);
 
 
 module.exports = router;

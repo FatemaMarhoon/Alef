@@ -10,6 +10,8 @@ const User = require('../models/user')(sequelize, DataTypes);
 const Student = require('../models/student')(sequelize, DataTypes);
 const Staff = require('../models/staff')(sequelize, DataTypes);
 const NotificationController = require('./NotificationController');
+const { verifyPreschool } = require('../config/token_validation');
+const UsersController = require('./UsersController');
 Class.hasMany(Student, { foreignKey: 'class_id' });
 Student.belongsTo(Class, { foreignKey: 'class_id' });
 Student.belongsTo(User, { foreignKey: 'user_id' });
@@ -47,6 +49,12 @@ const EventController = {
                 });
 
                 if (classObject) {
+
+                    // access control (trying to access events from class of another preschool)
+                    if (await verifyPreschool(classObject.preschool_id, req) != true) {
+                        return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+                    }
+
                     events = classObject.Events;
                     const publicEvents = await Event.findAll({
                         where: { public_event: true, preschool_id: classObject.preschool_id },
@@ -60,6 +68,10 @@ const EventController = {
 
             }
             else if (preschool_id) {
+                // access control (trying to access events from another preschool)
+                if (await verifyPreschool(preschool_id, req) != true) {
+                    return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+                }
                 events = await Event.findAll(({
                     where: { preschool_id: preschool_id },
                     include: [{ model: Class, as: "Classes" }]
@@ -78,6 +90,15 @@ const EventController = {
     async createEvent(req, res) {
         var { event_name, event_date, notes, notify_parents, notify_staff, public_event, created_by, preschool_id, classes, } = req.body;
         try {
+            // access control
+            const currentRole = await UsersController.getCurrentUserRole(req);
+            if (currentRole == 'Parent' || currentRole == 'Super Admin') {
+                return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+            }
+            else if (await verifyPreschool(preschool_id, req) == false) {
+                return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+            }
+
             if (!event_name) {
                 return res.status(400).json({ message: "Event Name is Required" });
             }
@@ -197,10 +218,17 @@ const EventController = {
                 where: { id: id },
                 include: { model: Class, as: "Classes" },
             });
+
             if (!event) {
                 return res.status(404).json({ message: 'Event not found.' });
             }
-            return res.status(200).json(event);
+            // access control
+            if (await verifyPreschool(event.preschool_id, req) == false) {
+                return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+            }
+            else {
+                return res.status(200).json(event);
+            }
         } catch (error) {
             return res.status(500).json({ message: 'Internal server error while retrieving the event.' });
         }
@@ -219,11 +247,15 @@ const EventController = {
         } = req.body;
         try {
             const event = await Event.findByPk(id);
-            if (public_event == false && classes.length == 0) {
-                return res.status(400).json({ message: "Classes are Required When It's not a Public Event" });
+            // access control
+            if (await verifyPreschool(event.preschool_id, req) == false) {
+                return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
             }
 
             if (event) {
+                if (public_event == false && classes.length == 0) {
+                    return res.status(400).json({ message: "Classes are Required When It's not a Public Event" });
+                }
                 if (event_name) event.event_name = event_name;
                 if (event_date) event.event_date = event_date;
                 if (notes) event.notes = notes;
@@ -316,6 +348,15 @@ const EventController = {
     async deleteEvent(req, res) {
         const { id } = req.params;
         try {
+            const event = await Event.findByPk(id);
+            if (!event) {
+                return res.status(404).json({ message: 'Event not found for deletion.' });
+            }
+            // access control 
+            if (await verifyPreschool(event.preschool_id, req) == false) {
+                return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+            }
+
             const deletedCount = await Event.destroy({
                 where: { id }
             });
