@@ -11,10 +11,10 @@ import { Staff } from '@/types/staff';
 import { getGrades, getGradeCapacityById } from '@/services/gradeCapacityService';
 import { GradeCapacity } from '@/types/gradeCapacity';
 import { format } from 'url';
-import Link from 'next/link';
 import Loader from "@/components/common/Loader"; // Import the Loader component
 import ErrorAlert from '../ErrorAlert';
 import { currentUser, currentPreschool } from '@/services/authService';
+import Link from 'next/link';
 
 
 const ClassForm: React.FC = ({ }) => {

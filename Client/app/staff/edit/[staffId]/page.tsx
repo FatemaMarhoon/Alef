@@ -70,16 +70,14 @@ export default function EditStaffForm({ params }: { params: { staffId: number } 
         fetchStaffData();
     }, [params.staffId]);
 
-    const focusOnFirstError = (errors: Record<string, string>) => {
-        const firstErrorField = Object.keys(errors)[0];
-        const errorFieldElement = document.querySelector(
-            `[name="${firstErrorField}"]`
-        ) as HTMLInputElement | null;
-
-        if (errorFieldElement) {
-            errorFieldElement.focus();
+    const scrollToError = () => {
+        // Assuming you have a ref for the error element
+        const errorElement = document.getElementById('error-message');
+        if (errorElement) {
+            errorElement.scrollIntoView({ behavior: 'smooth' });
         }
     };
+
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

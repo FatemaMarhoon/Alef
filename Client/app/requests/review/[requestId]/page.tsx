@@ -65,6 +65,7 @@ export default function RequestReviewPage({ params }: { params: { requestId: num
     }, []);
     const handleStatusChange = async () => {
         try {
+            console.log('Request Status:', request?.status);
 
             if (request?.status == "Approved") {
                 // Fetch the current preschool email
@@ -74,8 +75,7 @@ export default function RequestReviewPage({ params }: { params: { requestId: num
                 // Check if the email already exists for a preschool
                 if (email) {
                     setError('Email already exists for another preschool.');
-                    // Optionally, display an error message to the user
-                    // or handle the situation as needed.
+
                     return;
                 }
             }
