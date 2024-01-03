@@ -13,10 +13,10 @@ const multerMiddleware = multer({
   ]);
 
 // Get all applications
-router.get('/', checkStaff, ApplicationController.getAllApplications);
+router.get('/', checkToken, ApplicationController.getAllApplications);
 
 // Get a single application by ID
-router.get('/:id', ApplicationController.getApplicationById);
+router.get('/:id',checkToken, ApplicationController.getApplicationById);
 
 // Create a new application
 router.post('/', multerMiddleware, ApplicationController.createApplication); 
