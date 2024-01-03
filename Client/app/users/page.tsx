@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { getUsers, updateUser, deleteUser, geSuperAdmintUsers } from '@/services/userService';
 import { User } from '@/types/user';
-import Link from 'next/link';
 import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
 import SuccessAlert from '@/components/SuccessAlert';
 import Pagination from '@mui/material/Pagination';
@@ -17,6 +16,7 @@ import { Delete, Edit } from '@mui/icons-material';
 import { EyeIcon } from '@heroicons/react/20/solid';
 import { currentUserRole } from "@/services/authService";
 import ErrorAlert from '@/components/ErrorAlert';
+import Link from 'next/link';
 
 export default function UsersTable() {
   const searchParams = useSearchParams();

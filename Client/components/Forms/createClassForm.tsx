@@ -3,7 +3,6 @@ import { getStudents, updateStudentClassId } from '../../services/studentService
 import { Student } from '../../types/student';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { getClasses } from '../../services/classService'; // Import the class service
 import { Class } from '../../types/class';
 import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
@@ -18,7 +17,7 @@ const CreateForm: React.FC = () => {
     const classIDsParam = searchParams.get('classIds');
     const classIds = typeof classIDsParam === 'string' ? classIDsParam : '';
     const classIDsArray = Array.isArray(classIds) ? classIds : [classIds];
-    console.log('classIds:', classIDsArray);
+    // console.log('classIds:', classIDsArray);
     const router = useRouter();
 
     const [students, setStudents] = useState<Student[]>([]);
@@ -274,11 +273,17 @@ const CreateForm: React.FC = () => {
             }
 
         } catch (error) {
+
             // Handle errors here
             console.error('Error updating students:', error);
         }
     };
+    const handleAssignLater = async () => {
+        setSuccessMessage("Classes created successfully");
 
+        await router.push('/class');
+
+    };
 
     const handleOnDrag = (e: React.DragEvent<HTMLDivElement>, studentId: number) => {
         e.dataTransfer.setData('studentId', studentId.toString());
@@ -353,6 +358,7 @@ const CreateForm: React.FC = () => {
     return (
         <>
             {loading && <Loader />}
+            <Breadcrumbs previousName='Classes' currentName='Create' pageTitle="Create Class" previousPath='/class' />
 
 
             <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark-bg-boxdark sm-px-7.5 xl-pb-1">
@@ -384,6 +390,12 @@ const CreateForm: React.FC = () => {
                             className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90 mt-4"
                         >
                             Save
+                        </button>
+                        <button
+                            onClick={handleAssignLater}
+                            className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90 mt-4"
+                        >
+                            Assign Later
                         </button>
                     </div>
 

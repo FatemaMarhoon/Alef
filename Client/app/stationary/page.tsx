@@ -23,7 +23,9 @@ export default function StationaryTable() {
             try {
                 const stationariesData = await getStationary();
                 setStationaries(stationariesData);
-                setFilteredStationaries(stationariesData); // Initialize filteredStationaries                
+                setFilteredStationaries(stationariesData); // Initialize filteredStationaries  
+                setLoading(false); // Set loading to false once error occured
+
 
             } catch (error) {
                 console.error('Error fetching stationaries:', error);
