@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useEffect } from 'react';
-import { getUsers, updateUser, deleteUser, getAllUsers } from '@/services/userService';
+import { getUsers, updateUser, deleteUser, geSuperAdmintUsers } from '@/services/userService';
 import { User } from '@/types/user';
 import Link from 'next/link';
 import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
@@ -63,7 +63,7 @@ export default function UsersTable() {
 
       if (role === 'Super Admin') {
         // Fetch all users if the role is 'Super admin'
-        usersData = await getAllUsers();
+        usersData = await geSuperAdmintUsers();
       } else {
         // Fetch regular users based on the current role
         usersData = await getUsers();

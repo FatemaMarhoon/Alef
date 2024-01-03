@@ -22,7 +22,7 @@ Preschool.hasMany(Student, { foreignKey: 'preschool_id' });
 
 const PreschoolController = {
 
-  async getAllPreschools(req, res) {
+  async getAllAppPreschools(req, res) {
     const searchExpression = req.query.preschool_name;
     const location = req.query.location;
     const age = req.query.age;
@@ -83,7 +83,6 @@ const PreschoolController = {
         );
 
         finalList = preschoolsWithLogos;
-        // return res.json(preschoolsWithLogos);
       }
       else {
         const preschools = await Preschool.findAll({
@@ -103,17 +102,9 @@ const PreschoolController = {
         );
 
         finalList = preschoolsWithLogos;
-        // return res.json(preschoolsWithLogos);
       }
 
-
-      // Assuming GradesController.gradesExist returns true or false
-      // const filtered = finalList.filter(async (preschool) => {
-      //   console.log("preschool: ", preschool.id, " is: ", await GradesController.gradesExist(preschool.id))
-      //   return await GradesController.gradesExist(preschool.id);
-      // });
-
-      // Assuming GradesController.gradesExist returns true or false
+      // only return preschools ready to accept applications (they have grades)
       let filtered = [];
       for (const pre of finalList){
         const result = await GradesController.gradesExist(pre.id);
@@ -131,6 +122,28 @@ const PreschoolController = {
     }
   },
 
+  async getAllPreschools(req, res) {
+    try {
+        const preschools = await Preschool.findAll({
+          include: [{ model: Address, as: 'Address' }],
+        });
+
+        const preschoolsWithLogos = await Promise.all(
+          preschools.map(async (preschool) => {
+            if (preschool.logo) {
+              preschool.logo = await FilesManager.generateSignedUrl(preschool.logo);
+            }
+            return preschool;
+          })
+        );
+
+
+      return res.status(200).json(preschoolsWithLogos);
+
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  },
 
   async getPreschoolById(req, res) {
     const preschool_id = req.params.id;

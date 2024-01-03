@@ -217,7 +217,7 @@ const AppProfile: React.FC<ProfileProps> = (props) => {
             if (response.status == 200 || response.status == 201) {
                 setError(""); //clear any existing error
                 setSuccessMessage(response.data.message);
-                router.push('/profile', { scroll: false });
+                router.push(usePathname(), { scroll: true });
                 fetchPreschool();
             }
             else if (response.status == 400 || response.status == 404 || response.status == 500) {
@@ -690,70 +690,70 @@ const AppProfile: React.FC<ProfileProps> = (props) => {
                                         Your Location
                                     </h3>
                                 </div>
-                                {preschool?.Address &&
-                                    <div className="p-7">
-                                        <div className="mb-5.5">
+
+                                <div className="p-7">
+                                    <div className="mb-5.5">
+                                        <label
+                                            className="mb-3 block text-sm font-medium text-black dark:text-white">
+                                            Area
+                                        </label>
+                                        <input
+                                            className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                                            type="text"
+                                            value={address.area}
+                                            onChange={(e) => setAddress(prevState => ({ ...prevState, area: e.target.value }))}
+                                        />
+                                    </div>
+
+                                    <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
+                                        <div className="w-full sm:w-1/2">
                                             <label
                                                 className="mb-3 block text-sm font-medium text-black dark:text-white">
-                                                Area
+                                                Road
                                             </label>
                                             <input
                                                 className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
                                                 type="text"
-                                                value={address.area}
-                                                onChange={(e) => setAddress(prevState => ({ ...prevState, area: e.target.value }))}
+                                                value={address.road}
+                                                onChange={(e) => setAddress(prevState => ({ ...prevState, road: Number(e.target.value) }))}
+
                                             />
                                         </div>
-
-                                        <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
-                                            <div className="w-full sm:w-1/2">
-                                                <label
-                                                    className="mb-3 block text-sm font-medium text-black dark:text-white">
-                                                    Road
-                                                </label>
-                                                <input
-                                                    className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                                                    type="text"
-                                                    value={address.road}
-                                                    onChange={(e) => setAddress(prevState => ({ ...prevState, road: Number(e.target.value) }))}
-
-                                                />
-                                            </div>
-                                            <div className="w-full sm:w-1/2">
-                                                <label
-                                                    className="mb-3 block text-sm font-medium text-black dark:text-white">
-                                                    Building
-                                                </label>
-                                                <input
-                                                    className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                                                    type="text"
-                                                    value={address.building}
-                                                    onChange={(e) => setAddress(prevState => ({ ...prevState, building: Number(e.target.value) }))}
-                                                />
-                                            </div>
-                                        </div>
-                                        <p className='text-alef-purple'> Select on the map to update your location.</p>
-                                        {selectedLatitude && selectedLongitude && (
-                                            <Map initialLatitude={selectedLatitude}
-                                                initialLongitude={selectedLongitude}
-                                                onLocationChange={handleLocationChange}></Map>
-                                        )}
-                                        {!selectedLatitude && (
-                                            <Map initialLatitude={26.00000000}
-                                            initialLongitude={50.55000000}
-                                            onLocationChange={handleLocationChange}></Map>
-                                        )}
-                                        <div className="flex justify-end gap-4.5">
-                                            <button
-                                                className="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-95"
-                                                type="submit"
-                                                onClick={handleUpdateLocation}
-                                            >
-                                                Update
-                                            </button>
+                                        <div className="w-full sm:w-1/2">
+                                            <label
+                                                className="mb-3 block text-sm font-medium text-black dark:text-white">
+                                                Building
+                                            </label>
+                                            <input
+                                                className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                                                type="text"
+                                                value={address.building}
+                                                onChange={(e) => setAddress(prevState => ({ ...prevState, building: Number(e.target.value) }))}
+                                            />
                                         </div>
                                     </div>
-                                }
+                                    <p className='text-alef-purple'> Select on the map to update your location.</p>
+                                    {selectedLatitude && selectedLongitude && (
+                                        <Map initialLatitude={selectedLatitude}
+                                            initialLongitude={selectedLongitude}
+                                            onLocationChange={handleLocationChange}></Map>
+                                    )}
+                                    {!selectedLatitude && (
+                                        <Map initialLatitude={26.00000000}
+                                            initialLongitude={50.55000000}
+                                            onLocationChange={handleLocationChange}></Map>
+                                    )}
+                                    <div className="flex justify-end gap-4.5">
+                                        <button
+                                            className="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-95"
+                                            type="submit"
+                                            onClick={handleUpdateLocation}
+                                        >
+                                            Update
+                                        </button>
+                                    </div>
+                                </div>
+
 
                             </div>
                         </div>
@@ -765,47 +765,50 @@ const AppProfile: React.FC<ProfileProps> = (props) => {
                                     <h3 className="font-medium text-black dark:text-white">Grades & Capacity (Private)</h3>
                                     <div className='flex justify-end mr-'>
                                         <IconButton onClick={handleAddGrade}>
-                                            <Add htmlColor='#7db0b0'/>
+                                            <Add htmlColor='#7db0b0' />
                                         </IconButton>
                                     </div>
                                 </div>
 
 
                                 <div className="p-7">
-                                    {grades.map((grade, index) => (
-                                        <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
-                                            <div className="w-full sm:w-1/2">
-                                                {/* <label
+                                    {grades.length > 0 ? (
+                                        <>
+                                            {grades.map((grade, index) => (
+                                                <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
+                                                    <div className="w-full sm:w-1/2">
+                                                        {/* <label
                                                 className="mb-3 block text-sm font-medium text-black dark:text-white">
                                                 Grade
                                             </label> */}
-                                                <input
-                                                    className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                                                    type="text"
-                                                    placeholder="Grade"
-                                                    value={grade.grade}
-                                                    onChange={(e) => handleChangeGrade(index, 'grade', e.target.value)}
-                                                />
-                                            </div>
-                                            <div className="w-full sm:w-1/2">
+                                                        <input
+                                                            className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                                                            type="text"
+                                                            placeholder="Grade"
+                                                            value={grade.grade}
+                                                            onChange={(e) => handleChangeGrade(index, 'grade', e.target.value)}
+                                                        />
+                                                    </div>
+                                                    <div className="w-full sm:w-1/2">
 
-                                                <input
-                                                    className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                                                    type="text"
-                                                    placeholder="Capacity"
-                                                    value={grade.capacity}
-                                                    onChange={(e) => handleChangeGrade(index, 'capacity', e.target.value)}
+                                                        <input
+                                                            className="w-full rounded border border-stroke bg-transparent py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                                                            type="text"
+                                                            placeholder="Capacity"
+                                                            value={grade.capacity}
+                                                            onChange={(e) => handleChangeGrade(index, 'capacity', e.target.value)}
 
-                                                />
-                                            </div>
+                                                        />
+                                                    </div>
 
-                                            <div>
-                                                <IconButton onClick={() => handleRemoveGrade(index)}>
-                                                    <DeleteIcon color='error' />
-                                                </IconButton>
-                                            </div>
-                                        </div>
-                                    ))}
+                                                    <div>
+                                                        <IconButton onClick={() => handleRemoveGrade(index)}>
+                                                            <DeleteIcon color='error' />
+                                                        </IconButton>
+                                                    </div>
+                                                </div>
+                                            ))} </>) :
+                                        <p>No grades found. Please add to start accept applications.</p>}
                                     <div className="flex justify-end gap-4.5">
                                         <button
                                             onClick={() => fetchGrades()}
@@ -835,7 +838,7 @@ const AppProfile: React.FC<ProfileProps> = (props) => {
                                     </h3>
                                 </div>
                                 <div className="p-7">
-                                    {existingMedia &&
+                                    {existingMedia && (
                                         <>
                                             <Gallery
                                                 existingImages={existingMedia}
@@ -844,6 +847,7 @@ const AppProfile: React.FC<ProfileProps> = (props) => {
                                                 onUpload={handleUpload}
                                             ></Gallery>
                                         </>
+                                    )
                                     }
                                     <div className="flex justify-end gap-4.5">
                                         <button

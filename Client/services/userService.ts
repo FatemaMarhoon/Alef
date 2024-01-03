@@ -3,8 +3,8 @@ import { User } from '@/types/user'
 import { currentPreschool, currentToken } from './authService';
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 
-// const BASE_URL = 'https://server-bckggkpqeq-uc.a.run.app/users'; // server URL
-const BASE_URL = 'http://localhost:3000/users'; // localhost URL
+const BASE_URL = 'https://server-bckggkpqeq-uc.a.run.app/users'; // server URL
+// const BASE_URL = 'http://localhost:3000/users'; // localhost URL
 
 export async function getUsers(): Promise<User[]> {
   //retrieve token and preschool from current user
@@ -27,9 +27,10 @@ export async function getUsers(): Promise<User[]> {
   }
 }
 
-export async function getAllUsers(): Promise<User[]> {
-  //retrieve data from current user
-  var token; var preschool;
+
+export async function geSuperAdmintUsers() {
+  //retrieve token and preschool from current user
+  var token; 
   await currentToken().then((returnedTOken) => { token = returnedTOken; })
 
   try {
@@ -40,12 +41,34 @@ export async function getAllUsers(): Promise<User[]> {
       },
     };
 
-    const response = await axios.get<User[]>(`${BASE_URL}`, config);
+    const response = await axios.get(`${BASE_URL}`, config);
+
     return response.data;
+    
   } catch (error) {
     throw error;
   }
 }
+
+// export async function getAllUsers(): Promise<User[]> {
+//   //retrieve data from current user
+//   var token; 
+//   await currentToken().then((returnedTOken) => { token = returnedTOken; })
+
+//   try {
+//     // Set up the request config with headers
+//     const config: AxiosRequestConfig = {
+//       headers: {
+//         Authorization: `Bearer ${token}` // Include the token in the Authorization header
+//       },
+//     };
+
+//     const response = await axios.get(`${BASE_URL}`, config);
+//     return response.data;
+//   } catch (error) {
+//     throw error;
+//   }
+// }
 
 export async function getUser(id: number) {
   try {
@@ -60,7 +83,9 @@ export async function getUser(id: number) {
     const response = await axios.get(`${BASE_URL}/${id}`, config);
     return response;
   } catch (error) {
-
+ // Type assertion for error variable
+    const axiosError = error as AxiosError;
+    throw axiosError;
   }
 }
 

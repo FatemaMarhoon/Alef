@@ -167,7 +167,7 @@ const AppointmentController = {
 
 
 
-    async availableSlots(req, res) {
+    async uavailableSlots(req, res) {
         const { preschool, date } = req.query;
         try {
             if (!preschool) {
