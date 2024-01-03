@@ -84,25 +84,28 @@ const GradesController = {
                 const gradeCapacity = await Grade.findOne({
                     where: { preschool_id: preschool, grade: grade }
                 });
+                if (gradeCapacity) {
+                    //find how many applications currently submitted for this grade
+                    const currentApplications = await Application.findAll({
+                        where: { preschool_id: preschool, grade: grade }
+                    });
 
-                //find how many applications currently submitted for this grade
-                const currentApplications = await Application.findAll({
-                    where: { preschool_id: preschool, grade: grade }
-                });
+                    //find how many students currently enrolled in this grade
+                    const currentStudents = await Student.findAll({
+                        where: { preschool_id: preschool, grade: grade }
+                    });
 
-                //find how many students currently enrolled in this grade
-                const currentStudents = await Student.findAll({
-                    where: { preschool_id: preschool, grade: grade }
-                });
+                    const current = currentApplications.length + currentStudents.length;
 
-                const current = currentApplications.length + currentStudents.length;
-
-                //return true or false 
-                if (gradeCapacity.capacity >= current) {
-                    return true;
-                }
-                else {
-                    return false
+                    //return true or false 
+                    if (gradeCapacity.capacity >= current) {
+                        return true;
+                    }
+                    else {
+                        return false
+                    }
+                } else {
+                    return false;
                 }
             }
 
@@ -136,6 +139,18 @@ const GradesController = {
         }
     },
 
+
+    async gradesExist(preschool) {
+        if (preschool) {
+            const grades = await Grade.findAll({
+                where: { preschool_id: preschool }
+            });
+            if (grades.length > 0){
+                return true;
+            }
+            return false;
+        }
+    }
 };
 
 

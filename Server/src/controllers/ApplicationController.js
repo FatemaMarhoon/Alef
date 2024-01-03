@@ -123,7 +123,7 @@ const ApplicationController = {
             const passport = req.files['passport'][0];
             const passport_url = await FilesManager.upload(passport);
             application.passport = passport_url;
-
+            
             //set status 
             const capacity = await GradesController.checkGradeCapacity(preschool_id, grade);
             capacity ? application.status = "Pending" : application.status = "Waitlist";

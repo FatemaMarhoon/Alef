@@ -10,6 +10,7 @@ const Media = require('../models/preschool_media')(sequelize, DataTypes);
 const FilesManager = require('./FilesManager');
 const { verifyPreschool } = require('../config/token_validation');
 const UsersController = require('./UsersController');
+const GradesController = require('./GradeCapacityController');
 
 
 Preschool.hasMany(Media, { foreignKey: 'preschool_id' });
@@ -29,8 +30,8 @@ const PreschoolController = {
     const longitude = req.query.longitude;
 
     try {
-
-      let whereCondition = []; 
+      let finalList = [];
+      let whereCondition = [];
 
       if (searchExpression) {
         whereCondition.push({
@@ -81,7 +82,8 @@ const PreschoolController = {
           })
         );
 
-        return res.json(preschoolsWithLogos);
+        finalList = preschoolsWithLogos;
+        // return res.json(preschoolsWithLogos);
       }
       else {
         const preschools = await Preschool.findAll({
@@ -100,8 +102,30 @@ const PreschoolController = {
           })
         );
 
-        return res.json(preschoolsWithLogos);
+        finalList = preschoolsWithLogos;
+        // return res.json(preschoolsWithLogos);
       }
+
+
+      // Assuming GradesController.gradesExist returns true or false
+      // const filtered = finalList.filter(async (preschool) => {
+      //   console.log("preschool: ", preschool.id, " is: ", await GradesController.gradesExist(preschool.id))
+      //   return await GradesController.gradesExist(preschool.id);
+      // });
+
+      // Assuming GradesController.gradesExist returns true or false
+      let filtered = [];
+      for (const pre of finalList){
+        const result = await GradesController.gradesExist(pre.id);
+        console.log(result);
+        if (result == true){
+          filtered.push(pre);
+        }
+      }
+
+
+      return res.status(200).json(filtered);
+
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
@@ -185,7 +209,7 @@ const PreschoolController = {
       const preschool = await Preschool.findByPk(preschoolId);
       if (preschool) {
         // access control 
-        if (await  UsersController.getCurrentUserRole(req) == "Admin" && await verifyPreschool(preschoolId, req) == false) {
+        if (await UsersController.getCurrentUserRole(req) == "Admin" && await verifyPreschool(preschoolId, req) == false) {
           return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
         }
 

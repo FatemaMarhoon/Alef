@@ -40,12 +40,24 @@ export async function getStudents(grade?: string): Promise<Student[]> {
 export async function getStudentById(studentId: string | null): Promise<Student> {
     console.log("Fetching student with id:", studentId); // Add this line
     try {
-        const response = await axios.get<Student>(`${BASE_URL}/${studentId}`);
+        var token; var preschool;
+        await currentToken().then((returnedTOken) => { token = returnedTOken; })
+        await currentPreschool().then((preschoolId) => { preschool = preschoolId; })
+        // Set up the request config with headers
+        const config: AxiosRequestConfig = {
+            headers: {
+                Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+                'Content-Type': 'multipart/form-data', // Make sure to set the content type
+
+            },
+        };
+        const response = await axios.get<Student>(`${BASE_URL}/${studentId}`,config);
         return response.data;
     } catch (error) {
         throw error;
     }
 }
+
 export async function createStudent(
     preschool_id: number,
     student_name: string,
