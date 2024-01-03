@@ -31,7 +31,7 @@ export function SuccessMessageProvider({ children }: { children: React.ReactNode
       // Set a timer to clear the success message after 5 seconds
       setTimeout(() => {
         clearSuccessMessage();
-      }, 5000);
+      }, 10000);
     }
   };
 

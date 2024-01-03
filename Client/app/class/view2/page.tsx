@@ -5,7 +5,6 @@ import CreateForm from '@/components/Forms/createClassForm';
 import { NextPage } from 'next';
 import { useSearchParams } from 'next/navigation';
 import { Class } from '@/types/class';
-import Breadcrumbs from '@/components/Breadcrumbs/Breadcrumb2';
 
 interface CreatePageProps {
     numClasses: number;
@@ -19,7 +18,6 @@ const createPage: NextPage<CreatePageProps> = ({ numClasses, grade }) => {
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const searchParams = useSearchParams();
-    console.log('Props in CreatePage:', Number(searchParams.get(numClasses)), searchParams.get(grade)); // Check if values are printed here
 
     const handleCreateClasses = (newClasses: Class[]) => {
         // Handle the created classes or class IDs here
@@ -30,7 +28,9 @@ const createPage: NextPage<CreatePageProps> = ({ numClasses, grade }) => {
     return (
         <>
             {/* Pass the parameters and createdClasses to the CreateForm component */}
-            <CreateForm numClasses={numClasses} grade={grade} createdClasses={createdClasses} />
+            {/* <CreateForm numClasses={numClasses} grade={grade} createdClasses={createdClasses} /> */}
+            <CreateForm />
+
         </>
     );
 };

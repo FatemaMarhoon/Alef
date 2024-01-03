@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { getClasses, deleteClass } from '../../services/classService';
 import { Class } from '../../types/class';
-import Link from 'next/link';
 import { getStaff } from '@/services/staffService';
 import { Staff } from '../../types/staff';
 import TextField from '@mui/material/TextField';
@@ -15,6 +14,7 @@ import InputLabel from '@mui/material/InputLabel';
 import SuccessAlert from '@/components/SuccessAlert';
 import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
 import Loader from "@/components/common/Loader";
+import Link from 'next/link';
 
 // Functional component for viewing class details
 export default function ClassTable() {
@@ -27,6 +27,7 @@ export default function ClassTable() {
     const itemsPerPage = 10;
     const { successMessage, clearSuccessMessage } = useSuccessMessageContext();
     const [loading, setLoading] = useState(true);
+    const { setSuccessMessage } = useSuccessMessageContext();
 
     const fetchClasses = async () => {
         try {
@@ -77,6 +78,7 @@ export default function ClassTable() {
         if (confirmDelete) {
             try {
                 const response = await deleteClass(id.toString());
+                setSuccessMessage("Class Deleted Successfully.");
                 fetchClasses();
 
             } catch (error) {
