@@ -101,7 +101,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           {/* <!-- SIDEBAR HEADER --> */}
           <div className="flex items-center justify-center mt-10">
             <Link prefetch={false} href="/"
-              prefetch={false}>
+              >
               <Image
                 width={176}
                 height={32}
@@ -156,7 +156,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                           <React.Fragment>
                             <Link prefetch={false}
                               href="#"
-                              prefetch={false}
                               className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4`}
                               onClick={(e) => {
                                 e.preventDefault();
@@ -218,7 +217,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                 <li>
                                   <Link prefetch={false}
                                     href="/users"
-                                    prefetch={false}
                                     className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes("users") &&
                                       "bg-graydark dark:bg-meta-4"
                                       }`}
@@ -237,7 +235,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                     <li>
                                       <Link prefetch={false}
                                         href="/profile"
-                                        prefetch={false}
                                         className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.endsWith("/profile") &&
                                           "bg-graydark dark:bg-meta-4"}`}
                                       >
@@ -254,7 +251,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                   <><li>
                                     <Link prefetch={false}
                                       href="/preschools"
-                                      prefetch={false}
                                       className={`group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ${pathname.includes("/preschools") && "text-white"}`}
                                     >
                                       <Image
@@ -267,7 +263,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                   </li><li>
                                       <Link prefetch={false}
                                         href="/requests"
-                                        prefetch={false}
                                         className={`group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ${pathname === "/" && "text-white"}`}
                                       >
                                         <Image
@@ -280,7 +275,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                     </li><li>
                                       <Link prefetch={false}
                                         href="/logs"
-                                        prefetch={false}
                                         className={`group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ${pathname === "/" && "text-white"}`}
                                       >
                                         <Image
@@ -308,7 +302,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     <li>
                       <Link prefetch={false}
                         href="/applications"
-                        prefetch={false}
                         className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes("applications") &&
                           "bg-graydark dark:bg-meta-4"
                           }`}
@@ -328,7 +321,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     <><li>
                       <Link prefetch={false}
                         href="/class"
-                        prefetch={false}
                         className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes("class") &&
                           "bg-graydark dark:bg-meta-4"}`}
                       >
@@ -343,7 +335,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     </li><li>
                         <Link prefetch={false}
                           href="/students"
-                          prefetch={false}
                           className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes("students") &&
                             "bg-graydark dark:bg-meta-4"}`}
                         >
@@ -358,7 +349,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                       </li><li>
                         <Link prefetch={false}
                           href="/staff"
-                          prefetch={false}
                           className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes("staff") &&
                             "bg-graydark dark:bg-meta-4"}`}
                         >
@@ -373,7 +363,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                       </li><li>
                         <Link prefetch={false}
                           href="/stationary"
-                          prefetch={false}
                           className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.endsWith("stationary") || pathname.includes("stationary/") &&
                             "bg-graydark dark:bg-meta-4"}`}
                         >
@@ -390,7 +379,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                       <li>
                         <Link prefetch={false}
                           href="/stationaryRequest"
-                          prefetch={false}
                           className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes("stationaryRequest") &&
                             "bg-graydark dark:bg-meta-4"}`}
                         >
@@ -406,7 +394,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                       <li>
                         <Link prefetch={false}
                           href="/reports/create"
-                          prefetch={false}
                           className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes("/reports/create") &&
                             "bg-graydark dark:bg-meta-4"}`}
                         >
@@ -427,7 +414,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                       <li>
                         <Link prefetch={false}
                           href="/payment"
-                          prefetch={false}
                           className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes("payment") &&
                             "bg-graydark dark:bg-meta-4"
                             }`}
@@ -446,7 +432,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                       <li>
                         <Link prefetch={false}
                           href="/calendar"
-                          prefetch={false}
                           className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes("calendar") &&
                             "bg-graydark dark:bg-meta-4"
                             }`}
