@@ -132,7 +132,15 @@ export async function getPlan(): Promise<unknown | undefined> {
 
   const preschoolId = await currentPreschool();
   console.log(preschoolId);
-  const preschool = await getPreschoolById(preschoolId);
+  let preschool_id: number = 0;
+  // Check if preschoolId is not undefined and is of type number
+  if (preschoolId !== undefined && typeof preschoolId === 'number') {
+    preschool_id = preschoolId;
+    console.log("Preschool ID:", preschool_id);
+  } else {
+    console.error("Invalid Preschool ID:", preschoolId);
+  }
+  const preschool = await getPreschoolById(preschool_id.toString());
   console.log(preschool);
   const planId = preschool.plan_id;
   console.log(planId);
@@ -148,8 +156,15 @@ export async function checkExpiry(): Promise<boolean> {
     // if (role != 'Super Admin') {
     const preschoolId = await currentPreschool();
     console.log("Preschool ID:", preschoolId);
-
-    const preschool = await getPreschoolById(preschoolId);
+    let preschool_id: number = 0;
+    // Check if preschoolId is not undefined and is of type number
+    if (preschoolId !== undefined && typeof preschoolId === 'number') {
+      preschool_id = preschoolId;
+      console.log("Preschool ID:", preschool_id);
+    } else {
+      console.error("Invalid Preschool ID:", preschoolId);
+    }
+    const preschool = await getPreschoolById(preschool_id.toString());
     console.log("Preschool Data:", preschool);
 
     const expiryDate = new Date(preschool.subscription_expiry_date);

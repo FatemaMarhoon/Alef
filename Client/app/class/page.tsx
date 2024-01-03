@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 // Import necessary modules and components
 'use client';
 import React, { useState, useEffect } from 'react';

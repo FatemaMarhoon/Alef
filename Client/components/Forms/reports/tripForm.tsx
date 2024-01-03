@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { getClasses, getClassById } from '@/services/classService';
@@ -40,11 +41,21 @@ const TripReportForm: React.FC<TripReportFormProps> = ({ onSubmit }) => {
                 setClassList(classesData);
 
                 const initialClass = classesData[0];
-                setValue('className', initialClass.id.toString());
-                const classDetailsData = await getClassById(initialClass.id.toString());
+                const classid = initialClass.id;
+
+
+                let class_id: number = 0;
+                // Check if preschoolId is not undefined and is of type number
+                if (classid !== undefined && typeof classid === 'number') {
+                    class_id = classid;
+                } else {
+                    console.error("Invalid Preschool ID:", classid);
+                }
+                setValue('className', class_id.toString());
+                const classDetailsData = await getClassById(class_id.toString());
                 setClassDetails(classDetailsData);
 
-                const studentsData = await getStudentsByClassId(classDetailsData.id.toString());
+                const studentsData = await getStudentsByClassId(class_id.toString());
 
                 setStudents(studentsData);
             } catch (error) {
@@ -71,7 +82,7 @@ const TripReportForm: React.FC<TripReportFormProps> = ({ onSubmit }) => {
 
     return (
         <form
-            onSubmit={handleSubmit(async (formData) => {
+            onSubmit={handleSubmit(async (formData: any) => {
                 // Generate and download PDF for each student
                 for (const student of students) {
                     const tripReport: TripFormData = {
@@ -119,7 +130,7 @@ const TripReportForm: React.FC<TripReportFormProps> = ({ onSubmit }) => {
                         ))}
                     </select>
                 </div>
-                <div className="mb-4.5">
+                {/* <div className="mb-4.5">
                     <label htmlFor="studentName" className="mb-2.5 block text-black dark:text-white">
                         Student Name <span className="text-meta-1">*</span>
                     </label>
@@ -136,7 +147,7 @@ const TripReportForm: React.FC<TripReportFormProps> = ({ onSubmit }) => {
                             </option>
                         ))}
                     </select>
-                </div>
+                </div> */}
                 <div className="mb-4.5">
                     <label htmlFor="date" className="mb-2.5 block text-black dark:text-white">
                         Date <span className="text-meta-1">*</span>
@@ -195,3 +206,5 @@ const TripReportForm: React.FC<TripReportFormProps> = ({ onSubmit }) => {
 };
 
 export default TripReportForm;
+
+
