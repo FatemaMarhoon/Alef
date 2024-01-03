@@ -5,6 +5,7 @@ import DropdownUser from "./DropdownUser";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { currentUser } from "@/services/authService";
+import Loader from "../common/Loader";
 
 const Header = (props: {
   sidebarOpen: string | boolean | undefined;
@@ -16,13 +17,12 @@ const Header = (props: {
     async function checklogin() {
       await currentUser().then(() => {
         setLoggedin(true);
-
       });
     }
     checklogin();
   }, []);
   return (
-    <>{loggedIn && (
+   <>{loggedIn ? (
       <header className="sticky top-0 z-999 flex w-full bg-white drop-shadow-1 dark:bg-boxdark dark:drop-shadow-none">
         <div className="flex flex-grow items-center justify-between px-4 py-4 shadow-2 md:px-6 2xl:px-11">
           <div className="flex items-center gap-2 sm:gap-4 lg:hidden">
@@ -66,9 +66,9 @@ const Header = (props: {
 
             <Link className="block flex-shrink-0 lg:hidden" href="/">
               <Image
-                width={32}
-                height={32}
-                src={"/images/logo/logo-icon.svg"}
+                width={60}
+                height={60}
+                src={"/images/logo/Alef - bordered logo.png"}
                 alt="Logo"
               />
             </Link>
@@ -131,7 +131,7 @@ const Header = (props: {
           </div>
         </div>
       </header>
-    )}</>
+    ) : <Loader></Loader>}</>
   );
 };
 

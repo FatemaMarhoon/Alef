@@ -33,10 +33,10 @@ const StationaryRequestController = {
     async getAllStationaryRequests(req, res) {
         try {
             const { preschoolId } = req.params;
-            // access control 
-            if (await verifyPreschool(preschoolId, req) == false) {
-                return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
-            }
+            // // access control 
+            // if (await verifyPreschool(preschoolId, req) == false) {
+            //     return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
+            // }
 
             const stationaryRequests = await StationaryRequest.findAll({
                 where: { preschool_id: preschoolId },
@@ -59,7 +59,7 @@ const StationaryRequestController = {
 
             if (stationaryRequest) {
                 // access control 
-                if (await verifyPreschool(Stationary.preschool_id, req) == false) {
+                if (await verifyPreschool(stationaryRequest.preschool_id, req) == false) {
                     return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
                 }
                 res.json(stationaryRequest);

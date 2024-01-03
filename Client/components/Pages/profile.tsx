@@ -134,8 +134,6 @@ const AppProfile: React.FC<ProfileProps> = (props) => {
 
     async function handleSubmitForm() {
         try {
-            //clear logo (as it has the url not the real value so we don't want o override here)
-            preschool.logo = "";
             if (preschool.id) {
                 const response = await updatePreschool(String(preschool.id), preschool)
                 if (response.status == 200) {
@@ -558,6 +556,7 @@ const AppProfile: React.FC<ProfileProps> = (props) => {
                                                 className="w-full rounded border border-stroke bg-transparent py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
                                                 value={preschool?.description}
                                                 rows={6}
+                                                onChange={(e) => setPreschool(prevState => ({ ...prevState, description: e.target.value }))}
                                                 placeholder="Write a breif description about your preschool."
                                             ></textarea>
                                         </div>
@@ -766,7 +765,7 @@ const AppProfile: React.FC<ProfileProps> = (props) => {
                                     <h3 className="font-medium text-black dark:text-white">Grades & Capacity (Private)</h3>
                                     <div className='flex justify-end mr-'>
                                         <IconButton onClick={handleAddGrade}>
-                                            <Add htmlColor='primary' />
+                                            <Add htmlColor='#7db0b0'/>
                                         </IconButton>
                                     </div>
                                 </div>

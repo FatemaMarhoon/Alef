@@ -123,7 +123,7 @@ const ApplicationController = {
             const passport = req.files['passport'][0];
             const passport_url = await FilesManager.upload(passport);
             application.passport = passport_url;
-
+            
             //set status 
             const capacity = await GradesController.checkGradeCapacity(preschool_id, grade);
             capacity ? application.status = "Pending" : application.status = "Waitlist";
@@ -168,10 +168,6 @@ const ApplicationController = {
                 ]
             });
 
-            // only proceed if user is owner of the applicaton, or staff/admin of preschool 
-            if (await verifyPreschool(application.preschool_id, req) == false && UsersController.getCurrentUser(req) != application.created_by) {
-                return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
-            } else {
                 //generate and set urls for files 
                 application.personal_picture = await FilesManager.generateSignedUrl(application.personal_picture);
                 application.passport = await FilesManager.generateSignedUrl(application.passport);
@@ -181,7 +177,7 @@ const ApplicationController = {
                     return res.status(404).json({ message: 'Application not found.' });
                 }
                 return res.status(200).json(application);
-            }
+            
         } catch (error) {
             res.status(500).json({ message: error.message });
         }

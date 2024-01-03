@@ -79,17 +79,17 @@ const Calendar = () => {
             <div className="relative h-full flex flex-col">
               <span className="font-medium">{day}</span>
               {hasMoreItems && (
-                <span className="ml-1 absolute right-3 text-sm font-bold text-primary invisible md:visible">
+                <span className="ml-1 absolute right-3 text-sm font-bold text-primary invisible xl:visible">
                   {`+${eventsForDay.length + appointmentsForDay.length - 1}`}
                 </span>
               )}
       
               <div className={`group flex-grow cursor-pointer py-1 ${hasMoreItems ? 'group-hover:text-primary' : ''}`}>
                 {[...eventsForDay, ...appointmentsForDay].length > 0 && (
-                  <span className="group-hover:text-primary md:hidden">More</span>
+                  <span className="group-hover:text-primary xl:hidden">More</span>
                 )}
                 {[...eventsForDay, ...appointmentsForDay].slice(0, 1).map((item) => (
-                  <div key={item.id} className={`event invisible relative z-99 mb-1 flex flex-col rounded-sm border-l-[3px] ${isEvent(item) ? 'border-alef-purple bg-alef-purple ' : 'border-secondary bg-secondary '} bg-opacity-10 px-3 py-1 text-left max-w-[160px] opacity-0 group-hover:visible group-hover:opacity-100 dark:bg-meta-4 sm:visible sm:max-w-[150px] sm:opacity-100 md:visible md:max-w-[150px] md:opacity-100`}>
+                  <div key={item.id} className={`event invisible relative z-99 mb-1 flex flex-col rounded-sm border-l-[3px] ${isEvent(item) ? 'border-alef-purple bg-alef-purple ' : 'border-secondary bg-secondary '} bg-opacity-10 px-3 py-1 text-left max-w-[160px] opacity-0 group-hover:visible group-hover:opacity-100 dark:bg-meta-4 xl:visible xl:max-w-[150px] xl:opacity-100`}>
                     <div className="event-details flex-grow">
                       <span className="event-name text-sm font-semibold text-black dark:text-white">
                         {isEvent(item) ? item.event_name : 'Appointment'}

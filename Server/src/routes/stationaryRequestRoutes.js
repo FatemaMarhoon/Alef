@@ -7,7 +7,7 @@ const router = express.Router();
 router.get('/preschool/:preschoolId',checkToken, StationaryRequestController.getAllStationaryRequests);
 
 // Get stationary request by request_id
-router.get('/:request_id',checkToken, StationaryRequestController.getStationaryRequestById);
+router.get('/:request_id', StationaryRequestController.getStationaryRequestById);
 
 // Create a new stationary request
 router.post('/',checkToken, StationaryRequestController.createStationaryRequest);

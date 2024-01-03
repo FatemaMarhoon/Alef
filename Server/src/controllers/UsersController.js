@@ -15,55 +15,81 @@ User.belongsTo(Preschool, { foreignKey: 'preschool_id' });
 const UsersController = {
 
   getCurrentUser: async (req) => {
-    let user_id = null;
+    // let user_id = null;
 
-    const token = req.get("authorization");
+    // const token = req.get("authorization");
+    // if (token) {
+    //   const tokenParts = token.split(' ');
+
+    //   if (tokenParts.length === 2) {
+    //     const tokenValue = tokenParts[1];
+
+    //     try {
+    //       const claims = await admin.auth().verifyIdToken(tokenValue);
+    //       user_id = claims['dbId'];
+    //     } catch (error) {
+    //       console.error('Error verifying token:', error);
+    //       return;
+    //     }
+    //   }
+    // }
+    var token = req.get("authorization"); // extract the token from request header 
     if (token) {
-      const tokenParts = token.split(' ');
-
-      if (tokenParts.length === 2) {
-        const tokenValue = tokenParts[1];
-
-        try {
-          const claims = await admin.auth().verifyIdToken(tokenValue);
-          user_id = claims['dbId'];
-        } catch (error) {
-          console.error('Error verifying token:', error);
-          return;
-        }
-      }
+        token = token.split(' ')[1]
+        const result = admin.auth().verifyIdToken(token) // validate token 
+            .then((claims) => {
+               return claims['dbId'];
+            });
+          
+        return result;
+    }
+    else {
+      return null;
     }
 
-    return user_id;
   },
 
   getCurrentUserRole: async (req) => {
-    let role = null;
+    // let role = null;
 
-    const token = req.get("authorization");
+    // const token = req.get("authorization");
+    // if (token) {
+    //   const tokenParts = token.split(' ');
+
+    //   if (tokenParts.length === 2) {
+    //     const tokenValue = tokenParts[1];
+
+    //     try {
+    //       const claims = await admin.auth().verifyIdToken(tokenValue);
+    //       role = claims['role'];
+    //     } catch (error) {
+    //       console.error('Error verifying token:', error);
+    //       throw error;
+    //     }
+    //   }
+    // }
+
+    // return role;
+
+    var token = req.get("authorization"); // extract the token from request header 
     if (token) {
-      const tokenParts = token.split(' ');
-
-      if (tokenParts.length === 2) {
-        const tokenValue = tokenParts[1];
-
-        try {
-          const claims = await admin.auth().verifyIdToken(tokenValue);
-          role = claims['role'];
-        } catch (error) {
-          console.error('Error verifying token:', error);
-          throw error;
-        }
-      }
+        token = token.split(' ')[1]
+        const result = admin.auth().verifyIdToken(token) // validate token 
+            .then((claims) => {
+               return claims['role'];
+            });
+          
+        return result;
     }
-
-    return role;
+    else {
+      return null;
+    }
   },
 
   async getAllUsers(req, res) {
     const preschool = req.query.preschool;
     try {
-      if (preschool) {
+      if (preschool != null) {
         // access control (admin trying to access another preschool's users)
         if (await UsersController.getCurrentUserRole(req) == 'Admin' && await verifyPreschool(preschool, req) == false) {
           return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });

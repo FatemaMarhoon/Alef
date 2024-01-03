@@ -42,7 +42,7 @@ const token_validation = {
                     });
             }
             else {
-                res.status(401).json({ message: "Access Denied! Unauthenticated User." })
+                res.status(401).json({ message: "Access Denied! Unauthenticated User." }) 
             }
         }
         catch (error) {

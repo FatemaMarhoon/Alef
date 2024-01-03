@@ -4,8 +4,8 @@ import { useRouter } from 'next/navigation'
 import { currentUser } from "@/services/authService";
 import { useEffect, useState } from "react";
 import Router from "next/router";
-import RootLayout from "./plans/layout";
-import Layout from "./layout"
+// import RootLayout from "./plans/layout";
+import EmptyLayout from "./login/layout"
 import SubscriptionPlansPage from "./plans/page";
 
 export default function Home() {
@@ -14,25 +14,17 @@ export default function Home() {
   useEffect(() => {
     async function checkLogin() {
       if (await currentUser()) {
-        setLoggedIn(true);
+        // setLoggedIn(true);
+        window.location.assign('/dashboard')
       }
       else {
-        router.push('/plans')
+        window.location.assign('/plans')
       }
     }
 
     checkLogin();
   }, []);
-
   return (
-    <>
-      {/* {!loggedIn &&
-        <><RootLayout><SubscriptionPlansPage></SubscriptionPlansPage></RootLayout></>
-      } */}
-      <Dashboard>
-      </Dashboard>
-
-    </>
-
+    <><EmptyLayout children={undefined}></EmptyLayout></>
   );
 }
