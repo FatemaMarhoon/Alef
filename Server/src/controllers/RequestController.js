@@ -56,13 +56,6 @@ const RequestsController = {
                 return res.status(400).json({ message: "Plan Id is Required." });
             }
 
-            //create log
-            await LogsController.createLog({
-                type: 'Request Creation',
-                original_values: JSON.stringify(RequestData),
-                current_values: JSON.stringify(RequestData),
-                user_id: user_id
-            });
 
 
             const newRequest = await Request.create({
@@ -84,14 +77,7 @@ const RequestsController = {
 
 
         } catch (error) {
-            // Create a log entry for the error
-            await LogsController.createLog({
-                type: 'Error',
-                original_values: JSON.stringify(RequestData),
-                current_values: JSON.stringify({ error: error.message }),
-                user_id: user_id
-            });
-
+           
             return res.status(500).json({ message: error.message });
         }
     },

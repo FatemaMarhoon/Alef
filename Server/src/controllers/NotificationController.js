@@ -6,7 +6,7 @@ const admin = require('../config/firebase.config')
 const messaging = admin.messaging();
 
 const socketSetup = require('../config/socket-setup');
-const EmailsManager = require('./EmailsManager');
+const EmailsManager = require('./MailController');
 const UsersController = require('./UsersController');
 const io = socketSetup.getIo(); // Import the io instance
 const userSocketMap = socketSetup.userSocketMap;

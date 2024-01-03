@@ -2,7 +2,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/seq');
 const admin = require('../config/firebase.config')
 const auth = admin.auth();
-const EmailsManager = require('./EmailsManager')
+const EmailsManager = require('./MailController')
 const LogsController = require('./LogController'); // Import the LogsController module
 const { verifyPreschool } = require('../config/token_validation');
 
