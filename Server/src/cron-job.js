@@ -210,7 +210,7 @@ const cronJob = {
                     where: {
                         status: 'Pending',
                         due_date: {
-                            [Op.eq]: currentDate,
+                            [Op.lt]: nextDate,
                         },
                     },
                     include: [{ model: Student, as: "Student", include: [{ model: User, as: "User" }] }]

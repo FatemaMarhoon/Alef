@@ -5,11 +5,25 @@ import { Plan } from "../../types/plan"
 import { getPlans } from "../../services/planService"
 import Link from "next/link";
 
-const includedFeatures = [
-  'Private forum access',
-  'Member resources',
-  'Entry to annual conference',
-  'Official member t-shirt',
+const features1 = [
+  'Application Management',
+  'Parents Communications',
+  'Appointments Booking',
+  'App Profile',
+]
+
+const features2 = [
+  'Application Management',
+  'Parents Communications',
+  'Appointments & Events',
+  'Staff & Student Management',
+]
+
+const features3 = [
+  'Application Management',
+  'Class Managemnet',
+  'Staff & Student Management',
+  'Payment Tracking',
 ]
 
 export default function Package() {
@@ -89,12 +103,39 @@ export default function Package() {
                     role="list"
                     className="mt-8 grid grid-cols-1 gap-4 text-sm leading-6 text-gray-600 sm:grid-cols-2 sm:gap-6"
                   >
-                    {includedFeatures.map((feature) => (
-                      <li key={feature} className="flex gap-x-3">
-                        <CheckIcon className="h-6 w-5 flex-none text-primary" aria-hidden="true" />
-                        {feature}
-                      </li>
-                    ))}
+                    {index == 0 && (
+                      <>
+                        {features1.map((feature) => (
+                          <li key={feature} className="flex gap-x-3">
+                            <CheckIcon className="h-6 w-5 flex-none text-primary" aria-hidden="true" />
+                            {feature}
+                          </li>
+                        ))}
+                      </>
+                    )}
+
+                    {index == 1 && (
+                      <>
+                        {features2.map((feature) => (
+                          <li key={feature} className="flex gap-x-3">
+                            <CheckIcon className="h-6 w-5 flex-none text-primary" aria-hidden="true" />
+                            {feature}
+                          </li>
+                        ))}
+                      </>
+                    )}
+
+
+                    {index == 2 && (
+                      <>
+                        {features3.map((feature) => (
+                          <li key={feature} className="flex gap-x-3">
+                            <CheckIcon className="h-6 w-5 flex-none text-primary" aria-hidden="true" />
+                            {feature}
+                          </li>
+                        ))}
+                      </>
+                    )}
                   </ul>
                 </div>
 

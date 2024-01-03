@@ -9,7 +9,7 @@ const app = express();
 //  Invoke the cors middleware
 app.use(cors());
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 const server = http.createServer(app);
 
@@ -83,5 +83,6 @@ cron.schedule('0 0 * * *', () => {
 });
 
 server.listen(PORT, () => {
+  cronJob.paymentDue();
   console.log(`Server started running on port ${PORT}, at ${new Date()}`);
 });
