@@ -12,15 +12,6 @@ export async function createRequest(preschool_name: string,
     phone: string,
     email: string, plan_id: number) {
     try {
-        var token;
-        await currentToken().then((returnedTOken) => { token = returnedTOken; })
-        // Set up the request config with headers
-        const config: AxiosRequestConfig = {
-            headers: {
-                Authorization: `Bearer ${token}`, // Include the token in the Authorization header
-            },
-        };
-
         const response = await axios.post(`${BASE_URL}`, {
             preschool_name: preschool_name,
             representitive_name: representitive_name,
@@ -28,7 +19,7 @@ export async function createRequest(preschool_name: string,
             phone: phone,
             email: email,
             plan_id: plan_id
-        }, config);
+        });
         return response;
     } catch (error) {
         console.log(error);
