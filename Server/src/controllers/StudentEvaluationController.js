@@ -1,4 +1,5 @@
 const { Sequelize, DataTypes } = require('sequelize');
+const axios = require('axios');
 const sequelize = require('../config/seq');
 const Student = require('../models/student')(sequelize, DataTypes);
 const StudentEvaluation = require('../models/student_evaluation')(sequelize, DataTypes);
@@ -136,19 +137,27 @@ const StudentEvaluationController = {
 
     async getEvaluationReposrtById(req, res) {
         const { id } = req.params;
-
+        console.log('Received studentId:', id);
         try {
-            const studentEvaluation = await StudentEvaluation.findByPk(id);
+            if (!id) {
+                return res.status(400).json({ message: 'Invalid studentId' });
+            }
+
+            const studentEvaluation = await StudentEvaluation.findOne({ where: { student_id: id } });
 
             if (!studentEvaluation) {
                 return res.status(404).json({ message: 'Evaluation Report has not been issued yet' });
             }
 
+
             const doc = new PDFDocument();
+
             const createdAt = studentEvaluation.createdAt.toLocaleDateString();
-            const logoPath =
-                // await FilesManager.generateSignedUrl('Alef%20logo.png')
-                'Server/functions/src/images/Alef_logo.png';
+            const logoUrl = await FilesManager.generateSignedUrl('Alef_Arabic.png');
+            // Download the image
+            const logoResponse = await axios.get(logoUrl, { responseType: 'arraybuffer' });
+            const logoBuffer = Buffer.from(logoResponse.data);
+
             const imageX = doc.page.width - 50 - 30;
 
 
@@ -163,7 +172,7 @@ const StudentEvaluationController = {
             });
 
             // Add content to the PDF
-            doc.image(logoPath, imageX, 10, { width: 70, height: 50 });
+            doc.image(logoBuffer, imageX, 10, { width: 70, height: 50 });
 
             doc.fontSize(18).text('Student Evaluation Report', { align: 'center', margin: 10 });
             doc.fontSize(10).text(`Issued at: ${createdAt}`, { align: 'right', margin: 10 });
