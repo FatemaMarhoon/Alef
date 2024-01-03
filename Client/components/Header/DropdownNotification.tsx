@@ -61,7 +61,7 @@ const DropdownNotification = () => {
     const hasUnreadNotification = notifications?.some((notification) => !notification.is_read);
     setNotifying(!!hasUnreadNotification); // Set notifying to true if there are unread notifications
     console.log("Unread: ", hasUnreadNotification)
-    console.log("Notifying set to:",notifying)
+    console.log("Notifying set to:", notifying)
   }, [notifications]);
 
   function formatDate(date: Date): string {
@@ -82,7 +82,7 @@ const DropdownNotification = () => {
   }
   return (
     <li className="relative">
-      <Link
+      <Link prefetch={false}
         ref={trigger}
         onClick={() => {
           setNotifying(false);
@@ -131,7 +131,7 @@ const DropdownNotification = () => {
             notifications.map((notification, key) => (
               <>
                 <li key={key}>
-                  <Link
+                  <Link prefetch={false}
                     className="flex flex-col gap-2.5 border-t border-stroke px-4.5 py-3 hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4"
                     href="#"
                   >

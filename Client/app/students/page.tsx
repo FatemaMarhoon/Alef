@@ -97,7 +97,7 @@ export default function StudentTable() {
                             Students Management
                         </h4>
                         <div className="flex justify-end mb-4">
-                            <Link
+                            <Link prefetch={false}
                                 href="/students/create"
                                 className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90"
                             >
@@ -255,24 +255,24 @@ export default function StudentTable() {
                                             <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                                                 <div className="flex items-center space-x-3.5">
                                                     <button className="hover:text-primary">
-                                                        <Link href={`/students/view/${student.id}`}>
+                                                        <Link prefetch={false} href={`/students/view/${student.id}`}>
                                                             View
                                                         </Link>
                                                     </button>
                                                     <button className="hover:text-primary">
-                                                        <Link href={`/students/edit/${student.id}`}>
+                                                        <Link prefetch={false} href={`/students/edit/${student.id}`}>
                                                             Edit
                                                         </Link>
                                                     </button>
                                                     <button className="hover:text-primary">
-                                                        <Link href={`/students/delete/${student.id}`}>
+                                                        <Link prefetch={false} href={`/students/delete/${student.id}`}>
                                                             Delete
                                                         </Link>
                                                     </button>
                                                 </div>
                                                 {/* <div className="flex items-center space-x-3.5">
                                                 <button className="hover:text-primary">
-                                                    <Link href={`/students/view/${student.id}`}>
+                                                    <Link prefetch={false}  href={`/students/view/${student.id}`}>
 
                                                         <svg
                                                             className="fill-current"
@@ -294,7 +294,7 @@ export default function StudentTable() {
                                                     </Link>
                                                 </button>
                                                 <button className="hover:text-primary">
-                                                    <Link href={`/students/delete/${student.id}`}>
+                                                    <Link prefetch={false}  href={`/students/delete/${student.id}`}>
                                                         <svg
                                                             className="fill-current"
                                                             width="18"
@@ -324,7 +324,7 @@ export default function StudentTable() {
                                                     </Link>
                                                 </button>
                                                 <button className="hover:text-primary">
-                                                    <Link href={`/students/edit/${student.id}`}>
+                                                    <Link prefetch={false}  href={`/students/edit/${student.id}`}>
                                                         <svg
                                                             className="fill-current"
                                                             width="18"

@@ -380,7 +380,7 @@ export default function CreateForm() {
                   Create
                 </button>
 
-                <Link
+                <Link prefetch={false}
                   href="/students"
                   className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray"              >
                   Back To List

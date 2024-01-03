@@ -187,7 +187,7 @@
 //                                 <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
 //                                     <div className="flex items-center space-x-3.5">
 //                                         <button className="hover:text-primary">
-//                                             <Link href={`/students/view/${student.id}`}>
+//                                             <Link prefetch={false}  href={`/students/view/${student.id}`}>
 
 //                                                 <svg
 //                                                     className="fill-current"
@@ -207,7 +207,7 @@
 //                                             </Link>
 //                                         </button>
 //                                         <button className="hover:text-primary">
-//                                             <Link href={`/students/delete/${student.id}`}>
+//                                             <Link prefetch={false}  href={`/students/delete/${student.id}`}>
 //                                                 <svg
 //                                                     className="fill-current"
 //                                                     width="18"
@@ -233,7 +233,7 @@
 //                                             </Link>
 //                                         </button>
 //                                         <button className="hover:text-primary">
-//                                             <Link href={`/students/edit/${student.id}`}>
+//                                             <Link prefetch={false}  href={`/students/edit/${student.id}`}>
 //                                                 <svg
 //                                                     className="fill-current"
 //                                                     width="18"

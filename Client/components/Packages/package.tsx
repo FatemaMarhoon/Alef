@@ -70,7 +70,7 @@ export default function Package() {
               </>
               <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">A Package For Everyone!</h2>
               <p className="mt-6 text-lg leading-8 text-gray-600">
-                Elevate your experience with our diverse subscription packages tailored to meet your needs. 
+                Elevate your experience with our diverse subscription packages tailored to meet your needs.
               </p>
             </div>
             {plans.map((plan, index) => (
@@ -106,7 +106,7 @@ export default function Package() {
                         <span className="text-5xl font-bold tracking-tight text-gray-900">{plan.monthly_price}</span>
                         <span className="text-sm font-semibold leading-6 tracking-wide text-gray-600">BHD</span>
                       </p>
-                      <Link
+                      <Link prefetch={false}
                         href={`/plans/request/${plan.id}`}
                         className="mt-10 block w-full rounded-md bg-primary px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                       >

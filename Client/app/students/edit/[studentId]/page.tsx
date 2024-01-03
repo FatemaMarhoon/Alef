@@ -353,7 +353,7 @@ export default function EditForm({ params }: { params: { studentId: number } }) 
                                             <label className="mb-3 block text-black dark:text-white">
                                                 Personal Picture <span className="text-meta-1">*</span>
                                             </label>
-                                            <Link className="text-secondary" href={`${student?.personal_picture}`} target="_blank"><p>View Existing File</p></Link>
+                                            <Link prefetch={false} className="text-secondary" href={`${student?.personal_picture}`} target="_blank"><p>View Existing File</p></Link>
 
                                             {/* <label>{student?.personal_picture}</label> */}
                                             <input
@@ -370,7 +370,7 @@ export default function EditForm({ params }: { params: { studentId: number } }) 
                                             <label className="mb-3 block text-black dark:text-white">
                                                 Certificate of Birth <span className="text-meta-1">*</span>
                                             </label>
-                                            <Link className="text-secondary" href={`${student?.certificate_of_birth}`} target="_blank"><p>View Existing File</p></Link>
+                                            <Link prefetch={false} className="text-secondary" href={`${student?.certificate_of_birth}`} target="_blank"><p>View Existing File</p></Link>
                                             <input
                                                 type="file"
                                                 name="certificate_of_birth"
@@ -385,7 +385,7 @@ export default function EditForm({ params }: { params: { studentId: number } }) 
                                             <label className="mb-3 block text-black dark:text-white">
                                                 Passport <span className="text-meta-1">*</span>
                                             </label>
-                                            <Link className="text-secondary" href={`${student?.passport}`} target="_blank"><p>View Existing File</p></Link>
+                                            <Link prefetch={false} className="text-secondary" href={`${student?.passport}`} target="_blank"><p>View Existing File</p></Link>
 
                                             <input
                                                 type="file"
@@ -401,7 +401,7 @@ export default function EditForm({ params }: { params: { studentId: number } }) 
                                         >
                                             Update
                                         </button>
-                                        <Link
+                                        <Link prefetch={false}
                                             href="/students"
                                             className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray"              >
                                             Back To List

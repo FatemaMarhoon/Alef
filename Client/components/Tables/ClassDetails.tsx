@@ -214,7 +214,7 @@ const ClassDetails: React.FC<ClassDetailsProps> = (props) => {
                                             <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                                                 <div className="flex items-center space-x-3.5">
                                                     <button className="hover:text-primary">
-                                                        <Link href={`/students/view/${student.id}`}>
+                                                        <Link prefetch={false} href={`/students/view/${student.id}`}>
                                                             View
                                                         </Link>
                                                     </button>
@@ -227,7 +227,7 @@ const ClassDetails: React.FC<ClassDetailsProps> = (props) => {
                             </table>
 
                         </div>
-                        <Link
+                        <Link prefetch={false}
                             href="/class"
                             className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray">
                             Back To List

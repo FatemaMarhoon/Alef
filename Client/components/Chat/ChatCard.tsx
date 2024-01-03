@@ -62,7 +62,7 @@ const ChatCard = () => {
 
       <div>
         {chatData.map((chat, key) => (
-          <Link
+          <Link prefetch={false}
             href="/"
             className="flex items-center gap-5 py-3 px-7.5 hover:bg-gray-3 dark:hover:bg-meta-4"
             key={key}
@@ -70,9 +70,8 @@ const ChatCard = () => {
             <div className="relative h-14 w-14 rounded-full">
               <Image src={chat.avatar} alt="User" width={57} height={56} />
               <span
-                className={`absolute right-0 bottom-0 h-3.5 w-3.5 rounded-full border-2 border-white ${
-                  chat.dot === 6 ? "bg-meta-6" : `bg-meta-${chat.dot}`
-                } `}
+                className={`absolute right-0 bottom-0 h-3.5 w-3.5 rounded-full border-2 border-white ${chat.dot === 6 ? "bg-meta-6" : `bg-meta-${chat.dot}`
+                  } `}
               ></span>
             </div>
 

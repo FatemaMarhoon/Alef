@@ -12,23 +12,23 @@ const DropdownUser = () => {
   const router = useRouter();
   const trigger = useRef<any>(null);
   const dropdown = useRef<any>(null);
-  
+
   useEffect(() => {
 
-    async function loadCurrentUser(){
-      await currentUser().then(async (userRecord)=> {
-        setUser(userRecord);    
+    async function loadCurrentUser() {
+      await currentUser().then(async (userRecord) => {
+        setUser(userRecord);
         await userRecord?.getIdTokenResult(true).then((IdTokenResult) => {
           setRole(String(IdTokenResult.claims.role));
         })
-    });
-  }
+      });
+    }
     loadCurrentUser();
-  },[]);
+  }, []);
 
   // close on click outside
   useEffect(() => {
-        const clickHandler = ({ target }: MouseEvent) => {
+    const clickHandler = ({ target }: MouseEvent) => {
       if (!dropdown.current) return;
       if (
         !dropdownOpen ||
@@ -43,28 +43,28 @@ const DropdownUser = () => {
   });
 
 
-    async function handleLogout() {
-      await logout();
-      router.push('/plans')
-    }
+  async function handleLogout() {
+    await logout();
+    router.push('/plans')
+  }
 
-    // close if the esc key is pressed
-    useEffect(() => {
-      const keyHandler = ({ keyCode }: KeyboardEvent) => {
-        if (!dropdownOpen || keyCode !== 27) return;
-        setDropdownOpen(false);
-      };
-      document.addEventListener("keydown", keyHandler);
-      return () => document.removeEventListener("keydown", keyHandler);
-    });
+  // close if the esc key is pressed
+  useEffect(() => {
+    const keyHandler = ({ keyCode }: KeyboardEvent) => {
+      if (!dropdownOpen || keyCode !== 27) return;
+      setDropdownOpen(false);
+    };
+    document.addEventListener("keydown", keyHandler);
+    return () => document.removeEventListener("keydown", keyHandler);
+  });
   return (
     <>
       <div className="relative">
-        <Link
+        <Link prefetch={false}
           ref={trigger}
           onClick={() => setDropdownOpen(!dropdownOpen)}
           className="flex items-center gap-4"
-          href="#" 
+          href="#"
         >
           <span className="hidden text-right lg:block">
             <span className="block text-sm font-medium text-black dark:text-white">
@@ -109,7 +109,7 @@ const DropdownUser = () => {
         >
           {/* <ul className="flex flex-col gap-5 border-b border-stroke px-6 py-7.5 dark:border-strokedark">
             <li>
-              <Link
+              <Link prefetch={false} 
                 href="/profile"
                 className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
               >
@@ -134,7 +134,7 @@ const DropdownUser = () => {
               </Link>
             </li>
             <li>
-              <Link
+              <Link prefetch={false} 
                 href="#"
                 className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
               >
@@ -155,7 +155,7 @@ const DropdownUser = () => {
               </Link>
             </li>
             <li>
-              <Link
+              <Link prefetch={false} 
                 href="/pages/settings"
                 className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
               >

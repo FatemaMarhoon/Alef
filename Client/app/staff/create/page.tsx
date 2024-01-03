@@ -228,7 +228,7 @@ export default function CreateStaffPage() {
                                 <button type="submit" className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray mb-4">
                                     Create
                                 </button>
-                                <Link
+                                <Link prefetch={false}
                                     href="/staff"
                                     className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray"              >
                                     Back To List

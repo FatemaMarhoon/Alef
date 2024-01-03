@@ -115,34 +115,34 @@ export default function ViewStudent({ studentId }: { studentId: string }) {
                                     <label className="mb-2.5 block text-black dark:text-white">
                                         Personal Picture
                                     </label>
-                                    <Link className="text-secondary" href={`${student?.personal_picture}`} target="_blank"><p>View File</p></Link>
+                                    <Link prefetch={false} className="text-secondary" href={`${student?.personal_picture}`} target="_blank"><p>View File</p></Link>
                                 </div>
 
                                 <div className="mb-4.5">
                                     <label className="mb-2.5 block text-black dark:text-white">
                                         Certificate Of Birth
                                     </label>
-                                    <Link className="text-secondary" href={`${student?.certificate_of_birth}`} target="_blank"><p>View File</p></Link>
+                                    <Link prefetch={false} className="text-secondary" href={`${student?.certificate_of_birth}`} target="_blank"><p>View File</p></Link>
                                 </div>
 
                                 <div className="mb-4.5">
                                     <label className="mb-2.5 block text-black dark:text-white">
                                         Passport
                                     </label>
-                                    <Link className="text-secondary" href={`${student?.passport}`} target="_blank"><p>View File</p></Link>
+                                    <Link prefetch={false} className="text-secondary" href={`${student?.passport}`} target="_blank"><p>View File</p></Link>
                                 </div>
                                 {/* Back to List Button */}
                                 <div className="flex mt-4">
                                     {/* Back to List Button */}
                                     <div className="mr-4">
-                                        <Link href="/students" className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
+                                        <Link prefetch={false} href="/students" className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
                                             Back to List
                                         </Link>
                                     </div>
 
                                     {/* Edit Student Button */}
                                     <div>
-                                        <Link href={`/students/edit/${studentId}`}
+                                        <Link prefetch={false} href={`/students/edit/${studentId}`}
                                             className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
                                             Edit Student
                                         </Link>

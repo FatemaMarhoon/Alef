@@ -116,7 +116,7 @@ export default function ViewStaff({ staffId }: { staffId: string }) {
                                                     <p className="flex items-center">
                                                         <span className="mr-2">{classItem.class_name}</span>
                                                         <button className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
-                                                            <Link href={`/class/view/${classItem.id}`}>
+                                                            <Link prefetch={false} href={`/class/view/${classItem.id}`}>
                                                                 View Class
                                                             </Link>
                                                         </button>
@@ -134,14 +134,14 @@ export default function ViewStaff({ staffId }: { staffId: string }) {
                                 <div className="flex mt-4">
                                     {/* Back to List Button */}
                                     <div className="mr-4">
-                                        <Link href="/staff" className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
+                                        <Link prefetch={false} href="/staff" className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
                                             Back to List
                                         </Link>
                                     </div>
 
                                     {/* Edit Staff Button */}
                                     <div>
-                                        <Link href={`/staff/edit/${staffId}`}
+                                        <Link prefetch={false} href={`/staff/edit/${staffId}`}
                                             className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
                                             Edit Staff
                                         </Link>

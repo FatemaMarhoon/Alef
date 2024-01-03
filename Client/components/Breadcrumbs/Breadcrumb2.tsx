@@ -29,13 +29,13 @@ const Breadcrumbs = ({ previousPath, previousName, currentName, pageTitle }: Bre
             </span>
           </li>
           <li className="flex items-center font-sans text-sm antialiased font-normal leading-normal transition-colors duration-300 cursor-pointer hover:text-primary">
-            <Link href={previousPath} className="opacity-60">
+            <Link prefetch={false} href={previousPath} className="opacity-60">
               <span>{previousName}</span>
             </Link>
             <span className="mx-2 font-sans text-sm antialiased font-normal leading-normal pointer-events-none select-none text-blue-gray-500">/</span>
           </li>
           <li className="flex items-center font-sans text-sm antialiased font-normal leading-normal transition-colors duration-300 cursor-pointer  ">
-            <Link href="#">{currentName}</Link>
+            <Link prefetch={false} href="#">{currentName}</Link>
           </li>
         </ol>
       </nav>
