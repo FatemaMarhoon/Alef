@@ -17,7 +17,7 @@ const NotificationToast = () => {
 
   useEffect(() => {
     //only connect to web socket if we have a logged-in user 
-    if (userID) {
+    if (userID != "") {
       const socket = io('https://server-bckggkpqeq-uc.a.run.app', {
         path: '/socket.io',
       });
