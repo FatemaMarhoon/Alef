@@ -32,7 +32,7 @@ const ApplicationEvaluationController = {
       } = req.body;
 
       // validate application id 
-      const application = await Application.findByPk(id);
+      const application = await Application.findByPk(application_id);
       if (!application) {
         return res.status(404).json({ message: 'Invalid Application Id.' });
       }

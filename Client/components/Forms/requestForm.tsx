@@ -36,9 +36,12 @@ export default function RequestForm({ planId }: { planId: number }) {
         setError("You must agree to the privacy policy.")
       }
     } catch (error: any) {
-      // Handle error
-      setError(error.message);
-      console.error("Error creating request:", error);
+      if (error.response) {
+        setError(error.response.data.message);
+      }
+      else if (error.message) {
+        setError(error.message);
+      }
     }
   };
 
