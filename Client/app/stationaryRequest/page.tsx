@@ -83,7 +83,7 @@ export default function StationaryRequestTable() {
     };
 
     const filteredRequests = stationaryRequests.filter(request =>
-        (statusFilter === '' || request.status_name.toLowerCase() === statusFilter.toLowerCase()) &&
+        (statusFilter ? request.status_name === statusFilter : true) &&
 
         getStationaryName(request.stationary_id).toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -111,14 +111,7 @@ export default function StationaryRequestTable() {
                     <h4 className="mb-6 text-xl font-semibold text-black dark-text-white">
                         Stationary Requests
                     </h4>
-                    {/* <div className="flex justify-end mb-4">
 
-                    <Link href="/stationaryRequest/create"
-                        className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
-                        Add new stationary
-
-                    </Link>
-                </div> */}
                     <div className="flex justify-between mb-4">
                         <TextField
                             label="Search by Stationary Name"
@@ -135,8 +128,11 @@ export default function StationaryRequestTable() {
                                 labelId="status-filter-label"
                                 id="status-filter"
                                 value={statusFilter}
-                                // onChange={handleStatusFilterChange}
                                 label="Status"
+                                onChange={(e) => {
+                                    setStatusFilter(e.target.value as string);
+                                    setCurrentPage(1);
+                                }}
                             >
                                 <MenuItem value="">
                                     <em>All</em>

@@ -14,6 +14,7 @@ import { format } from 'url';
 import Link from 'next/link';
 import Loader from "@/components/common/Loader"; // Import the Loader component
 import ErrorAlert from '../ErrorAlert';
+import { currentUser, currentPreschool } from '@/services/authService';
 
 
 const ClassForm: React.FC = ({ }) => {
@@ -245,11 +246,11 @@ const ClassForm: React.FC = ({ }) => {
             // Create an array of promises for each class creation
             const createClassPromises = classData.map(async (classInfo) => {
                 const newClass: Class = {
-                    preschool_id: currentUser?.preschool_id, // Provide a default value if currentUser is undefined
+                    preschool_id: await currentPreschool(), // Provide a default value if currentUser is undefined
                     grade,
                     ...classInfo
                 };
-
+                console.log(newClass, await currentPreschool());
                 return createClass(newClass);
             });
 
@@ -288,7 +289,8 @@ const ClassForm: React.FC = ({ }) => {
                 .catch((error) => {
                     // Handle error
                     console.error("Error creating classes:", error);
-                    setErrorMessage(error.response.data.message);
+                    setErrorMessage(error.response.data.message)
+                    //setErrorMessage(error.response.data.message);
                     if (errorRef.current) {
                         errorRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }

@@ -2,12 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import { getStationary } from '../../services/stationaryService'; // Import the stationary service
 import { Stationary } from '../../types/stationary';
-import Link from 'next/link';
 import TextField from '@mui/material/TextField';
 import Pagination from '@mui/material/Pagination';
 import { useSuccessMessageContext } from '../../components/SuccessMessageContext';
 import SuccessAlert from '@/components/SuccessAlert';
 import Loader from "@/components/common/Loader"; // Import the Loader component
+import Link from 'next/link';
 
 export default function StationaryTable() {
     const [stationaries, setStationaries] = useState<Stationary[]>([]);
@@ -23,7 +23,7 @@ export default function StationaryTable() {
             try {
                 const stationariesData = await getStationary();
                 setStationaries(stationariesData);
-                setLoading(false); // Set loading to false once data is fetched
+                setFilteredStationaries(stationariesData); // Initialize filteredStationaries                
 
             } catch (error) {
                 console.error('Error fetching stationaries:', error);
@@ -46,10 +46,11 @@ export default function StationaryTable() {
         setCurrentPage(1);
     };
 
+
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    // const currentItems = filteredStationaries.slice(indexOfFirstItem, indexOfLastItem);
-    const currentItems = searchTerm ? filteredStationaries : stationaries;
+    const currentItems = filteredStationaries.slice(indexOfFirstItem, indexOfLastItem);
+    //const currentItems = searchTerm ? filteredStationaries : stationaries;
 
     const paginate = (event: React.ChangeEvent<unknown>, pageNumber: number) => {
         setCurrentPage(pageNumber);
@@ -132,14 +133,14 @@ export default function StationaryTable() {
                             </tbody>
                         </table>
                     </div>
-                    {currentItems.length === 0 && (
+                    {filteredStationaries.length === 0 && (
                         <div className="text-center text-gray-700 dark:text-gray-300 mt-4">
                             No Stationaries found.
                         </div>
                     )}
                     <div className="flex justify-end mt-4">
                         <Pagination
-                            count={Math.ceil(currentItems.length / itemsPerPage)}
+                            count={Math.ceil(filteredStationaries.length / itemsPerPage)}
                             page={currentPage}
                             onChange={paginate}
                         // shape="rounded"
