@@ -74,7 +74,7 @@ const SignIn: React.FC = () => {
         <div className="flex flex-wrap items-center">
           <div className="hidden w-full xl:block xl:w-1/2">
             <div className="py-17.5 px-26 text-center">
-              <Link className="mb-5.5 inline-block" href="/">
+              <Link prefetch={false} className="mb-5.5 inline-block" href="/">
                 <Image
                   className="hidden dark:block"
                   src={AlefLogo}
@@ -321,7 +321,7 @@ const SignIn: React.FC = () => {
                 </div>
 
                 <div className="text-center ">
-                  Not a Member? <Link className="text-primary" prefetch={true} href={"/plans"}>Subscribe Now</Link>
+                  Not a Member? <Link prefetch={false} className="text-primary" prefetch={true} href={"/plans"}>Subscribe Now</Link>
                 </div>
               </form>
 

@@ -99,7 +99,7 @@ export default function ClassTable() {
                             Classes Management
                         </h4>
                         <div className="flex justify-end mb-4">
-                            <Link href="/class/create"
+                            <Link prefetch={false} href="/class/create"
                                 className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
                                 Add new class
                             </Link>
@@ -218,12 +218,12 @@ export default function ClassTable() {
                                             <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                                                 <div className="flex items-center space-x-3.5">
                                                     <button className="hover:text-primary">
-                                                        <Link href={`/class/view/${classItem.id}`}>
+                                                        <Link prefetch={false} href={`/class/view/${classItem.id}`}>
                                                             View
                                                         </Link>
                                                     </button>
                                                     <button className="hover:text-primary">
-                                                        <Link href={`/class/edit/${classItem.id}`}>
+                                                        <Link prefetch={false} href={`/class/edit/${classItem.id}`}>
                                                             Edit
                                                         </Link>
                                                     </button>

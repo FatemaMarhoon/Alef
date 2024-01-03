@@ -363,7 +363,7 @@ export default function EditApplicationForm({ params }: { params: { id: number }
                                             <label className="mb-3 block text-black dark:text-white">
                                                 Personal Picture <span className="text-meta-1">*</span>
                                             </label>
-                                            <Link className="text-secondary" href={`${application?.personal_picture}`} target="_blank"><p>View Existing File</p></Link>
+                                            <Link prefetch={false} className="text-secondary" href={`${application?.personal_picture}`} target="_blank"><p>View Existing File</p></Link>
                                             <input
                                                 type="file"
                                                 accept="image/*,application/pdf"
@@ -378,7 +378,7 @@ export default function EditApplicationForm({ params }: { params: { id: number }
                                             <label className="mb-3 block text-black dark:text-white">
                                                 Certificate of Birth <span className="text-meta-1">*</span>
                                             </label>
-                                            <Link className="text-secondary" href={`${application?.certificate_of_birth}`} target="_blank"><p>View Existing File</p></Link>
+                                            <Link prefetch={false} className="text-secondary" href={`${application?.certificate_of_birth}`} target="_blank"><p>View Existing File</p></Link>
                                             <input
                                                 type="file"
                                                 accept="image/*,application/pdf"
@@ -393,7 +393,7 @@ export default function EditApplicationForm({ params }: { params: { id: number }
                                             <label className="mb-3 block text-black dark:text-white">
                                                 Passport <span className="text-meta-1">*</span>
                                             </label>
-                                            <Link className="text-secondary" href={`${application?.passport}`} target="_blank"><p>View Existing File</p></Link>
+                                            <Link prefetch={false} className="text-secondary" href={`${application?.passport}`} target="_blank"><p>View Existing File</p></Link>
                                             <input
                                                 type="file"
                                                 accept="image/*,application/pdf"

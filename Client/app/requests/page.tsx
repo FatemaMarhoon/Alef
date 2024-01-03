@@ -198,7 +198,7 @@ export default function RequestTable() {
                                         {/* Actions Column */}
                                         <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                                             <button className="bg-primary text-white px-3 py-1 rounded-md" >
-                                                <Link href={`/requests/review/${request.id}`}>
+                                                <Link prefetch={false} href={`/requests/review/${request.id}`}>
                                                     Review
                                                 </Link>
                                             </button>

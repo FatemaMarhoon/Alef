@@ -176,7 +176,7 @@ export default function PreschoolTable() {
                                             </p>
                                         </td>
                                         <td>   <button className="hover:text-primary">
-                                            <Link href={`/profile/${preschool.id}`}>
+                                            <Link prefetch={false} href={`/profile/${preschool.id}`}>
                                                 Edit
                                             </Link>
                                         </button></td>

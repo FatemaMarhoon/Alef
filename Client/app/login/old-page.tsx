@@ -35,7 +35,7 @@
 //         <div className="flex flex-wrap items-center">
 //           <div className="hidden w-full xl:block xl:w-1/2">
 //             <div className="py-17.5 px-26 text-center">
-//               <Link className="mb-5.5 inline-block" href="/">
+//               <Link prefetch={false}  className="mb-5.5 inline-block" href="/">
 //                 <Image
 //                   className="hidden dark:block"
 //                   src={""}
@@ -308,7 +308,7 @@
 //                 {/* <div className="mt-6 text-center">
 //                   <p>
 //                     Don’t have any account?{" "}
-//                     <Link href="/auth/signup" className="text-primary">
+//                     <Link prefetch={false}  href="/auth/signup" className="text-primary">
 //                       Sign Up
 //                     </Link>
 //                   </p>

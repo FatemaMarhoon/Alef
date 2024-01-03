@@ -69,7 +69,7 @@ export default function StationaryTable() {
                     </h4>
                     <div className="flex justify-end mb-4">
 
-                        <Link href="/stationary/create"
+                        <Link prefetch={false} href="/stationary/create"
                             className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
                             Add new stationary
 
@@ -118,13 +118,13 @@ export default function StationaryTable() {
 
                                                 <p>|</p>
                                                 <button className="hover:text-primary">
-                                                    <Link href={`/stationary/edit/${stationary.id}`}>
+                                                    <Link prefetch={false} href={`/stationary/edit/${stationary.id}`}>
                                                         Edit
                                                     </Link>
                                                 </button>
                                                 <p>|</p>
                                                 <button className="hover:text-primary">
-                                                    <Link href={`/stationary/delete/${stationary.id}`}>
+                                                    <Link prefetch={false} href={`/stationary/delete/${stationary.id}`}>
                                                         Delete
                                                     </Link>
                                                 </button>

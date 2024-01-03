@@ -100,7 +100,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         >
           {/* <!-- SIDEBAR HEADER --> */}
           <div className="flex items-center justify-center mt-10">
-            <Link href="/"
+            <Link prefetch={false} href="/"
               prefetch={false}>
               <Image
                 width={176}
@@ -154,7 +154,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                       {(handleClick, open) => {
                         return (
                           <React.Fragment>
-                            <Link
+                            <Link prefetch={false}
                               href="#"
                               prefetch={false}
                               className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4`}
@@ -216,7 +216,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
 
                               <ul className="mt-4 mb-5.5 flex flex-col gap-2.5 pl-6">
                                 <li>
-                                  <Link
+                                  <Link prefetch={false}
                                     href="/users"
                                     prefetch={false}
                                     className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes("users") &&
@@ -235,7 +235,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                 {(role == 'Admin') && (
                                   <>
                                     <li>
-                                      <Link
+                                      <Link prefetch={false}
                                         href="/profile"
                                         prefetch={false}
                                         className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.endsWith("/profile") &&
@@ -252,7 +252,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                 )}
                                 {(role == 'Super Admin') && (
                                   <><li>
-                                    <Link
+                                    <Link prefetch={false}
                                       href="/preschools"
                                       prefetch={false}
                                       className={`group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ${pathname.includes("/preschools") && "text-white"}`}
@@ -265,7 +265,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                       Preschools
                                     </Link>
                                   </li><li>
-                                      <Link
+                                      <Link prefetch={false}
                                         href="/requests"
                                         prefetch={false}
                                         className={`group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ${pathname === "/" && "text-white"}`}
@@ -278,7 +278,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                         Requests Management
                                       </Link>
                                     </li><li>
-                                      <Link
+                                      <Link prefetch={false}
                                         href="/logs"
                                         prefetch={false}
                                         className={`group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ${pathname === "/" && "text-white"}`}
@@ -306,7 +306,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   {(plan === 1 || plan === 3) && (
 
                     <li>
-                      <Link
+                      <Link prefetch={false}
                         href="/applications"
                         prefetch={false}
                         className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes("applications") &&
@@ -326,7 +326,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   {(plan === 2 || plan === 3) && (
 
                     <><li>
-                      <Link
+                      <Link prefetch={false}
                         href="/class"
                         prefetch={false}
                         className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes("class") &&
@@ -341,7 +341,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                         Classes Managment
                       </Link>
                     </li><li>
-                        <Link
+                        <Link prefetch={false}
                           href="/students"
                           prefetch={false}
                           className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes("students") &&
@@ -356,7 +356,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                           Students Managment
                         </Link>
                       </li><li>
-                        <Link
+                        <Link prefetch={false}
                           href="/staff"
                           prefetch={false}
                           className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes("staff") &&
@@ -371,7 +371,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                           Staff Management
                         </Link>
                       </li><li>
-                        <Link
+                        <Link prefetch={false}
                           href="/stationary"
                           prefetch={false}
                           className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.endsWith("stationary") || pathname.includes("stationary/") &&
@@ -388,7 +388,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                         </Link>
                       </li>
                       <li>
-                        <Link
+                        <Link prefetch={false}
                           href="/stationaryRequest"
                           prefetch={false}
                           className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes("stationaryRequest") &&
@@ -404,7 +404,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                         </Link>
                       </li>
                       <li>
-                        <Link
+                        <Link prefetch={false}
                           href="/reports/create"
                           prefetch={false}
                           className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes("/reports/create") &&
@@ -425,7 +425,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     <>
 
                       <li>
-                        <Link
+                        <Link prefetch={false}
                           href="/payment"
                           prefetch={false}
                           className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes("payment") &&
@@ -444,7 +444,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
 
                       {/* <!-- Menu Item Calendar --> */}
                       <li>
-                        <Link
+                        <Link prefetch={false}
                           href="/calendar"
                           prefetch={false}
                           className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes("calendar") &&

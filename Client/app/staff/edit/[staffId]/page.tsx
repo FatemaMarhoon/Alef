@@ -238,7 +238,7 @@ export default function EditStaffForm({ params }: { params: { staffId: number } 
                                         <button type="submit" className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray mb-4">
                                             Update
                                         </button>
-                                        <Link
+                                        <Link prefetch={false}
                                             href="/class"
                                             className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray"              >
                                             Back To List

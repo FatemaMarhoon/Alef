@@ -99,14 +99,14 @@ export default function ViewStationaryRequest({ id }: { id: string }) {
                         <div className="flex mt-4">
                             {/* Back to List Button */}
                             <div className="mr-4">
-                                <Link href="/stationaryRequest" className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
+                                <Link prefetch={false} href="/stationaryRequest" className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
                                     Back to List
                                 </Link>
                             </div>
 
                             {/* Edit Stationary Request Button */}
                             <div>
-                                <Link
+                                <Link prefetch={false}
                                     href={`/stationaryRequest/edit/${id}`}
                                     className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90"
                                 >

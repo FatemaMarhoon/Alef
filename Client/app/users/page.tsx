@@ -162,7 +162,7 @@ export default function UsersTable() {
           <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark dark:text-white sm:px-7.5 xl:pb-1">
             <h4 className="text-xl font-semibold text-black dark:text-white">Users</h4>
             <div className="flex justify-end mb-4">
-              <Link
+              <Link prefetch={false}
                 href="users/create"
                 className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
                 Create User
@@ -248,7 +248,7 @@ export default function UsersTable() {
                               <p> |</p>
                               <button
                                 className="hover:text-primary">
-                                <Link href={`/users/edit/${user.id}`}>
+                                <Link prefetch={false} href={`/users/edit/${user.id}`}>
                                   Edit
                                 </Link>
                               </button>

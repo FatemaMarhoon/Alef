@@ -129,7 +129,7 @@ export default function PaymentTable() {
                     Payment Records
                 </h4>
                 <div className="flex justify-end mb-4">
-                    <Link href="/payment/create"
+                    <Link prefetch={false} href="/payment/create"
                         className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
                         Add New Payment
                     </Link>
@@ -268,15 +268,15 @@ export default function PaymentTable() {
                                             }
 
                                             <button className="hover:text-primary">
-                                                <Link href={`/payment/${payment.id}`}>
+                                                <Link prefetch={false} href={`/payment/${payment.id}`}>
                                                     View
                                                 </Link>
                                             </button>
                                             <p> |</p>
-                                           
+
                                             <button className="hover:text-primary">
-                                                <Link href={`/payment/edit/${payment.id}`}>
-                                                   Edit
+                                                <Link prefetch={false} href={`/payment/edit/${payment.id}`}>
+                                                    Edit
                                                 </Link>
                                             </button>
                                             <p> |</p>
@@ -286,7 +286,7 @@ export default function PaymentTable() {
                                                         handleDelete(payment.id);
                                                     }
                                                 }}>
-                                               Delete
+                                                Delete
                                             </button>
                                         </div>
                                     </td>

@@ -131,7 +131,7 @@ export default function DeleteStudentPage({ params }: { params: { studentId: num
                                         >
                                             Delete Student
                                         </button>
-                                        <Link
+                                        <Link prefetch={false}
                                             href="/students"
                                             className="flex justify-center items-center rounded bg-primary p-3 font-medium text-gray"
                                         >

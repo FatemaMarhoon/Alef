@@ -3,8 +3,7 @@ import { User } from '@/types/user'
 import { currentPreschool, currentToken } from './authService';
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 
-// const BASE_URL = 'https://server-bckggkpqeq-uc.a.run.app/users'; // server URL
-const BASE_URL = 'http://localhost:3001/users'; // localhost URL
+const BASE_URL = 'https://server-bckggkpqeq-uc.a.run.app/users'; // server URL
 
 export async function getUsers(): Promise<User[]> {
   //retrieve token and preschool from current user

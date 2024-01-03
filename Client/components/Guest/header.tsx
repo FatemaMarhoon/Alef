@@ -49,7 +49,7 @@ export default function Navbar() {
           ))}
         </div>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-          <Link href={"/login"} className="text-sm font-semibold leading-6 text-gray-900">
+          <Link prefetch={false} href={"/login"} className="text-sm font-semibold leading-6 text-gray-900">
             Log in <span aria-hidden="true">&rarr;</span>
           </Link>
         </div>
@@ -58,11 +58,11 @@ export default function Navbar() {
         {/* Mobile menu content */}
         <div className="p-4 space-y-4">
           {navigation.map((item) => (
-            <Link key={item.name} href={item.href} passHref>
+            <Link prefetch={false} key={item.name} href={item.href} passHref>
               <a className="block text-sm font-semibold text-gray-900">{item.name}</a>
             </Link>
           ))}
-          <Link href="/login" passHref>
+          <Link prefetch={false} href="/login" passHref>
             <a className="block text-sm font-semibold text-gray-900">Log in &rarr;</a>
           </Link>
         </div>

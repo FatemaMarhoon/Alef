@@ -135,7 +135,7 @@ export default function Page({ params }: { params: { id: number } }) {
                                     {evaluation === null && (
                                         <div className="mr-4">
                                             <button className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
-                                                <Link href={{ pathname: `/evaluation/create`, query: { id: `${application.id}` } }}>
+                                                <Link prefetch={false} href={{ pathname: `/evaluation/create`, query: { id: `${application.id}` } }}>
                                                     Evaluate
                                                 </Link>
                                             </button>
@@ -145,7 +145,7 @@ export default function Page({ params }: { params: { id: number } }) {
                                     {evaluation && (
                                         <div className="mr-4">
                                             <button className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
-                                                <Link href={{ pathname: `/evaluation/${evaluation.id}`, query: { evaluation: `${evaluation}` } }}>
+                                                <Link prefetch={false} href={{ pathname: `/evaluation/${evaluation.id}`, query: { evaluation: `${evaluation}` } }}>
                                                     Review Evaluation
                                                 </Link>
                                             </button>

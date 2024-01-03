@@ -61,7 +61,7 @@ export default function StaffTable() {
                     </h4>
                     <div className="flex justify-end mb-4">
 
-                        <Link href="/staff/create"
+                        <Link prefetch={false} href="/staff/create"
                             className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90">
                             Add new staff
                         </Link>
@@ -150,26 +150,26 @@ export default function StaffTable() {
                                     <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                                         <div className="flex items-center space-x-3.5">
                                             <button className="hover:text-primary">
-                                                <Link href={`/staff/view/${staffMember.id}`}>
+                                                <Link prefetch={false} href={`/staff/view/${staffMember.id}`}>
                                                     View
                                                 </Link>
                                             </button>
                                             <p>|</p>
                                             <button className="hover:text-primary">
-                                                <Link href={`/staff/edit/${staffMember.id}`}>
+                                                <Link prefetch={false} href={`/staff/edit/${staffMember.id}`}>
                                                     Edit
                                                 </Link>
                                             </button>
                                             <p>|</p>
                                             <button className="hover:text-primary">
-                                                <Link href={`/staff/delete/${staffMember.id}`}>
+                                                <Link prefetch={false} href={`/staff/delete/${staffMember.id}`}>
                                                     Delete
                                                 </Link>
                                             </button>
                                         </div>
                                         {/* <div className="flex items-center space-x-3.5">
                                             <button className="hover:text-primary">
-                                                <Link href={`/staff/view/${staffMember.id}`}>
+                                                <Link prefetch={false}  href={`/staff/view/${staffMember.id}`}>
 
                                                     <svg
                                                         className="fill-current"
@@ -191,7 +191,7 @@ export default function StaffTable() {
                                                 </Link>
                                             </button>
                                             <button className="hover:text-primary">
-                                                <Link href={`/staff/delete/${staffMember.id}`}>
+                                                <Link prefetch={false}  href={`/staff/delete/${staffMember.id}`}>
                                                     <svg
                                                         className="fill-current"
                                                         width="18"
@@ -221,7 +221,7 @@ export default function StaffTable() {
                                                 </Link>
                                             </button>
                                             <button className="hover:text-primary">
-                                                <Link href={`/staff/edit/${staffMember.id}`}>
+                                                <Link prefetch={false}  href={`/staff/edit/${staffMember.id}`}>
                                                     <svg
                                                         className="fill-current"
                                                         width="18"

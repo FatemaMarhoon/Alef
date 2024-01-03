@@ -508,7 +508,7 @@ export default function EditForm({ params }: { params: { id: number } }) {
                                             <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                                                 <div className="flex items-center space-x-3.5">
                                                     <button className="hover:text-primary">
-                                                        <Link href={`/students/view/${student.id}`}>
+                                                        <Link prefetch={false} href={`/students/view/${student.id}`}>
                                                             View
                                                         </Link>
                                                     </button>
