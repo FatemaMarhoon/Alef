@@ -6,6 +6,7 @@ const FilesManager = require('./FilesManager');
 const PDFDocument = require('pdfkit-table')
 StudentEvaluation.belongsTo(Student, { foreignKey: 'student_id' });
 Student.hasMany(StudentEvaluation, { foreignKey: 'student_id' });
+const { verifyPreschool } = require('../config/token_validation');
 
 const StudentEvaluationController = {
     // Get all student evaluations
