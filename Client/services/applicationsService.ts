@@ -6,6 +6,8 @@ import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { useRouter } from 'next/navigation';
 
 const BASE_URL = 'https://server-bckggkpqeq-uc.a.run.app/applications'; // Replace with your backend URL
+// const BASE_URL = 'http://localhost:3001/applications'
+
 export async function getApplications(): Promise<any> {
   try {
     var token; var preschool;
