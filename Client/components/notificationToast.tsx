@@ -9,7 +9,7 @@ const NotificationToast = () => {
 
   //get userid 
   async function getUserID() {
-    await currentUserId().then((id) => { setUserID(String(id)) })
+    await currentUserId().then((id) => { id ? setUserID(String(id)) : '' })
   }
   useEffect(() => {
     getUserID();
@@ -19,14 +19,14 @@ const NotificationToast = () => {
     //only connect to web socket if we have a logged-in user 
     if (userID) {
       const socket = io('https://server-bckggkpqeq-uc.a.run.app', {
-path: '/socket.io',
+        path: '/socket.io',
       });
 
       // const socket = io('http://localhost:30002', {
       //   path: '/socket.io',
       // });
 
-      
+
       socket.on('connect', () => {
         // Pass the user ID to the server once the connection is established
         socket.emit('login', { userID });
@@ -67,7 +67,7 @@ path: '/socket.io',
           <div className="flex-1 w-0 p-4">
             <div className="flex items-start">
               <div className="ml-3 flex-1">
-                <p className="text-sm font-medium text-gray-900">
+                <p className="text-sm font-medium text-gray-900 dark:text-white">
                   {notification.title}
                 </p>
                 <p className="mt-1 text-sm text-gray-500">
@@ -79,7 +79,7 @@ path: '/socket.io',
           <div className="flex border-l border-gray-200">
             <button
               onClick={() => toast.dismiss(t.id)}
-              className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-primary focus:outline-none focus:ring-2 focus:ring-red"
             >
               Close
             </button>

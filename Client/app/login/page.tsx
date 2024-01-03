@@ -29,7 +29,7 @@ const SignIn: React.FC = () => {
       }
       else {
         await loginWithEmail(email, password).then(() =>
-          window.location.assign('/')
+          window.location.assign('/dashboard')
         );
 
       }

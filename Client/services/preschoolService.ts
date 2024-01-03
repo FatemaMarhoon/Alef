@@ -104,8 +104,22 @@ export async function updatePreschool(preschoolId: string, updatedPreschool: Pre
             },
         };
 
+        // never overwrite on logo while updating (it would be a file not field)
+        const updatedData = {
+            preschool_name: updatedPreschool.preschool_name,
+            minimum_age: updatedPreschool.minimum_age,
+            maximum_age: updatedPreschool.maximum_age,
+            monthly_fees: updatedPreschool.monthly_fees,
+            cirriculum: updatedPreschool.cirriculum,
+            registration_fees: updatedPreschool.registration_fees,
+            phone:updatedPreschool.phone,
+            email: updatedPreschool.email,
+            representitive_name: updatedPreschool.representitive_name,
+            description: updatedPreschool.description,
+            logoFile:updatedPreschool.logoFile
+        }
         const url = `${BASE_URL}/${preschoolId}`;
-        const response = await axios.put(url, updatedPreschool, config);
+        const response = await axios.put(url, updatedData, config);
         return response;
     } catch (error) {
         console.log(error);

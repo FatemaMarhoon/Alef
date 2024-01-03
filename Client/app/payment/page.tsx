@@ -124,8 +124,8 @@ export default function PaymentTable() {
             {successMessage && <SuccessAlert message={successMessage} />}
             {error && <ErrorAlert message={error}></ErrorAlert>}
 
-            <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark-bg-boxdark sm-px-7.5 xl-pb-1">
-                <h4 className="mb-6 text-xl font-semibold text-black dark-text-white">
+            <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm-px-7.5 xl-pb-1">
+                <h4 className="mb-6 text-xl font-semibold text-black dark:text-white">
                     Payment Records
                 </h4>
                 <div className="flex justify-end mb-4">
@@ -188,28 +188,28 @@ export default function PaymentTable() {
                 <div className="max-w-full overflow-x-auto">
                     <table className="w-full table-auto">
                         <thead>
-                            <tr className="bg-gray-2 text-left dark-bg-meta-4">
-                                <th className="min-w-220px py-4 px-4 text-center font-medium text-black dark-text-white xl-pl-11">
+                            <tr className="bg-gray-2 text-left dark:bg-meta-4">
+                                <th className="min-w-220px py-4 px-4 text-center font-medium text-black dark:text-white xl-pl-11">
                                     ID
                                 </th>
-                                <th className="py-4 px-4 font-medium text-center text-black dark-text-white">
+                                <th className="py-4 px-4 font-medium text-center text-black dark:text-white">
                                     Student
                                 </th>
-                                <th className="py-4 px-4 font-medium text-center text-black dark-text-white">
+                                <th className="py-4 px-4 font-medium text-center text-black dark:text-white">
                                     Type
                                 </th>
-                                <th className="min-w-150px py-4 px-4 text-center font-medium text-black dark-text-white">
+                                <th className="min-w-150px py-4 px-4 text-center font-medium text-black dark:text-white">
                                     Amount (BD)
                                 </th>
 
-                                <th className="py-4 px-4 font-medium text-center text-black dark-text-white">
+                                <th className="py-4 px-4 font-medium text-center text-black dark:text-white">
                                     Due Date
                                 </th>
-                                <th className="py-4 px-4 font-medium text-center text-black dark-text-white">
+                                <th className="py-4 px-4 font-medium text-center text-black dark:text-white">
                                     Status
                                 </th>
 
-                                <th className="py-4 px-4 font-medium text-center text-black dark-text-white">
+                                <th className="py-4 px-4 font-medium text-center text-black dark:text-white">
                                     Actions
                                 </th>
                             </tr>
@@ -218,27 +218,27 @@ export default function PaymentTable() {
                             {Array.isArray(currentPayments) && currentPayments.map((payment, key) => (
                                 <tr key={key}>
                                     <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark text-center">
-                                        <h5 className="font-medium text-black dark-text-white">
+                                        <h5 className="font-medium text-black dark:text-white">
                                             {payment.id}
                                         </h5>
                                     </td>
                                     <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark text-center">
-                                        <p className="text-black dark-text-white">
+                                        <p className="text-black dark:text-white">
                                             {payment.Student?.student_name}
                                         </p>
                                     </td>
                                     <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark text-center">
-                                        <p className="text-black dark-text-white">
+                                        <p className="text-black dark:text-white">
                                             {payment.type}
                                         </p>
                                     </td>
                                     <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark text-center">
-                                        <p className="text-black dark-text-white">
+                                        <p className="text-black dark:text-white">
                                             {payment.fees}
                                         </p>
                                     </td>
                                     <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark text-center">
-                                        <p className="text-black dark-text-white">
+                                        <p className="text-black dark:text-white">
                                             {new Date(payment.due_date).toLocaleDateString()}
                                         </p>
                                     </td>
@@ -302,7 +302,7 @@ export default function PaymentTable() {
                     </div>
                 )}
 
-                <div className="flex justify-end mt-4">
+                <div className="flex justify-end mt-4 dark:text-white">
                     <Pagination
                         count={Math.ceil(filteredPayments.length / itemsPerPage)}
                         page={currentPage}

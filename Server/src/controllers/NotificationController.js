@@ -34,11 +34,6 @@ const NotificationController = {
     async markAllRead(req, res) {
         const user_id = req.params.id;
         try {
-            // access control 
-            if (await UsersController.getCurrentUser(req) != user_id) {
-                return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
-            }
-
             const result = await Notification.update({ is_read: "1" }, {
                 where: { user_id: user_id },
             });

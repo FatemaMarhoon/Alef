@@ -17,7 +17,7 @@ router.get('/:id',checkToken, EventController.getEventById); // all in preschool
 router.put('/:id',checkToken, EventController.updateEvent); // only staff
 
 // Delete an event by ID
-router.delete('/:id', EventController.deleteEvent); // only staff
+router.delete('/:id', EventController.deleteEvent); 
 
 
 module.exports = router;

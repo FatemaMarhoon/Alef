@@ -402,10 +402,7 @@ const StudentController = {
         const user_id = req.query.user_id;
         try {
             if (user_id) {
-                // access control 
-                if (await UsersController.getCurrentUser(req) != user_id) {
-                    return res.status(403).json({ message: "Access Denied! You're Unauthorized To Perform This Action." });
-                }
+            
 
                 const students = await Student.findAll({ where: { user_id: user_id } });
                 if (students) {

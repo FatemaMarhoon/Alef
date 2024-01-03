@@ -53,6 +53,7 @@ const cronJob = {
             let currentTime = new Date();
             currentTime.setMinutes(currentTime.getMinutes() + 30); // Add 30 minutes to the current time
             currentTime.setSeconds(0); //set seconds to 0
+            // currentTime.setHours(currentTime.getHours() + 3) // add 3 more hours because of cloud timezone difference 
             currentTime = currentTime.toLocaleTimeString('en-GB', { hour12: false, hour: 'numeric', minute: 'numeric', second: 'numeric' });
             console.log('current time used for comparison: ', currentTime)
             
@@ -197,8 +198,11 @@ const cronJob = {
         try {
             console.log("CRON JOB PAYMENT DUE STARTED AT: ", new Date());
 
-            let currentDate = new Date();
+            const currentDate = new Date();
             currentDate.setHours(0, 0, 0, 0); // Set the time to midnight for accurate date comparison
+
+            const nextDate = new Date(currentDate);
+            nextDate.setDate(currentDate.getDate() + 1); // Set the next day for the upper bound
 
             // retrive payment records to be changed to overdue, to notify parents 
             const paymentRecords = await Payment.findAll(
@@ -220,7 +224,7 @@ const cronJob = {
                     where: {
                         status: 'Pending',
                         due_date: {
-                            [Op.eq]: currentDate,
+                            [Op.lt]: nextDate,
                         },
                     },
                 }

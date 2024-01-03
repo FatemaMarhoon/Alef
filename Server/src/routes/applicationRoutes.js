@@ -16,7 +16,7 @@ const multerMiddleware = multer({
 router.get('/', checkStaff, ApplicationController.getAllApplications);
 
 // Get a single application by ID
-router.get('/:id',checkToken, ApplicationController.getApplicationById);
+router.get('/:id', ApplicationController.getApplicationById);
 
 // Create a new application
 router.post('/', multerMiddleware, ApplicationController.createApplication); 
