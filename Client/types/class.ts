@@ -6,13 +6,13 @@ export interface Class {
     grade: string;
     capacity: number;
     classroom: string;
-    Preschool: {
+    Preschool?: {
         id: number;
         preschool_name: string;
         plan_id: number;
 
     };
-    Staff: {
+    Staff?: {
         id: number;
         preschool_id: number;
         staff_role_name: string;

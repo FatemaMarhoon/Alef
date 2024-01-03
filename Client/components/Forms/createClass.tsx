@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 // Import necessary modules and components
 'use client';
 import { useState, useEffect, useRef } from 'react';
@@ -82,9 +83,7 @@ const ClassForm: React.FC = ({ }) => {
             const selectedGrade = gradesList.find(grade => grade.id === Number(selectedId));
             if (selectedGrade) {
                 const gradeName = selectedGrade.grade;
-                console.log("SETTING GRAADDDEEE")
                 setGrade(gradeName);
-                console.log("Updated grade:", gradeName); // Add this line
 
             }
 
@@ -118,10 +117,8 @@ const ClassForm: React.FC = ({ }) => {
                 // Fetch the sum of class capacities for the grade
                 const sumOfClassCapacitiesResponse = await getSumOfClassCapacitiesByGrade(grade);
                 const sumOfClassCapacities = sumOfClassCapacitiesResponse?.sumOfCapacities;
-                console.log("Sum of class capacities for the grade:", sumOfClassCapacities);
                 setSelectedClassesCapacity(sumOfClassCapacities);
 
-                console.log("selected grade capacity", selectedGradeCapacity);
                 const numericGradeCapacity = parseInt(selectedGradeCapacity!.toString(), 10); // Use the appropriate radix
 
                 console.log(numericGradeCapacity - sumOfClassCapacities);
@@ -242,11 +239,21 @@ const ClassForm: React.FC = ({ }) => {
                 }
                 return; // Prevent form submission
             }
+            const preschoolId = await currentPreschool();
 
+            let preschool_id: number = 0;
+            // Check if preschoolId is not undefined and is of type number
+            if (preschoolId !== undefined && typeof preschoolId === 'number') {
+                preschool_id = preschoolId;
+                console.log("Preschool ID:", preschool_id);
+            } else {
+                console.error("Invalid Preschool ID:", preschoolId);
+            }
             // Create an array of promises for each class creation
             const createClassPromises = classData.map(async (classInfo) => {
                 const newClass: Class = {
-                    preschool_id: await currentPreschool(), // Provide a default value if currentUser is undefined
+                    id: 0,
+                    preschool_id: preschool_id, // Provide a default value if currentUser is undefined
                     grade,
                     ...classInfo
                 };
