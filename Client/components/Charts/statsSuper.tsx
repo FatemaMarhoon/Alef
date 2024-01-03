@@ -6,7 +6,7 @@ import { getPreschools } from "@/services/preschoolService";
 import CardDataStats from "@/components/CardDataStats";
 import Image from "next/image";
 import { getRequests } from "@/services/requestService";
-import { getAllUsers } from "@/services/userService";
+import { geSuperAdmintUsers } from "@/services/userService";
 
 export default function StatisticsCards() {
 
@@ -24,11 +24,11 @@ export default function StatisticsCards() {
 
                 const preschools = await getPreschools();
                 const requests = await getRequests();
-                const users = await getAllUsers();
-
+                const users = await geSuperAdmintUsers();
                 settotalPreschools(preschools.length);
                 settotalRquests(requests.length);
                 settotalUsers(users.length);
+                console.log("total users found:", users.length);
 
             } catch (error: any) {
                 console.log(error)

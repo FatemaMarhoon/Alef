@@ -404,7 +404,7 @@ const StudentController = {
             if (user_id) {
             
 
-                const students = await Student.findAll({ where: { user_id: user_id } });
+                const students = await Student.findAll({ where: { user_id: user_id }, include: Preschool });
                 if (students) {
                     res.status(200).json(students);
                 }
