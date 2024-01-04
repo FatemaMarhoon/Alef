@@ -9,7 +9,9 @@ import { Class } from '../../types/class';
 import { useSuccessMessageContext } from '@/components/SuccessMessageContext';
 import Loader from "@/components/common/Loader"; // Import the Loader component
 import Breadcrumbs from '../Breadcrumbs/Breadcrumb2';
-
+import NotFound from '@/components/Pages/404';
+import NotAuthorized from '@/components/Pages/403';
+import { currentPreschool } from "@/services/authService";
 
 const CreateForm: React.FC = () => {
     const searchParams = useSearchParams();
@@ -18,6 +20,8 @@ const CreateForm: React.FC = () => {
     const classIDsParam = searchParams.get('classIds');
     const classIds = typeof classIDsParam === 'string' ? classIDsParam : '';
     const classIDsArray = Array.isArray(classIds) ? classIds : [classIds];
+    const [authorized, setAuthorized] = useState<boolean>(true);
+
     // console.log('classIds:', classIDsArray);
     const router = useRouter();
 
@@ -38,6 +42,14 @@ const CreateForm: React.FC = () => {
             try {
                 const classesData = await getClasses();
                 setClasses(classesData);
+                // // Authorization check based on class's preschool ID
+                // if (classesData && classesData.class.preschool_id !== (await currentPreschool())) {
+                //     setAuthorized(false);
+                //     setLoading(false);
+                //     return; // Exit the function if unauthorized
+                // } else {
+                //     setAuthorized(true);
+                // }
 
                 // Extract class names based on class IDs
                 const classNames = classIds.map((classId: any) => {
@@ -358,187 +370,193 @@ const CreateForm: React.FC = () => {
 
     return (
         <>
+
             {loading && <Loader />}
-            <Breadcrumbs previousName='Classes' currentName='Create' pageTitle="Create Class" previousPath='/class' />
+            {!loading && !authorized && <NotAuthorized />}
+            {!loading && authorized && (
+                <>
+                    <Breadcrumbs previousName='Classes' currentName='Create' pageTitle="Create Class" previousPath='/class' />
 
 
-            <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark-bg-boxdark sm-px-7.5 xl-pb-1">
+                    <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark-bg-boxdark sm-px-7.5 xl-pb-1">
 
-                <div className="flex flex-col items-center h-screen space-y-4">
-                    <div className="space-x-4">
-                        <button
-                            onClick={handleAutomatedAssignment}
-                            className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90"
-                        >
-                            Automate Assignment
-                        </button>
-
-                        <button
-                            onClick={handleReset}
-                            className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90"
-                        >
-                            Reset
-                        </button>
-
-                        <button
-                            onClick={handleToggleStudents}
-                            className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90"
-                        >
-                            {showStudents ? 'Hide Students' : 'Show Students'}
-                        </button>
-                        <button
-                            onClick={handleSave}
-                            className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90 mt-4"
-                        >
-                            Save
-                        </button>
-                        <button
-                            onClick={handleAssignLater}
-                            className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90 mt-4"
-                        >
-                            Assign Later
-                        </button>
-                    </div>
-
-                    <div className="flex space-x-4">
-                        <div className="widgets" style={{ display: showStudents ? 'block' : 'none' }}>
-                            {students.map(student => (
-                                <div
-                                    key={student.id}
-                                    draggable
-                                    onDragStart={e => handleOnDrag(e, student.id)}
-                                    className="bg-gray-200 p-2 rounded-md cursor-move"
+                        <div className="flex flex-col items-center h-screen space-y-4">
+                            <div className="space-x-4">
+                                <button
+                                    onClick={handleAutomatedAssignment}
+                                    className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90"
                                 >
-                                    {student.student_name}
-                                </div>
-                            ))}
-                        </div>
+                                    Automate Assignment
+                                </button>
 
-                        {Object.keys(classAssignments).map(className => (
-                            <div
-                                key={className}
-                                className="class-area w-60 bg-white p-4 border-2 border-dashed border-gray-400 rounded-md"
-                                onDrop={e => handleOnDrop(e, className)}
-                                onDragOver={handleDragOver}
-                                onDragLeave={handleDragLeave}
-                            >
-                                <h2 className="text-lg font-semibold">{className}</h2>
-                                {classAssignments[className].map((student: { id: React.Key | null | undefined; student_name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined; }) => (
+                                <button
+                                    onClick={handleReset}
+                                    className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90"
+                                >
+                                    Reset
+                                </button>
+
+                                <button
+                                    onClick={handleToggleStudents}
+                                    className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90"
+                                >
+                                    {showStudents ? 'Hide Students' : 'Show Students'}
+                                </button>
+                                <button
+                                    onClick={handleSave}
+                                    className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90 mt-4"
+                                >
+                                    Save
+                                </button>
+                                <button
+                                    onClick={handleAssignLater}
+                                    className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-opacity-90 mt-4"
+                                >
+                                    Assign Later
+                                </button>
+                            </div>
+
+                            <div className="flex space-x-4">
+                                <div className="widgets" style={{ display: showStudents ? 'block' : 'none' }}>
+                                    {students.map(student => (
+                                        <div
+                                            key={student.id}
+                                            draggable
+                                            onDragStart={e => handleOnDrag(e, student.id)}
+                                            className="bg-gray-200 p-2 rounded-md cursor-move"
+                                        >
+                                            {student.student_name}
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {Object.keys(classAssignments).map(className => (
                                     <div
-                                        key={student.id}
-                                        draggable
-                                        onDragStart={e => handleOnDrag(e, student.id)}
-                                        className="bg-blue-100 p-2 mt-2 rounded-md cursor-move"
+                                        key={className}
+                                        className="class-area w-60 bg-white p-4 border-2 border-dashed border-gray-400 rounded-md"
+                                        onDrop={e => handleOnDrop(e, className)}
+                                        onDragOver={handleDragOver}
+                                        onDragLeave={handleDragLeave}
                                     >
-                                        {student.student_name}
+                                        <h2 className="text-lg font-semibold">{className}</h2>
+                                        {classAssignments[className].map((student: { id: React.Key | null | undefined; student_name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined; }) => (
+                                            <div
+                                                key={student.id}
+                                                draggable
+                                                onDragStart={e => handleOnDrag(e, student.id)}
+                                                className="bg-blue-100 p-2 mt-2 rounded-md cursor-move"
+                                            >
+                                                {student.student_name}
+                                            </div>
+                                        ))}
                                     </div>
                                 ))}
                             </div>
-                        ))}
-                    </div>
 
-                    <div className="max-w-full overflow-x-auto" >
-                        <table className="w-full table-auto">
-                            <thead>
-                                <tr className="bg-gray-2 text-left dark-bg-meta-4">
-                                    <th className="min-w-220px py-4 px-4 font-medium text-black dark-text-white xl-pl-11">
-                                        Student ID
-                                    </th>
-                                    <th className="min-w-150px py-4 px-4 font-medium text-black dark-text-white">
-                                        Student Name
-                                    </th>
-                                    <th className="py-4 px-4 font-medium text-black dark-text-white">
-                                        Date of Birth
-                                    </th>
-                                    <th className="py-4 px-4 font-medium text-black dark-text-white">
-                                        Gender
-                                    </th>
-                                    <th className="py-4 px-4 font-medium text-black dark-text-white">
-                                        CPR
-                                    </th>
-                                    <th className="py-4 px-4 font-medium text-black dark-text-white">
-                                        Contact Number 1
-                                    </th>
-                                    <th className="py-4 px-4 font-medium text-black dark-text-white">
-                                        Contact Number 2
-                                    </th>
-                                    <th className="py-4 px-4 font-medium text-black dark-text-white">
-                                        Guardian Name
-                                    </th>
-                                    <th className="py-4 px-4 font-medium text-black dark-text-white">
-                                        Enrollment Date
-                                    </th>
-                                    <th className="py-4 px-4 font-medium text-black dark-text-white">
-                                        Medical History
-                                    </th>
+                            <div className="max-w-full overflow-x-auto" >
+                                <table className="w-full table-auto">
+                                    <thead>
+                                        <tr className="bg-gray-2 text-left dark-bg-meta-4">
+                                            <th className="min-w-220px py-4 px-4 font-medium text-black dark-text-white xl-pl-11">
+                                                Student ID
+                                            </th>
+                                            <th className="min-w-150px py-4 px-4 font-medium text-black dark-text-white">
+                                                Student Name
+                                            </th>
+                                            <th className="py-4 px-4 font-medium text-black dark-text-white">
+                                                Date of Birth
+                                            </th>
+                                            <th className="py-4 px-4 font-medium text-black dark-text-white">
+                                                Gender
+                                            </th>
+                                            <th className="py-4 px-4 font-medium text-black dark-text-white">
+                                                CPR
+                                            </th>
+                                            <th className="py-4 px-4 font-medium text-black dark-text-white">
+                                                Contact Number 1
+                                            </th>
+                                            <th className="py-4 px-4 font-medium text-black dark-text-white">
+                                                Contact Number 2
+                                            </th>
+                                            <th className="py-4 px-4 font-medium text-black dark-text-white">
+                                                Guardian Name
+                                            </th>
+                                            <th className="py-4 px-4 font-medium text-black dark-text-white">
+                                                Enrollment Date
+                                            </th>
+                                            <th className="py-4 px-4 font-medium text-black dark-text-white">
+                                                Medical History
+                                            </th>
 
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {students.map((student, key) => (
-                                    <tr key={key}>
-                                        <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                                            <h5 className="font-medium text-black dark-text-white">
-                                                {student.id}
-                                            </h5>
-                                        </td>
-                                        <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                                            <p className="text-black dark-text-white">
-                                                {student.student_name}
-                                            </p>
-                                        </td>
-                                        <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                                            <p className="text-black dark-text-white">
-                                                {new Date(student.DOB).toLocaleDateString()}
-                                            </p>
-                                        </td>
-                                        <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                                            <p
-                                                className="text-black dark-text-white"
-                                            >
-                                                {student.gender}
-                                            </p>
-                                        </td>
-                                        <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                                            <p className="text-black dark-text-white">
-                                                {student.CPR}
-                                            </p>
-                                        </td>
-                                        <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                                            <p className="text-black dark-text-white">
-                                                {student.contact_number1}
-                                            </p>
-                                        </td>
-                                        <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                                            <p className="text-black dark-text-white">
-                                                {student.contact_number2}
-                                            </p>
-                                        </td>
-                                        <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                                            <p className="text-black dark-text-white">
-                                                {student.guardian_name}
-                                            </p>
-                                        </td>
-                                        <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                                            <p className="text-black dark-text-white">
-                                                {new Date(student.enrollment_date).toLocaleDateString()}
-                                            </p>
-                                        </td>
-                                        <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                                            <p className="text-black dark-text-white">
-                                                {student.medical_history}
-                                            </p>
-                                        </td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {students.map((student, key) => (
+                                            <tr key={key}>
+                                                <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                                                    <h5 className="font-medium text-black dark-text-white">
+                                                        {student.id}
+                                                    </h5>
+                                                </td>
+                                                <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                                                    <p className="text-black dark-text-white">
+                                                        {student.student_name}
+                                                    </p>
+                                                </td>
+                                                <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                                                    <p className="text-black dark-text-white">
+                                                        {new Date(student.DOB).toLocaleDateString()}
+                                                    </p>
+                                                </td>
+                                                <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                                                    <p
+                                                        className="text-black dark-text-white"
+                                                    >
+                                                        {student.gender}
+                                                    </p>
+                                                </td>
+                                                <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                                                    <p className="text-black dark-text-white">
+                                                        {student.CPR}
+                                                    </p>
+                                                </td>
+                                                <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                                                    <p className="text-black dark-text-white">
+                                                        {student.contact_number1}
+                                                    </p>
+                                                </td>
+                                                <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                                                    <p className="text-black dark-text-white">
+                                                        {student.contact_number2}
+                                                    </p>
+                                                </td>
+                                                <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                                                    <p className="text-black dark-text-white">
+                                                        {student.guardian_name}
+                                                    </p>
+                                                </td>
+                                                <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                                                    <p className="text-black dark-text-white">
+                                                        {new Date(student.enrollment_date).toLocaleDateString()}
+                                                    </p>
+                                                </td>
+                                                <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                                                    <p className="text-black dark-text-white">
+                                                        {student.medical_history}
+                                                    </p>
+                                                </td>
 
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div >
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div >
+                </>
+            )}
         </>
-    );
+    )
 }
 
 export default CreateForm;
