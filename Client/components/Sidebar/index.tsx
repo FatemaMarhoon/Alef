@@ -100,7 +100,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         >
           {/* <!-- SIDEBAR HEADER --> */}
           <div className="flex items-center justify-center mt-10">
-            <Link prefetch={false} href="/"
+            <Link prefetch={false} href="/dashboard"
               >
               <Image
                 width={176}

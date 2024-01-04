@@ -1,4 +1,4 @@
-const { Sequelize, DataTypes } = require('sequelize');
+const { Sequelize,Op, DataTypes } = require('sequelize');
 const sequelize = require('../config/seq');
 const NotificationController = require('./NotificationController');
 const UsersController = require('./UsersController');
@@ -87,18 +87,24 @@ const GradesController = {
                 if (gradeCapacity) {
                     //find how many applications currently submitted for this grade
                     const currentApplications = await Application.findAll({
-                        where: { preschool_id: preschool, grade: grade }
+                        where: {
+                            preschool_id: preschool,
+                            grade: grade,
+                            status: {
+                                [Op.or]: ["Pending", "Accepted"]
+                            }
+                        }
                     });
-
+                    
                     //find how many students currently enrolled in this grade
                     const currentStudents = await Student.findAll({
                         where: { preschool_id: preschool, grade: grade }
                     });
 
                     const current = currentApplications.length + currentStudents.length;
-
+                    console.log("current capacity is: ", current);
                     //return true or false 
-                    if (gradeCapacity.capacity >= current) {
+                    if (gradeCapacity.capacity > current) {
                         return true;
                     }
                     else {
@@ -117,6 +123,7 @@ const GradesController = {
 
 
     async trackWaitlist(preschool, grade) {
+        console.log("TRACKING WAITLIST")
         const available = await GradesController.checkGradeCapacity(preschool, grade);
         //if it has space, pick the oldest waitlisted application, change status and notify parent
         if (available) {

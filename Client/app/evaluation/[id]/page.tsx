@@ -29,7 +29,7 @@ export default function Page({ params }: { params: { id: number } }) {
 
     return (
         <>
-            <Breadcrumbs beforePreviousName='Applications' beforePreviousPath='/application' previousName='Application Details' previousPath={`/applications/${evaluation?.application_id}`} currentName='Evaluation' pageTitle="View Evaluation"  />
+            <Breadcrumbs beforePreviousName='Applications' beforePreviousPath='/applications' previousName='Application Details' previousPath={`/applications/${evaluation?.application_id}`} currentName='Evaluation' pageTitle="View Evaluation"  />
 
             <div className="items-center justify-center min-h-screen">
                 <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">

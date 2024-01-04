@@ -26,8 +26,9 @@ export default function ProgressBar() {
                 const applications: Application[] = applicationsData.data;
                 for (const grade of grades) {
                     const currentStudents = await getStudents(grade.grade);
-                    const currentApplications = applications.filter((application) => application.grade == grade.grade && application.status != "Cancelled" && application.status != "Rejected");
+                    const currentApplications = applications.filter((application) => application.grade == grade.grade && (application.status == "Accepted" || application.status == "Pending"));
                     const totalCurrent = currentApplications.length + currentStudents.length;
+                    console.log("Grade: ", grade, " has: ", totalCurrent);
                     //calculate percantage 
                     const percantage = (totalCurrent / Number(grade.capacity)) * 100;
                     gradesCurrent.push({ grade: grade.grade, current: Number(percantage.toFixed(1)) });

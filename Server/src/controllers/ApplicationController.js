@@ -316,6 +316,7 @@ const ApplicationController = {
                         if (status == "Rejected" || status == "Cancelled") {
                             await GradesController.trackWaitlist(applicationObject.preschool_id, applicationObject.grade);
                         }
+
                         //once application has been accepted, create a student and payment record
                         else if (status == "Accepted") {
                             const creator = await User.findByPk(applicationObject.created_by);
@@ -339,7 +340,7 @@ const ApplicationController = {
 
                             const preschool = await Preschool.findByPk(applicationObject.preschool_id);
                             const dueDate = new Date();
-                            dueDate.setDate(paymentData.due_date.getDate() + 10) // set due date after 10 days
+                            dueDate.setDate(dueDate.getDate() + 10) // set due date after 10 days
                             const payment = await Payment.create({
                                 status: "Pending",
                                 type: "Registration Fees",
@@ -367,8 +368,6 @@ const ApplicationController = {
     async deleteApplication(req, res) {
         const { id } = req.params;
         try {
-
-
             // Fetch the existing application
             const applicationObject = await Application.findByPk(id);
             if (applicationObject) {
@@ -380,9 +379,12 @@ const ApplicationController = {
                     const deletedCount = await Application.destroy({
                         where: { id }
                     });
+                   
                     if (deletedCount === 0) {
                         return res.status(404).json({ message: 'Application not found for deletion.', message: error.message });
                     }
+                     // track waitlist 
+                     await GradesController.trackWaitlist(applicationObject.preschool_id, applicationObject.grade);
                     return res.json({ message: 'Application deleted successfully.' });
                 }
             }
