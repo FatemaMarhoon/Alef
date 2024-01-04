@@ -156,11 +156,11 @@ const StationaryRequestController = {
                     user_id: user_id
                 });
 
-                //notification
-                const stafMember = Staff.findOne({ where: { id: updatedStationaryRequest.staff_id } })
-                const title = 'Stationary Request Status Updated';
-                const body = `Rquest is ${stationaryRequest.status_name}`;
-                await NotificationController.pushSingleNotification(stafMember.email, title, body);
+                // //notification
+                // const stafMember = Staff.findOne({ where: { id: updatedStationaryRequest.staff_id } })
+                // const title = 'Stationary Request Status Updated';
+                // const body = `Rquest is ${stationaryRequest.status_name}`;
+                // await NotificationController.pushSingleNotification(stafMember.email, title, body);
 
 
                 res.json({ message: 'Stationary Request updated successfully', stationaryRequest });
