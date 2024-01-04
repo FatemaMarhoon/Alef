@@ -15,33 +15,16 @@ User.belongsTo(Preschool, { foreignKey: 'preschool_id' });
 const UsersController = {
 
   getCurrentUser: async (req) => {
-    // let user_id = null;
 
-    // const token = req.get("authorization");
-    // if (token) {
-    //   const tokenParts = token.split(' ');
-
-    //   if (tokenParts.length === 2) {
-    //     const tokenValue = tokenParts[1];
-
-    //     try {
-    //       const claims = await admin.auth().verifyIdToken(tokenValue);
-    //       user_id = claims['dbId'];
-    //     } catch (error) {
-    //       console.error('Error verifying token:', error);
-    //       return;
-    //     }
-    //   }
-    // }
     var token = req.get("authorization"); // extract the token from request header 
     if (token) {
-        token = token.split(' ')[1]
-        const result = admin.auth().verifyIdToken(token) // validate token 
-            .then((claims) => {
-               return claims['dbId'];
-            });
-          
-        return result;
+      token = token.split(' ')[1]
+      const result = admin.auth().verifyIdToken(token) // validate token 
+        .then((claims) => {
+          return claims['dbId'];
+        });
+
+      return result;
     }
     else {
       return null;
@@ -50,36 +33,16 @@ const UsersController = {
   },
 
   getCurrentUserRole: async (req) => {
-    // let role = null;
-
-    // const token = req.get("authorization");
-    // if (token) {
-    //   const tokenParts = token.split(' ');
-
-    //   if (tokenParts.length === 2) {
-    //     const tokenValue = tokenParts[1];
-
-    //     try {
-    //       const claims = await admin.auth().verifyIdToken(tokenValue);
-    //       role = claims['role'];
-    //     } catch (error) {
-    //       console.error('Error verifying token:', error);
-    //       throw error;
-    //     }
-    //   }
-    // }
-
-    // return role;
 
     var token = req.get("authorization"); // extract the token from request header 
     if (token) {
-        token = token.split(' ')[1]
-        const result = admin.auth().verifyIdToken(token) // validate token 
-            .then((claims) => {
-               return claims['role'];
-            });
-          
-        return result;
+      token = token.split(' ')[1]
+      const result = admin.auth().verifyIdToken(token) // validate token 
+        .then((claims) => {
+          return claims['role'];
+        });
+
+      return result;
     }
     else {
       return null;
@@ -112,26 +75,12 @@ const UsersController = {
     }
   },
 
-  async getAllFirebaseUsers(req, res) {
-    const preschool = req.query.preschool;
+  async getSuperAllUsers(req, res) {
     try {
 
-    } catch (error) {
-      return res.status(500).json({ message: error.message });
-    }
-  },
+      const users = await User.findAll();
+      return res.status(200).json(users);
 
-  async getUserByEmail(req, res) {
-    const { email } = req.params;
-    try {
-      const user = await User.findOne({
-        where: { email: email }
-      });
-      if (user) {
-        res.json(user);
-      } else {
-        return res.status(404).json({ message: 'User not found' });
-      }
     } catch (error) {
       return res.status(500).json({ message: error.message });
     }

@@ -4,8 +4,8 @@ import { currentPreschool, currentToken } from './authService';
 
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 
-// const BASE_URL = 'https://server-bckggkpqeq-uc.a.run.app/evaluations'; // Replace with your backend URL
-const BASE_URL = 'http://localhost:3001/evaluations'
+const BASE_URL = 'https://server-bckggkpqeq-uc.a.run.app/evaluations'; // Replace with your backend URL
+// const BASE_URL = 'http://localhost:3001/evaluations'
 
 export async function createEvaluation(
     application_id: number,
