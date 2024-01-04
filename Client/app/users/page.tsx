@@ -62,7 +62,7 @@ export default function UsersTable() {
     try {
       let usersData;
 
-      if (role === 'Super Admin') {
+      if (role == "Super Admin") {
         // Fetch all users if the role is 'Super admin'
         usersData = await geSuperAdmintUsers();
       } else {

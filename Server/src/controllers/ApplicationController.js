@@ -75,6 +75,12 @@ const ApplicationController = {
             if (!student_DOB) {
                 return res.status(400).json({ message: "Student DOB is required." });
             }
+            // Validate DOB
+            const dob = new Date(student_DOB);
+            if (isNaN(dob.getTime()) || dob > new Date()) {
+                return res.status(400).json({ message: 'DOB must be a valid date and not in the future' });
+            }
+
             if (!gender) {
                 return res.status(400).json({ message: "Gender is required." });
             }
@@ -123,7 +129,7 @@ const ApplicationController = {
             const passport = req.files['passport'][0];
             const passport_url = await FilesManager.upload(passport);
             application.passport = passport_url;
-            
+
             //set status 
             const capacity = await GradesController.checkGradeCapacity(preschool_id, grade);
             capacity ? application.status = "Pending" : application.status = "Waitlist";
@@ -168,16 +174,16 @@ const ApplicationController = {
                 ]
             });
 
-                //generate and set urls for files 
-                application.personal_picture = await FilesManager.generateSignedUrl(application.personal_picture);
-                application.passport = await FilesManager.generateSignedUrl(application.passport);
-                application.certificate_of_birth = await FilesManager.generateSignedUrl(application.certificate_of_birth);
+            //generate and set urls for files 
+            application.personal_picture = await FilesManager.generateSignedUrl(application.personal_picture);
+            application.passport = await FilesManager.generateSignedUrl(application.passport);
+            application.certificate_of_birth = await FilesManager.generateSignedUrl(application.certificate_of_birth);
 
-                if (!application) {
-                    return res.status(404).json({ message: 'Application not found.' });
-                }
-                return res.status(200).json(application);
-            
+            if (!application) {
+                return res.status(404).json({ message: 'Application not found.' });
+            }
+            return res.status(200).json(application);
+
         } catch (error) {
             res.status(500).json({ message: error.message });
         }

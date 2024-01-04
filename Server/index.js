@@ -83,6 +83,5 @@ cron.schedule('0 0 * * *', () => {
 });
 
 server.listen(PORT, () => {
-  cronJob.paymentDue();
   console.log(`Server started running on port ${PORT}, at ${new Date()}`);
 });
